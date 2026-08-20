@@ -1,0 +1,19 @@
+{
+  "name": "Mathe-Schule – 2. Klasse",
+  "short_name": "Mathe-Schule",
+  "description": "Rechnen üben für die 2. Klasse: Zahlenraum bis 100, Einmaleins, Geld, Uhrzeit, Formen und Sachaufgaben.",
+  "lang": "de",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

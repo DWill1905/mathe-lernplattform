@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  pruefen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Abhängigkeiten installieren
+        run: npm ci
+
+      - name: Bauen
+        run: npm run build
+
+      - name: js/ ist mit src/ synchron
+        run: |
+          if ! git diff --exit-code -- js/; then
+            echo "::error::Das committete js/ weicht vom Quellcode ab. Bitte 'npm run build' ausführen und das Ergebnis mitcommitten."
+            exit 1
+          fi
+
+      - name: Tests
+        run: node --test test/*.test.js

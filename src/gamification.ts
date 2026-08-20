@@ -1,0 +1,354 @@
+/**
+ * Punkte, Level, Sterne, Streak und Abzeichen. Alles rein aus dem
+ * gespeicherten Fortschritt berechnet – es gibt keinen zweiten Zustand.
+ */
+
+import { heute, speichereFortschritt } from "./state.js";
+import { THEMEN, thema } from "./topics.js";
+import type { Fortschritt, RundenErgebnis, Stufe, ThemaId } from "./types.js";
+
+/* ================================================================ Level */
+
+const LEVEL_TITEL: readonly string[] = [
+  "Zahlen-Entdecker",
+  "Rechen-Fuchs",
+  "Zahlen-Profi",
+  "Mathe-Ass",
+  "Rechenmeister",
+  "Zahlen-Champion",
+  "Mathe-Genie",
+  "Mathe-Legende",
+];
+
+/** Punkte, die für das Erreichen von Level `stufe` nötig sind. */
+export function levelSchwelle(stufe: number): number {
+  return 50 * (stufe - 1) * stufe;
+}
+
+export interface LevelInfo {
+  stufe: number;
+  titel: string;
+  /** Punkte innerhalb des aktuellen Levels. */
+  imLevel: number;
+  /** Punkte, die dieses Level insgesamt umfasst. */
+  levelBreite: number;
+  /** Anteil 0–1 bis zum nächsten Level. */
+  anteil: number;
+}
+
+export function levelInfo(punkte: number): LevelInfo {
+  let stufe = 1;
+  while (punkte >= levelSchwelle(stufe + 1)) stufe++;
+  const unten = levelSchwelle(stufe);
+  const oben = levelSchwelle(stufe + 1);
+  const breite = oben - unten;
+  return {
+    stufe,
+    titel: LEVEL_TITEL[Math.min(stufe - 1, LEVEL_TITEL.length - 1)]!,
+    imLevel: punkte - unten,
+    levelBreite: breite,
+    anteil: breite === 0 ? 1 : (punkte - unten) / breite,
+  };
+}
+
+/* ================================================================ Sterne */
+
+/** 0–3 Sterne aus der Trefferquote einer Runde. */
+export function sterneFuerRunde(richtig: number, gesamt: number): number {
+  if (gesamt === 0) return 0;
+  const quote = richtig / gesamt;
+  if (quote >= 0.9) return 3;
+  if (quote >= 0.7) return 2;
+  if (quote >= 0.5) return 1;
+  return 0;
+}
+
+/** Punkte einer Runde: schwerere Stufen zählen mehr, fehlerfrei gibt Bonus. */
+export function punkteFuerRunde(richtig: number, gesamt: number, stufe: Stufe): number {
+  const proAufgabe = stufe === 1 ? 10 : stufe === 2 ? 15 : 20;
+  const bonus = gesamt > 0 && richtig === gesamt ? 25 : 0;
+  return richtig * proAufgabe + bonus;
+}
+
+/* ============================================================== Abzeichen */
+
+export interface Erfolg {
+  id: string;
+  titel: string;
+  text: string;
+  symbol: string;
+  erreicht: (f: Fortschritt) => boolean;
+}
+
+function gesamtRichtig(f: Fortschritt): number {
+  return Object.values(f.themen).reduce((summe, t) => summe + t.richtig, 0);
+}
+
+function gesamtRunden(f: Fortschritt): number {
+  return Math.floor(Object.values(f.themen).reduce((summe, t) => summe + t.gesamt, 0) / 10);
+}
+
+function gesamtSterne(f: Fortschritt): number {
+  return Object.values(f.themen).reduce((summe, t) => summe + t.sterne, 0);
+}
+
+export const ERFOLGE: readonly Erfolg[] = [
+  {
+    id: "start",
+    titel: "Los geht’s!",
+    text: "Die erste Übungsrunde geschafft.",
+    symbol: "🚀",
+    erreicht: (f) => gesamtRunden(f) >= 1,
+  },
+  {
+    id: "hundert",
+    titel: "Hundert Treffer",
+    text: "100 Aufgaben richtig gelöst.",
+    symbol: "💯",
+    erreicht: (f) => gesamtRichtig(f) >= 100,
+  },
+  {
+    id: "fuenfhundert",
+    titel: "Rechen-Marathon",
+    text: "500 Aufgaben richtig gelöst.",
+    symbol: "🏅",
+    erreicht: (f) => gesamtRichtig(f) >= 500,
+  },
+  {
+    id: "sternensammler",
+    titel: "Sternensammler",
+    text: "In mindestens acht Themen einen Stern geholt.",
+    symbol: "⭐",
+    erreicht: (f) => Object.values(f.themen).filter((t) => t.sterne > 0).length >= 8,
+  },
+  {
+    id: "alle-themen",
+    titel: "Rundum neugierig",
+    text: "In jedem Thema mindestens zehn Aufgaben gelöst.",
+    symbol: "🗺️",
+    erreicht: (f) => Object.values(f.themen).every((t) => t.gesamt >= 10),
+  },
+  {
+    id: "serie",
+    titel: "Nie danebengetippt",
+    text: "Zehn richtige Antworten hintereinander.",
+    symbol: "🎯",
+    erreicht: (f) => Object.values(f.themen).some((t) => t.besteSerie >= 10),
+  },
+  {
+    id: "streak3",
+    titel: "Drei Tage dabei",
+    text: "An drei Tagen hintereinander geübt.",
+    symbol: "🔥",
+    erreicht: (f) => f.streakTage >= 3,
+  },
+  {
+    id: "streak7",
+    titel: "Eine ganze Woche",
+    text: "An sieben Tagen hintereinander geübt.",
+    symbol: "🔥",
+    erreicht: (f) => f.streakTage >= 7,
+  },
+  {
+    id: "einmaleins",
+    titel: "Einmaleins-Meister",
+    text: "Im Einmaleins die dritte Stufe mit drei Sternen geschafft.",
+    symbol: "✖️",
+    erreicht: (f) => (f.themen.einmaleins?.stufe ?? 1) === 3 && (f.themen.einmaleins?.sterne ?? 0) === 3,
+  },
+  {
+    id: "uhr",
+    titel: "Uhr im Griff",
+    text: "Bei der Uhrzeit die dritte Stufe mit drei Sternen geschafft.",
+    symbol: "🕒",
+    erreicht: (f) => (f.themen.uhrzeit?.stufe ?? 1) === 3 && (f.themen.uhrzeit?.sterne ?? 0) === 3,
+  },
+  {
+    id: "sterne20",
+    titel: "Sternenhimmel",
+    text: "Insgesamt 20 Sterne gesammelt.",
+    symbol: "🌟",
+    erreicht: (f) => gesamtSterne(f) >= 20,
+  },
+  {
+    id: "level5",
+    titel: "Rechenmeister",
+    text: "Level 5 erreicht.",
+    symbol: "👑",
+    erreicht: (f) => levelInfo(f.punkte).stufe >= 5,
+  },
+];
+
+/* =========================================================== Auswertung */
+
+function gestern(): string {
+  const datum = new Date();
+  datum.setDate(datum.getDate() - 1);
+  return datum.toISOString().slice(0, 10);
+}
+
+function streakFortschreiben(f: Fortschritt): void {
+  const tag = heute();
+  if (f.letzterTag === tag) return;
+  f.streakTage = f.letzterTag === gestern() ? f.streakTage + 1 : 1;
+  f.letzterTag = tag;
+}
+
+function verlaufFortschreiben(f: Fortschritt, richtig: number, gesamt: number): void {
+  const tag = heute();
+  const vorhanden = f.verlauf.find((e) => e.tag === tag);
+  if (vorhanden) {
+    vorhanden.richtig += richtig;
+    vorhanden.gesamt += gesamt;
+  } else {
+    f.verlauf.push({ tag, richtig, gesamt });
+  }
+  if (f.verlauf.length > 90) f.verlauf = f.verlauf.slice(-90);
+}
+
+/**
+ * Passt die Stufe an: Wer eine Runde fast fehlerfrei löst, steigt auf; wer
+ * deutlich unter der Hälfte bleibt, übt eine Stufe tiefer weiter.
+ */
+function stufeAnpassen(alt: Stufe, richtig: number, gesamt: number): Stufe {
+  const quote = gesamt === 0 ? 0 : richtig / gesamt;
+  if (quote >= 0.9 && alt < 3) return (alt + 1) as Stufe;
+  if (quote < 0.4 && alt > 1) return (alt - 1) as Stufe;
+  return alt;
+}
+
+export interface RundenEingabe {
+  thema: ThemaId;
+  stufe: Stufe;
+  richtig: number;
+  gesamt: number;
+  /** Längste Serie richtiger Antworten in dieser Runde. */
+  besteSerie: number;
+  /** Aufgabentypen, die falsch beantwortet wurden. */
+  fehlerTypen: readonly string[];
+}
+
+/**
+ * Verbucht eine abgeschlossene Runde, speichert den Fortschritt und liefert
+ * die Zusammenfassung für die Ergebnisseite.
+ */
+export function werteRundeAus(f: Fortschritt, eingabe: RundenEingabe): RundenErgebnis {
+  const eintrag = f.themen[eingabe.thema];
+  const sterne = sterneFuerRunde(eingabe.richtig, eingabe.gesamt);
+  const punkte = punkteFuerRunde(eingabe.richtig, eingabe.gesamt, eingabe.stufe);
+  const vorher = f.erfolge.slice();
+
+  eintrag.gesamt += eingabe.gesamt;
+  eintrag.richtig += eingabe.richtig;
+  eintrag.sterne = Math.max(eintrag.sterne, sterne);
+  eintrag.besteSerie = Math.max(eintrag.besteSerie, eingabe.besteSerie);
+
+  const neueStufe = stufeAnpassen(eingabe.stufe, eingabe.richtig, eingabe.gesamt);
+  const aufgestiegen = neueStufe > eintrag.stufe;
+  // Nur die zuletzt geübte Stufe bestimmt die nächste – ein alter Höchststand
+  // soll ein Kind nicht dauerhaft überfordern.
+  eintrag.stufe = neueStufe;
+
+  f.punkte += punkte;
+  for (const typ of eingabe.fehlerTypen) {
+    f.fehler[typ] = (f.fehler[typ] ?? 0) + 1;
+  }
+  streakFortschreiben(f);
+  verlaufFortschreiben(f, eingabe.richtig, eingabe.gesamt);
+
+  for (const erfolg of ERFOLGE) {
+    if (!f.erfolge.includes(erfolg.id) && erfolg.erreicht(f)) f.erfolge.push(erfolg.id);
+  }
+  const neueErfolge = f.erfolge.filter((id) => !vorher.includes(id));
+
+  speichereFortschritt(f);
+  return {
+    thema: eingabe.thema,
+    stufe: eingabe.stufe,
+    richtig: eingabe.richtig,
+    gesamt: eingabe.gesamt,
+    sterne,
+    punkte,
+    neueErfolge,
+    stufeAufgestiegen: aufgestiegen,
+  };
+}
+
+/** Lobende Rückmeldung passend zur Trefferquote. */
+export function lobText(richtig: number, gesamt: number): string {
+  const quote = gesamt === 0 ? 0 : richtig / gesamt;
+  if (quote === 1) return "Perfekt! Alles richtig!";
+  if (quote >= 0.9) return "Super gemacht!";
+  if (quote >= 0.7) return "Gut gemacht!";
+  if (quote >= 0.5) return "Schon ganz ordentlich – weiter so!";
+  return "Übung macht den Meister. Probier es gleich noch einmal!";
+}
+
+/** Kurzer Hinweis, welches Thema als Nächstes drankommen könnte. */
+export function empfehlung(f: Fortschritt): ThemaId {
+  const nochNie = THEMEN.find((t) => f.themen[t.id].gesamt === 0);
+  if (nochNie) return nochNie.id;
+  let schwaechstes = THEMEN[0]!.id;
+  let schlechtesteQuote = Infinity;
+  for (const t of THEMEN) {
+    const eintrag = f.themen[t.id];
+    const quote = eintrag.gesamt === 0 ? 0 : eintrag.richtig / eintrag.gesamt;
+    if (quote < schlechtesteQuote) {
+      schlechtesteQuote = quote;
+      schwaechstes = t.id;
+    }
+  }
+  return schwaechstes;
+}
+
+/** Titel eines Themas – kleine Bequemlichkeit für die Ansichten. */
+export function themaTitel(id: ThemaId): string {
+  return thema(id).titel;
+}
+
+/* ==================================================== Gemischtes Training */
+
+export interface MixEingabe {
+  richtig: number;
+  gesamt: number;
+  /** Trefferbilanz je Thema. */
+  proThema: readonly { thema: ThemaId; richtig: number; gesamt: number }[];
+  fehlerTypen: readonly string[];
+  besteSerie: number;
+}
+
+/**
+ * Wertet eine gemischte Runde aus. Anders als eine Themenrunde verändert sie
+ * KEINE Stufen und keine Sterne: Aus ein bis zwei Aufgaben je Thema lässt
+ * sich kein verlässliches Können ableiten.
+ */
+export function werteMixAus(f: Fortschritt, eingabe: MixEingabe): RundenErgebnis {
+  const vorher = f.erfolge.slice();
+  for (const eintrag of eingabe.proThema) {
+    const stand = f.themen[eintrag.thema];
+    stand.gesamt += eintrag.gesamt;
+    stand.richtig += eintrag.richtig;
+  }
+  const punkte = punkteFuerRunde(eingabe.richtig, eingabe.gesamt, 2);
+  f.punkte += punkte;
+  for (const typ of eingabe.fehlerTypen) f.fehler[typ] = (f.fehler[typ] ?? 0) + 1;
+  streakFortschreiben(f);
+  verlaufFortschreiben(f, eingabe.richtig, eingabe.gesamt);
+
+  for (const erfolg of ERFOLGE) {
+    if (!f.erfolge.includes(erfolg.id) && erfolg.erreicht(f)) f.erfolge.push(erfolg.id);
+  }
+  const neueErfolge = f.erfolge.filter((id) => !vorher.includes(id));
+
+  speichereFortschritt(f);
+  return {
+    thema: THEMEN[0]!.id,
+    stufe: 2,
+    richtig: eingabe.richtig,
+    gesamt: eingabe.gesamt,
+    sterne: sterneFuerRunde(eingabe.richtig, eingabe.gesamt),
+    punkte,
+    neueErfolge,
+    stufeAufgestiegen: false,
+  };
+}

@@ -1,0 +1,31 @@
+/**
+ * Winziger Hash-Router. Routen-Handler dürfen asynchron sein – der Router
+ * wartet auf sie und verwirft ein Ergebnis, das zu spät kommt (etwa weil
+ * währenddessen weitergeklickt wurde).
+ */
+export function pfadTeile() {
+    const roh = location.hash.replace(/^#\/?/, "");
+    return roh.split("/").filter((teil) => teil.length > 0);
+}
+export function geheZu(pfad) {
+    location.hash = pfad.startsWith("#") ? pfad : `#/${pfad}`;
+}
+export function starteRouter(ziel, aufloesen) {
+    let laufendeNummer = 0;
+    const anzeigen = () => {
+        const nummer = ++laufendeNummer;
+        const teile = pfadTeile();
+        const handler = aufloesen(teile);
+        const ergebnis = handler(ziel, teile);
+        if (ergebnis instanceof Promise) {
+            void ergebnis.then(() => {
+                if (nummer !== laufendeNummer)
+                    return;
+                ziel.scrollTo?.({ top: 0 });
+            });
+        }
+        window.scrollTo({ top: 0 });
+    };
+    window.addEventListener("hashchange", anzeigen);
+    anzeigen();
+}

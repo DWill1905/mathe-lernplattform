@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Mathe-Schule">
+  <rect width="512" height="512" rx="112" fill="#2563eb" />
+  <g fill="#ffffff" font-family="Verdana, sans-serif" font-weight="700" text-anchor="middle">
+    <text x="168" y="228" font-size="150">1</text>
+    <text x="344" y="228" font-size="150">2</text>
+    <text x="168" y="420" font-size="150">+</text>
+    <text x="344" y="420" font-size="150">×</text>
+  </g>
+</svg>
