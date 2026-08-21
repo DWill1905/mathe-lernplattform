@@ -130,12 +130,10 @@ function baueSitzung(wunsch: string): Sitzung | null {
     const stufen = {} as Record<ThemaId, Stufe>;
     for (const t of THEMEN) stufen[t.id] = fortschritt.themen[t.id].stufe;
     if (wunsch === "meister") {
-      return neueSitzung(
-        null,
-        2,
-        gemischteRunde(rng, stufen, MEISTERLAENGE, MEISTER_THEMEN, wiederholen),
-        true
-      );
+      // Der Rechenmeister bleibt bewusst ungewichtet: Seine Bestzeit ist nur
+      // vergleichbar, wenn die Aufgaben nicht mit wachsender Fehlerhistorie
+      // immer schwerer werden.
+      return neueSitzung(null, 2, gemischteRunde(rng, stufen, MEISTERLAENGE, MEISTER_THEMEN), true);
     }
     return neueSitzung(null, 2, gemischteRunde(rng, stufen, RUNDENLAENGE, undefined, wiederholen));
   }

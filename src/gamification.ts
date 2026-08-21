@@ -220,7 +220,7 @@ function buchefehler(f: Fortschritt, falsch: readonly string[], richtig: readonl
 }
 
 /** Wie oft ein Fehlertyp auftreten muss, bevor er gezielt wiederholt wird. */
-const SCHWERPUNKT_AB = 2;
+export const SCHWERPUNKT_AB = 2;
 
 /**
  * Aufgabentypen, die gezielt wiederholt werden sollen: die häufigsten

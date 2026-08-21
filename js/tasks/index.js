@@ -65,20 +65,30 @@ export function runde(thema, rng, stufe, anzahl = RUNDENLAENGE, schwerpunkte = n
 /**
  * Zieht eine Aufgabe, die noch nicht dran war. Bei jeder zweiten Aufgabe wird
  * bevorzugt ein Fehlerschwerpunkt gesucht – so wiederholt die Runde gezielt,
- * ohne nur noch aus Schwachstellen zu bestehen. Findet sich nach ein paar
- * Versuchen nichts Passendes, wird der letzte Kandidat genommen.
+ * ohne nur noch aus Schwachstellen zu bestehen.
+ *
+ * Wichtig: Der Schwerpunkt ist nur ein WUNSCH, die Frische ist Pflicht. Kommt
+ * die gesuchte Aufgabenart im Thema oder auf der Stufe gar nicht vor, wird der
+ * erste frische Kandidat genommen – sonst stünde am Ende fast jede Runde
+ * voller Doppelungen.
  */
 function zieheAufgabe(erzeuge, gesehen, schwerpunkte, platz) {
     const suchtSchwerpunkt = schwerpunkte.size > 0 && platz % 2 === 0;
     let kandidat = erzeuge();
+    let bester = null;
     for (let versuch = 0; versuch < 12; versuch++) {
-        const frisch = !gesehen.has(kennung(kandidat));
-        if (frisch && (!suchtSchwerpunkt || schwerpunkte.has(kandidat.typ)))
-            break;
+        if (!gesehen.has(kennung(kandidat))) {
+            if (!suchtSchwerpunkt || schwerpunkte.has(kandidat.typ)) {
+                bester = kandidat;
+                break;
+            }
+            bester ??= kandidat;
+        }
         kandidat = erzeuge();
     }
-    gesehen.add(kennung(kandidat));
-    return kandidat;
+    const gewaehlt = bester ?? kandidat;
+    gesehen.add(kennung(gewaehlt));
+    return gewaehlt;
 }
 /**
  * Gemischte Runde über mehrere Themen – für das tägliche Training und für den

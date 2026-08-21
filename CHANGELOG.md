@@ -4,6 +4,28 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.6.1] – 2026-08-21
+
+### Behoben
+
+Ergebnisse eines Code-Reviews über den gesamten Quellcode:
+
+- **Doppelte Aufgaben in einer Runde** (schwerwiegend, mit 1.6.0 eingeschleppt):
+  Beim Suchen nach einem Fehlerschwerpunkt ging die Prüfung „war schon dran?“
+  verloren. Kam die gesuchte Aufgabenart im Thema gar nicht vor, enthielten
+  fast alle Runden Doppelungen – gemessen 99 % statt 14 %. Der Schwerpunkt ist
+  jetzt nur noch ein Wunsch, die Frische bleibt Pflicht.
+- **Ergänzungsaufgaben auf Stufe 1** ergänzten nicht zum *nächsten* Zehner:
+  `1 + ? = 20` verlangte 19 und war damit schwerer als dieselbe Aufgabenart auf
+  Stufe 2. Ziel und Startzahl liegen jetzt immer höchstens neun auseinander.
+- **Der Elternbereich** behauptete für jede gelistete Fehlerart, sie käme
+  „gezielt häufiger dran“ – auch bei einem einzelnen Fehler. Betroffene Zeilen
+  sind jetzt als „wird wiederholt“ markiert, und die Schwelle kommt aus
+  derselben Konstante wie die Logik (`SCHWERPUNKT_AB`).
+- **Der Rechenmeister** wird nicht mehr auf Fehlerschwerpunkte gewichtet. Seine
+  Bestzeit ist nur vergleichbar, wenn die Aufgaben nicht mit wachsender
+  Fehlerhistorie immer schwerer werden.
+
 ## [1.6.0] – 2026-08-21
 
 ### Neu

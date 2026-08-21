@@ -190,7 +190,7 @@ function buchefehler(f, falsch, richtig) {
     }
 }
 /** Wie oft ein Fehlertyp auftreten muss, bevor er gezielt wiederholt wird. */
-const SCHWERPUNKT_AB = 2;
+export const SCHWERPUNKT_AB = 2;
 /**
  * Aufgabentypen, die gezielt wiederholt werden sollen: die häufigsten
  * Fehlerarten. Eine leere Menge heißt „nichts Besonderes üben“.

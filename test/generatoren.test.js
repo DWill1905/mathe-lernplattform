@@ -189,3 +189,24 @@ test("ein Schwerpunkt, den es im Thema nicht gibt, blockiert die Runde nicht", (
   assert.equal(aufgaben.length, 10);
   for (const aufgabe of aufgaben) pruefeAufgabe(aufgabe, "geld ohne passenden Schwerpunkt");
 });
+
+test("ein unerreichbarer Schwerpunkt erzeugt keine zusätzlichen Doppelaufgaben", () => {
+  // Der Schwerpunkt ist nur ein Wunsch – die Frische einer Aufgabe ist Pflicht.
+  const doppelquote = (schwerpunkt) => {
+    let mitDoppel = 0;
+    const durchlaeufe = 400;
+    for (let seed = 1; seed <= durchlaeufe; seed++) {
+      const aufgaben = runde("uhrzeit", mulberry32(seed), 2, 10, schwerpunkt);
+      const kennungen = aufgaben.map((a) => `${a.frage}|${a.rechnung ?? ""}`);
+      if (new Set(kennungen).size < aufgaben.length) mitDoppel++;
+    }
+    return mitDoppel / durchlaeufe;
+  };
+
+  const ohne = doppelquote(new Set());
+  const mitFremdem = doppelquote(new Set(["geld/rueckgeld"]));
+  assert.ok(
+    mitFremdem <= ohne + 0.05,
+    `Doppelquote steigt von ${Math.round(ohne * 100)} % auf ${Math.round(mitFremdem * 100)} %`
+  );
+});

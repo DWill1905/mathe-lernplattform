@@ -184,3 +184,24 @@ test("die Rechentabelle fragt immer ein einziges, passendes Feld", () => {
   assert.ok(tabellen > 100, "zu wenige Tabellen gezogen");
   assert.ok(unloesbare > 0, "der Fall „Das geht nicht“ kommt gar nicht vor");
 });
+
+test("Ergänzen führt immer nur bis zum nächsten Zehner", () => {
+  for (const stufe of [1, 2]) {
+    const rng = mulberry32(606 + stufe);
+    let gefunden = 0;
+    for (let i = 0; i < 800; i++) {
+      const aufgabe = GENERATOREN.plusminus(rng, stufe);
+      if (aufgabe.typ !== "plusminus/ergaenzen") continue;
+      gefunden++;
+      const [, start, ziel] = aufgabe.rechnung.match(/^(\d+) \+ \? = (\d+)$/);
+      const loesung = Number(aufgabe.loesung);
+      assert.equal(Number(start) + loesung, Number(ziel));
+      assert.equal(Number(ziel) % 10, 0, "das Ziel ist immer ein voller Zehner");
+      assert.ok(
+        loesung >= 1 && loesung <= 9,
+        `Stufe ${stufe}: ${aufgabe.rechnung} verlangt ${loesung} – das ist mehr als ein Zehnerschritt`
+      );
+    }
+    assert.ok(gefunden > 40, `Stufe ${stufe}: zu wenige Ergänzungsaufgaben gezogen`);
+  }
+});

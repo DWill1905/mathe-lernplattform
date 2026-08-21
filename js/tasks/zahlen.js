@@ -359,7 +359,9 @@ function schrittweise(werte) {
  */
 function ergaenzeZumZehner(rng, stufe) {
     const ziel = stufe === 1 ? rng.pick([10, 20]) : rng.int(3, 10) * 10;
-    const start = stufe === 1 ? rng.int(1, ziel - 1) : ziel - rng.int(1, 9);
+    // Immer nur bis zum NÄCHSTEN Zehner ergänzen: „4 + ? = 10“, nicht
+    // „4 + ? = 20“. Sonst wäre die leichteste Stufe schwerer als die zweite.
+    const start = ziel - rng.int(1, 9);
     const loesung = ziel - start;
     return {
         typ: "plusminus/ergaenzen",

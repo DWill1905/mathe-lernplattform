@@ -3,6 +3,7 @@
  * Namen ändern und den Fortschritt zurücksetzen.
  */
 import { el } from "../dom.js";
+import { SCHWERPUNKT_AB } from "../gamification.js";
 import { ladeFortschritt, setzeZurueck, speichereFortschritt } from "../state.js";
 import { THEMEN, istThemaId } from "../topics.js";
 /** Aufgabentyp („einmaleins/reihe-7“) in eine lesbare Beschreibung übersetzen. */
@@ -75,13 +76,16 @@ function fehlerkarte(fehler) {
     }
     const liste = el("ul", { class: "liste" });
     for (const [typ, anzahl] of sortiert) {
-        liste.appendChild(el("li", {}, el("strong", { text: fehlerText(typ) }), ` – ${anzahl}-mal falsch`));
+        // Nur ab dem Schwellenwert wird eine Art tatsächlich gezielt wiederholt –
+        // die Liste darf das nicht für jeden Einzelfehler behaupten.
+        const wirdWiederholt = anzahl >= SCHWERPUNKT_AB;
+        liste.appendChild(el("li", {}, el("strong", { text: fehlerText(typ) }), ` – ${anzahl}-mal falsch`, wirdWiederholt ? el("span", { class: "marke marke-heft", text: "wird wiederholt" }) : null));
     }
     karte.append(el("p", {
         class: "hinweis",
-        text: "Diese Aufgabenarten kommen ab zwei Fehlern gezielt häufiger dran. Jede richtige " +
-            "Antwort baut den Zähler wieder ab – die Liste zeigt also den aktuellen Stand, nicht alle " +
-            "Fehler seit Beginn.",
+        text: `Ab ${SCHWERPUNKT_AB} Fehlern kommt eine Aufgabenart gezielt häufiger dran; solche Zeilen ` +
+            "sind unten markiert. Jede richtige Antwort baut den Zähler wieder ab – die Liste zeigt " +
+            "also den aktuellen Stand, nicht alle Fehler seit Beginn.",
     }), liste);
     return karte;
 }
