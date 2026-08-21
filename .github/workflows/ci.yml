@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+# Der Workflow baut und testet nur – er braucht keinerlei Schreibrechte.
+permissions:
+  contents: read
+
 jobs:
   pruefen:
     runs-on: ubuntu-latest

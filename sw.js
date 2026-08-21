@@ -36,9 +36,22 @@ self.addEventListener("activate", (ereignis) => {
   );
 });
 
+/**
+ * Gehört die Anfrage zu dieser Seite? Ein Präfixvergleich reichte NICHT:
+ * `https://beispiel.de.angreifer.tld/` beginnt mit `https://beispiel.de` und
+ * würde sonst mitbedient. Deshalb die Herkunft sauber auslesen.
+ */
+function eigeneHerkunft(url) {
+  try {
+    return new URL(url).origin === self.location.origin;
+  } catch {
+    return false;
+  }
+}
+
 self.addEventListener("fetch", (ereignis) => {
   const anfrage = ereignis.request;
-  if (anfrage.method !== "GET" || !anfrage.url.startsWith(self.location.origin)) return;
+  if (anfrage.method !== "GET" || !eigeneHerkunft(anfrage.url)) return;
 
   ereignis.respondWith(
     fetch(anfrage)

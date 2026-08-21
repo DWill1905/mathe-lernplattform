@@ -109,6 +109,25 @@ verwässern.
 - Gleicher Hash löst kein `hashchange` aus: Ein „Nochmal“-Knopf muss die
   Ansicht selbst neu aufbauen (siehe `baueSitzung()` in `views/uebung.ts`).
 
+## Sicherheit
+
+Es gibt keinen Server, kein Konto und keine fremden Ressourcen – der gesamte
+Angriffsweg führt über den **gespeicherten Zustand**. Deshalb gilt:
+
+- **Jeder `load…()` prüft, was er liest** – Typ, Wertebereich und Verweise.
+  Vorbild ist `ladeFortschritt()` in `state.ts`; `test/sicherheit.test.js`
+  sichert es mit bösartigen Spielständen ab.
+- **DOM nur über `el()` aus `dom.ts`.** `innerHTML` ist ausschließlich für die
+  SVG-Zeichenketten aus `figures.ts` erlaubt (`svgBild()`) und darf in keiner
+  weiteren Datei auftauchen – ein Test erzwingt das.
+- **Die CSP in `index.html` darf nicht aufgeweicht werden** (kein
+  `unsafe-inline`, kein Inline-Skript, kein `style`-Attribut). Maße setzt
+  `el()` über die `stil`-Eigenschaft per CSSOM.
+- **Der Service Worker bedient nur die eigene Herkunft** und legt nur
+  erfolgreiche Antworten in den Cache.
+- **Keine Laufzeit-Abhängigkeiten.** Jede neue `dependency` vergrößert die
+  Angriffsfläche einer Seite, die sonst komplett ohne Fremdcode auskommt.
+
 ## Tests
 
 `test/setup.js` stellt ein In-Memory-`localStorage` bereit, damit die

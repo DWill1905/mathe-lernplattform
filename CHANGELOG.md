@@ -4,6 +4,32 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.6.3] – 2026-08-21
+
+### Sicherheit
+
+Ergebnisse eines Sicherheitsdurchgangs über den gesamten Stand:
+
+- **Der Service Worker verglich die Herkunft per Präfix** (`url.startsWith(origin)`).
+  Eine Domain wie `beispiel.de.angreifer.tld` beginnt mit `beispiel.de` und
+  wurde dadurch mitbedient. Die Herkunft wird jetzt über `new URL().origin`
+  ausgelesen; ein anderes Schema (`http:` statt `https:`) gilt ebenfalls als
+  fremd.
+- **Der CI-Workflow legt seine Rechte ausdrücklich fest** (`permissions:
+  contents: read`). Bauen und Testen braucht keinerlei Schreibrechte am
+  Repository.
+- **14 neue Tests halten die Sicherheitsannahmen fest**: manipulierte
+  Spielstände (Prototype Pollution, Riesenzahlen, falsche Typen, überlange
+  Listen, kaputtes JSON) müssen die Prüfung überstehen, `innerHTML` darf nur in
+  `dom.ts` vorkommen, die Herkunftsprüfung des Service Workers muss greifen,
+  und die CSP darf nicht aufgeweicht werden.
+
+Ohne Befund geprüft: keine Laufzeit-Abhängigkeiten und `npm audit` ohne
+Treffer, keine externen Ressourcen, keine Netzwerkaufrufe außerhalb des
+Service Workers, keine Geheimnisse im Repository, kein XSS über gespeicherte
+Werte (im Browser mit Markup in Namen und Fehlerschlüsseln gegengeprüft), CSP
+blockt eingeschleuste Inline- und Fremdskripte.
+
 ## [1.6.2] – 2026-08-21
 
 ### Behoben
