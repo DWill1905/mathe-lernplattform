@@ -4,6 +4,41 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.7.0] – 2026-08-21
+
+### Neu
+
+**Die App ist jetzt wirklich vollständig offlinefähig.**
+
+Bisher lud der Service Worker nur sechs Dateien vorab und verließ sich sonst
+auf Laufzeit-Caching. Das genügt nicht: `index.html` und die statisch
+importierten Module werden beim ersten Besuch geladen, BEVOR der Service Worker
+die Kontrolle übernimmt – sie kamen also nie über sein `fetch` in den Cache.
+Gemessen fehlten nach einem Erstbesuch acht Kernmodule (`dom`, `router`,
+`shell`, `state`, `topics`, `gamification`, `views/start`, `types`); dass es
+trotzdem funktionierte, lag allein am Browser-Cache.
+
+- Der Service Worker lädt beim `install` jetzt **alle 34 ausgelieferten
+  Dateien**. Er tut das einzeln statt mit `addAll`, damit nicht eine einzige
+  fehlende Datei die ganze Installation scheitern lässt.
+- Die Liste erzeugt `tools/sw-liste.mjs` bei jedem `npm run build` aus den
+  tatsächlich vorhandenen Dateien; `npm run sw:check` erzwingt in der CI, dass
+  sie aktuell ist. Eine neue Datei kann damit nicht mehr vergessen werden.
+- Cache-Name auf `mathe-schule-v2` erhöht, damit alte Stände weichen.
+- **Installierbar**: Das Manifest enthält jetzt PNG-Symbole in 192 und 512
+  Pixeln sowie ein maskierbares 512er-Symbol. Ohne diese bot der Browser
+  „Zum Startbildschirm hinzufügen“ gar nicht erst an.
+- **Offline-Hinweis** in der Kopfzeile, sobald das Gerät kein Netz hat – die
+  Bedienung bleibt unverändert. Der Elternbereich erklärt Offlinebetrieb und
+  Installation in zwei Sätzen.
+- Fünf neue Tests halten fest, dass die Precache-Liste jede ausgelieferte Datei
+  enthält, dass der Cache versioniert und aufgeräumt wird und dass das Manifest
+  installierbar bleibt.
+
+Gegengeprüft mit abgeschaltetem Server: Nach einem Erstbesuch, bei dem nur die
+Startseite geöffnet wurde, laufen alle sieben Ansichten und eine komplette
+Übungsrunde ohne jede Netzverbindung.
+
 ## [1.6.3] – 2026-08-21
 
 ### Sicherheit

@@ -6,22 +6,62 @@
  * Wurzelverzeichnis liegen und darf nicht aus `src/` kompiliert werden.
  */
 
-const CACHE = "mathe-schule-v1";
+const CACHE = "mathe-schule-v2";
 
+/*
+ * Vollständige Liste der ausgelieferten Dateien. Sie wird beim `install`
+ * komplett geladen – Laufzeit-Caching allein genügt nicht, weil die zuerst
+ * angeforderten Dateien noch ohne Service Worker geladen werden.
+ *
+ * Nicht von Hand pflegen: `npm run build` erzeugt sie über
+ * `tools/sw-liste.mjs` neu, die CI prüft sie mit `npm run sw:check`.
+ */
+/* LISTE-ANFANG (erzeugt von tools/sw-liste.mjs) */
 const KERN = [
   "./",
-  "./index.html",
-  "./style.css",
-  "./manifest.webmanifest",
+  "./icons/icon-192.png",
+  "./icons/icon-512.png",
+  "./icons/icon-maskable-512.png",
+  "./icons/icon-maskable.svg",
   "./icons/icon.svg",
+  "./index.html",
   "./js/app.js",
+  "./js/dom.js",
+  "./js/figures.js",
+  "./js/gamification.js",
+  "./js/raetsel.js",
+  "./js/random.js",
+  "./js/router.js",
+  "./js/shell.js",
+  "./js/state.js",
+  "./js/tasks/analogie.js",
+  "./js/tasks/familien.js",
+  "./js/tasks/geometrie.js",
+  "./js/tasks/groessen.js",
+  "./js/tasks/helpers.js",
+  "./js/tasks/index.js",
+  "./js/tasks/mauern.js",
+  "./js/tasks/rechnen.js",
+  "./js/tasks/sachaufgaben.js",
+  "./js/tasks/zahlen.js",
+  "./js/topics.js",
+  "./js/types.js",
+  "./js/views/eltern.js",
+  "./js/views/fortschritt.js",
+  "./js/views/start.js",
+  "./js/views/uebung.js",
+  "./manifest.webmanifest",
+  "./style.css",
 ];
+/* LISTE-ENDE */
 
 self.addEventListener("install", (ereignis) => {
   ereignis.waitUntil(
     caches
       .open(CACHE)
-      .then((cache) => cache.addAll(KERN))
+      // Einzeln statt `addAll`: Sonst würde eine einzige fehlende Datei die
+      // gesamte Installation scheitern lassen und die App bliebe offline leer.
+      .then((cache) => Promise.all(KERN.map((pfad) => cache.add(pfad).catch(() => undefined))))
       .then(() => self.skipWaiting())
       .catch(() => undefined)
   );

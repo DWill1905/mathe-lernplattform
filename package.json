@@ -1,12 +1,13 @@
 {
   "name": "mathe-lernplattform",
-  "version": "1.6.3",
+  "version": "1.7.0",
   "description": "Interaktive Lernplattform für Mathematik in der 2. Klasse",
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node tools/sw-liste.mjs",
     "watch": "tsc --watch",
+    "sw:check": "node tools/sw-liste.mjs --pruefen",
     "serve": "python3 -m http.server 8080",
     "test": "npm run build && node --test test/*.test.js"
   },

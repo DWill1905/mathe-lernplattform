@@ -51,6 +51,14 @@ export const zeige: RouteHandler = (ziel) => {
     el("p", {
       class: "fliesstext",
       text:
+        "Die Mathe-Schule funktioniert ohne Internet. Nach dem ersten Aufruf liegt sie vollständig " +
+        "auf dem Gerät – im Zug, im Ferienhaus oder bei ausgefallenem WLAN lässt sich genauso üben. " +
+        "Über das Browsermenü („Zum Startbildschirm hinzufügen“) landet sie als eigenes Symbol auf " +
+        "dem Tablet und startet ohne Adresszeile.",
+    }),
+    el("p", {
+      class: "fliesstext",
+      text:
         "Alle Daten bleiben auf diesem Gerät im Browserspeicher. Es gibt kein Konto, keinen Server " +
         "und keine Werbung.",
     })

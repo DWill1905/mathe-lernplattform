@@ -27,12 +27,15 @@ jobs:
       - name: Bauen
         run: npm run build
 
-      - name: js/ ist mit src/ synchron
+      - name: js/ und sw.js sind mit src/ synchron
         run: |
-          if ! git diff --exit-code -- js/; then
-            echo "::error::Das committete js/ weicht vom Quellcode ab. Bitte 'npm run build' ausführen und das Ergebnis mitcommitten."
+          if ! git diff --exit-code -- js/ sw.js; then
+            echo "::error::Das committete js/ oder sw.js weicht vom Quellcode ab. Bitte 'npm run build' ausführen und das Ergebnis mitcommitten."
             exit 1
           fi
+
+      - name: Precache-Liste des Service Workers ist aktuell
+        run: npm run sw:check
 
       - name: Tests
         run: node --test test/*.test.js

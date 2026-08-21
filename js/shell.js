@@ -17,9 +17,17 @@ export function baueShell(wurzel) {
     const inhalt = el("main", { class: "inhalt", id: "inhalt", tabindex: "-1" });
     const fuss = el("nav", { class: "navigation", "aria-label": "Hauptnavigation" });
     wurzel.append(kopf, inhalt, fuss);
+    // Einmalig: Fällt das Netz weg oder kommt es zurück, muss die Kopfzeile das
+    // sofort zeigen. In `frischeShellAuf()` würden sich die Listener stapeln.
+    if (!netzBeobachtet) {
+        netzBeobachtet = true;
+        window.addEventListener("online", frischeShellAuf);
+        window.addEventListener("offline", frischeShellAuf);
+    }
     frischeShellAuf();
     return inhalt;
 }
+let netzBeobachtet = false;
 /** Kopfzeile und Navigation neu zeichnen (Punkte ändern sich ständig). */
 export function frischeShellAuf() {
     const kopf = document.getElementById("kopf");
@@ -30,7 +38,15 @@ export function frischeShellAuf() {
     const level = levelInfo(fortschritt.punkte);
     leeren(kopf);
     kopf.append(el("a", { class: "kopf-titel", href: "#/" }, el("span", { class: "kopf-symbol", "aria-hidden": "true", text: "🦉" }), el("span", { text: "Mathe-Schule" })), el("div", { class: "kopf-status" }, el("div", { class: "chip chip-level", title: `${fortschritt.punkte} Punkte` }, el("span", { class: "chip-zahl", text: level.stufe }), el("span", { class: "chip-text", text: level.titel })), fortschritt.streakTage > 0 &&
-        el("div", { class: "chip chip-streak", title: "Tage hintereinander geübt" }, el("span", { "aria-hidden": "true", text: "🔥" }), el("span", { class: "chip-zahl", text: fortschritt.streakTage }))));
+        el("div", { class: "chip chip-streak", title: "Tage hintereinander geübt" }, el("span", { "aria-hidden": "true", text: "🔥" }), el("span", { class: "chip-zahl", text: fortschritt.streakTage })), 
+    // `navigator.onLine` ist bewusst nur ein Hinweis, keine Sperre: Die App
+    // arbeitet online wie offline gleich weiter.
+    !navigator.onLine &&
+        el("div", {
+            class: "chip chip-offline",
+            role: "status",
+            title: "Kein Internet – die Mathe-Schule funktioniert trotzdem",
+        }, el("span", { "aria-hidden": "true", text: "📴" }), el("span", { class: "chip-text", text: "Offline" }))));
     const aktuell = location.hash === "" ? "#/" : location.hash;
     leeren(fuss);
     for (const punkt of NAVIGATION) {

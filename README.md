@@ -69,7 +69,11 @@ von Hand setzen.
 - **Fortschrittsseite** mit Trefferquoten je Thema und einer Übersicht der
   letzten zwei Wochen.
 - **Elternbereich** mit Lernstandstabelle und den häufigsten Fehlerarten.
-- **Offlinefähig** (Service Worker) und als App installierbar.
+- **Vollständig offlinefähig**: Nach dem ersten Aufruf liegt die gesamte App
+  auf dem Gerät – jede Ansicht, jedes Bild, jede Aufgabe. Ohne Netz ändert sich
+  nichts außer einem Hinweis in der Kopfzeile.
+- **Als App installierbar** („Zum Startbildschirm hinzufügen“): eigenes Symbol,
+  Start ohne Adresszeile.
 - **Hell- und Dunkelmodus**, große Schaltflächen, Tastatur- und
   Screenreader-tauglich.
 
@@ -103,11 +107,32 @@ src/
   random.ts         mulberry32 – die einzige Zufallsquelle
   figures.ts        Erklärbilder als SVG (Uhr, Geld, Formen, Zahlenmauern, Rechenräder, Tabellen …)
   raetsel.ts        Lösungswörter, Buchstabencode und die Aufgaben dazu
+tools/sw-liste.mjs  erzeugt die Precache-Liste in sw.js aus den echten Dateien
   dom.ts            el()-Helfer zum DOM-Bauen ohne Framework
   tasks/            Aufgaben-Generatoren je Themengruppe
   views/            Start, Übung, Fortschritt, Elternbereich
 test/               node:test gegen das kompilierte js/
 ```
+
+## Offline und Installation
+
+Die Plattform ist als PWA gebaut und läuft ohne Internet:
+
+- Der Service Worker lädt beim ersten Aufruf **alle ausgelieferten Dateien** in
+  den Cache – nicht erst beim Anklicken. Das ist wichtig, weil `index.html` und
+  die zuerst importierten Module noch geladen werden, bevor der Service Worker
+  die Kontrolle übernimmt; wer sich auf Laufzeit-Caching verlässt, hat nach dem
+  ersten Besuch keine vollständige App auf dem Gerät.
+- Die Liste dieser Dateien erzeugt `npm run build` über `tools/sw-liste.mjs`
+  automatisch. `npm run sw:check` prüft in der CI, dass sie aktuell ist – eine
+  neue Datei kann also nicht vergessen werden.
+- Danach gilt **Network-First**: Online kommt immer die frische Fassung, offline
+  die aus dem Cache. Fehlerantworten (404, 500) landen nie im Cache.
+- Ist das Gerät offline, erscheint in der Kopfzeile ein Hinweis „📴 Offline“ –
+  bedienen lässt sich alles unverändert weiter.
+
+Getestet wird das nicht nur behauptet: `test/offline.test.js` sichert die
+Vollständigkeit der Liste und die Installierbarkeit ab.
 
 ## Datenschutz
 

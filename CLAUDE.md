@@ -61,9 +61,12 @@ verwässern.
 - `src/views/*` – Start, Übung, Fortschritt, Elternbereich.
 - `src/app.ts` / `src/router.ts` / `src/shell.ts` – Routentabelle,
   Hash-Router, App-Shell.
-- `sw.js` (Repo-Root) – Service Worker, Network-First. Die einzige
-  handgeschriebene JS-Datei; sie muss im Root liegen, weil ein Service Worker
-  nur für seinen Auslieferungspfad gilt.
+- `sw.js` (Repo-Root) – Service Worker, Network-First. Muss im Root liegen,
+  weil ein Service Worker nur für seinen Auslieferungspfad gilt. Seine
+  Precache-Liste steht zwischen den Marken `LISTE-ANFANG`/`LISTE-ENDE` und wird
+  von `tools/sw-liste.mjs` erzeugt – **niemals von Hand pflegen**.
+- `tools/sw-liste.mjs` – schreibt diese Liste aus den tatsächlich
+  ausgelieferten Dateien; läuft als Teil von `npm run build`.
 
 ## Wichtigste Fallstricke
 
@@ -80,6 +83,11 @@ verwässern.
 - **Bei der Rechentabelle steht die Rechnung bewusst NICHT im Text.** Das
   Ablesen von Zeile und Spalte ist die eigentliche Übung; für Screenreader
   steckt die Aufgabe in der Bildbeschreibung. Ein Test hält das fest.
+- **Neue ausgelieferte Dateien gehören in den Precache.** Beim ersten Besuch
+  lädt der Browser `index.html` und die statisch importierten Module, bevor der
+  Service Worker die Kontrolle übernimmt – Laufzeit-Caching allein reicht also
+  nicht. `npm run build` zieht die Liste automatisch nach, `npm run sw:check`
+  und `test/offline.test.js` schlagen an, wenn sie veraltet ist.
 - **Eine neue Route braucht einen Eintrag in `ANSICHTEN` (`src/app.ts`).**
   Die Liste wird im Leerlauf komplett vorgeladen; nur dadurch bleibt die App
   nach dem Code-Splitting offline vollständig.
