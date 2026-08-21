@@ -1,6 +1,7 @@
 # Roadmap
 
-Offene Ideen, grob nach Nutzen sortiert.
+Offene Ideen, grob nach Nutzen sortiert. Maßgeblich bleibt das Übungsheft der
+2. Klasse (siehe `CLAUDE.md`, Abschnitt „Schwerpunkt“).
 
 ## Empfohlene Reihenfolge für die nächste Runde
 
@@ -9,21 +10,23 @@ Offene Ideen, grob nach Nutzen sortiert.
    an der Mathematik.
 2. **Fehlerwiederholung**: Aufgabentypen, die im Elternbereich oben stehen,
    gezielt in die nächste Runde mischen (Grundlage ist `fortschritt.fehler`).
-3. **Ganze Tabellenzeile am Stück ausfüllen**: Bisher fragt die Rechentabelle
-   immer nur ein markiertes Feld. Im Heft füllt das Kind das komplette Raster –
-   dafür braucht es eine Eingabemaske über mehrere Felder.
-4. **Urkunde zum Ausdrucken** nach einem Rechenmeister-Lauf, wie im Lernheft.
-5. **Eigene Aufgabe erfinden**: Im Heft steht mehrfach „Erfinde selbst eine
-   Aufgabe“. Als Eingabe von Aufgabe und Ergebnis mit Selbstkontrolle denkbar.
-6. **Halbschriftliche Rechenwege anzeigen**: Bei Plus/Minus mit Zehnerübergang
+3. **Urkunde zum Ausdrucken** nach einem Rechenmeister-Lauf, wie im Lernheft.
+4. **Halbschriftliche Rechenwege anzeigen**: Bei Plus/Minus mit Zehnerübergang
    die Zwischenschritte als Bild statt nur als Satz.
-7. **Mehrere Profile** auf einem Gerät (Geschwister), Umschalter im
+5. **Mehrere Profile** auf einem Gerät (Geschwister), Umschalter im
    Elternbereich.
+
+## Bewusst nicht geplant
+
+- **Ganze Tabellenzeile am Stück ausfüllen.** Die Rechentabelle fragt weiterhin
+  genau ein markiertes Feld ab; so bleibt sie mit der Zahlentastatur bedienbar.
+  Entschieden am 21.08.2026.
+- **„Erfinde selbst eine Aufgabe“.** Ohne verlässliche Kontrolle der Eingabe
+  bringt es im Selbstlernbetrieb zu wenig. Entschieden am 21.08.2026.
 
 ## Weitere Ideen
 
 - Zahlenraum bis 1000 als Ausbaustufe für das Ende der 2. Klasse.
 - Übungsrunden mit einstellbarer Länge (5 / 10 / 20 Aufgaben).
 - Export des Lernstands als JSON, damit ein Gerätewechsel möglich wird.
-- Geometrie: Figuren mit Kästchenraster und Flächeninhalt.
-- Sachaufgaben mit Bildern statt reinem Text.
+- Mehr Vielfalt innerhalb der Heft-Themen (weitere Aufgabenvarianten je Stufe).
