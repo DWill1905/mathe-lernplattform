@@ -8,12 +8,10 @@ Offene Ideen, grob nach Nutzen sortiert. Maßgeblich bleibt das Übungsheft der
 1. **Vorlesefunktion** für Aufgabentexte (`speechSynthesis`, deutsche Stimme).
    Zweitklässler, die noch langsam lesen, scheitern sonst an der Sprache statt
    an der Mathematik.
-2. **Fehlerwiederholung**: Aufgabentypen, die im Elternbereich oben stehen,
-   gezielt in die nächste Runde mischen (Grundlage ist `fortschritt.fehler`).
-3. **Urkunde zum Ausdrucken** nach einem Rechenmeister-Lauf, wie im Lernheft.
-4. **Halbschriftliche Rechenwege anzeigen**: Bei Plus/Minus mit Zehnerübergang
+2. **Urkunde zum Ausdrucken** nach einem Rechenmeister-Lauf, wie im Lernheft.
+3. **Halbschriftliche Rechenwege anzeigen**: Bei Plus/Minus mit Zehnerübergang
    die Zwischenschritte als Bild statt nur als Satz.
-5. **Mehrere Profile** auf einem Gerät (Geschwister), Umschalter im
+4. **Mehrere Profile** auf einem Gerät (Geschwister), Umschalter im
    Elternbereich.
 
 ## Bewusst nicht geplant

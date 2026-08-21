@@ -83,6 +83,10 @@ verwässern.
 - **Eine neue Route braucht einen Eintrag in `ANSICHTEN` (`src/app.ts`).**
   Die Liste wird im Leerlauf komplett vorgeladen; nur dadurch bleibt die App
   nach dem Code-Splitting offline vollständig.
+- **Die Fehlerbilanz (`fortschritt.fehler`) ist ein SALDO, keine Gesamtzahl.**
+  Falsche Antworten zählen hoch, richtige derselben Art wieder herunter. Wer
+  eine neue Auswertung darauf baut, darf sie nicht als „Fehler seit Beginn“
+  auslegen.
 - **Drei Antwortarten**: `zahl` (Zahlentastatur), `auswahl` (Textknöpfe) und
   `bildauswahl` (Bildkarten A–D; die Lösung ist die Kennung, nicht das Bild).
   Wer eine vierte ergänzt, muss `antwortbereich()` in `views/uebung.ts` und

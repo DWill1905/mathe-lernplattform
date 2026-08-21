@@ -201,14 +201,27 @@ function folgeSchwer(rng) {
 }
 /* ============================================================ Plus/Minus */
 export function plusminus(rng, stufe) {
-    if (stufe === 1)
-        return rng.pick([bis20, volleZehner])(rng);
-    if (stufe === 2)
+    if (stufe === 1) {
+        const wahl = rng.int(1, 5);
+        if (wahl === 1)
+            return mehrereSummanden(rng, 20);
+        if (wahl === 2)
+            return ergaenzeZumZehner(rng, 1);
+        if (wahl === 3)
+            return volleZehner(rng);
+        return bis20(rng);
+    }
+    if (stufe === 2) {
+        if (rng.chance(0.25))
+            return ergaenzeZumZehner(rng, 2);
         return rng.pick([ohneUebergang, ohneUebergang, zehnerPlus])(rng);
+    }
     // Die Tabellen bleiben Stufe 3 vorbehalten: Ihre Felder überschreiten den
     // Zehner, was Stufe 2 ausdrücklich noch aussparen soll.
-    if (rng.chance(0.3))
+    if (rng.chance(0.25))
         return tabelle(rng, rng.chance(0.4));
+    if (rng.chance(0.2))
+        return mehrereSummanden(rng, 100);
     return rng.pick([mitUebergang, mitUebergang, platzhalter])(rng);
 }
 function bis20(rng) {
@@ -301,6 +314,61 @@ function platzhalter(rng) {
         loesung: String(loesung),
         tipp: "Wie weit ist es von der kleinen zur großen Zahl?",
         erklaerung: `${summe} − ${a} = ${loesung}`,
+    };
+}
+/**
+ * Aufgabe mit drei oder vier Summanden (`4 + 3 + 2 + 1 =`). Im Heft steht sie
+ * in den Sprechblasen neben den Rechenkästen.
+ */
+function mehrereSummanden(rng, max) {
+    const anzahl = max <= 20 ? rng.int(3, 4) : 3;
+    const obergrenze = Math.floor(max / anzahl) + (max <= 20 ? 2 : 6);
+    const werte = [];
+    let summe = 0;
+    for (let i = 0; i < anzahl; i++) {
+        const verbleibend = anzahl - i - 1;
+        const rest = max - summe - verbleibend;
+        const wert = rng.int(1, Math.max(1, Math.min(rest, obergrenze)));
+        werte.push(wert);
+        summe += wert;
+    }
+    const sortiert = rng.shuffle(werte);
+    return {
+        typ: "plusminus/mehrere-summanden",
+        frage: "Wie viel ist das zusammen?",
+        rechnung: `${sortiert.join(" + ")} =`,
+        antwortfeld: zahlfeld(),
+        loesung: String(summe),
+        tipp: "Rechne Schritt für Schritt von links nach rechts.",
+        erklaerung: schrittweise(sortiert),
+    };
+}
+/** Zeigt den Rechenweg einer Kette: 4 + 3 = 7, 7 + 2 = 9 … */
+function schrittweise(werte) {
+    const schritte = [];
+    let stand = werte[0];
+    for (let i = 1; i < werte.length; i++) {
+        schritte.push(`${stand} + ${werte[i]} = ${stand + werte[i]}`);
+        stand += werte[i];
+    }
+    return schritte.join(", dann ");
+}
+/**
+ * Ergänzen bis zum nächsten vollen Zehner – die Grundlage für alles Rechnen
+ * mit Zehnerübergang.
+ */
+function ergaenzeZumZehner(rng, stufe) {
+    const ziel = stufe === 1 ? rng.pick([10, 20]) : rng.int(3, 10) * 10;
+    const start = stufe === 1 ? rng.int(1, ziel - 1) : ziel - rng.int(1, 9);
+    const loesung = ziel - start;
+    return {
+        typ: "plusminus/ergaenzen",
+        frage: `Wie viel fehlt bis ${ziel}?`,
+        rechnung: `${start} + ? = ${ziel}`,
+        antwortfeld: zahlfeld(),
+        loesung: String(loesung),
+        tipp: `Zähle von ${start} aus weiter bis ${ziel}.`,
+        erklaerung: `${ziel} − ${start} = ${loesung}`,
     };
 }
 function rechenaufgabe(typ, a, b, zeichen, loesung, erklaerung) {

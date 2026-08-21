@@ -54,6 +54,9 @@ von Hand setzen.
   Kind erst die Hilfsaufgabe (`3 + 4 = ?`). Stimmt sie, springt ein animiertes
   Herz auf und es gibt Extrapunkte; danach steht die Hilfsaufgabe als Hinweis
   über der großen Aufgabe (`30 + 40 = ?`).
+- **Gezielte Fehlerwiederholung**: Aufgabenarten, bei denen es zuletzt hakte,
+  kommen häufiger dran – und verschwinden wieder aus der Wiederholung, sobald
+  sie sitzen.
 - **Tipps** zu jeder Aufgabe, die das Kind selbst aufklappen kann.
 - **Gemischtes Training** über alle Themen hinweg.
 - **Rätselwort**: Zu jedem Buchstaben eines Lösungsworts gehört eine Zahl. Wer

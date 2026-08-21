@@ -172,6 +172,36 @@ export const ERFOLGE = [
         erreicht: (f) => levelInfo(f.punkte).stufe >= 5,
     },
 ];
+/* ==================================================== Fehlerschwerpunkte */
+/**
+ * Schreibt die Fehlerbilanz fort. Jeder Fehler zählt hoch, jede richtige
+ * Antwort desselben Typs wieder herunter – so steht in der Bilanz, wo es
+ * AKTUELL hakt, und nicht, was vor Wochen einmal schwerfiel.
+ */
+function buchefehler(f, falsch, richtig) {
+    for (const typ of falsch)
+        f.fehler[typ] = (f.fehler[typ] ?? 0) + 1;
+    for (const typ of richtig) {
+        const stand = (f.fehler[typ] ?? 0) - 1;
+        if (stand > 0)
+            f.fehler[typ] = stand;
+        else
+            delete f.fehler[typ];
+    }
+}
+/** Wie oft ein Fehlertyp auftreten muss, bevor er gezielt wiederholt wird. */
+const SCHWERPUNKT_AB = 2;
+/**
+ * Aufgabentypen, die gezielt wiederholt werden sollen: die häufigsten
+ * Fehlerarten. Eine leere Menge heißt „nichts Besonderes üben“.
+ */
+export function schwerpunkte(f, anzahl = 8) {
+    return new Set(Object.entries(f.fehler)
+        .filter(([, wie_oft]) => wie_oft >= SCHWERPUNKT_AB)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, anzahl)
+        .map(([typ]) => typ));
+}
 /* =========================================================== Auswertung */
 function gestern() {
     const datum = new Date();
@@ -230,9 +260,7 @@ export function werteRundeAus(f, eingabe) {
     eintrag.stufe = neueStufe;
     f.punkte += punkte;
     f.herzen += eingabe.herzen;
-    for (const typ of eingabe.fehlerTypen) {
-        f.fehler[typ] = (f.fehler[typ] ?? 0) + 1;
-    }
+    buchefehler(f, eingabe.fehlerTypen, eingabe.richtigeTypen);
     streakFortschreiben(f);
     verlaufFortschreiben(f, eingabe.richtig, eingabe.gesamt);
     for (const erfolg of ERFOLGE) {
@@ -305,8 +333,7 @@ export function werteMixAus(f, eingabe) {
     const punkte = punkteFuerRunde(eingabe.richtig, eingabe.gesamt, 2) + eingabe.herzen * HERZ_PUNKTE;
     f.punkte += punkte;
     f.herzen += eingabe.herzen;
-    for (const typ of eingabe.fehlerTypen)
-        f.fehler[typ] = (f.fehler[typ] ?? 0) + 1;
+    buchefehler(f, eingabe.fehlerTypen, eingabe.richtigeTypen);
     streakFortschreiben(f);
     verlaufFortschreiben(f, eingabe.richtig, eingabe.gesamt);
     for (const erfolg of ERFOLGE) {

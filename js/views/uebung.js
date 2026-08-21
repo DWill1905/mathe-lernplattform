@@ -11,7 +11,7 @@
  * Schritt – dort zählt die Zeit.
  */
 import { el, svgBild } from "../dom.js";
-import { ERFOLGE, lobText, merkeMeisterErgebnis, werteMixAus, werteRundeAus, zeitText, } from "../gamification.js";
+import { ERFOLGE, lobText, schwerpunkte, merkeMeisterErgebnis, werteMixAus, werteRundeAus, zeitText, } from "../gamification.js";
 import { mulberry32, zufallsSeed } from "../random.js";
 import { baueRaetsel } from "../raetsel.js";
 import { ladeFortschritt } from "../state.js";
@@ -55,6 +55,8 @@ export const zeige = (ziel, parameter) => {
 function baueSitzung(wunsch) {
     const fortschritt = ladeFortschritt();
     const rng = mulberry32(zufallsSeed());
+    // Wo es zuletzt hakte, kommt gezielt häufiger dran.
+    const wiederholen = schwerpunkte(fortschritt);
     if (wunsch === "raetsel") {
         const raetsel = baueRaetsel(rng);
         return neueSitzung(null, 1, raetsel.aufgaben.map((aufgabe) => ({ thema: "plusminus", aufgabe })), false, raetsel);
@@ -64,13 +66,13 @@ function baueSitzung(wunsch) {
         for (const t of THEMEN)
             stufen[t.id] = fortschritt.themen[t.id].stufe;
         if (wunsch === "meister") {
-            return neueSitzung(null, 2, gemischteRunde(rng, stufen, MEISTERLAENGE, MEISTER_THEMEN), true);
+            return neueSitzung(null, 2, gemischteRunde(rng, stufen, MEISTERLAENGE, MEISTER_THEMEN, wiederholen), true);
         }
-        return neueSitzung(null, 2, gemischteRunde(rng, stufen, RUNDENLAENGE));
+        return neueSitzung(null, 2, gemischteRunde(rng, stufen, RUNDENLAENGE, undefined, wiederholen));
     }
     if (istThemaId(wunsch)) {
         const stufe = fortschritt.themen[wunsch].stufe;
-        return neueSitzung(wunsch, stufe, runde(wunsch, rng, stufe, RUNDENLAENGE).map((aufgabe) => ({ thema: wunsch, aufgabe })));
+        return neueSitzung(wunsch, stufe, runde(wunsch, rng, stufe, RUNDENLAENGE, wiederholen).map((aufgabe) => ({ thema: wunsch, aufgabe })));
     }
     return null;
 }
@@ -88,6 +90,7 @@ function neueSitzung(themaId, stufe, eintraege, meister = false, raetsel = null)
         serie: 0,
         besteSerie: 0,
         fehlerTypen: [],
+        richtigeTypen: [],
         eingabe: "",
         beantwortet: false,
         warRichtig: false,
@@ -393,6 +396,7 @@ function pruefe(ziel, sitzung, antwort) {
         sitzung.richtig++;
         sitzung.serie++;
         sitzung.besteSerie = Math.max(sitzung.besteSerie, sitzung.serie);
+        sitzung.richtigeTypen.push(eintrag.aufgabe.typ);
     }
     else {
         sitzung.serie = 0;
@@ -418,6 +422,7 @@ function zeichneErgebnis(ziel, sitzung) {
             gesamt: sitzung.eintraege.length,
             besteSerie: sitzung.besteSerie,
             fehlerTypen: sitzung.fehlerTypen,
+            richtigeTypen: sitzung.richtigeTypen,
             herzen: sitzung.herzen,
         });
     }
@@ -435,6 +440,7 @@ function zeichneErgebnis(ziel, sitzung) {
             gesamt: sitzung.eintraege.length,
             proThema: [...proThema.entries()].map(([id, stand]) => ({ thema: id, ...stand })),
             fehlerTypen: sitzung.fehlerTypen,
+            richtigeTypen: sitzung.richtigeTypen,
             besteSerie: sitzung.besteSerie,
             herzen: sitzung.herzen,
         };

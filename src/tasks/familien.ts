@@ -18,15 +18,17 @@ function trio(rng: Rng, max: number): { a: number; b: number; summe: number } {
 export function familien(rng: Rng, stufe: Stufe): Aufgabe {
   if (stufe === 1) return rng.chance(0.5) ? umkehrZuPlus(rng, 20) : umkehrZuMinus(rng, 20);
   if (stufe === 2) {
-    const wahl = rng.int(1, 3);
+    const wahl = rng.int(1, 4);
     if (wahl === 1) return tauschaufgabe(rng, 20);
     if (wahl === 2) return vierteAufgabe(rng, 20);
+    if (wahl === 3) return dritteZahl(rng, 20);
     return umkehrZuPlus(rng, 20);
   }
-  const wahl = rng.int(1, 4);
+  const wahl = rng.int(1, 5);
   if (wahl === 1) return luecke(rng, 100);
   if (wahl === 2) return vierteAufgabe(rng, 100);
   if (wahl === 3) return umkehrZuMinus(rng, 100);
+  if (wahl === 4) return dritteZahl(rng, 100);
   return tauschaufgabe(rng, 100);
 }
 
@@ -117,5 +119,21 @@ function luecke(rng: Rng, max: number): Aufgabe {
     loesung: String(gewaehlt.loesung),
     tipp: "Suche zuerst das Ganze und die Teile: Zwei Teile ergeben zusammen das Ganze.",
     erklaerung: `Zur Familie gehören ${a}, ${b} und ${summe}: ${a} + ${b} = ${summe}.`,
+  };
+}
+
+/** Zwei Zahlen der Familie sind bekannt – welche gehört noch dazu? */
+function dritteZahl(rng: Rng, max: number): Aufgabe {
+  const { a, b, summe } = trio(rng, max);
+  const fehltDasGanze = rng.chance(0.5);
+  return {
+    typ: "familien/dritte-zahl",
+    frage: fehltDasGanze
+      ? `Zu einer Aufgabenfamilie gehören die Teile ${a} und ${b}. Wie heißt das Ganze?`
+      : `Zu einer Aufgabenfamilie gehören das Ganze ${summe} und das Teil ${a}. Wie heißt das andere Teil?`,
+    antwortfeld: zahlfeld(),
+    loesung: String(fehltDasGanze ? summe : b),
+    tipp: "Zwei Teile ergeben zusammen das Ganze.",
+    erklaerung: `${a} + ${b} = ${summe}`,
   };
 }

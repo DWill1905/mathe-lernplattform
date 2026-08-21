@@ -203,6 +203,39 @@ export const ERFOLGE: readonly Erfolg[] = [
   },
 ];
 
+/* ==================================================== Fehlerschwerpunkte */
+
+/**
+ * Schreibt die Fehlerbilanz fort. Jeder Fehler zählt hoch, jede richtige
+ * Antwort desselben Typs wieder herunter – so steht in der Bilanz, wo es
+ * AKTUELL hakt, und nicht, was vor Wochen einmal schwerfiel.
+ */
+function buchefehler(f: Fortschritt, falsch: readonly string[], richtig: readonly string[]): void {
+  for (const typ of falsch) f.fehler[typ] = (f.fehler[typ] ?? 0) + 1;
+  for (const typ of richtig) {
+    const stand = (f.fehler[typ] ?? 0) - 1;
+    if (stand > 0) f.fehler[typ] = stand;
+    else delete f.fehler[typ];
+  }
+}
+
+/** Wie oft ein Fehlertyp auftreten muss, bevor er gezielt wiederholt wird. */
+const SCHWERPUNKT_AB = 2;
+
+/**
+ * Aufgabentypen, die gezielt wiederholt werden sollen: die häufigsten
+ * Fehlerarten. Eine leere Menge heißt „nichts Besonderes üben“.
+ */
+export function schwerpunkte(f: Fortschritt, anzahl = 8): Set<string> {
+  return new Set(
+    Object.entries(f.fehler)
+      .filter(([, wie_oft]) => wie_oft >= SCHWERPUNKT_AB)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, anzahl)
+      .map(([typ]) => typ)
+  );
+}
+
 /* =========================================================== Auswertung */
 
 function gestern(): string {
@@ -250,6 +283,8 @@ export interface RundenEingabe {
   besteSerie: number;
   /** Aufgabentypen, die falsch beantwortet wurden. */
   fehlerTypen: readonly string[];
+  /** Aufgabentypen, die richtig beantwortet wurden. */
+  richtigeTypen: readonly string[];
   /** Selbst gelöste Hilfsaufgaben. */
   herzen: number;
 }
@@ -277,9 +312,7 @@ export function werteRundeAus(f: Fortschritt, eingabe: RundenEingabe): RundenErg
 
   f.punkte += punkte;
   f.herzen += eingabe.herzen;
-  for (const typ of eingabe.fehlerTypen) {
-    f.fehler[typ] = (f.fehler[typ] ?? 0) + 1;
-  }
+  buchefehler(f, eingabe.fehlerTypen, eingabe.richtigeTypen);
   streakFortschreiben(f);
   verlaufFortschreiben(f, eingabe.richtig, eingabe.gesamt);
 
@@ -345,6 +378,7 @@ export interface MixEingabe {
   /** Trefferbilanz je Thema. */
   proThema: readonly { thema: ThemaId; richtig: number; gesamt: number }[];
   fehlerTypen: readonly string[];
+  richtigeTypen: readonly string[];
   besteSerie: number;
   /** Selbst gelöste Hilfsaufgaben. */
   herzen: number;
@@ -365,7 +399,7 @@ export function werteMixAus(f: Fortschritt, eingabe: MixEingabe): RundenErgebnis
   const punkte = punkteFuerRunde(eingabe.richtig, eingabe.gesamt, 2) + eingabe.herzen * HERZ_PUNKTE;
   f.punkte += punkte;
   f.herzen += eingabe.herzen;
-  for (const typ of eingabe.fehlerTypen) f.fehler[typ] = (f.fehler[typ] ?? 0) + 1;
+  buchefehler(f, eingabe.fehlerTypen, eingabe.richtigeTypen);
   streakFortschreiben(f);
   verlaufFortschreiben(f, eingabe.richtig, eingabe.gesamt);
 

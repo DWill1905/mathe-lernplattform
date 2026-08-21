@@ -13,9 +13,9 @@ export const THEMEN = [
         symbol: "➕",
         farbe: "gruen",
         stufen: [
-            "bis 20 und mit vollen Zehnern",
-            "bis 100 ohne Zehnerübergang",
-            "mit Zehnerübergang, Platzhalter-Aufgaben und Rechentabellen",
+            "bis 20, volle Zehner, mehrere Summanden, Ergänzen bis 10 und 20",
+            "bis 100 ohne Zehnerübergang, Ergänzen zum nächsten Zehner",
+            "mit Zehnerübergang, Platzhalter, mehrere Summanden und Rechentabellen",
         ],
         ausHeft: true,
     },
@@ -28,7 +28,7 @@ export const THEMEN = [
         stufen: [
             "von den Einern zu den Zehnern (3 + 4 → 30 + 40)",
             "Zehner davor (3 + 2 → 13 + 2) sowie plus und minus 10",
-            "Hunderter, Lückenaufgaben und Tabellenzeilen",
+            "Hunderter, Analogien über den Zehner, Lücken und Tabellenzeilen",
         ],
         ausHeft: true,
     },
@@ -40,7 +40,7 @@ export const THEMEN = [
         farbe: "blau",
         stufen: [
             "Umkehraufgaben bis 20",
-            "Tauschaufgaben erkennen und ganze Aufgabenfamilien",
+            "Tauschaufgaben, ganze Familien und die fehlende dritte Zahl",
             "Lückenaufgaben in allen vier Formen bis 100",
         ],
         ausHeft: true,
@@ -77,7 +77,7 @@ export const THEMEN = [
         kurz: "Euro und Cent, Bezahlen und Rückgeld",
         symbol: "💶",
         farbe: "gruen",
-        stufen: ["Münzen zusammenzählen", "Euro und Cent umrechnen, Beträge passend legen", "Bezahlen, Rückgeld und Beträge zusammenstellen"],
+        stufen: ["Münzen zusammenzählen", "Euro und Cent umrechnen, Beträge legen, Preise vergleichen", "Bezahlen, Rückgeld und Beträge zusammenstellen"],
         ausHeft: true,
     },
     {

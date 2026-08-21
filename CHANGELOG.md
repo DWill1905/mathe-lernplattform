@@ -4,6 +4,34 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.6.0] – 2026-08-21
+
+### Neu
+
+**Gezielte Fehlerwiederholung.** Aufgabenarten, bei denen es zuletzt hakte,
+kommen von selbst häufiger dran:
+
+- Ab zwei Fehlern gilt eine Aufgabenart als Schwerpunkt (`schwerpunkte()`).
+  Beim Bauen einer Runde wird für jeden zweiten Platz gezielt eine solche
+  Aufgabe gesucht – so wiederholt die Runde die Schwachstellen, besteht aber
+  nie nur aus ihnen. Gemessen liegt der Anteil bei 40–75 %.
+- Findet sich im Thema keine passende Aufgabe, läuft alles wie bisher weiter.
+- Die Fehlerbilanz **baut sich wieder ab**: Jede richtige Antwort derselben
+  Art zieht den Zähler um eins herunter, bei null verschwindet der Eintrag.
+  Der Elternbereich zeigt damit den aktuellen Stand statt aller Fehler seit
+  Beginn – die Karte heißt jetzt „Wo es gerade hakt“.
+
+**Mehr Aufgabenvielfalt in den Heft-Themen:**
+
+- Plus & Minus: Aufgaben mit **drei oder vier Summanden** (`4 + 3 + 2 + 1 =`,
+  wie in den Sprechblasen des Hefts) und **Ergänzen zum vollen Zehner**
+  (`55 + ? = 60`).
+- Rechentricks: **Analogie über den Zehner hinweg** – `7 + 5 = 12`, also
+  `67 + 5 = 72`. Zweischrittig mit Herz wie die übrigen Analogieaufgaben.
+- Aufgabenfamilien: die **fehlende dritte Zahl** einer Familie bestimmen.
+- Geld: **Preisunterschied** ausrechnen („Wie viel Cent kostet das Heft
+  mehr?“).
+
 ## [1.5.0] – 2026-08-21
 
 ### Geändert

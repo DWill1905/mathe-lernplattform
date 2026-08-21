@@ -65,19 +65,24 @@ function stufenErklaerung() {
     return liste;
 }
 function fehlerkarte(fehler) {
-    const karte = el("section", { class: "karte" }, el("h2", { class: "abschnitt-titel", text: "Wo es noch hakt" }));
+    const karte = el("section", { class: "karte" }, el("h2", { class: "abschnitt-titel", text: "Wo es gerade hakt" }));
     const sortiert = Object.entries(fehler)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 8);
     if (sortiert.length === 0) {
-        karte.appendChild(el("p", { class: "hinweis", text: "Noch keine Fehler erfasst." }));
+        karte.appendChild(el("p", { class: "hinweis", text: "Zurzeit gibt es keine auffälligen Fehler." }));
         return karte;
     }
     const liste = el("ul", { class: "liste" });
     for (const [typ, anzahl] of sortiert) {
         liste.appendChild(el("li", {}, el("strong", { text: fehlerText(typ) }), ` – ${anzahl}-mal falsch`));
     }
-    karte.append(el("p", { class: "hinweis", text: "Die häufigsten Fehlerarten seit Beginn:" }), liste);
+    karte.append(el("p", {
+        class: "hinweis",
+        text: "Diese Aufgabenarten kommen ab zwei Fehlern gezielt häufiger dran. Jede richtige " +
+            "Antwort baut den Zähler wieder ab – die Liste zeigt also den aktuellen Stand, nicht alle " +
+            "Fehler seit Beginn.",
+    }), liste);
     return karte;
 }
 function einstellungen(name) {

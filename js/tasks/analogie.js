@@ -29,13 +29,15 @@ export function analogie(rng, stufe) {
             return nachbarMinus(rng);
         return einerZuZehnern(rng, rng.chance(0.5) ? "+" : "−");
     }
-    const wahl = rng.int(1, 4);
+    const wahl = rng.int(1, 5);
     if (wahl === 1)
         return hunderter(rng);
     if (wahl === 2)
         return luecke(rng);
     if (wahl === 3)
         return tabellenzeile(rng);
+    if (wahl === 4)
+        return mitUebergangDavor(rng);
     return zehnerDavor(rng);
 }
 /** 3 + 4 = 7 → 30 + 40 = ? */
@@ -227,5 +229,39 @@ function nachbarMinus(rng) {
             ? "Wer weniger wegnimmt, behält mehr übrig."
             : "Wer mehr wegnimmt, behält weniger übrig.",
         erklaerung: `${zahl} − ${a} = ${a}. Du nimmst eins ${weniger ? "weniger" : "mehr"} weg, also bleibt ${loesung}.`,
+    };
+}
+/**
+ * Analogie über den Zehner hinweg: 8 + 5 = 13, also 18 + 5 = 23. Der
+ * Zehnerübergang bleibt derselbe, nur der Zehner davor ändert sich.
+ */
+function mitUebergangDavor(rng) {
+    const plus = rng.chance(0.5);
+    const zehner = rng.int(1, 7) * 10;
+    if (plus) {
+        const a = rng.int(3, 9);
+        const b = rng.int(11 - a, 9);
+        return {
+            typ: "analogie/uebergang-davor",
+            frage: "Und jetzt die große Aufgabe:",
+            vorstufe: hilfsaufgabe(a, "+", b, a + b),
+            rechnung: `${zehner + a} + ${b} =`,
+            antwortfeld: zahlfeld(),
+            loesung: String(zehner + a + b),
+            tipp: "Der Übergang über den Zehner ist derselbe wie in der Hilfsaufgabe.",
+            erklaerung: `${a} + ${b} = ${a + b}, also ${zehner + a} + ${b} = ${zehner + a + b}.`,
+        };
+    }
+    const a = rng.int(11, 18);
+    const b = rng.int(a - 9, 9);
+    return {
+        typ: "analogie/uebergang-davor",
+        frage: "Und jetzt die große Aufgabe:",
+        vorstufe: hilfsaufgabe(a, "−", b, a - b),
+        rechnung: `${zehner + a} − ${b} =`,
+        antwortfeld: zahlfeld(),
+        loesung: String(zehner + a - b),
+        tipp: "Der Übergang über den Zehner ist derselbe wie in der Hilfsaufgabe.",
+        erklaerung: `${a} − ${b} = ${a - b}, also ${zehner + a} − ${b} = ${zehner + a - b}.`,
     };
 }

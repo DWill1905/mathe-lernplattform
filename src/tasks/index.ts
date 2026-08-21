@@ -64,19 +64,43 @@ function kennung(aufgabe: Aufgabe): string {
  * Stufe 1) kann das nicht immer gelingen, deshalb bricht die Suche nach
  * einigen Versuchen ab statt endlos zu laufen.
  */
-export function runde(thema: ThemaId, rng: Rng, stufe: Stufe, anzahl = RUNDENLAENGE): Aufgabe[] {
+export function runde(
+  thema: ThemaId,
+  rng: Rng,
+  stufe: Stufe,
+  anzahl = RUNDENLAENGE,
+  schwerpunkte: ReadonlySet<string> = new Set()
+): Aufgabe[] {
   const generator = GENERATOREN[thema];
   const aufgaben: Aufgabe[] = [];
   const gesehen = new Set<string>();
   while (aufgaben.length < anzahl) {
-    let kandidat = generator(rng, stufe);
-    for (let versuch = 0; versuch < 12 && gesehen.has(kennung(kandidat)); versuch++) {
-      kandidat = generator(rng, stufe);
-    }
-    gesehen.add(kennung(kandidat));
-    aufgaben.push(kandidat);
+    aufgaben.push(zieheAufgabe(() => generator(rng, stufe), gesehen, schwerpunkte, aufgaben.length));
   }
   return aufgaben;
+}
+
+/**
+ * Zieht eine Aufgabe, die noch nicht dran war. Bei jeder zweiten Aufgabe wird
+ * bevorzugt ein Fehlerschwerpunkt gesucht – so wiederholt die Runde gezielt,
+ * ohne nur noch aus Schwachstellen zu bestehen. Findet sich nach ein paar
+ * Versuchen nichts Passendes, wird der letzte Kandidat genommen.
+ */
+function zieheAufgabe(
+  erzeuge: () => Aufgabe,
+  gesehen: Set<string>,
+  schwerpunkte: ReadonlySet<string>,
+  platz: number
+): Aufgabe {
+  const suchtSchwerpunkt = schwerpunkte.size > 0 && platz % 2 === 0;
+  let kandidat = erzeuge();
+  for (let versuch = 0; versuch < 12; versuch++) {
+    const frisch = !gesehen.has(kennung(kandidat));
+    if (frisch && (!suchtSchwerpunkt || schwerpunkte.has(kandidat.typ))) break;
+    kandidat = erzeuge();
+  }
+  gesehen.add(kennung(kandidat));
+  return kandidat;
 }
 
 /**
@@ -87,18 +111,15 @@ export function gemischteRunde(
   rng: Rng,
   stufen: Record<ThemaId, Stufe>,
   anzahl = RUNDENLAENGE,
-  themen: readonly ThemaId[] = MIX_TOPF
+  themen: readonly ThemaId[] = MIX_TOPF,
+  schwerpunkte: ReadonlySet<string> = new Set()
 ): { thema: ThemaId; aufgabe: Aufgabe }[] {
   const reihenfolge: ThemaId[] = [];
   while (reihenfolge.length < anzahl) reihenfolge.push(...rng.shuffle([...themen]));
   const gesehen = new Set<string>();
-  return reihenfolge.slice(0, anzahl).map((thema) => {
+  return reihenfolge.slice(0, anzahl).map((thema, platz) => {
     const stufe = stufen[thema];
-    let aufgabe = GENERATOREN[thema](rng, stufe);
-    for (let versuch = 0; versuch < 12 && gesehen.has(kennung(aufgabe)); versuch++) {
-      aufgabe = GENERATOREN[thema](rng, stufe);
-    }
-    gesehen.add(kennung(aufgabe));
+    const aufgabe = zieheAufgabe(() => GENERATOREN[thema](rng, stufe), gesehen, schwerpunkte, platz);
     return { thema, aufgabe };
   });
 }

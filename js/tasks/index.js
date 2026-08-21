@@ -53,36 +53,45 @@ function kennung(aufgabe) {
  * Stufe 1) kann das nicht immer gelingen, deshalb bricht die Suche nach
  * einigen Versuchen ab statt endlos zu laufen.
  */
-export function runde(thema, rng, stufe, anzahl = RUNDENLAENGE) {
+export function runde(thema, rng, stufe, anzahl = RUNDENLAENGE, schwerpunkte = new Set()) {
     const generator = GENERATOREN[thema];
     const aufgaben = [];
     const gesehen = new Set();
     while (aufgaben.length < anzahl) {
-        let kandidat = generator(rng, stufe);
-        for (let versuch = 0; versuch < 12 && gesehen.has(kennung(kandidat)); versuch++) {
-            kandidat = generator(rng, stufe);
-        }
-        gesehen.add(kennung(kandidat));
-        aufgaben.push(kandidat);
+        aufgaben.push(zieheAufgabe(() => generator(rng, stufe), gesehen, schwerpunkte, aufgaben.length));
     }
     return aufgaben;
+}
+/**
+ * Zieht eine Aufgabe, die noch nicht dran war. Bei jeder zweiten Aufgabe wird
+ * bevorzugt ein Fehlerschwerpunkt gesucht – so wiederholt die Runde gezielt,
+ * ohne nur noch aus Schwachstellen zu bestehen. Findet sich nach ein paar
+ * Versuchen nichts Passendes, wird der letzte Kandidat genommen.
+ */
+function zieheAufgabe(erzeuge, gesehen, schwerpunkte, platz) {
+    const suchtSchwerpunkt = schwerpunkte.size > 0 && platz % 2 === 0;
+    let kandidat = erzeuge();
+    for (let versuch = 0; versuch < 12; versuch++) {
+        const frisch = !gesehen.has(kennung(kandidat));
+        if (frisch && (!suchtSchwerpunkt || schwerpunkte.has(kandidat.typ)))
+            break;
+        kandidat = erzeuge();
+    }
+    gesehen.add(kennung(kandidat));
+    return kandidat;
 }
 /**
  * Gemischte Runde über mehrere Themen – für das tägliche Training und für den
  * Rechenmeister. Ohne `themen` kommen alle Bereiche vor.
  */
-export function gemischteRunde(rng, stufen, anzahl = RUNDENLAENGE, themen = MIX_TOPF) {
+export function gemischteRunde(rng, stufen, anzahl = RUNDENLAENGE, themen = MIX_TOPF, schwerpunkte = new Set()) {
     const reihenfolge = [];
     while (reihenfolge.length < anzahl)
         reihenfolge.push(...rng.shuffle([...themen]));
     const gesehen = new Set();
-    return reihenfolge.slice(0, anzahl).map((thema) => {
+    return reihenfolge.slice(0, anzahl).map((thema, platz) => {
         const stufe = stufen[thema];
-        let aufgabe = GENERATOREN[thema](rng, stufe);
-        for (let versuch = 0; versuch < 12 && gesehen.has(kennung(aufgabe)); versuch++) {
-            aufgabe = GENERATOREN[thema](rng, stufe);
-        }
-        gesehen.add(kennung(aufgabe));
+        const aufgabe = zieheAufgabe(() => GENERATOREN[thema](rng, stufe), gesehen, schwerpunkte, platz);
         return { thema, aufgabe };
     });
 }

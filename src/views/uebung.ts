@@ -15,6 +15,7 @@ import { el, svgBild } from "../dom.js";
 import {
   ERFOLGE,
   lobText,
+  schwerpunkte,
   merkeMeisterErgebnis,
   werteMixAus,
   werteRundeAus,
@@ -53,6 +54,7 @@ interface Sitzung {
   serie: number;
   besteSerie: number;
   fehlerTypen: string[];
+  richtigeTypen: string[];
   eingabe: string;
   beantwortet: boolean;
   warRichtig: boolean;
@@ -111,6 +113,8 @@ export const zeige: RouteHandler = (ziel, parameter) => {
 function baueSitzung(wunsch: string): Sitzung | null {
   const fortschritt = ladeFortschritt();
   const rng = mulberry32(zufallsSeed());
+  // Wo es zuletzt hakte, kommt gezielt häufiger dran.
+  const wiederholen = schwerpunkte(fortschritt);
 
   if (wunsch === "raetsel") {
     const raetsel = baueRaetsel(rng);
@@ -126,16 +130,21 @@ function baueSitzung(wunsch: string): Sitzung | null {
     const stufen = {} as Record<ThemaId, Stufe>;
     for (const t of THEMEN) stufen[t.id] = fortschritt.themen[t.id].stufe;
     if (wunsch === "meister") {
-      return neueSitzung(null, 2, gemischteRunde(rng, stufen, MEISTERLAENGE, MEISTER_THEMEN), true);
+      return neueSitzung(
+        null,
+        2,
+        gemischteRunde(rng, stufen, MEISTERLAENGE, MEISTER_THEMEN, wiederholen),
+        true
+      );
     }
-    return neueSitzung(null, 2, gemischteRunde(rng, stufen, RUNDENLAENGE));
+    return neueSitzung(null, 2, gemischteRunde(rng, stufen, RUNDENLAENGE, undefined, wiederholen));
   }
   if (istThemaId(wunsch)) {
     const stufe = fortschritt.themen[wunsch].stufe;
     return neueSitzung(
       wunsch,
       stufe,
-      runde(wunsch, rng, stufe, RUNDENLAENGE).map((aufgabe) => ({ thema: wunsch, aufgabe }))
+      runde(wunsch, rng, stufe, RUNDENLAENGE, wiederholen).map((aufgabe) => ({ thema: wunsch, aufgabe }))
     );
   }
   return null;
@@ -161,6 +170,7 @@ function neueSitzung(
     serie: 0,
     besteSerie: 0,
     fehlerTypen: [],
+    richtigeTypen: [],
     eingabe: "",
     beantwortet: false,
     warRichtig: false,
@@ -570,6 +580,7 @@ function pruefe(ziel: HTMLElement, sitzung: Sitzung, antwort: string): void {
     sitzung.richtig++;
     sitzung.serie++;
     sitzung.besteSerie = Math.max(sitzung.besteSerie, sitzung.serie);
+    sitzung.richtigeTypen.push(eintrag.aufgabe.typ);
   } else {
     sitzung.serie = 0;
     sitzung.fehlerTypen.push(eintrag.aufgabe.typ);
@@ -598,6 +609,7 @@ function zeichneErgebnis(ziel: HTMLElement, sitzung: Sitzung): void {
       gesamt: sitzung.eintraege.length,
       besteSerie: sitzung.besteSerie,
       fehlerTypen: sitzung.fehlerTypen,
+      richtigeTypen: sitzung.richtigeTypen,
       herzen: sitzung.herzen,
     });
   } else {
@@ -613,6 +625,7 @@ function zeichneErgebnis(ziel: HTMLElement, sitzung: Sitzung): void {
       gesamt: sitzung.eintraege.length,
       proThema: [...proThema.entries()].map(([id, stand]) => ({ thema: id, ...stand })),
       fehlerTypen: sitzung.fehlerTypen,
+      richtigeTypen: sitzung.richtigeTypen,
       besteSerie: sitzung.besteSerie,
       herzen: sitzung.herzen,
     };

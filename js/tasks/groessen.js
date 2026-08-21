@@ -8,8 +8,8 @@ export function geld(rng, stufe) {
     if (stufe === 1)
         return rng.pick([muenzenZaehlen, muenzenZaehlen, muenzeGroesser])(rng);
     if (stufe === 2)
-        return rng.pick([inCent, inEuroUndCent, betraegeAddieren, restMuenzen])(rng);
-    return rng.pick([rueckgeld, rueckgeld, reichtDasGeld, restMuenzen, betragLegen])(rng);
+        return rng.pick([inCent, inEuroUndCent, betraegeAddieren, restMuenzen, preisUnterschied])(rng);
+    return rng.pick([rueckgeld, rueckgeld, reichtDasGeld, restMuenzen, betragLegen, preisUnterschied])(rng);
 }
 function muenzenZaehlen(rng) {
     const anzahl = rng.int(3, 5);
@@ -175,6 +175,19 @@ export function zerlegeEuro(betrag) {
         }
     }
     return teile.join(" + ");
+}
+/** Wie viel teurer ist das eine als das andere? */
+function preisUnterschied(rng) {
+    const teuer = rng.int(4, 40) * 5;
+    const guenstig = rng.int(1, teuer / 5 - 1) * 5;
+    return {
+        typ: "geld/unterschied",
+        frage: `Ein Heft kostet ${geldText(teuer)}, ein Radiergummi ${geldText(guenstig)}. Wie viel Cent kostet das Heft mehr?`,
+        antwortfeld: zahlfeld("ct"),
+        loesung: String(teuer - guenstig),
+        tipp: "Rechne die beiden Preise in Cent und ziehe ab.",
+        erklaerung: `${teuer} ct − ${guenstig} ct = ${teuer - guenstig} ct`,
+    };
 }
 /* ============================================================== Uhrzeit */
 export function uhrzeit(rng, stufe) {

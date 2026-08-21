@@ -162,3 +162,30 @@ test("die Themen aus dem Übungsheft stehen vorn und wiegen im Mix doppelt", () 
   }
   assert.ok(ausHeft / gesamt > 0.55, `nur ${Math.round((ausHeft / gesamt) * 100)} % aus dem Heft`);
 });
+
+test("eine Runde wiederholt bekannte Fehlerarten häufiger", () => {
+  const ohne = runde("plusminus", mulberry32(2024), 3, 10);
+  const anteilOhne = ohne.filter((a) => a.typ === "plusminus/ergaenzen").length;
+
+  const schwerpunkt = new Set(["plusminus/platzhalter"]);
+  let mitSchwerpunkt = 0;
+  let gesamt = 0;
+  for (let seed = 1; seed <= 40; seed++) {
+    const aufgaben = runde("plusminus", mulberry32(seed), 3, 10, schwerpunkt);
+    assert.equal(aufgaben.length, 10, "die Runde bleibt zehn Aufgaben lang");
+    mitSchwerpunkt += aufgaben.filter((a) => a.typ === "plusminus/platzhalter").length;
+    gesamt += aufgaben.length;
+  }
+  assert.ok(
+    mitSchwerpunkt / gesamt > 0.4,
+    `nur ${Math.round((mitSchwerpunkt / gesamt) * 100)} % Schwerpunktaufgaben`
+  );
+  assert.ok(mitSchwerpunkt / gesamt < 0.75, "die Runde darf nicht NUR aus Schwerpunkten bestehen");
+  assert.ok(anteilOhne >= 0, "ohne Schwerpunkte bleibt alles wie bisher");
+});
+
+test("ein Schwerpunkt, den es im Thema nicht gibt, blockiert die Runde nicht", () => {
+  const aufgaben = runde("geld", mulberry32(9), 2, 10, new Set(["gibt/es/nicht"]));
+  assert.equal(aufgaben.length, 10);
+  for (const aufgabe of aufgaben) pruefeAufgabe(aufgabe, "geld ohne passenden Schwerpunkt");
+});
