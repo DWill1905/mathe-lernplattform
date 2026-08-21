@@ -5,16 +5,29 @@ Eine interaktive, komplett kostenlose Lernplattform für Mathematik in der
 keine Werbung, kein Tracking. Der gesamte Lernstand bleibt im `localStorage`
 des Geräts.
 
+## Schwerpunkt: das Übungsheft
+
+Die Plattform richtet sich nach dem Übungsheft der 2. Klasse, mit dem das Kind
+arbeitet. Die Themen daraus stehen auf der Startseite unter **„Aus dem
+Übungsheft“** ganz oben, werden zuerst empfohlen und im gemischten Training
+doppelt so häufig gezogen wie der Rest. Alles Weitere steht darunter als
+Zusatzübung – es verdrängt die Heft-Themen nirgends.
+
+Dazu kommen die beiden Sonderseiten des Hefts als eigene Modi: **Rätselwort**
+und **Rechenmeister**.
+
 ## Was Kinder hier üben
 
 | Thema | Inhalte |
 | --- | --- |
+| **Aus dem Übungsheft** | |
 | 🔢 Zahlen bis 100 | Vorgänger/Nachfolger, Zehner und Einer, Nachbarzehner, Zahlenstrahl, Runden, Zahlenfolgen mit Pfeilschritten |
 | ➕ Plus & Minus | bis 20, mit vollen Zehnern, bis 100 ohne und mit Zehnerübergang, Platzhalter- und Tabellenaufgaben |
 | 💡 Rechentricks | Analogieaufgaben (3 + 4 → 30 + 40, 3 + 2 → 13 + 2), Nachbaraufgaben (7 + 7 → 7 + 8), plus/minus 10, Hunderter |
 | 💖 Hilfsaufgaben | Bei Rechentricks und Umkehraufgaben rechnet das Kind zuerst die Hilfsaufgabe selbst – das gibt ein Herz |
 | 👨‍👩‍👧‍👦 Aufgabenfamilien | „3 Zahlen, 4 Aufgaben“: Tausch- und Umkehraufgaben, Lücken in allen vier Formen |
 | 🧱 Mauern & Räder | Zahlenmauern mit fehlendem Stein, Rechenkästen mit Fähnchen, Rechenräder in zwei Formen |
+| **Weitere Themen** | |
 | ✖️ Einmaleins | alle Reihen von 1 bis 10, Punktefelder, Umkehraufgaben |
 | ➗ Geteilt | Teilen ohne Rest, Aufgaben mit Rest |
 | 💶 Geld | Münzen zählen, Euro und Cent umrechnen, bezahlen, Rückgeld und Beträge passend legen |

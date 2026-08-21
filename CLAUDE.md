@@ -10,6 +10,16 @@ Seite für GitHub Pages: zehn Themen mit je drei Stufen, Übungsrunden mit
 sofortiger Rückmeldung, Gamification (Punkte, Level, Sterne, Streak,
 Abzeichen) und ein Elternbereich. Feature-Liste: `README.md`.
 
+## Schwerpunkt
+
+**Maßgeblich ist das Übungsheft der 2. Klasse, mit dem das Kind arbeitet.**
+Themen daraus tragen in `topics.ts` das Kennzeichen `ausHeft: true`, stehen in
+der Themenliste vorn, werden von `empfehlung()` bevorzugt und stecken doppelt
+im `MIX_TOPF` des gemischten Trainings. Neue Aufgabenformen gehören zuerst in
+diese Bereiche; ergänzende Themen (Einmaleins, Uhrzeit, Längen, Formen,
+Sachaufgaben, Knobeln) sind Zusatz und dürfen den Schwerpunkt nicht
+verwässern.
+
 ## Projektkonventionen (unbedingt einhalten)
 
 - **Kein Framework, keine Runtime-Dependencies.** Vanilla TypeScript, `tsc`

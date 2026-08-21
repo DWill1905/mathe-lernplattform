@@ -21,6 +21,10 @@ export const zeige = (ziel) => {
             "von Hand einstellen.",
     }), el("p", {
         class: "fliesstext",
+        text: "Themen mit der Marke „Heft“ kommen im Übungsheft der 2. Klasse vor. Sie stehen auf der " +
+            "Startseite oben, werden zuerst empfohlen und häufiger ins gemischte Training gezogen.",
+    }), el("p", {
+        class: "fliesstext",
         text: "Alle Daten bleiben auf diesem Gerät im Browserspeicher. Es gibt kein Konto, keinen Server " +
             "und keine Werbung.",
     }));
@@ -29,7 +33,7 @@ export const zeige = (ziel) => {
     for (const eintrag of THEMEN) {
         const stand = fortschritt.themen[eintrag.id];
         const quote = stand.gesamt === 0 ? "–" : `${Math.round((stand.richtig / stand.gesamt) * 100)} %`;
-        koerper.appendChild(el("tr", {}, el("td", { text: eintrag.titel }), el("td", { class: "zahl", text: String(stand.gesamt) }), el("td", { class: "zahl", text: quote }), el("td", {}, stufenWahl(eintrag.id, stand.stufe))));
+        koerper.appendChild(el("tr", {}, el("td", {}, eintrag.titel, eintrag.ausHeft ? el("span", { class: "marke marke-heft", text: "Heft" }) : null), el("td", { class: "zahl", text: String(stand.gesamt) }), el("td", { class: "zahl", text: quote }), el("td", {}, stufenWahl(eintrag.id, stand.stufe))));
     }
     tabelle.appendChild(koerper);
     const uebersicht = el("section", { class: "karte" }, el("h2", { class: "abschnitt-titel", text: "Lernstand je Thema" }), el("div", { class: "tabelle-huelle" }, tabelle), el("details", {}, el("summary", { text: "Was wird in den Stufen geübt?" }), stufenErklaerung()));

@@ -3,8 +3,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { mulberry32 } from "../js/random.js";
-import { GENERATOREN, RUNDENLAENGE, gemischteRunde, runde } from "../js/tasks/index.js";
-import { THEMEN } from "../js/topics.js";
+import { GENERATOREN, MIX_TOPF, RUNDENLAENGE, gemischteRunde, runde } from "../js/tasks/index.js";
+import { HEFT_THEMEN, THEMEN, WEITERE_THEMEN } from "../js/topics.js";
 
 const STUFEN = [1, 2, 3];
 
@@ -135,4 +135,30 @@ test("das gemischte Training zieht aus mehreren Themen", () => {
   assert.equal(eintraege.length, RUNDENLAENGE);
   assert.ok(new Set(eintraege.map((e) => e.thema)).size >= 5, "zu wenig Abwechslung");
   for (const eintrag of eintraege) pruefeAufgabe(eintrag.aufgabe, `mix/${eintrag.thema}`);
+});
+
+test("die Themen aus dem Übungsheft stehen vorn und wiegen im Mix doppelt", () => {
+  assert.ok(HEFT_THEMEN.length >= 5, "es sollten mehrere Heft-Themen sein");
+  assert.equal(HEFT_THEMEN.length + WEITERE_THEMEN.length, THEMEN.length);
+
+  // Die Heft-Themen belegen die vorderen Plätze der Themenliste.
+  const vordere = THEMEN.slice(0, HEFT_THEMEN.length).map((t) => t.id);
+  assert.deepEqual(vordere, HEFT_THEMEN.map((t) => t.id));
+
+  const heft = new Set(HEFT_THEMEN.map((t) => t.id));
+  assert.equal(MIX_TOPF.filter((id) => heft.has(id)).length, HEFT_THEMEN.length * 2);
+  assert.equal(MIX_TOPF.filter((id) => !heft.has(id)).length, WEITERE_THEMEN.length);
+
+  // Über viele Runden hinweg kommen die Heft-Themen deutlich häufiger dran.
+  const stufen = Object.fromEntries(THEMEN.map((t) => [t.id, 1]));
+  const rng = mulberry32(31415);
+  let ausHeft = 0;
+  let gesamt = 0;
+  for (let runde = 0; runde < 60; runde++) {
+    for (const eintrag of gemischteRunde(rng, stufen, RUNDENLAENGE)) {
+      gesamt++;
+      if (heft.has(eintrag.thema)) ausHeft++;
+    }
+  }
+  assert.ok(ausHeft / gesamt > 0.55, `nur ${Math.round((ausHeft / gesamt) * 100)} % aus dem Heft`);
 });

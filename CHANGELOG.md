@@ -4,6 +4,28 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.5.0] – 2026-08-21
+
+### Geändert
+
+Die Plattform stellt jetzt klar die Themen des Übungshefts in den Mittelpunkt;
+die selbst ergänzten Bereiche treten dahinter zurück.
+
+- Jedes Thema trägt ein Kennzeichen `ausHeft`. Sechs Bereiche gehören dazu:
+  Plus & Minus, Rechentricks, Aufgabenfamilien, Zahlen bis 100, Mauern & Räder
+  und Geld.
+- Die **Startseite** ist in zwei Abschnitte geteilt: „Aus dem Übungsheft“ steht
+  oben, „Weitere Themen“ darunter mit dem Hinweis, dass sie im Heft nicht
+  vorkommen.
+- Die **Empfehlung** („Weiter mit …“) wählt nur noch aus den Heft-Themen. Ein
+  schwaches Zusatzthema verdrängt sie nicht mehr.
+- Das **gemischte Training** zieht Heft-Themen doppelt so oft: Sie stecken
+  zweimal im Ziehungstopf (`MIX_TOPF`).
+- Im **Elternbereich** tragen die betroffenen Zeilen die Marke „Heft“, dazu
+  ein Satz, was das bedeutet.
+- Die Reihenfolge folgt jetzt dem Aufbau des Hefts (Plus & Minus zuerst) statt
+  der ursprünglichen, frei gewählten Sortierung.
+
 ## [1.4.0] – 2026-08-21
 
 ### Neu

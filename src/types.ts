@@ -83,6 +83,12 @@ export interface ThemaInfo {
   farbe: string;
   /** Was in den drei Stufen geübt wird – erscheint im Elternbereich. */
   stufen: [string, string, string];
+  /**
+   * Kommt dieses Thema im Übungsheft der 2. Klasse vor, an dem das Kind
+   * gerade arbeitet? Solche Themen stehen auf der Startseite oben, werden
+   * bevorzugt empfohlen und häufiger ins gemischte Training gezogen.
+   */
+  ausHeft: boolean;
 }
 
 export interface ThemaFortschritt {

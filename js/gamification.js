@@ -3,7 +3,7 @@
  * gespeicherten Fortschritt berechnet – es gibt keinen zweiten Zustand.
  */
 import { heute, speichereFortschritt } from "./state.js";
-import { THEMEN, thema } from "./topics.js";
+import { HEFT_THEMEN, THEMEN, thema } from "./topics.js";
 /* ================================================================ Level */
 const LEVEL_TITEL = [
     "Zahlen-Entdecker",
@@ -266,14 +266,17 @@ export function lobText(richtig, gesamt) {
         return "Schon ganz ordentlich – weiter so!";
     return "Übung macht den Meister. Probier es gleich noch einmal!";
 }
-/** Kurzer Hinweis, welches Thema als Nächstes drankommen könnte. */
+/**
+ * Welches Thema als Nächstes? Die Themen aus dem Übungsheft haben Vorrang –
+ * die ergänzenden Bereiche kommen erst dran, wenn dort alles läuft.
+ */
 export function empfehlung(f) {
-    const nochNie = THEMEN.find((t) => f.themen[t.id].gesamt === 0);
+    const nochNie = HEFT_THEMEN.find((t) => f.themen[t.id].gesamt === 0);
     if (nochNie)
         return nochNie.id;
-    let schwaechstes = THEMEN[0].id;
+    let schwaechstes = HEFT_THEMEN[0].id;
     let schlechtesteQuote = Infinity;
-    for (const t of THEMEN) {
+    for (const t of HEFT_THEMEN) {
         const eintrag = f.themen[t.id];
         const quote = eintrag.gesamt === 0 ? 0 : eintrag.richtig / eintrag.gesamt;
         if (quote < schlechtesteQuote) {

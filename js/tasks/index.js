@@ -1,3 +1,4 @@
+import { THEMEN } from "../topics.js";
 import { einmaleins, geteilt } from "./rechnen.js";
 import { geld, laengen, uhrzeit } from "./groessen.js";
 import { geometrie } from "./geometrie.js";
@@ -30,6 +31,12 @@ export const MEISTERLAENGE = 20;
  * Themen des Rechenmeisters. Wie im Lernheft geht es dort um Plus und Minus
  * samt ihrer Tricks – nicht um Uhrzeit, Geld oder Formen.
  */
+/**
+ * Ziehungstopf des gemischten Trainings. Themen aus dem Übungsheft stecken
+ * zweimal darin – so kommen sie etwa doppelt so oft dran wie die
+ * ergänzenden Bereiche.
+ */
+export const MIX_TOPF = THEMEN.flatMap((t) => t.ausHeft ? [t.id, t.id] : [t.id]);
 export const MEISTER_THEMEN = [
     "plusminus",
     "analogie",
@@ -64,7 +71,7 @@ export function runde(thema, rng, stufe, anzahl = RUNDENLAENGE) {
  * Gemischte Runde über mehrere Themen – für das tägliche Training und für den
  * Rechenmeister. Ohne `themen` kommen alle Bereiche vor.
  */
-export function gemischteRunde(rng, stufen, anzahl = RUNDENLAENGE, themen = Object.keys(GENERATOREN)) {
+export function gemischteRunde(rng, stufen, anzahl = RUNDENLAENGE, themen = MIX_TOPF) {
     const reihenfolge = [];
     while (reihenfolge.length < anzahl)
         reihenfolge.push(...rng.shuffle([...themen]));

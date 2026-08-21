@@ -34,6 +34,12 @@ export const zeige: RouteHandler = (ziel) => {
     el("p", {
       class: "fliesstext",
       text:
+        "Themen mit der Marke „Heft“ kommen im Übungsheft der 2. Klasse vor. Sie stehen auf der " +
+        "Startseite oben, werden zuerst empfohlen und häufiger ins gemischte Training gezogen.",
+    }),
+    el("p", {
+      class: "fliesstext",
+      text:
         "Alle Daten bleiben auf diesem Gerät im Browserspeicher. Es gibt kein Konto, keinen Server " +
         "und keine Werbung.",
     })
@@ -63,7 +69,12 @@ export const zeige: RouteHandler = (ziel) => {
       el(
         "tr",
         {},
-        el("td", { text: eintrag.titel }),
+        el(
+          "td",
+          {},
+          eintrag.titel,
+          eintrag.ausHeft ? el("span", { class: "marke marke-heft", text: "Heft" }) : null
+        ),
         el("td", { class: "zahl", text: String(stand.gesamt) }),
         el("td", { class: "zahl", text: quote }),
         el("td", {}, stufenWahl(eintrag.id, stand.stufe))

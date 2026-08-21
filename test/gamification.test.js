@@ -16,6 +16,7 @@ import {
   zeitText,
 } from "../js/gamification.js";
 import { standardFortschritt } from "../js/state.js";
+import { HEFT_THEMEN } from "../js/topics.js";
 
 test.beforeEach(() => localStorage.clear());
 
@@ -128,15 +129,30 @@ test("das gemischte Training verschiebt keine Stufen", () => {
   assert.equal(fortschritt.themen.knobeln.gesamt, 5);
 });
 
-test("die Empfehlung zeigt auf ein noch nicht geübtes Thema", () => {
+test("die Empfehlung bleibt bei den Themen aus dem Übungsheft", () => {
   const fortschritt = standardFortschritt();
-  assert.equal(empfehlung(fortschritt), "zahlenraum");
+  assert.equal(empfehlung(fortschritt), "plusminus", "das erste Heft-Thema kommt zuerst");
+
   for (const eintrag of Object.values(fortschritt.themen)) {
     eintrag.gesamt = 10;
     eintrag.richtig = 9;
   }
-  fortschritt.themen.uhrzeit.richtig = 2;
-  assert.equal(empfehlung(fortschritt), "uhrzeit", "das schwächste Thema wird empfohlen");
+  fortschritt.themen.mauern.richtig = 2;
+  assert.equal(empfehlung(fortschritt), "mauern", "das schwächste Heft-Thema wird empfohlen");
+
+  // Ein schwaches Zusatzthema darf die Heft-Themen nicht verdrängen.
+  fortschritt.themen.uhrzeit.richtig = 0;
+  assert.equal(empfehlung(fortschritt), "mauern");
+});
+
+test("nur Heft-Themen werden empfohlen", () => {
+  const heft = new Set(HEFT_THEMEN.map((t) => t.id));
+  const fortschritt = standardFortschritt();
+  for (const [id, eintrag] of Object.entries(fortschritt.themen)) {
+    eintrag.gesamt = 10;
+    eintrag.richtig = heft.has(id) ? 10 : 0;
+  }
+  assert.ok(heft.has(empfehlung(fortschritt)), "ein Zusatzthema wurde empfohlen");
 });
 
 test("jedes Abzeichen hat eine eindeutige Kennung", () => {

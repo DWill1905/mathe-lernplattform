@@ -1,7 +1,7 @@
 import { el } from "../dom.js";
 import { empfehlung, levelInfo } from "../gamification.js";
 import { ladeFortschritt, speichereFortschritt } from "../state.js";
-import { THEMEN, thema } from "../topics.js";
+import { HEFT_THEMEN, WEITERE_THEMEN, thema } from "../topics.js";
 /** Sterne als Text – barrierefrei mit Klartext-Beschriftung. */
 export function sterneAnzeige(anzahl) {
     const text = "★★★☆☆☆".slice(3 - anzahl, 6 - anzahl);
@@ -32,12 +32,15 @@ export const zeige = (ziel) => {
             ? `20 Aufgaben gegen die Uhr · Bestleistung ${fortschritt.meister.besteTreffer} richtig`
             : "20 Aufgaben gegen die Uhr",
     }))), el("a", { class: "knopf knopf-gross", href: `#/uebung/${naechstes.id}` }, el("span", { class: "knopf-symbol", "aria-hidden": "true", text: naechstes.symbol }), el("span", {}, el("span", { class: "knopf-titel", text: `Weiter mit ${naechstes.titel}` }), el("span", { class: "knopf-unter", text: naechstes.kurz }))));
-    const kacheln = el("div", { class: "kacheln" });
-    for (const eintrag of THEMEN) {
-        const stand = fortschritt.themen[eintrag.id];
-        kacheln.appendChild(el("a", { class: `kachel kachel-${eintrag.farbe}`, href: `#/uebung/${eintrag.id}` }, el("span", { class: "kachel-symbol", "aria-hidden": "true", text: eintrag.symbol }), el("span", { class: "kachel-titel", text: eintrag.titel }), el("span", { class: "kachel-kurz", text: eintrag.kurz }), el("span", { class: "kachel-fuss" }, el("span", { class: "marke", text: `Stufe ${stand.stufe}` }), sterneAnzeige(stand.sterne))));
-    }
-    ziel.replaceChildren(begruessung, schnellstart, el("h2", { class: "abschnitt-titel", text: "Alle Themen" }), kacheln);
+    const kachelgitter = (liste) => {
+        const kacheln = el("div", { class: "kacheln" });
+        for (const eintrag of liste) {
+            const stand = fortschritt.themen[eintrag.id];
+            kacheln.appendChild(el("a", { class: `kachel kachel-${eintrag.farbe}`, href: `#/uebung/${eintrag.id}` }, el("span", { class: "kachel-symbol", "aria-hidden": "true", text: eintrag.symbol }), el("span", { class: "kachel-titel", text: eintrag.titel }), el("span", { class: "kachel-kurz", text: eintrag.kurz }), el("span", { class: "kachel-fuss" }, el("span", { class: "marke", text: `Stufe ${stand.stufe}` }), sterneAnzeige(stand.sterne))));
+        }
+        return kacheln;
+    };
+    ziel.replaceChildren(begruessung, schnellstart, el("h2", { class: "abschnitt-titel", text: "Aus dem Übungsheft" }), kachelgitter(HEFT_THEMEN), el("h2", { class: "abschnitt-titel abschnitt-titel-weit", text: "Weitere Themen" }), el("p", { class: "hinweis", text: "Zusatzübungen, die im Heft nicht vorkommen." }), kachelgitter(WEITERE_THEMEN));
 };
 function namensFeld() {
     const eingabe = el("input", {
