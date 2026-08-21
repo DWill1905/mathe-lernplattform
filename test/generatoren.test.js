@@ -210,3 +210,71 @@ test("ein unerreichbarer Schwerpunkt erzeugt keine zusätzlichen Doppelaufgaben"
     `Doppelquote steigt von ${Math.round(ohne * 100)} % auf ${Math.round(mitFremdem * 100)} %`
   );
 });
+
+test("keine Aufgabe zeigt negative Zahlen oder verlässt den Zahlenraum", () => {
+  for (const thema of THEMEN) {
+    // Geld (Cent) und Längen (mm/cm) rechnen bewusst in kleinen Einheiten und
+    // liegen dabei über 100 – dort gilt die Grenze nicht.
+    const grenze = thema.id === "geld" || thema.id === "laengen" ? Infinity : 100;
+    for (const stufe of STUFEN) {
+      const rng = mulberry32(555 + stufe);
+      for (let i = 0; i < 1500; i++) {
+        const aufgabe = GENERATOREN[thema.id](rng, stufe);
+        const text = [aufgabe.frage, aufgabe.rechnung ?? "", aufgabe.erklaerung ?? ""].join(" ");
+        // Rechenzeichen stehen immer mit Leerzeichen („12 − 5“); ein Minus
+        // direkt an einer Ziffer ist deshalb ein Vorzeichen – und verboten.
+        assert.ok(
+          !/[-−]\d/.test(text),
+          `${thema.id}/Stufe ${stufe}: negative Zahl im Text – ${text}`
+        );
+        for (const zahl of text.match(/\d+/g) ?? []) {
+          assert.ok(
+            Number(zahl) <= grenze,
+            `${thema.id}/Stufe ${stufe}: ${zahl} verlässt den Zahlenraum – ${text}`
+          );
+        }
+      }
+    }
+  }
+});
+
+test("Nachbarzehner fragt nie nach der Zahl selbst", () => {
+  for (const stufe of STUFEN) {
+    const rng = mulberry32(4711 + stufe);
+    for (let i = 0; i < 600; i++) {
+      const aufgabe = GENERATOREN.zahlenraum(rng, stufe);
+      if (aufgabe.typ !== "zahlenraum/nachbarzehner") continue;
+      const [, richtung, zahl] = aufgabe.frage.match(/kommt (vor|nach) der Zahl (\d+)/);
+      const loesung = Number(aufgabe.loesung);
+      assert.equal(loesung % 10, 0, "die Antwort ist immer ein voller Zehner");
+      assert.notEqual(loesung, Number(zahl), `„${aufgabe.frage}“ hat sich selbst als Antwort`);
+      assert.ok(richtung === "vor" ? loesung < Number(zahl) : loesung > Number(zahl), aufgabe.frage);
+    }
+  }
+});
+
+test("beim Längenvergleich ist nie beides gleich lang", () => {
+  const rng = mulberry32(321);
+  for (let i = 0; i < 800; i++) {
+    const aufgabe = GENERATOREN.laengen(rng, 2);
+    if (aufgabe.typ !== "laengen/vergleich") continue;
+    const [, cm, meter] = aufgabe.rechnung.match(/^(\d+) cm {3}oder {3}(\d+) m$/);
+    assert.notEqual(Number(cm), Number(meter) * 100, `${aufgabe.rechnung} ist gleich lang`);
+  }
+});
+
+test("eine Runde stellt keine Aufgabe zweimal – auch keine Bildaufgabe", () => {
+  for (const thema of THEMEN) {
+    for (const stufe of STUFEN) {
+      for (let seed = 1; seed <= 40; seed++) {
+        const aufgaben = runde(thema.id, mulberry32(seed), stufe, RUNDENLAENGE);
+        const kennungen = aufgaben.map((a) => JSON.stringify([a.frage, a.rechnung, a.loesung, a.bild?.svg]));
+        assert.equal(
+          new Set(kennungen).size,
+          aufgaben.length,
+          `${thema.id}/Stufe ${stufe}/Seed ${seed}: dieselbe Aufgabe kam doppelt`
+        );
+      }
+    }
+  }
+});

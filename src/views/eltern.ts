@@ -10,10 +10,20 @@ import { THEMEN, istThemaId } from "../topics.js";
 import type { RouteHandler } from "../router.js";
 import type { Stufe, ThemaId } from "../types.js";
 
+/**
+ * Kennungen, deren Präfix nicht wörtlich einer Themen-Id entspricht. Ohne
+ * diese Zuordnung stünde die rohe Kennung („raetsel/rechnung“) im Elternbereich.
+ */
+const BEREICHS_ALIAS: Record<string, ThemaId> = {
+  sach: "sachaufgaben",
+  raetsel: "plusminus",
+};
+
 /** Aufgabentyp („einmaleins/reihe-7“) in eine lesbare Beschreibung übersetzen. */
 export function fehlerText(typ: string): string {
   const [bereich = "", rest = ""] = typ.split("/");
-  const gefunden = THEMEN.find((t) => t.id === bereich || (bereich === "sach" && t.id === "sachaufgaben"));
+  const id = BEREICHS_ALIAS[bereich] ?? bereich;
+  const gefunden = THEMEN.find((t) => t.id === id);
   const beschreibung = rest.replace(/-/g, " ");
   return gefunden ? `${gefunden.titel}: ${beschreibung}` : typ;
 }

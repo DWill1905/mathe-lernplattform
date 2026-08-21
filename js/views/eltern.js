@@ -6,10 +6,19 @@ import { el } from "../dom.js";
 import { SCHWERPUNKT_AB } from "../gamification.js";
 import { ladeFortschritt, setzeZurueck, speichereFortschritt } from "../state.js";
 import { THEMEN, istThemaId } from "../topics.js";
+/**
+ * Kennungen, deren Präfix nicht wörtlich einer Themen-Id entspricht. Ohne
+ * diese Zuordnung stünde die rohe Kennung („raetsel/rechnung“) im Elternbereich.
+ */
+const BEREICHS_ALIAS = {
+    sach: "sachaufgaben",
+    raetsel: "plusminus",
+};
 /** Aufgabentyp („einmaleins/reihe-7“) in eine lesbare Beschreibung übersetzen. */
 export function fehlerText(typ) {
     const [bereich = "", rest = ""] = typ.split("/");
-    const gefunden = THEMEN.find((t) => t.id === bereich || (bereich === "sach" && t.id === "sachaufgaben"));
+    const id = BEREICHS_ALIAS[bereich] ?? bereich;
+    const gefunden = THEMEN.find((t) => t.id === id);
     const beschreibung = rest.replace(/-/g, " ");
     return gefunden ? `${gefunden.titel}: ${beschreibung}` : typ;
 }

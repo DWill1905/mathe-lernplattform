@@ -339,8 +339,12 @@ function cmInMm(rng) {
     };
 }
 function laengeVergleichen(rng) {
-    const cmWert = rng.int(30, 250);
     const mWert = rng.int(1, 3);
+    // Gleich lang darf es nie sein – sonst hat „Welche Länge ist länger?“
+    // gar keine richtige Antwort.
+    let cmWert = rng.int(30, 250);
+    while (cmWert === mWert * 100)
+        cmWert = rng.int(30, 250);
     const laengerIstCm = cmWert > mWert * 100;
     const a = `${cmWert} cm`;
     const b = `${mWert} m`;

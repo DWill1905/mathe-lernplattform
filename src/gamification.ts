@@ -3,7 +3,7 @@
  * gespeicherten Fortschritt berechnet – es gibt keinen zweiten Zustand.
  */
 
-import { heute, speichereFortschritt } from "./state.js";
+import { heute, speichereFortschritt, tagesSchluessel } from "./state.js";
 import { HEFT_THEMEN, THEMEN, thema } from "./topics.js";
 import type { Fortschritt, RundenErgebnis, Stufe, ThemaId } from "./types.js";
 
@@ -241,7 +241,7 @@ export function schwerpunkte(f: Fortschritt, anzahl = 8): Set<string> {
 function gestern(): string {
   const datum = new Date();
   datum.setDate(datum.getDate() - 1);
-  return datum.toISOString().slice(0, 10);
+  return tagesSchluessel(datum);
 }
 
 function streakFortschreiben(f: Fortschritt): void {

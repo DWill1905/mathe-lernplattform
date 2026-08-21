@@ -2,7 +2,7 @@
  * Punkte, Level, Sterne, Streak und Abzeichen. Alles rein aus dem
  * gespeicherten Fortschritt berechnet – es gibt keinen zweiten Zustand.
  */
-import { heute, speichereFortschritt } from "./state.js";
+import { heute, speichereFortschritt, tagesSchluessel } from "./state.js";
 import { HEFT_THEMEN, THEMEN, thema } from "./topics.js";
 /* ================================================================ Level */
 const LEVEL_TITEL = [
@@ -206,7 +206,7 @@ export function schwerpunkte(f, anzahl = 8) {
 function gestern() {
     const datum = new Date();
     datum.setDate(datum.getDate() - 1);
-    return datum.toISOString().slice(0, 10);
+    return tagesSchluessel(datum);
 }
 function streakFortschreiben(f) {
     const tag = heute();

@@ -43,8 +43,15 @@ self.addEventListener("fetch", (ereignis) => {
   ereignis.respondWith(
     fetch(anfrage)
       .then((antwort) => {
-        const kopie = antwort.clone();
-        caches.open(CACHE).then((cache) => cache.put(anfrage, kopie).catch(() => undefined));
+        // Nur brauchbare Antworten in den Cache: Ein zwischengespeicherter 404
+        // oder 500 würde offline dauerhaft statt der Seite ausgeliefert.
+        if (antwort.ok && antwort.type === "basic") {
+          const kopie = antwort.clone();
+          caches
+            .open(CACHE)
+            .then((cache) => cache.put(anfrage, kopie))
+            .catch(() => undefined);
+        }
         return antwort;
       })
       .catch(() =>

@@ -65,9 +65,13 @@ function vergleich(rng) {
     };
 }
 function nachbarzehner(rng) {
-    const zahl = rng.int(11, 89);
+    // Volle Zehner sind ausgeschlossen: Zu 70 wäre „der Zehner davor“ sonst
+    // wieder 70 – die Zahl liegt zwischen keinen zwei Nachbarzehnern.
+    let zahl = rng.int(11, 89);
+    while (zahl % 10 === 0)
+        zahl = rng.int(11, 89);
     const vorher = rng.chance(0.5);
-    const loesung = vorher ? Math.floor(zahl / 10) * 10 : Math.ceil((zahl + 1) / 10) * 10;
+    const loesung = vorher ? Math.floor(zahl / 10) * 10 : Math.floor(zahl / 10) * 10 + 10;
     return {
         typ: "zahlenraum/nachbarzehner",
         frage: `Welcher Zehner kommt ${vorher ? "vor" : "nach"} der Zahl ${zahl}?`,
@@ -169,8 +173,10 @@ function groesste(rng) {
     };
 }
 function mitte(rng) {
-    const loesung = rng.int(2, 48) * 2;
-    const abstand = rng.int(1, 10) * 2;
+    const loesung = rng.int(6, 46) * 2;
+    // Der Abstand muss auf beiden Seiten passen: nie unter 0, nie über 100.
+    const spielraum = Math.min(loesung, 100 - loesung);
+    const abstand = rng.int(1, Math.floor(spielraum / 2)) * 2;
     const a = loesung - abstand;
     const b = loesung + abstand;
     return {
@@ -497,7 +503,8 @@ function muster(rng) {
     };
 }
 function nachbarSumme(rng) {
-    const mitteZahl = rng.int(5, 40);
+    // Höchstens 33: Das Dreifache muss im Zahlenraum bis 100 bleiben.
+    const mitteZahl = rng.int(5, 33);
     const loesung = mitteZahl * 3;
     return {
         typ: "knobeln/nachbarn",

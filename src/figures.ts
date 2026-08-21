@@ -193,12 +193,19 @@ function regelmaessig(ecken: number, radius: number): [number, number][] {
   return punkte;
 }
 
-/** Figur mit eingezeichneter Linie – Frage: Ist das eine Spiegelachse? */
+/**
+ * Figur mit eingezeichneter Linie – Frage: Ist das eine Spiegelachse?
+ *
+ * Die falsche Linie verläuft schräg und bewusst NICHT durch den Mittelpunkt:
+ * Eine senkrechte Linie daneben lag bei schmalen Figuren (Quadrat: x 70–130)
+ * komplett neben der Form, und jede Gerade DURCH den Mittelpunkt wäre beim
+ * Kreis eine echte Spiegelachse. Sie schneidet alle vier verwendeten Formen.
+ */
 export function spiegelachse(name: FormName, richtig: boolean): string {
   const basis = form(name).replace("</svg>", "");
   const linie = richtig
     ? `<line x1="100" y1="8" x2="100" y2="192" class="fig-achse"/>`
-    : `<line x1="140" y1="8" x2="140" y2="192" class="fig-achse"/>`;
+    : `<line x1="40" y1="20" x2="180" y2="150" class="fig-achse"/>`;
   return `${basis}${linie}</svg>`;
 }
 

@@ -134,9 +134,10 @@ function einkaufMitRueckgeld(rng: Rng, _max: number): Aufgabe {
 function zusammenUndDifferenz(rng: Rng, _max: number): Aufgabe {
   const [name, freund] = zweiNamen(rng);
   const mehrzahl = ding(rng);
-  const a = rng.int(20, 60);
-  const b = rng.int(5, a - 1);
   const fragtDifferenz = rng.chance(0.5);
+  const a = rng.int(20, 60);
+  // Beim „zusammen“ muss auch die Summe im Zahlenraum bis 100 bleiben.
+  const b = rng.int(5, fragtDifferenz ? a - 1 : Math.min(a - 1, 100 - a));
   return {
     typ: "sach/vergleich",
     frage: `${name} sammelt ${a} ${mehrzahl}, ${freund} sammelt ${b} ${mehrzahl}. ${

@@ -28,15 +28,15 @@ export const RUNDENLAENGE = 10;
 /** Anzahl der Aufgaben im Rechenmeister (Runde gegen die Uhr). */
 export const MEISTERLAENGE = 20;
 /**
- * Themen des Rechenmeisters. Wie im Lernheft geht es dort um Plus und Minus
- * samt ihrer Tricks – nicht um Uhrzeit, Geld oder Formen.
- */
-/**
  * Ziehungstopf des gemischten Trainings. Themen aus dem Übungsheft stecken
  * zweimal darin – so kommen sie etwa doppelt so oft dran wie die
  * ergänzenden Bereiche.
  */
 export const MIX_TOPF = THEMEN.flatMap((t) => t.ausHeft ? [t.id, t.id] : [t.id]);
+/**
+ * Themen des Rechenmeisters. Wie im Lernheft geht es dort um Plus und Minus
+ * samt ihrer Tricks – nicht um Uhrzeit, Geld oder Formen.
+ */
 export const MEISTER_THEMEN = [
     "plusminus",
     "analogie",
@@ -44,8 +44,15 @@ export const MEISTER_THEMEN = [
     "mauern",
     "zahlenraum",
 ];
+/**
+ * Erkennungsmerkmal einer Aufgabe innerhalb einer Runde. Lösung und Bild
+ * gehören dazu: Bei Bildaufgaben (Uhr, Form, Mauer, Tabelle) ist der Fragetext
+ * für alle Ausprägungen derselbe – ohne Bild und Lösung im Schlüssel würde die
+ * Runde jede zweite Bildaufgabe für eine Dublette halten und stattdessen echte
+ * Wiederholungen durchlassen.
+ */
 function kennung(aufgabe) {
-    return `${aufgabe.frage}|${aufgabe.rechnung ?? ""}`;
+    return `${aufgabe.frage}|${aufgabe.rechnung ?? ""}|${aufgabe.loesung}|${aufgabe.bild?.svg ?? ""}`;
 }
 /**
  * Baut eine komplette Übungsrunde. Innerhalb einer Runde wird dieselbe

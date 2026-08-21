@@ -14,8 +14,19 @@ const MAX_PUNKTE = 9_999_999;
 const MAX_VERLAUF = 90;
 const MAX_FEHLERTYPEN = 300;
 const MAX_NAME = 20;
+/**
+ * Datum als `JJJJ-MM-TT` in der ORTSZEIT. `toISOString()` wäre UTC – in
+ * Mitteleuropa würde der Tag dann erst um 1 bzw. 2 Uhr nachts wechseln, und
+ * die Wochentagsbeschriftung der Aktivitätsübersicht (lokal) passte nicht mehr
+ * zum gespeicherten Schlüssel.
+ */
+export function tagesSchluessel(datum) {
+    const monat = String(datum.getMonth() + 1).padStart(2, "0");
+    const tag = String(datum.getDate()).padStart(2, "0");
+    return `${datum.getFullYear()}-${monat}-${tag}`;
+}
 export function heute() {
-    return new Date().toISOString().slice(0, 10);
+    return tagesSchluessel(new Date());
 }
 function leererThemaFortschritt() {
     return { stufe: 1, richtig: 0, gesamt: 0, sterne: 0, besteSerie: 0 };

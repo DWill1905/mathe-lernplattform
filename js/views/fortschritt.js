@@ -1,6 +1,6 @@
 import { el } from "../dom.js";
 import { ERFOLGE, levelInfo, zeitText } from "../gamification.js";
-import { ladeFortschritt } from "../state.js";
+import { ladeFortschritt, tagesSchluessel } from "../state.js";
 import { THEMEN } from "../topics.js";
 import { sterneAnzeige } from "./start.js";
 const WOCHENTAGE = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
@@ -25,9 +25,12 @@ export const zeige = (ziel) => {
                 : `${stand.richtig} von ${stand.gesamt} richtig (${themenQuote} %)`,
         })), sterneAnzeige(stand.sterne)));
     }
+    // Nur bekannte Kennungen zählen: Ein von Hand bearbeiteter oder veralteter
+    // Spielstand darf nicht „23 von 15 Abzeichen“ behaupten.
+    const gesammelt = ERFOLGE.filter((e) => fortschritt.erfolge.includes(e.id)).length;
     const abzeichen = el("section", { class: "karte" }, el("h2", { class: "abschnitt-titel", text: "Abzeichen" }), el("p", {
         class: "hinweis",
-        text: `${fortschritt.erfolge.length} von ${ERFOLGE.length} Abzeichen gesammelt.`,
+        text: `${gesammelt} von ${ERFOLGE.length} Abzeichen gesammelt.`,
     }));
     const gitter = el("div", { class: "abzeichen" });
     for (const erfolg of ERFOLGE) {
@@ -49,7 +52,7 @@ function aktivitaet(f) {
     for (let i = 13; i >= 0; i--) {
         const datum = new Date();
         datum.setDate(datum.getDate() - i);
-        const schluessel = datum.toISOString().slice(0, 10);
+        const schluessel = tagesSchluessel(datum);
         const eintrag = f.verlauf.find((e) => e.tag === schluessel);
         tage.push({ tag: schluessel, gesamt: eintrag?.gesamt ?? 0, datum });
     }

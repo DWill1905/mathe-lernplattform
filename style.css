@@ -69,6 +69,12 @@ body {
   line-height: 1.5;
 }
 
+/* Hinweis ohne JavaScript – die CSP verbietet ein style-Attribut im Markup. */
+.noscript-hinweis {
+  padding: 2rem;
+  text-align: center;
+}
+
 .sprungmarke {
   position: absolute;
   left: -9999px;

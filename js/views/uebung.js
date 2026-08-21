@@ -17,6 +17,7 @@ import { baueRaetsel } from "../raetsel.js";
 import { ladeFortschritt } from "../state.js";
 import { MEISTERLAENGE, MEISTER_THEMEN, RUNDENLAENGE, gemischteRunde, runde } from "../tasks/index.js";
 import { THEMEN, istThemaId, thema } from "../topics.js";
+import { pfadTeile } from "../router.js";
 import { sterneAnzeige } from "./start.js";
 /** Aufräumhaken der laufenden Runde – Timer und Tastatur dürfen nie überleben. */
 let timer = null;
@@ -36,6 +37,20 @@ function aufraeumen() {
         tastatur = null;
     }
 }
+/** Routen, hinter denen diese Ansicht steckt (siehe `ANSICHTEN` in `app.ts`). */
+const EIGENE_ROUTEN = new Set(["uebung", "rechenmeister", "raetsel"]);
+/**
+ * Wer die Übung verlässt, darf ihre Nachwirkungen nicht mitnehmen: Ohne diesen
+ * Haken bliebe der Tastatur-Listener am `document` hängen (auf der Startseite
+ * würde eine Ziffer die Übung zurückholen und Eingabefelder schluckten
+ * Zifferntasten) und ein noch laufender „Weiter“-Timer würde die gerade
+ * geöffnete Seite überschreiben. `zeige()` räumt nur auf, wenn die Ansicht
+ * selbst wieder aufgerufen wird – deshalb hier zusätzlich beim Routenwechsel.
+ */
+window.addEventListener("hashchange", () => {
+    if (!EIGENE_ROUTEN.has(pfadTeile()[0] ?? "start"))
+        aufraeumen();
+});
 export const zeige = (ziel, parameter) => {
     aufraeumen();
     const ersteRoute = parameter[0];

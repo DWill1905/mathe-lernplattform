@@ -4,6 +4,61 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.6.2] – 2026-08-21
+
+### Behoben
+
+Ergebnisse eines zweiten Code-Reviews über `src/`, `test/`, `sw.js` und
+`index.html`:
+
+- **Die Übung ließ Tastatur und Timer zurück** (schwerwiegend): `aufraeumen()`
+  lief nur, wenn die Übungsansicht selbst neu aufgerufen wurde. Wer die Runde
+  verließ, nahm den Tastatur-Listener mit – auf der Startseite holte eine
+  Zifferntaste die alte Übung zurück, und im Elternbereich schluckte das
+  Namensfeld Ziffern, Enter und Rücktaste. Ein noch laufender „Weiter“-Timer
+  überschrieb außerdem die gerade geöffnete Seite. Jetzt räumt zusätzlich ein
+  Haken am Routenwechsel auf.
+- **Bildaufgaben wiederholten sich innerhalb einer Runde**: Das
+  Erkennungsmerkmal einer Aufgabe bestand nur aus Frage und Rechnung. Weil bei
+  Uhr, Form, Mauer und Tabelle alle Ausprägungen denselben Fragetext haben,
+  hielt die Runde jede weitere für eine Dublette und ließ dafür echte
+  Wiederholungen durch – gemessen 262 von 300 Uhrzeit-Runden mit einer exakt
+  identischen Aufgabe. Lösung und Bild gehören jetzt zum Schlüssel; damit greift
+  die Schwerpunkt-Wiederholung auch in diesen Themen.
+- **„Mitte finden“ zeigte negative Zahlen** (z. B. „zwischen -16 und 24“) und
+  Werte über 100. Der Abstand richtet sich jetzt nach dem verbleibenden
+  Spielraum auf beiden Seiten.
+- **Nachbarzehner beantwortete sich selbst**: „Welcher Zehner kommt vor der
+  Zahl 70?“ erwartete 70. Volle Zehner sind jetzt ausgeschlossen.
+- **Längenvergleich ohne richtige Antwort**: „100 cm oder 1 m“ – beides gleich
+  lang, akzeptiert wurde nur „1 m“. Gleich lange Paare kommen nicht mehr vor.
+- **Zahlenraum bis 100 verlassen**: die Sachaufgabe „beide zusammen“ (bis 119)
+  und die Knobelaufgabe mit den Nachbarzahlen (bis 120) bleiben jetzt darunter.
+- **Der Elternbereich** zeigte für falsch beantwortete Rätselaufgaben die rohe
+  Kennung „raetsel/rechnung“ statt eines lesbaren Namens.
+- **Die Abzeichenzahl** im Fortschritt zählte auch unbekannte Kennungen aus
+  einem bearbeiteten Spielstand und konnte so über der Gesamtzahl liegen.
+- **Spiegelachsen-Aufgabe**: Die „falsche“ Linie war senkrecht, die Erklärung
+  sprach aber von einer schrägen Linie – und beim Quadrat lag sie komplett
+  neben der Figur. Sie verläuft jetzt schräg, durch alle vier Formen und
+  bewusst nicht durch den Mittelpunkt (beim Kreis wäre sie sonst eine echte
+  Spiegelachse).
+- **Tageswechsel in der Ortszeit**: Streak, Tagesbilanz und Aktivitätsbalken
+  liefen über `toISOString()` und damit über UTC – in Mitteleuropa wechselte der
+  Tag erst um 1 bzw. 2 Uhr nachts, und die Wochentagsbeschriftung passte nicht
+  zum gespeicherten Schlüssel.
+- **Der Service Worker** legte auch 404- und 500-Antworten im Cache ab, die
+  offline dauerhaft statt der Seite ausgeliefert wurden; ein Fehler beim Öffnen
+  des Caches blieb unbehandelt.
+- **Inline-Style im `<noscript>`-Hinweis** verstieß gegen die eigene CSP der
+  Seite und wurde vom Browser verworfen. Der Hinweis hat jetzt eine CSS-Klasse.
+
+### Tests
+
+- Neue Prüfungen: keine negativen Zahlen und kein Verlassen des Zahlenraums im
+  Aufgabentext, Nachbarzehner nie als eigene Antwort, kein gleich langes
+  Längenpaar, und keine Aufgabe zweimal in einer Runde – Bild inklusive.
+
 ## [1.6.1] – 2026-08-21
 
 ### Behoben
