@@ -4,6 +4,38 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.1.0] – 2026-08-21
+
+### Neu
+
+Nachgezogen, was im Lernheft der 2. Klasse eine tragende Rolle spielt und
+bisher fehlte:
+
+- **Rechentricks (Analogieaufgaben)** als eigenes Thema: von der Hilfsaufgabe
+  zum Ergebnis (3 + 4 = 7 → 30 + 40), Zehner davor (3 + 2 → 13 + 2), plus und
+  minus 10, Hunderteraufgaben, Lücken mit glatten Zehnern und Zeilen aus den
+  Additions-/Subtraktionstabellen. Die Hilfsaufgabe steht immer in der Frage.
+- **Aufgabenfamilien** („3 Zahlen, 4 Aufgaben“): Umkehraufgaben zu Plus und
+  Minus, Tauschaufgaben als Auswahl, die vierte Aufgabe eines Zahlentrios und
+  Lückenaufgaben in allen vier Formen.
+- **Mauern & Räder**: Zahlenmauern mit genau einem fehlenden Stein – die Lücke
+  kann oben, in der Mitte oder unten sitzen, das Rückwärtsrechnen ist damit
+  Teil der Übung. Dazu Rechenräder, bei denen außen und innen zusammen immer
+  die Zahl in der Mitte ergeben.
+- **Rechenmeister**: 20 Aufgaben gegen die Uhr mit laufender Stoppuhr, ohne
+  Tipps. Bestleistung wird gespeichert – erst nach Treffern, dann nach Zeit
+  bewertet. Dazu das Abzeichen „Blitzrechner“ für 20 von 20.
+- Neue Erklärbilder `zahlenmauer()` und `rechenrad()` in `figures.ts`.
+
+### Geändert
+
+- Das gemischte Training lässt sich jetzt auf eine Themenauswahl einschränken;
+  der Rechenmeister nutzt das für seine fünf Bereiche.
+- Das Abzeichen „Rundum neugierig“ verlangt zehn Aufgaben je Thema statt einer
+  einzigen – eine gemischte Runde allein schaltet es nicht mehr frei.
+- Der Fortschritt speichert die Bestwerte des Rechenmeisters (`meister`).
+  Ältere Spielstände ohne dieses Feld werden beim Laden ergänzt.
+
 ## [1.0.0] – 2026-08-20
 
 ### Neu

@@ -30,6 +30,42 @@ export const THEMEN = [
         ],
     },
     {
+        id: "analogie",
+        titel: "Rechentricks",
+        kurz: "Analogieaufgaben – von der Hilfsaufgabe zum Ergebnis",
+        symbol: "💡",
+        farbe: "gruen",
+        stufen: [
+            "von den Einern zu den Zehnern (3 + 4 → 30 + 40)",
+            "Zehner davor (3 + 2 → 13 + 2) sowie plus und minus 10",
+            "Hunderter, Lückenaufgaben und Tabellenzeilen",
+        ],
+    },
+    {
+        id: "familien",
+        titel: "Aufgabenfamilien",
+        kurz: "3 Zahlen, 4 Aufgaben – Tausch- und Umkehraufgaben",
+        symbol: "👨‍👩‍👧‍👦",
+        farbe: "blau",
+        stufen: [
+            "Umkehraufgaben bis 20",
+            "Tauschaufgaben erkennen und ganze Aufgabenfamilien",
+            "Lückenaufgaben in allen vier Formen bis 100",
+        ],
+    },
+    {
+        id: "mauern",
+        titel: "Mauern & Räder",
+        kurz: "Zahlenmauern und Rechenräder",
+        symbol: "🧱",
+        farbe: "orange",
+        stufen: [
+            "Zahlenmauer mit zwei Steinen, Rechenrad bis 20",
+            "Lücke unten in der Mauer, größere Räder",
+            "Mauern mit drei Grundsteinen bis 100",
+        ],
+    },
+    {
         id: "einmaleins",
         titel: "Einmaleins",
         kurz: "Die Malreihen von 1 bis 10",

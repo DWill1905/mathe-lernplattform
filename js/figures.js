@@ -194,3 +194,84 @@ export function punktefeld(reihen, spalten) {
 function r(zahl) {
     return Math.round(zahl * 100) / 100;
 }
+/* ------------------------------------------------------- Zahlenmauern */
+/**
+ * Zahlenmauer (Rechenmauer). `reihen[0]` ist die UNTERSTE Reihe, jede Reihe
+ * darüber hat einen Stein weniger. `null` markiert den gesuchten Stein.
+ */
+export function zahlenmauer(reihen) {
+    const breiteStein = 66;
+    const hoeheStein = 46;
+    const spalt = 5;
+    const unten = reihen[0]?.length ?? 0;
+    const breite = unten * (breiteStein + spalt) - spalt;
+    const hoehe = reihen.length * (hoeheStein + spalt) - spalt;
+    let teile = "";
+    reihen.forEach((reihe, ebene) => {
+        const y = (reihen.length - 1 - ebene) * (hoeheStein + spalt);
+        const versatz = (ebene * (breiteStein + spalt)) / 2;
+        reihe.forEach((wert, spalte) => {
+            const x = versatz + spalte * (breiteStein + spalt);
+            const gesucht = wert === null;
+            teile +=
+                `<rect x="${r(x)}" y="${y}" width="${breiteStein}" height="${hoeheStein}" rx="7" ` +
+                    `class="${gesucht ? "fig-stein-luecke" : "fig-stein"}"/>` +
+                    `<rect x="${r(x)}" y="${y}" width="${breiteStein}" height="${hoeheStein}" rx="7" ` +
+                    `class="fig-linie" fill="none" stroke-width="2.5"/>` +
+                    `<text x="${r(x + breiteStein / 2)}" y="${y + hoeheStein / 2 + 8}" ` +
+                    `class="${gesucht ? "fig-text-marke" : "fig-text"}" text-anchor="middle" font-size="22">` +
+                    `${gesucht ? "?" : wert}</text>`;
+        });
+    });
+    return huelle(breite, hoehe, teile);
+}
+/** Rechenrad: außen + innen ergibt immer die Zahl in der Mitte. */
+export function rechenrad(mitte, felder) {
+    const m = 130;
+    const rMitte = 40;
+    const rInnen = 76;
+    const rAussen = 116;
+    const schritt = (Math.PI * 2) / felder.length;
+    const start = -Math.PI / 2 - schritt / 2;
+    let teile = "";
+    felder.forEach((feld, i) => {
+        const w1 = start + i * schritt;
+        const w2 = w1 + schritt;
+        const gesucht = feld.innen === null;
+        teile += `<path d="${sektor(m, m, rInnen, rAussen, w1, w2)}" class="fig-rad-aussen"/>`;
+        teile += `<path d="${sektor(m, m, rMitte, rInnen, w1, w2)}" class="${gesucht ? "fig-stein-luecke" : "fig-rad-innen"}"/>`;
+        teile += beschriftung(m, (rInnen + rAussen) / 2, (w1 + w2) / 2, String(feld.aussen), "fig-text");
+        teile += beschriftung(m, (rMitte + rInnen) / 2, (w1 + w2) / 2, gesucht ? "?" : String(feld.innen), gesucht ? "fig-text-marke" : "fig-text");
+    });
+    for (const radius of [rMitte, rInnen, rAussen]) {
+        teile += `<circle cx="${m}" cy="${m}" r="${radius}" class="fig-linie" fill="none" stroke-width="2.5"/>`;
+    }
+    for (let i = 0; i < felder.length; i++) {
+        const winkel = start + i * schritt;
+        const [x1, y1] = punkt(m, m, rMitte, winkel);
+        const [x2, y2] = punkt(m, m, rAussen, winkel);
+        teile += `<line x1="${r(x1)}" y1="${r(y1)}" x2="${r(x2)}" y2="${r(y2)}" class="fig-linie" stroke-width="2.5"/>`;
+    }
+    teile += `<circle cx="${m}" cy="${m}" r="${rMitte}" class="fig-rad-mitte"/>`;
+    teile += `<circle cx="${m}" cy="${m}" r="${rMitte}" class="fig-linie" fill="none" stroke-width="2.5"/>`;
+    teile += `<text x="${m}" y="${m + 10}" class="fig-rad-text" text-anchor="middle" font-size="30">${mitte}</text>`;
+    return huelle(2 * m, 2 * m, teile);
+}
+/** Punkt auf einem Kreis um (cx, cy). */
+function punkt(cx, cy, radius, winkel) {
+    return [cx + Math.cos(winkel) * radius, cy + Math.sin(winkel) * radius];
+}
+function beschriftung(m, radius, winkel, text, klasse) {
+    const [x, y] = punkt(m, m, radius, winkel);
+    return `<text x="${r(x)}" y="${r(y + 7)}" class="${klasse}" text-anchor="middle" font-size="20">${text}</text>`;
+}
+/** Ringausschnitt zwischen zwei Radien und zwei Winkeln. */
+function sektor(cx, cy, rI, rA, w1, w2) {
+    const [ax1, ay1] = punkt(cx, cy, rA, w1);
+    const [ax2, ay2] = punkt(cx, cy, rA, w2);
+    const [ix2, iy2] = punkt(cx, cy, rI, w2);
+    const [ix1, iy1] = punkt(cx, cy, rI, w1);
+    const gross = w2 - w1 > Math.PI ? 1 : 0;
+    return (`M${r(ax1)},${r(ay1)} A${rA},${rA} 0 ${gross} 1 ${r(ax2)},${r(ay2)} ` +
+        `L${r(ix2)},${r(iy2)} A${rI},${rI} 0 ${gross} 0 ${r(ix1)},${r(iy1)} Z`);
+}

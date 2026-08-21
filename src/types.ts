@@ -3,6 +3,9 @@
 export type ThemaId =
   | "zahlenraum"
   | "plusminus"
+  | "analogie"
+  | "familien"
+  | "mauern"
   | "einmaleins"
   | "geteilt"
   | "geld"
@@ -79,6 +82,8 @@ export interface Fortschritt {
   verlauf: { tag: string; richtig: number; gesamt: number }[];
   /** Aufgabentyp → Anzahl Fehler, für den Elternbereich. */
   fehler: Record<string, number>;
+  /** Bestwerte des Rechenmeisters (Zeit in Sekunden, 0 = noch keiner). */
+  meister: { besteZeit: number; besteTreffer: number };
 }
 
 /** Ergebnis einer abgeschlossenen Übungsrunde. */

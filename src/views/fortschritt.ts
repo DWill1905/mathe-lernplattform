@@ -1,5 +1,5 @@
 import { el } from "../dom.js";
-import { ERFOLGE, levelInfo } from "../gamification.js";
+import { ERFOLGE, levelInfo, zeitText } from "../gamification.js";
 import { ladeFortschritt } from "../state.js";
 import { THEMEN } from "../topics.js";
 import type { RouteHandler } from "../router.js";
@@ -28,7 +28,14 @@ export const zeige: RouteHandler = (ziel) => {
       kennzahl("Aufgaben", String(gesamt), `davon ${richtig} richtig`),
       kennzahl("Trefferquote", `${quote} %`, "über alle Themen"),
       kennzahl("Sterne", `${sterne} / ${THEMEN.length * 3}`, "aus allen Themen"),
-      kennzahl("Serie", String(fortschritt.streakTage), fortschritt.streakTage === 1 ? "Tag" : "Tage in Folge")
+      kennzahl("Serie", String(fortschritt.streakTage), fortschritt.streakTage === 1 ? "Tag" : "Tage in Folge"),
+      fortschritt.meister.besteTreffer > 0
+        ? kennzahl(
+            "Rechenmeister",
+            `${fortschritt.meister.besteTreffer} / 20`,
+            `Bestzeit ${zeitText(fortschritt.meister.besteZeit)}`
+          )
+        : kennzahl("Rechenmeister", "–", "noch nicht gelaufen")
     )
   );
 

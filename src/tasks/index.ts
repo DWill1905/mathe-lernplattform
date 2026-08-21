@@ -4,12 +4,18 @@ import { einmaleins, geteilt } from "./rechnen.js";
 import { geld, laengen, uhrzeit } from "./groessen.js";
 import { geometrie } from "./geometrie.js";
 import { knobeln, plusminus, zahlenraum } from "./zahlen.js";
+import { analogie } from "./analogie.js";
+import { familien } from "./familien.js";
+import { mauern } from "./mauern.js";
 import { sachaufgaben } from "./sachaufgaben.js";
 
 /** Ein Generator je Thema. Neue Themen brauchen hier einen Eintrag. */
 export const GENERATOREN: Record<ThemaId, AufgabenGenerator> = {
   zahlenraum,
   plusminus,
+  analogie,
+  familien,
+  mauern,
   einmaleins,
   geteilt,
   geld,
@@ -22,6 +28,21 @@ export const GENERATOREN: Record<ThemaId, AufgabenGenerator> = {
 
 /** Anzahl der Aufgaben in einer Übungsrunde. */
 export const RUNDENLAENGE = 10;
+
+/** Anzahl der Aufgaben im Rechenmeister (Runde gegen die Uhr). */
+export const MEISTERLAENGE = 20;
+
+/**
+ * Themen des Rechenmeisters. Wie im Lernheft geht es dort um Plus und Minus
+ * samt ihrer Tricks – nicht um Uhrzeit, Geld oder Formen.
+ */
+export const MEISTER_THEMEN: readonly ThemaId[] = [
+  "plusminus",
+  "analogie",
+  "familien",
+  "mauern",
+  "zahlenraum",
+];
 
 function kennung(aufgabe: Aufgabe): string {
   return `${aufgabe.frage}|${aufgabe.rechnung ?? ""}`;
@@ -48,15 +69,18 @@ export function runde(thema: ThemaId, rng: Rng, stufe: Stufe, anzahl = RUNDENLAE
   return aufgaben;
 }
 
-/** Gemischte Runde über alle Themen – für das tägliche Training. */
+/**
+ * Gemischte Runde über mehrere Themen – für das tägliche Training und für den
+ * Rechenmeister. Ohne `themen` kommen alle Bereiche vor.
+ */
 export function gemischteRunde(
   rng: Rng,
   stufen: Record<ThemaId, Stufe>,
-  anzahl = RUNDENLAENGE
+  anzahl = RUNDENLAENGE,
+  themen: readonly ThemaId[] = Object.keys(GENERATOREN) as ThemaId[]
 ): { thema: ThemaId; aufgabe: Aufgabe }[] {
-  const themen = Object.keys(GENERATOREN) as ThemaId[];
   const reihenfolge: ThemaId[] = [];
-  while (reihenfolge.length < anzahl) reihenfolge.push(...rng.shuffle(themen));
+  while (reihenfolge.length < anzahl) reihenfolge.push(...rng.shuffle([...themen]));
   const gesehen = new Set<string>();
   return reihenfolge.slice(0, anzahl).map((thema) => {
     const stufe = stufen[thema];

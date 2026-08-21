@@ -38,8 +38,9 @@ Abzeichen) und ein Elternbereich. Feature-Liste: `README.md`.
 - `src/state.ts` – **einziger** Ort, der `localStorage` liest und schreibt.
 - `src/random.ts` – `mulberry32`. Niemals `Math.random()` verwenden, sonst
   sind die Aufgaben-Generatoren nicht mehr testbar.
-- `src/tasks/*` – die Aufgaben-Generatoren, nach Themengruppen sortiert;
-  `tasks/index.ts` hält die Registry und baut Runden.
+- `src/tasks/*` – die Aufgaben-Generatoren, nach Themengruppen sortiert
+  (`zahlen`, `rechnen`, `groessen`, `geometrie`, `sachaufgaben`, `analogie`,
+  `familien`, `mauern`); `tasks/index.ts` hält die Registry und baut Runden.
 - `src/figures.ts` – Erklärbilder als SVG-Zeichenketten, ohne DOM-Zugriff und
   deshalb direkt testbar.
 - `src/gamification.ts` – Punkte, Level, Sterne, Streak, Abzeichen,
@@ -53,6 +54,11 @@ Abzeichen) und ein Elternbereich. Feature-Liste: `README.md`.
 
 ## Wichtigste Fallstricke
 
+- **In einer Zahlenmauer fehlt immer genau ein Stein.** Nur dann ist er
+  eindeutig bestimmt, weil alle Nachbarn sichtbar bleiben. Ein Test prüft das.
+- **Der Rechenmeister ist eine Betriebsart der Übungsansicht**, keine eigene
+  Datei – er hat aber einen eigenen Eintrag in `ANSICHTEN`, damit die Route
+  `#/rechenmeister` auch offline vorgeladen wird.
 - **Eine neue Route braucht einen Eintrag in `ANSICHTEN` (`src/app.ts`).**
   Die Liste wird im Leerlauf komplett vorgeladen; nur dadurch bleibt die App
   nach dem Code-Splitting offline vollständig.

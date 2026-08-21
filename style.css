@@ -1085,3 +1085,46 @@ details[open] summary {
     animation: none !important;
   }
 }
+
+/* Zahlenmauern und Rechenräder */
+
+.fig-stein {
+  fill: color-mix(in srgb, var(--orange) 26%, var(--karte));
+}
+
+.fig-stein-luecke {
+  fill: color-mix(in srgb, var(--haupt) 18%, var(--karte));
+}
+
+.fig-rad-aussen {
+  fill: color-mix(in srgb, var(--rot) 24%, var(--karte));
+}
+
+.fig-rad-innen {
+  fill: color-mix(in srgb, var(--gold) 26%, var(--karte));
+}
+
+.fig-rad-mitte {
+  fill: color-mix(in srgb, var(--blau) 26%, var(--karte));
+}
+
+.fig-rad-text {
+  fill: var(--text);
+  font-family: inherit;
+  font-weight: 800;
+}
+
+/* Rechenmeister */
+
+.marke-uhr {
+  background: color-mix(in srgb, var(--rot) 18%, transparent);
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.ergebnis-zeit {
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}

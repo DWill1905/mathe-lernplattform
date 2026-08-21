@@ -26,7 +26,12 @@ export const zeige = (ziel) => {
     })));
     if (!fortschritt.name)
         begruessung.appendChild(namensFeld());
-    const schnellstart = el("section", { class: "schnellstart" }, el("a", { class: "knopf knopf-gross knopf-haupt", href: "#/uebung/mix" }, el("span", { class: "knopf-symbol", "aria-hidden": "true", text: "🎲" }), el("span", {}, el("span", { class: "knopf-titel", text: "Gemischtes Training" }), el("span", { class: "knopf-unter", text: "10 Aufgaben aus allen Themen" }))), el("a", { class: "knopf knopf-gross", href: `#/uebung/${naechstes.id}` }, el("span", { class: "knopf-symbol", "aria-hidden": "true", text: naechstes.symbol }), el("span", {}, el("span", { class: "knopf-titel", text: `Weiter mit ${naechstes.titel}` }), el("span", { class: "knopf-unter", text: naechstes.kurz }))));
+    const schnellstart = el("section", { class: "schnellstart" }, el("a", { class: "knopf knopf-gross knopf-haupt", href: "#/uebung/mix" }, el("span", { class: "knopf-symbol", "aria-hidden": "true", text: "🎲" }), el("span", {}, el("span", { class: "knopf-titel", text: "Gemischtes Training" }), el("span", { class: "knopf-unter", text: "10 Aufgaben aus allen Themen" }))), el("a", { class: "knopf knopf-gross", href: "#/rechenmeister" }, el("span", { class: "knopf-symbol", "aria-hidden": "true", text: "⏱️" }), el("span", {}, el("span", { class: "knopf-titel", text: "Rechenmeister" }), el("span", {
+        class: "knopf-unter",
+        text: fortschritt.meister.besteTreffer > 0
+            ? `20 Aufgaben gegen die Uhr · Bestleistung ${fortschritt.meister.besteTreffer} richtig`
+            : "20 Aufgaben gegen die Uhr",
+    }))), el("a", { class: "knopf knopf-gross", href: `#/uebung/${naechstes.id}` }, el("span", { class: "knopf-symbol", "aria-hidden": "true", text: naechstes.symbol }), el("span", {}, el("span", { class: "knopf-titel", text: `Weiter mit ${naechstes.titel}` }), el("span", { class: "knopf-unter", text: naechstes.kurz }))));
     const kacheln = el("div", { class: "kacheln" });
     for (const eintrag of THEMEN) {
         const stand = fortschritt.themen[eintrag.id];

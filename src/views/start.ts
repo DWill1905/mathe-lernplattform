@@ -69,6 +69,23 @@ export const zeige: RouteHandler = (ziel) => {
     ),
     el(
       "a",
+      { class: "knopf knopf-gross", href: "#/rechenmeister" },
+      el("span", { class: "knopf-symbol", "aria-hidden": "true", text: "⏱️" }),
+      el(
+        "span",
+        {},
+        el("span", { class: "knopf-titel", text: "Rechenmeister" }),
+        el("span", {
+          class: "knopf-unter",
+          text:
+            fortschritt.meister.besteTreffer > 0
+              ? `20 Aufgaben gegen die Uhr · Bestleistung ${fortschritt.meister.besteTreffer} richtig`
+              : "20 Aufgaben gegen die Uhr",
+        })
+      )
+    ),
+    el(
+      "a",
       { class: "knopf knopf-gross", href: `#/uebung/${naechstes.id}` },
       el("span", { class: "knopf-symbol", "aria-hidden": "true", text: naechstes.symbol }),
       el(

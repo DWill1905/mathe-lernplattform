@@ -1,5 +1,5 @@
 import { el } from "../dom.js";
-import { ERFOLGE, levelInfo } from "../gamification.js";
+import { ERFOLGE, levelInfo, zeitText } from "../gamification.js";
 import { ladeFortschritt } from "../state.js";
 import { THEMEN } from "../topics.js";
 import { sterneAnzeige } from "./start.js";
@@ -11,7 +11,9 @@ export const zeige = (ziel) => {
     const richtig = summe(fortschritt, "richtig");
     const quote = gesamt === 0 ? 0 : Math.round((richtig / gesamt) * 100);
     const sterne = Object.values(fortschritt.themen).reduce((s, t) => s + t.sterne, 0);
-    const uebersicht = el("section", { class: "karte" }, el("h1", { class: "seiten-titel", text: "Dein Fortschritt" }), el("div", { class: "kennzahlen" }, kennzahl("Level", String(level.stufe), level.titel), kennzahl("Punkte", String(fortschritt.punkte), "insgesamt gesammelt"), kennzahl("Aufgaben", String(gesamt), `davon ${richtig} richtig`), kennzahl("Trefferquote", `${quote} %`, "über alle Themen"), kennzahl("Sterne", `${sterne} / ${THEMEN.length * 3}`, "aus allen Themen"), kennzahl("Serie", String(fortschritt.streakTage), fortschritt.streakTage === 1 ? "Tag" : "Tage in Folge")));
+    const uebersicht = el("section", { class: "karte" }, el("h1", { class: "seiten-titel", text: "Dein Fortschritt" }), el("div", { class: "kennzahlen" }, kennzahl("Level", String(level.stufe), level.titel), kennzahl("Punkte", String(fortschritt.punkte), "insgesamt gesammelt"), kennzahl("Aufgaben", String(gesamt), `davon ${richtig} richtig`), kennzahl("Trefferquote", `${quote} %`, "über alle Themen"), kennzahl("Sterne", `${sterne} / ${THEMEN.length * 3}`, "aus allen Themen"), kennzahl("Serie", String(fortschritt.streakTage), fortschritt.streakTage === 1 ? "Tag" : "Tage in Folge"), fortschritt.meister.besteTreffer > 0
+        ? kennzahl("Rechenmeister", `${fortschritt.meister.besteTreffer} / 20`, `Bestzeit ${zeitText(fortschritt.meister.besteZeit)}`)
+        : kennzahl("Rechenmeister", "–", "noch nicht gelaufen")));
     const themenliste = el("section", { class: "karte" }, el("h2", { class: "abschnitt-titel", text: "Themen" }));
     for (const eintrag of THEMEN) {
         const stand = fortschritt.themen[eintrag.id];

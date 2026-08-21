@@ -142,6 +142,13 @@ export const ERFOLGE = [
         erreicht: (f) => gesamtSterne(f) >= 20,
     },
     {
+        id: "rechenmeister",
+        titel: "Blitzrechner",
+        text: "Im Rechenmeister alle 20 Aufgaben richtig gelöst.",
+        symbol: "⏱️",
+        erreicht: (f) => f.meister.besteTreffer >= 20,
+    },
+    {
         id: "level5",
         titel: "Rechenmeister",
         text: "Level 5 erreicht.",
@@ -296,4 +303,29 @@ export function werteMixAus(f, eingabe) {
         neueErfolge,
         stufeAufgestiegen: false,
     };
+}
+/* ============================================================ Rechenmeister */
+/**
+ * Verbucht einen Lauf des Rechenmeisters. Bestleistung ist zuerst die Zahl
+ * der richtigen Aufgaben und erst danach die Zeit – sonst würde schnelles
+ * Raten eine sorgfältige Runde schlagen.
+ */
+export function merkeMeisterErgebnis(f, treffer, sekunden) {
+    // Ein Lauf ganz ohne Treffer ist keine Bestleistung – sonst stünde nach dem
+    // ersten Versuch „Neue Bestleistung!“ über einem leeren Ergebnis.
+    if (treffer <= 0)
+        return false;
+    const besser = treffer > f.meister.besteTreffer ||
+        (treffer === f.meister.besteTreffer && (f.meister.besteZeit === 0 || sekunden < f.meister.besteZeit));
+    if (!besser)
+        return false;
+    f.meister.besteTreffer = treffer;
+    f.meister.besteZeit = sekunden;
+    return true;
+}
+/** Sekunden als „2:07 min“. */
+export function zeitText(sekunden) {
+    const minuten = Math.floor(sekunden / 60);
+    const rest = sekunden % 60;
+    return `${minuten}:${String(rest).padStart(2, "0")} min`;
 }

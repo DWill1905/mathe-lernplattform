@@ -7,10 +7,12 @@ import {
   empfehlung,
   levelInfo,
   levelSchwelle,
+  merkeMeisterErgebnis,
   punkteFuerRunde,
   sterneFuerRunde,
   werteMixAus,
   werteRundeAus,
+  zeitText,
 } from "../js/gamification.js";
 import { standardFortschritt } from "../js/state.js";
 
@@ -134,4 +136,37 @@ test("die Empfehlung zeigt auf ein noch nicht geübtes Thema", () => {
 test("jedes Abzeichen hat eine eindeutige Kennung", () => {
   const kennungen = ERFOLGE.map((e) => e.id);
   assert.equal(new Set(kennungen).size, kennungen.length);
+});
+
+test("der Rechenmeister wertet erst die Treffer und dann die Zeit", () => {
+  const fortschritt = standardFortschritt();
+
+  assert.equal(merkeMeisterErgebnis(fortschritt, 0, 30), false, "ein Lauf ohne Treffer ist keine Bestleistung");
+  assert.deepEqual(fortschritt.meister, { besteZeit: 0, besteTreffer: 0 });
+
+  assert.equal(merkeMeisterErgebnis(fortschritt, 14, 180), true, "der erste echte Lauf zählt");
+  assert.deepEqual(fortschritt.meister, { besteZeit: 180, besteTreffer: 14 });
+
+  assert.equal(merkeMeisterErgebnis(fortschritt, 12, 60), false, "schneller mit weniger Treffern zählt nicht");
+  assert.deepEqual(fortschritt.meister, { besteZeit: 180, besteTreffer: 14 });
+
+  assert.equal(merkeMeisterErgebnis(fortschritt, 14, 150), true, "gleiche Treffer, aber schneller");
+  assert.equal(fortschritt.meister.besteZeit, 150);
+
+  assert.equal(merkeMeisterErgebnis(fortschritt, 20, 400), true, "mehr Treffer schlagen die Zeit");
+  assert.deepEqual(fortschritt.meister, { besteZeit: 400, besteTreffer: 20 });
+});
+
+test("das Blitzrechner-Abzeichen gibt es für 20 von 20", () => {
+  const fortschritt = standardFortschritt();
+  const blitz = ERFOLGE.find((e) => e.id === "rechenmeister");
+  assert.equal(blitz.erreicht(fortschritt), false);
+  merkeMeisterErgebnis(fortschritt, 20, 300);
+  assert.equal(blitz.erreicht(fortschritt), true);
+});
+
+test("Zeiten werden als Minuten und Sekunden angezeigt", () => {
+  assert.equal(zeitText(0), "0:00 min");
+  assert.equal(zeitText(59), "0:59 min");
+  assert.equal(zeitText(127), "2:07 min");
 });

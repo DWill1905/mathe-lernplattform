@@ -11,6 +11,9 @@ des Geräts.
 | --- | --- |
 | 🔢 Zahlen bis 100 | Vorgänger/Nachfolger, Zehner und Einer, Nachbarzehner, Zahlenstrahl, Runden, Zahlenfolgen |
 | ➕ Plus & Minus | bis 20, mit vollen Zehnern, bis 100 ohne und mit Zehnerübergang, Platzhalteraufgaben |
+| 💡 Rechentricks | Analogieaufgaben: 3 + 4 → 30 + 40, 3 + 2 → 13 + 2, plus/minus 10, Hunderter, Tabellenzeilen |
+| 👨‍👩‍👧‍👦 Aufgabenfamilien | „3 Zahlen, 4 Aufgaben“: Tausch- und Umkehraufgaben, Lücken in allen vier Formen |
+| 🧱 Mauern & Räder | Zahlenmauern mit fehlendem Stein, Rechenräder mit Zielzahl in der Mitte |
 | ✖️ Einmaleins | alle Reihen von 1 bis 10, Punktefelder, Umkehraufgaben |
 | ➗ Geteilt | Teilen ohne Rest, Aufgaben mit Rest |
 | 💶 Geld | Münzen zählen, Euro und Cent umrechnen, bezahlen und Rückgeld |
@@ -33,6 +36,9 @@ von Hand setzen.
   die Zifferntasten, Rücktaste und Enter.
 - **Tipps** zu jeder Aufgabe, die das Kind selbst aufklappen kann.
 - **Gemischtes Training** über alle Themen hinweg.
+- **Rechenmeister**: 20 Aufgaben gegen die Uhr aus Plus/Minus, Rechentricks,
+  Aufgabenfamilien und Zahlenmauern – mit Stoppuhr und gespeicherter
+  Bestleistung.
 - **Punkte, Level, Sterne, Tagesserie und zwölf Abzeichen** als Motivation.
 - **Fortschrittsseite** mit Trefferquoten je Thema und einer Übersicht der
   letzten zwei Wochen.
@@ -69,7 +75,7 @@ src/
   state.ts          einziger Ort, der localStorage liest/schreibt
   gamification.ts   Punkte, Level, Sterne, Streak, Abzeichen
   random.ts         mulberry32 – die einzige Zufallsquelle
-  figures.ts        Erklärbilder als SVG (Uhr, Geld, Formen, Zahlenstrahl …)
+  figures.ts        Erklärbilder als SVG (Uhr, Geld, Formen, Zahlenmauern, Rechenräder …)
   dom.ts            el()-Helfer zum DOM-Bauen ohne Framework
   tasks/            Aufgaben-Generatoren je Themengruppe
   views/            Start, Übung, Fortschritt, Elternbereich

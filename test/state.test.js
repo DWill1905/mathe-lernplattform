@@ -47,6 +47,7 @@ test("kaputte oder manipulierte Daten werden geprüft statt übernommen", () => 
       erfolge: ["start", "start", 42],
       verlauf: "kein Array",
       fehler: { "geld/rueckgeld": -3, "einmaleins/reihe-7": 4 },
+      meister: { besteZeit: "schnell", besteTreffer: 9999 },
     })
   );
 
@@ -63,6 +64,12 @@ test("kaputte oder manipulierte Daten werden geprüft statt übernommen", () => 
   assert.deepEqual(geladen.erfolge, ["start"]);
   assert.deepEqual(geladen.verlauf, []);
   assert.deepEqual(geladen.fehler, { "einmaleins/reihe-7": 4 });
+  assert.deepEqual(geladen.meister, { besteZeit: 0, besteTreffer: 0 });
+});
+
+test("fehlende Bestwerte des Rechenmeisters werden ergänzt", () => {
+  localStorage.setItem(SCHLUESSEL, JSON.stringify({ punkte: 10 }));
+  assert.deepEqual(ladeFortschritt().meister, { besteZeit: 0, besteTreffer: 0 });
 });
 
 test("unlesbares JSON führt nicht zum Absturz", () => {

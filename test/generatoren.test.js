@@ -38,7 +38,7 @@ test("jeder Generator liefert auf jeder Stufe wohlgeformte Aufgaben", () => {
 });
 
 test("Rechnungen stimmen mit der angegebenen Lösung überein", () => {
-  const rechenthemen = ["plusminus", "einmaleins", "geteilt"];
+  const rechenthemen = ["plusminus", "einmaleins", "geteilt", "analogie", "familien"];
   for (const id of rechenthemen) {
     for (const stufe of STUFEN) {
       const rng = mulberry32(4711 + stufe);

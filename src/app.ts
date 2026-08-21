@@ -18,6 +18,8 @@ interface Ansicht {
 const ANSICHTEN: Record<string, () => Promise<Ansicht>> = {
   start: () => import("./views/start.js"),
   uebung: () => import("./views/uebung.js"),
+  // Der Rechenmeister ist eine Betriebsart der Übungsansicht, keine eigene Datei.
+  rechenmeister: () => import("./views/uebung.js"),
   fortschritt: () => import("./views/fortschritt.js"),
   eltern: () => import("./views/eltern.js"),
 };

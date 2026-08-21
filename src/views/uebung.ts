@@ -10,13 +10,15 @@ import { el, svgBild } from "../dom.js";
 import {
   ERFOLGE,
   lobText,
+  merkeMeisterErgebnis,
   werteMixAus,
   werteRundeAus,
+  zeitText,
   type MixEingabe,
 } from "../gamification.js";
 import { mulberry32, zufallsSeed } from "../random.js";
 import { ladeFortschritt } from "../state.js";
-import { RUNDENLAENGE, gemischteRunde, runde } from "../tasks/index.js";
+import { MEISTERLAENGE, MEISTER_THEMEN, RUNDENLAENGE, gemischteRunde, runde } from "../tasks/index.js";
 import { THEMEN, istThemaId, thema } from "../topics.js";
 import type { RouteHandler } from "../router.js";
 import type { Aufgabe, RundenErgebnis, Stufe, ThemaId } from "../types.js";
@@ -28,8 +30,12 @@ interface Eintrag {
 }
 
 interface Sitzung {
-  /** `null` steht für das gemischte Training. */
+  /** `null` steht für das gemischte Training und den Rechenmeister. */
   themaId: ThemaId | null;
+  /** Runde gegen die Uhr (Rechenmeister). */
+  meister: boolean;
+  /** Startzeitpunkt in Millisekunden – nur im Rechenmeister genutzt. */
+  startZeit: number;
   stufe: Stufe;
   eintraege: Eintrag[];
   index: number;
@@ -47,12 +53,17 @@ interface Sitzung {
 
 /** Aufräumhaken der laufenden Runde – Timer und Tastatur dürfen nie überleben. */
 let timer: number | null = null;
+let uhrTakt: number | null = null;
 let tastatur: ((ereignis: KeyboardEvent) => void) | null = null;
 
 function aufraeumen(): void {
   if (timer !== null) {
     clearTimeout(timer);
     timer = null;
+  }
+  if (uhrTakt !== null) {
+    clearInterval(uhrTakt);
+    uhrTakt = null;
   }
   if (tastatur) {
     document.removeEventListener("keydown", tastatur);
@@ -62,7 +73,7 @@ function aufraeumen(): void {
 
 export const zeige: RouteHandler = (ziel, parameter) => {
   aufraeumen();
-  const sitzung = baueSitzung(parameter[1] ?? "mix");
+  const sitzung = baueSitzung(parameter[0] === "rechenmeister" ? "meister" : (parameter[1] ?? "mix"));
   if (!sitzung) {
     ziel.replaceChildren(
       el(
@@ -86,9 +97,12 @@ function baueSitzung(wunsch: string): Sitzung | null {
   const fortschritt = ladeFortschritt();
   const rng = mulberry32(zufallsSeed());
 
-  if (wunsch === "mix") {
+  if (wunsch === "mix" || wunsch === "meister") {
     const stufen = {} as Record<ThemaId, Stufe>;
     for (const t of THEMEN) stufen[t.id] = fortschritt.themen[t.id].stufe;
+    if (wunsch === "meister") {
+      return neueSitzung(null, 2, gemischteRunde(rng, stufen, MEISTERLAENGE, MEISTER_THEMEN), true);
+    }
     return neueSitzung(null, 2, gemischteRunde(rng, stufen, RUNDENLAENGE));
   }
   if (istThemaId(wunsch)) {
@@ -102,9 +116,16 @@ function baueSitzung(wunsch: string): Sitzung | null {
   return null;
 }
 
-function neueSitzung(themaId: ThemaId | null, stufe: Stufe, eintraege: Eintrag[]): Sitzung {
+function neueSitzung(
+  themaId: ThemaId | null,
+  stufe: Stufe,
+  eintraege: Eintrag[],
+  meister = false
+): Sitzung {
   return {
     themaId,
+    meister,
+    startZeit: Date.now(),
     stufe,
     eintraege,
     index: 0,
@@ -133,7 +154,11 @@ function zeichne(ziel: HTMLElement, sitzung: Sitzung): void {
   const aufgabe = eintrag.aufgabe;
   const nummer = sitzung.index + 1;
   const gesamt = sitzung.eintraege.length;
-  const titel = sitzung.themaId ? thema(sitzung.themaId).titel : "Gemischtes Training";
+  const titel = sitzung.meister
+    ? "Rechenmeister"
+    : sitzung.themaId
+      ? thema(sitzung.themaId).titel
+      : "Gemischtes Training";
 
   const kopf = el(
     "section",
@@ -142,10 +167,12 @@ function zeichne(ziel: HTMLElement, sitzung: Sitzung): void {
       "div",
       { class: "uebung-kopf-zeile" },
       el("a", { class: "knopf knopf-klein knopf-still", href: "#/", text: "← Abbrechen" }),
-      el("span", {
-        class: "marke",
-        text: sitzung.themaId ? `${titel} · Stufe ${sitzung.stufe}` : titel,
-      })
+      sitzung.meister
+        ? stoppuhr(sitzung)
+        : el("span", {
+            class: "marke",
+            text: sitzung.themaId ? `${titel} · Stufe ${sitzung.stufe}` : titel,
+          })
     ),
     el(
       "div",
@@ -179,7 +206,7 @@ function zeichne(ziel: HTMLElement, sitzung: Sitzung): void {
 
   karte.appendChild(antwortbereich(ziel, sitzung, aufgabe));
 
-  if (aufgabe.tipp && !sitzung.beantwortet) {
+  if (aufgabe.tipp && !sitzung.beantwortet && !sitzung.meister) {
     karte.appendChild(
       sitzung.tippOffen
         ? el("p", { class: "tipp tipp-offen", text: `💡 ${aufgabe.tipp}` })
@@ -197,6 +224,28 @@ function zeichne(ziel: HTMLElement, sitzung: Sitzung): void {
   if (sitzung.beantwortet) karte.appendChild(rueckmeldung(ziel, sitzung, aufgabe));
 
   ziel.replaceChildren(kopf, karte);
+}
+
+/**
+ * Laufende Stoppuhr des Rechenmeisters. Sie schreibt nur in ihren eigenen
+ * Textknoten – ein Neuzeichnen der ganzen Ansicht im Sekundentakt würde die
+ * Eingabe stören.
+ */
+function stoppuhr(sitzung: Sitzung): HTMLElement {
+  const anzeige = el("span", { text: zeitText(vergangeneSekunden(sitzung)) });
+  uhrTakt = window.setInterval(() => {
+    anzeige.textContent = zeitText(vergangeneSekunden(sitzung));
+  }, 1000);
+  return el(
+    "span",
+    { class: "marke marke-uhr", role: "timer", "aria-label": "Verstrichene Zeit" },
+    el("span", { "aria-hidden": "true", text: "⏱️ " }),
+    anzeige
+  );
+}
+
+function vergangeneSekunden(sitzung: Sitzung): number {
+  return Math.max(0, Math.round((Date.now() - sitzung.startZeit) / 1000));
 }
 
 /* ---------------------------------------------------------- Antwortfeld */
@@ -364,6 +413,8 @@ function normalisiere(wert: string): string {
 function zeichneErgebnis(ziel: HTMLElement, sitzung: Sitzung): void {
   const fortschritt = ladeFortschritt();
   let ergebnis: RundenErgebnis;
+  let sekunden = 0;
+  let neueBestleistung = false;
 
   if (sitzung.themaId) {
     ergebnis = werteRundeAus(fortschritt, {
@@ -389,11 +440,15 @@ function zeichneErgebnis(ziel: HTMLElement, sitzung: Sitzung): void {
       fehlerTypen: sitzung.fehlerTypen,
       besteSerie: sitzung.besteSerie,
     };
+    if (sitzung.meister) {
+      sekunden = vergangeneSekunden(sitzung);
+      neueBestleistung = merkeMeisterErgebnis(fortschritt, sitzung.richtig, sekunden);
+    }
     ergebnis = werteMixAus(fortschritt, eingabe);
   }
 
   const nochmal = (): void => {
-    const neue = baueSitzung(sitzung.themaId ?? "mix");
+    const neue = baueSitzung(sitzung.meister ? "meister" : (sitzung.themaId ?? "mix"));
     if (neue) zeichne(ziel, neue);
   };
   const karte = el(
@@ -406,6 +461,25 @@ function zeichneErgebnis(ziel: HTMLElement, sitzung: Sitzung): void {
       text: `${ergebnis.richtig} von ${ergebnis.gesamt} Aufgaben richtig · +${ergebnis.punkte} Punkte`,
     })
   );
+
+  if (sitzung.meister) {
+    karte.appendChild(
+      el(
+        "p",
+        { class: "ergebnis-zeit" },
+        el("span", { "aria-hidden": "true", text: "⏱️ " }),
+        `Deine Zeit: ${zeitText(sekunden)}`
+      )
+    );
+    karte.appendChild(
+      el("p", {
+        class: neueBestleistung ? "ergebnis-aufstieg" : "hinweis",
+        text: neueBestleistung
+          ? "Neue Bestleistung!"
+          : `Deine Bestleistung: ${fortschritt.meister.besteTreffer} richtig in ${zeitText(fortschritt.meister.besteZeit)}.`,
+      })
+    );
+  }
 
   if (ergebnis.stufeAufgestiegen && sitzung.themaId) {
     karte.appendChild(

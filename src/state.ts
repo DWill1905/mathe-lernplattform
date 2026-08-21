@@ -39,6 +39,7 @@ export function standardFortschritt(): Fortschritt {
     letzterTag: "",
     verlauf: [],
     fehler: {},
+    meister: { besteZeit: 0, besteTreffer: 0 },
   };
 }
 
@@ -120,6 +121,13 @@ export function ladeFortschritt(): Fortschritt {
     }
   }
 
+  const rohMeister = (daten["meister"] ?? {}) as Record<string, unknown>;
+  const meister = {
+    // Eine Bestzeit von über zwei Stunden ist keine – dann lieber „noch keine“.
+    besteZeit: ganzeZahl(rohMeister["besteZeit"], 0, 7200, 0),
+    besteTreffer: ganzeZahl(rohMeister["besteTreffer"], 0, 100, 0),
+  };
+
   return {
     name: textAus(daten["name"], MAX_NAME),
     punkte: ganzeZahl(daten["punkte"], 0, MAX_PUNKTE, 0),
@@ -129,6 +137,7 @@ export function ladeFortschritt(): Fortschritt {
     letzterTag: istDatum(daten["letzterTag"]) ? daten["letzterTag"] : "",
     verlauf,
     fehler,
+    meister,
   };
 }
 
