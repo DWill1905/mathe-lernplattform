@@ -6,49 +6,64 @@
    ========================================================================== */
 
 :root {
-  --grund: #eef2f7;
+  --grund: #f5f2ff;
   --karte: #ffffff;
-  --text: #10192b;
-  --text-leise: #5b6b83;
-  --rand: #d9e1ec;
-  --haupt: #2563eb;
-  --haupt-dunkel: #1d4ed8;
-  --haupt-hell: #dbeafe;
+  --text: #2a1b45;
+  --text-leise: #6b5b8a;
+  --rand: #e6ddfb;
+  --haupt: #7c3aed;
+  --haupt-dunkel: #6d28d9;
+  --haupt-hell: #ede9fe;
+  /* Für Text und Symbole AUF getönten Flächen – dunkler als `--haupt`. */
+  --haupt-text: #6423d0;
+  /* Der Markenverlauf. Das rosa Ende ist dunkler als `--rot`, damit weiße
+     Schrift darauf die Kontrastvorgabe erfüllt. */
+  --verlauf-a: #7c3aed;
+  --verlauf-b: #c2185b;
+  --verlauf-text: #ffffff;
   --richtig: #15803d;
   --richtig-hell: #dcfce7;
-  --falsch: #b91c1c;
-  --falsch-hell: #fee2e2;
-  --gold: #eab308;
-  --blau: #2563eb;
-  --gruen: #059669;
-  --orange: #ea580c;
+  --falsch: #be123c;
+  --falsch-hell: #ffe4e6;
+  --gold: #f59e0b;
+  --blau: #3b82f6;
+  --gruen: #10b981;
+  --orange: #f59e0b;
   --lila: #7c3aed;
-  --rot: #db2777;
-  --schatten: 0 2px 6px rgb(15 25 43 / 8%);
-  --radius: 18px;
+  --rot: #ec4899;
+  --schatten: 0 3px 10px rgb(94 45 173 / 10%);
+  --schatten-tief: 0 8px 24px rgb(94 45 173 / 16%);
+  --radius: 22px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --grund: #0d1424;
-    --karte: #182234;
-    --text: #e6ecf5;
-    --text-leise: #9aabc2;
-    --rand: #2a3852;
-    --haupt: #60a5fa;
-    --haupt-dunkel: #3b82f6;
-    --haupt-hell: #1e3a5f;
+    --grund: #140e26;
+    --karte: #1e1636;
+    --text: #ece7f8;
+    --text-leise: #ab9dc7;
+    --rand: #352a54;
+    --haupt: #a78bfa;
+    --haupt-dunkel: #8b5cf6;
+    --haupt-hell: #2e2255;
+    --haupt-text: #c4b5fd;
+    /* Im Dunkelmodus liegt dunkle Schrift auf dem hellen Verlauf – weiß wäre
+       darauf zu blass. */
+    --verlauf-a: #a78bfa;
+    --verlauf-b: #f472b6;
+    --verlauf-text: #170f2b;
     --richtig: #4ade80;
     --richtig-hell: #14351f;
-    --falsch: #fca5a5;
-    --falsch-hell: #3d1717;
+    --falsch: #fda4af;
+    --falsch-hell: #3d1622;
     --gold: #fbbf24;
     --blau: #60a5fa;
     --gruen: #34d399;
-    --orange: #fb923c;
+    --orange: #fbbf24;
     --lila: #a78bfa;
     --rot: #f472b6;
-    --schatten: 0 2px 6px rgb(0 0 0 / 35%);
+    --schatten: 0 3px 10px rgb(0 0 0 / 35%);
+    --schatten-tief: 0 8px 24px rgb(0 0 0 / 45%);
   }
 }
 
@@ -131,7 +146,7 @@ body {
   font-size: 0.85rem;
   font-weight: 600;
   background: var(--haupt-hell);
-  color: var(--haupt-dunkel);
+  color: var(--haupt-text);
 }
 
 .chip-streak {
@@ -191,7 +206,7 @@ body {
 }
 
 .nav-aktiv {
-  color: var(--haupt-dunkel);
+  color: var(--haupt-text);
   background: var(--haupt-hell);
 }
 
@@ -491,7 +506,7 @@ body {
   padding: 0.15rem 0.6rem;
   border-radius: 999px;
   background: var(--haupt-hell);
-  color: var(--haupt-dunkel);
+  color: var(--haupt-text);
   font-size: 0.78rem;
   font-weight: 700;
 }
@@ -757,7 +772,7 @@ body {
   padding: 0.7rem 1rem;
   border-radius: 12px;
   background: var(--haupt-hell);
-  color: var(--haupt-dunkel);
+  color: var(--haupt-text);
   font-weight: 700;
 }
 
@@ -1667,4 +1682,282 @@ body {
   .karte {
     padding: 0.7rem;
   }
+}
+
+/* ==========================================================================
+   Symbole
+   Statt Emojis zeichnet die App ihre Symbole selbst (siehe src/icons.ts).
+   Sie erben über `currentColor` die Farbe ihres Umfelds und lassen sich
+   deshalb je Thema, Zustand und Farbschema einfärben.
+   ========================================================================== */
+
+.symbol {
+  display: inline-flex;
+  flex: none;
+  width: 1.25em;
+  height: 1.25em;
+  vertical-align: -0.2em;
+}
+
+.symbol svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.kopf-symbol {
+  width: 2.2rem;
+  height: 2.2rem;
+}
+
+.nav-symbol {
+  width: 1.55rem;
+  height: 1.55rem;
+}
+
+.knopf-symbol {
+  width: 1.9rem;
+  height: 1.9rem;
+  color: var(--haupt);
+}
+
+.knopf-haupt .knopf-symbol {
+  color: inherit;
+}
+
+.chip-symbol {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.kachel-symbol {
+  width: 1.7rem;
+  height: 1.7rem;
+  color: var(--farbe, var(--haupt));
+}
+
+.themenzeile-symbol {
+  width: 1.7rem;
+  height: 1.7rem;
+}
+
+.abzeichen-symbol {
+  width: 2.1rem;
+  height: 2.1rem;
+  color: var(--gold);
+}
+
+.abzeichen-symbol-zu {
+  color: var(--text-leise);
+}
+
+.erfolg-symbol {
+  width: 2rem;
+  height: 2rem;
+  color: var(--gold);
+}
+
+.rueckmeldung-symbol {
+  width: 1.6rem;
+  height: 1.6rem;
+}
+
+.tipp-symbol {
+  width: 1.15rem;
+  height: 1.15rem;
+  color: var(--gold);
+}
+
+.aufgabe-thema-symbol {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.ergebnis-symbol {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--haupt);
+}
+
+.herz {
+  width: 2rem;
+  height: 2rem;
+  color: var(--rot);
+}
+
+.herz-klein {
+  width: 1.05rem;
+  height: 1.05rem;
+  color: var(--rot);
+}
+
+.sterne {
+  display: inline-flex;
+  gap: 0.12rem;
+}
+
+.sterne .symbol {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.stern-voll {
+  color: var(--gold);
+}
+
+.stern-leer {
+  /* Deutlich genug, um die noch offenen Sterne zu erkennen – auch auf den
+     getönten Kacheln, wo `--rand` untergegangen wäre. */
+  color: color-mix(in srgb, var(--text-leise) 55%, transparent);
+}
+
+.ergebnis-sterne .symbol {
+  width: 2.8rem;
+  height: 2.8rem;
+}
+
+/* Themenfarben für Symbole außerhalb der Kacheln */
+.farbe-blau {
+  color: var(--blau);
+}
+.farbe-gruen {
+  color: var(--gruen);
+}
+.farbe-orange {
+  color: var(--orange);
+}
+.farbe-lila {
+  color: var(--lila);
+}
+.farbe-rot {
+  color: var(--rot);
+}
+
+/* Die Eule im Kopf – das Maskottchen der Mathe-Schule */
+.eule-koerper {
+  fill: var(--haupt);
+  stroke: var(--haupt);
+}
+
+.eule-auge {
+  fill: var(--karte);
+  stroke: var(--haupt);
+  stroke-width: 1.6;
+}
+
+.eule-pupille {
+  fill: var(--text);
+  stroke: none;
+}
+
+.eule-schnabel {
+  fill: var(--gold);
+  stroke: var(--gold);
+}
+
+.eule-ohren {
+  stroke: var(--haupt);
+}
+
+/* ==========================================================================
+   Verspielte Details
+   Runde Formen, weiche Schatten und Farbfelder – die Seite soll für ein Kind
+   einladend aussehen, ohne dass Text oder Kontrast darunter leiden.
+   ========================================================================== */
+
+.karte {
+  box-shadow: var(--schatten);
+}
+
+.karte-begruessung {
+  background: linear-gradient(150deg, var(--haupt-hell), var(--karte) 62%);
+  border-color: color-mix(in srgb, var(--haupt) 22%, var(--rand));
+}
+
+.begruessung-titel {
+  color: var(--haupt-text);
+}
+
+/* Der wichtigste Knopf trägt den Farbverlauf der Marke. */
+.knopf-haupt {
+  background: linear-gradient(135deg, var(--verlauf-a), var(--verlauf-b));
+  border-color: transparent;
+  color: var(--verlauf-text);
+  box-shadow: var(--schatten-tief);
+}
+
+.knopf-haupt:hover {
+  filter: brightness(1.08);
+  border-color: transparent;
+}
+
+.knopf-gross {
+  border-radius: 18px;
+}
+
+/* Themenkacheln: getönter Grund und das Symbol in einem runden Farbfeld. */
+.kachel {
+  border-left-width: 1px;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--farbe) 12%, var(--karte)), var(--karte) 70%);
+  border-color: color-mix(in srgb, var(--farbe) 26%, var(--rand));
+}
+
+.kachel-symbol {
+  width: 2.7rem;
+  height: 2.7rem;
+  padding: 0.5rem;
+  margin-bottom: 0.35rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--farbe) 18%, var(--karte));
+}
+
+.kachel-titel {
+  color: var(--text);
+}
+
+.marke {
+  background: color-mix(in srgb, var(--farbe, var(--haupt)) 16%, transparent);
+  color: var(--text);
+}
+
+.chip-level {
+  background: linear-gradient(135deg, var(--verlauf-a), var(--verlauf-b));
+  color: var(--verlauf-text);
+}
+
+.abzeichen-karte {
+  background: linear-gradient(160deg, color-mix(in srgb, var(--gold) 22%, var(--karte)), var(--karte));
+  border: 1px solid color-mix(in srgb, var(--gold) 28%, var(--rand));
+}
+
+.kennzahl {
+  background: linear-gradient(160deg, var(--haupt-hell), var(--grund) 75%);
+}
+
+.kennzahl-wert {
+  color: var(--haupt-text);
+}
+
+.taste-ok {
+  background: linear-gradient(135deg, var(--verlauf-a), var(--verlauf-b));
+  border-color: transparent;
+  color: var(--verlauf-text);
+}
+
+.nav-aktiv {
+  color: var(--haupt-text);
+}
+
+/* Der Fortschrittsbalken in den Markenfarben statt Blau/Grün. */
+.balken-fuellung {
+  background: linear-gradient(90deg, var(--verlauf-a), var(--verlauf-b));
+}
+
+.eingabe-anzeige {
+  border-color: color-mix(in srgb, var(--haupt) 28%, var(--rand));
+  background: linear-gradient(160deg, var(--haupt-hell), var(--grund) 70%);
+}
+
+.eingabe-zahl {
+  color: var(--haupt-text);
 }

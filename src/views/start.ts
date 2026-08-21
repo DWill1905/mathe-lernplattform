@@ -1,13 +1,17 @@
 import { el } from "../dom.js";
+import { icon } from "../icons.js";
 import { empfehlung, levelInfo } from "../gamification.js";
 import { ladeFortschritt, speichereFortschritt } from "../state.js";
 import { HEFT_THEMEN, WEITERE_THEMEN, thema } from "../topics.js";
 import type { RouteHandler } from "../router.js";
 
-/** Sterne als Text – barrierefrei mit Klartext-Beschriftung. */
+/** Drei Sterne, davon `anzahl` gefüllt – mit Klartext für Screenreader. */
 export function sterneAnzeige(anzahl: number): HTMLElement {
-  const text = "★★★☆☆☆".slice(3 - anzahl, 6 - anzahl);
-  return el("span", { class: "sterne", "aria-label": `${anzahl} von 3 Sternen`, text });
+  const reihe = el("span", { class: "sterne", role: "img", "aria-label": `${anzahl} von 3 Sternen` });
+  for (let i = 1; i <= 3; i++) {
+    reihe.appendChild(icon(i <= anzahl ? "stern" : "sternLeer", i <= anzahl ? "stern-voll" : "stern-leer"));
+  }
+  return reihe;
 }
 
 export const zeige: RouteHandler = (ziel) => {
@@ -59,7 +63,7 @@ export const zeige: RouteHandler = (ziel) => {
     el(
       "a",
       { class: "knopf knopf-gross knopf-haupt", href: "#/uebung/mix" },
-      el("span", { class: "knopf-symbol", "aria-hidden": "true", text: "🎲" }),
+      icon("wuerfel", "knopf-symbol"),
       el(
         "span",
         {},
@@ -70,7 +74,7 @@ export const zeige: RouteHandler = (ziel) => {
     el(
       "a",
       { class: "knopf knopf-gross", href: "#/raetsel" },
-      el("span", { class: "knopf-symbol", "aria-hidden": "true", text: "🔤" }),
+      icon("buchstaben", "knopf-symbol"),
       el(
         "span",
         {},
@@ -81,7 +85,7 @@ export const zeige: RouteHandler = (ziel) => {
     el(
       "a",
       { class: "knopf knopf-gross", href: "#/rechenmeister" },
-      el("span", { class: "knopf-symbol", "aria-hidden": "true", text: "⏱️" }),
+      icon("stoppuhr", "knopf-symbol"),
       el(
         "span",
         {},
@@ -98,7 +102,7 @@ export const zeige: RouteHandler = (ziel) => {
     el(
       "a",
       { class: "knopf knopf-gross", href: `#/uebung/${naechstes.id}` },
-      el("span", { class: "knopf-symbol", "aria-hidden": "true", text: naechstes.symbol }),
+      icon(naechstes.symbol, "knopf-symbol"),
       el(
         "span",
         {},
@@ -116,7 +120,7 @@ export const zeige: RouteHandler = (ziel) => {
         el(
           "a",
           { class: `kachel kachel-${eintrag.farbe}`, href: `#/uebung/${eintrag.id}` },
-          el("span", { class: "kachel-symbol", "aria-hidden": "true", text: eintrag.symbol }),
+          icon(eintrag.symbol, "kachel-symbol"),
           el("span", { class: "kachel-titel", text: eintrag.titel }),
           el("span", { class: "kachel-kurz", text: eintrag.kurz }),
           el(

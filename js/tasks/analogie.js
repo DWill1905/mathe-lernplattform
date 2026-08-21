@@ -146,7 +146,7 @@ function hunderter(rng) {
         erklaerung: `10 − ${b} = ${10 - b}, also 100 − ${b * 10} = ${(10 - b) * 10}.`,
     };
 }
-/** ☐ + 30 = 70 */
+/** Lücke ergänzen: ? + 30 = 70 */
 function luecke(rng) {
     const ergebnis = rng.int(3, 10) * 10;
     const bekannt = rng.int(1, ergebnis / 10 - 1) * 10;

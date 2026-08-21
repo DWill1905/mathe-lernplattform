@@ -4,12 +4,13 @@
  * Streak überall aktuell sind.
  */
 import { el, leeren } from "./dom.js";
+import { icon } from "./icons.js";
 import { levelInfo } from "./gamification.js";
 import { ladeFortschritt } from "./state.js";
 const NAVIGATION = [
-    { pfad: "#/", titel: "Start", symbol: "🏠" },
-    { pfad: "#/fortschritt", titel: "Fortschritt", symbol: "📈" },
-    { pfad: "#/eltern", titel: "Eltern", symbol: "👨‍👩‍👧" },
+    { pfad: "#/", titel: "Start", symbol: "haus" },
+    { pfad: "#/fortschritt", titel: "Fortschritt", symbol: "diagramm" },
+    { pfad: "#/eltern", titel: "Eltern", symbol: "eltern" },
 ];
 export function baueShell(wurzel) {
     leeren(wurzel);
@@ -37,8 +38,8 @@ export function frischeShellAuf() {
     const fortschritt = ladeFortschritt();
     const level = levelInfo(fortschritt.punkte);
     leeren(kopf);
-    kopf.append(el("a", { class: "kopf-titel", href: "#/" }, el("span", { class: "kopf-symbol", "aria-hidden": "true", text: "🦉" }), el("span", { text: "Mathe-Schule" })), el("div", { class: "kopf-status" }, el("div", { class: "chip chip-level", title: `${fortschritt.punkte} Punkte` }, el("span", { class: "chip-zahl", text: level.stufe }), el("span", { class: "chip-text", text: level.titel })), fortschritt.streakTage > 0 &&
-        el("div", { class: "chip chip-streak", title: "Tage hintereinander geübt" }, el("span", { "aria-hidden": "true", text: "🔥" }), el("span", { class: "chip-zahl", text: fortschritt.streakTage })), 
+    kopf.append(el("a", { class: "kopf-titel", href: "#/" }, icon("eule", "kopf-symbol"), el("span", { text: "Mathe-Schule" })), el("div", { class: "kopf-status" }, el("div", { class: "chip chip-level", title: `${fortschritt.punkte} Punkte` }, el("span", { class: "chip-zahl", text: level.stufe }), el("span", { class: "chip-text", text: level.titel })), fortschritt.streakTage > 0 &&
+        el("div", { class: "chip chip-streak", title: "Tage hintereinander geübt" }, icon("flamme", "chip-symbol"), el("span", { class: "chip-zahl", text: fortschritt.streakTage })), 
     // `navigator.onLine` ist bewusst nur ein Hinweis, keine Sperre: Die App
     // arbeitet online wie offline gleich weiter.
     !navigator.onLine &&
@@ -46,7 +47,7 @@ export function frischeShellAuf() {
             class: "chip chip-offline",
             role: "status",
             title: "Kein Internet – die Mathe-Schule funktioniert trotzdem",
-        }, el("span", { "aria-hidden": "true", text: "📴" }), el("span", { class: "chip-text", text: "Offline" }))));
+        }, icon("offline", "chip-symbol"), el("span", { class: "chip-text", text: "Offline" }))));
     const aktuell = location.hash === "" ? "#/" : location.hash;
     leeren(fuss);
     for (const punkt of NAVIGATION) {
@@ -55,6 +56,6 @@ export function frischeShellAuf() {
             class: `nav-punkt${istAktiv ? " nav-aktiv" : ""}`,
             href: punkt.pfad,
             "aria-current": istAktiv ? "page" : undefined,
-        }, el("span", { class: "nav-symbol", "aria-hidden": "true", text: punkt.symbol }), el("span", { class: "nav-titel", text: punkt.titel })));
+        }, icon(punkt.symbol, "nav-symbol"), el("span", { class: "nav-titel", text: punkt.titel })));
     }
 }

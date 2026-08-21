@@ -4,6 +4,37 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.9.0] – 2026-08-21
+
+### Geändert
+
+**Neues Erscheinungsbild in Lila – und Schluss mit Emojis.**
+
+- **Eigenes Symbolset** (`src/icons.ts`): 35 selbst gezeichnete SVG-Icons im
+  24er-Raster, allesamt über `currentColor` einfärbbar. Emojis sahen auf jedem
+  Gerät anders aus, ließen sich nicht an Thema oder Farbschema anpassen und
+  wurden von Screenreadern eigenwillig vorgelesen. Ein Test verhindert, dass
+  wieder welche in den Quellcode geraten, und prüft, dass jedes Thema und jedes
+  Abzeichen ein vorhandenes Symbol nutzt.
+- **Eule als Maskottchen** in der Kopfzeile und im App-Symbol.
+- **Farbwelt auf Lila umgestellt**, inklusive Markenverlauf für den
+  Hauptknopf, die Level-Marke, den Fortschrittsbalken und die OK-Taste.
+- **Verspielter, aber lesbar**: getönte Themenkacheln mit dem Symbol in einem
+  runden Farbfeld, weichere Schatten, rundere Karten, Sterne als gefüllte und
+  offene SVG-Symbole statt Textzeichen.
+- **Kontraste nachgemessen**: Für Text auf getönten Flächen gibt es jetzt das
+  Token `--haupt-text`, und der Markenverlauf endet in einem dunkleren Rosa,
+  damit weiße Schrift darauf bestehen bleibt. Im Dunkelmodus trägt der Verlauf
+  dunkle statt weißer Schrift. Alle geprüften Textfarben erfüllen WCAG AA in
+  beiden Farbschemata.
+- App-Symbole, `theme-color` und die Manifest-Farben neu gezeichnet.
+
+### Behoben
+
+- `icon()` ersetzte die Basisklasse `symbol` statt sie zu ergänzen. Dadurch
+  verloren die Symbole ihre Maße; die Sternebewertung fiel ganz zusammen und
+  war weder auf den Kacheln noch in der Fortschrittsliste zu sehen.
+
 ## [1.8.0] – 2026-08-21
 
 ### Neu

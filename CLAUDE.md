@@ -106,6 +106,11 @@ verwässern.
   `bildauswahl` (Bildkarten A–D; die Lösung ist die Kennung, nicht das Bild).
   Wer eine vierte ergänzt, muss `antwortbereich()` in `views/uebung.ts` und
   die Prüfungen in `test/generatoren.test.js` nachziehen.
+- **`icon(name, klasse)` ERGÄNZT die Basisklasse `symbol`**, es ersetzt sie
+  nicht. Ohne `symbol` verliert ein Icon seine Maße und fällt auf null zusammen.
+- **Text auf getönten Flächen nutzt `--haupt-text`**, nicht `--haupt` oder
+  `--haupt-dunkel`: Nur so stimmt der Kontrast in beiden Farbschemata. Der
+  Markenverlauf (`--verlauf-a/-b/-text`) bringt seine Textfarbe selbst mit.
 - **Farben in SVGs nur über CSS-Klassen** (`fig-*` in `style.css`), sonst
   bricht der Dunkelmodus. Ein Test erzwingt das.
 - **Keine Inline-Styles.** Die CSP verbietet `style`-Attribute; `el()` setzt

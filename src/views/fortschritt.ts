@@ -1,4 +1,5 @@
 import { el } from "../dom.js";
+import { icon } from "../icons.js";
 import { ERFOLGE, levelInfo, zeitText } from "../gamification.js";
 import { ladeFortschritt, tagesSchluessel } from "../state.js";
 import { THEMEN } from "../topics.js";
@@ -52,7 +53,7 @@ export const zeige: RouteHandler = (ziel) => {
       el(
         "a",
         { class: "themenzeile", href: `#/uebung/${eintrag.id}` },
-        el("span", { class: "themenzeile-symbol", "aria-hidden": "true", text: eintrag.symbol }),
+        icon(eintrag.symbol, `themenzeile-symbol farbe-${eintrag.farbe}`),
         el(
           "span",
           { class: "themenzeile-mitte" },
@@ -99,7 +100,7 @@ export const zeige: RouteHandler = (ziel) => {
       el(
         "div",
         { class: `abzeichen-karte${geschafft ? "" : " abzeichen-offen"}` },
-        el("span", { class: "abzeichen-symbol", "aria-hidden": "true", text: geschafft ? erfolg.symbol : "🔒" }),
+        icon(geschafft ? erfolg.symbol : "schloss", `abzeichen-symbol${geschafft ? "" : " abzeichen-symbol-zu"}`),
         el("strong", { class: "abzeichen-titel", text: erfolg.titel }),
         el("span", { class: "abzeichen-text", text: erfolg.text })
       )

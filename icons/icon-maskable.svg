@@ -1,11 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Mathe-Schule">
-  <!-- Randlos gefüllt: Maskierbare Icons werden vom System beschnitten. Die
-       Zeichen bleiben deshalb in der inneren Sicherheitszone (mittlere 80 %). -->
-  <rect width="512" height="512" fill="#2563eb" />
-  <g fill="#ffffff" font-family="Verdana, sans-serif" font-weight="700" text-anchor="middle">
-    <text x="199" y="245" font-size="112">1</text>
-    <text x="313" y="245" font-size="112">2</text>
-    <text x="199" y="380" font-size="112">+</text>
-    <text x="313" y="380" font-size="112">×</text>
+  <!-- Randlos gefüllt: Maskierbare Symbole werden vom System beschnitten. Die
+       Eule bleibt deshalb in der inneren Sicherheitszone (mittlere 80 %). -->
+  <rect width="512" height="512" fill="#7c3aed"/>
+  <g transform="translate(134 126) scale(10.1667)" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 21c-4.4 0-7.5-3.2-7.5-7.6V9.4C4.5 5.3 7.9 2.5 12 2.5s7.5 2.8 7.5 6.9v4C19.5 17.8 16.4 21 12 21Z" fill="#ffffff" stroke="#ffffff" stroke-width="1.2"/>
+    <circle cx="8.7" cy="10.2" r="3.1" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.2"/>
+    <circle cx="15.3" cy="10.2" r="3.1" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.2"/>
+    <circle cx="8.7" cy="10.4" r="1.35" fill="#3b1f6b"/>
+    <circle cx="15.3" cy="10.4" r="1.35" fill="#3b1f6b"/>
+    <path d="M12 13.2 10.6 15h2.8z" fill="#f59e0b" stroke="#f59e0b" stroke-width="1.2"/>
+    <path d="M5.2 6.2 4 3.2l3 1.4M18.8 6.2 20 3.2l-3 1.4" fill="none" stroke="#ffffff" stroke-width="1.44"/>
   </g>
 </svg>

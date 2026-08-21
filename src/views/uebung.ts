@@ -12,6 +12,7 @@
  */
 
 import { el, svgBild } from "../dom.js";
+import { icon } from "../icons.js";
 import {
   ERFOLGE,
   lobText,
@@ -299,7 +300,7 @@ function zeichne(ziel: HTMLElement, sitzung: Sitzung): void {
         "span",
         { class: "uebung-bilanz" },
         sitzung.herzen > 0 &&
-          el("span", { class: "uebung-herzen", text: `💖 ${sitzung.herzen}` }),
+          el("span", { class: "uebung-herzen" }, icon("herz", "herz-klein"), String(sitzung.herzen)),
         el("span", { class: "uebung-treffer", text: `${sitzung.richtig} richtig` })
       )
     )
@@ -316,7 +317,12 @@ function zeichne(ziel: HTMLElement, sitzung: Sitzung): void {
   // Im Rätsel wäre die Themenmarke nur Ballast – dort geht es ums Wort.
   if (!sitzung.themaId && !inVorstufe && !sitzung.raetsel) {
     karte.appendChild(
-      el("span", { class: "aufgabe-thema", text: `${thema(eintrag.thema).symbol} ${thema(eintrag.thema).titel}` })
+      el(
+        "span",
+        { class: "aufgabe-thema" },
+        icon(thema(eintrag.thema).symbol, "aufgabe-thema-symbol"),
+        thema(eintrag.thema).titel
+      )
     );
   }
 
@@ -344,15 +350,19 @@ function zeichne(ziel: HTMLElement, sitzung: Sitzung): void {
   if (aufgabe.tipp && !sitzung.beantwortet && !sitzung.meister && !inVorstufe) {
     karte.appendChild(
       sitzung.tippOffen
-        ? el("p", { class: "tipp tipp-offen", text: `💡 ${aufgabe.tipp}` })
-        : el("button", {
-            class: "knopf knopf-klein knopf-still",
-            text: "💡 Tipp anzeigen",
-            onclick: () => {
-              sitzung.tippOffen = true;
-              zeichne(ziel, sitzung);
+        ? el("p", { class: "tipp tipp-offen" }, icon("gluehbirne", "tipp-symbol"), aufgabe.tipp)
+        : el(
+            "button",
+            {
+              class: "knopf knopf-klein knopf-still knopf-tipp",
+              onclick: () => {
+                sitzung.tippOffen = true;
+                zeichne(ziel, sitzung);
+              },
             },
-          })
+            icon("gluehbirne", "tipp-symbol"),
+            "Tipp anzeigen"
+          )
     );
   }
 
@@ -396,7 +406,7 @@ function stoppuhr(sitzung: Sitzung): HTMLElement {
   return el(
     "span",
     { class: "marke marke-uhr", role: "timer", "aria-label": "Verstrichene Zeit" },
-    el("span", { "aria-hidden": "true", text: "⏱️ " }),
+    icon("stoppuhr", "chip-symbol"),
     anzeige
   );
 }
@@ -554,13 +564,13 @@ function rueckmeldung(ziel: HTMLElement, sitzung: Sitzung, schritt: Schritt): HT
       ? el(
           "div",
           { class: "rueckmeldung rueckmeldung-herz", role: "status" },
-          el("span", { class: "herz", "aria-hidden": "true", text: "💖" }),
+          icon("herz", "herz"),
           el("span", { text: "Richtig! Ein Herz für dich." })
         )
       : el(
           "div",
           { class: "rueckmeldung rueckmeldung-richtig", role: "status" },
-          el("span", { class: "rueckmeldung-symbol", "aria-hidden": "true", text: "✅" }),
+          icon("haken", "rueckmeldung-symbol"),
           el("span", { text: "Richtig!" })
         );
   }
@@ -571,7 +581,7 @@ function rueckmeldung(ziel: HTMLElement, sitzung: Sitzung, schritt: Schritt): HT
     el(
       "p",
       { class: "rueckmeldung-zeile" },
-      el("span", { class: "rueckmeldung-symbol", "aria-hidden": "true", text: "💭" }),
+      icon("gedanke", "rueckmeldung-symbol"),
       el("span", { text: `Richtig ist: ${schritt.loesung}` })
     ),
     schritt.erklaerung ? el("p", { class: "rueckmeldung-weg", text: schritt.erklaerung }) : null,
@@ -684,7 +694,7 @@ function zeichneErgebnis(ziel: HTMLElement, sitzung: Sitzung): void {
       el(
         "p",
         { class: "ergebnis-herzen" },
-        el("span", { class: "herz", "aria-hidden": "true", text: "💖" }),
+        icon("herz", "herz"),
         ` ${ergebnis.herzen} ${ergebnis.herzen === 1 ? "Hilfsaufgabe" : "Hilfsaufgaben"} selbst gelöst`
       )
     );
@@ -712,7 +722,7 @@ function zeichneErgebnis(ziel: HTMLElement, sitzung: Sitzung): void {
       el(
         "p",
         { class: "ergebnis-zeit" },
-        el("span", { "aria-hidden": "true", text: "⏱️ " }),
+        icon("stoppuhr", "ergebnis-symbol"),
         `Deine Zeit: ${zeitText(sekunden)}`
       )
     );
@@ -742,7 +752,7 @@ function zeichneErgebnis(ziel: HTMLElement, sitzung: Sitzung): void {
       el(
         "div",
         { class: "erfolg-neu" },
-        el("span", { class: "erfolg-symbol", "aria-hidden": "true", text: erfolg.symbol }),
+        icon(erfolg.symbol, "erfolg-symbol"),
         el("span", {}, el("strong", { text: `Neues Abzeichen: ${erfolg.titel}` }), el("br"), erfolg.text)
       )
     );

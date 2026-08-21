@@ -1,9 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Mathe-Schule">
-  <rect width="512" height="512" rx="112" fill="#2563eb" />
-  <g fill="#ffffff" font-family="Verdana, sans-serif" font-weight="700" text-anchor="middle">
-    <text x="168" y="228" font-size="150">1</text>
-    <text x="344" y="228" font-size="150">2</text>
-    <text x="168" y="420" font-size="150">+</text>
-    <text x="344" y="420" font-size="150">×</text>
+  <rect width="512" height="512" rx="112" fill="#7c3aed"/>
+  <g transform="translate(96 86) scale(13.3333)" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 21c-4.4 0-7.5-3.2-7.5-7.6V9.4C4.5 5.3 7.9 2.5 12 2.5s7.5 2.8 7.5 6.9v4C19.5 17.8 16.4 21 12 21Z" fill="#ffffff" stroke="#ffffff" stroke-width="1.1"/>
+    <circle cx="8.7" cy="10.2" r="3.1" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.1"/>
+    <circle cx="15.3" cy="10.2" r="3.1" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.1"/>
+    <circle cx="8.7" cy="10.4" r="1.35" fill="#3b1f6b"/>
+    <circle cx="15.3" cy="10.4" r="1.35" fill="#3b1f6b"/>
+    <path d="M12 13.2 10.6 15h2.8z" fill="#f59e0b" stroke="#f59e0b" stroke-width="1.1"/>
+    <path d="M5.2 6.2 4 3.2l3 1.4M18.8 6.2 20 3.2l-3 1.4" fill="none" stroke="#ffffff" stroke-width="1.32"/>
   </g>
 </svg>

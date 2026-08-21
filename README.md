@@ -78,8 +78,11 @@ von Hand setzen.
   ausgespart, kein Doppeltipp-Zoom, keine Textauswahl auf Tasten. Im
   Handy-Querformat rücken Aufgabe und Zahlentastatur nebeneinander, damit die
   OK-Taste ohne Scrollen erreichbar bleibt.
+- **Eigenes Symbolset statt Emojis**: 35 selbst gezeichnete SVG-Icons, die
+  ihre Farbe vom Umfeld übernehmen – gleich auf jedem Gerät, in jeder
+  Themenfarbe und in beiden Farbschemata.
 - **Hell- und Dunkelmodus**, große Schaltflächen, Tastatur- und
-  Screenreader-tauglich.
+  Screenreader-tauglich. Alle Textfarben erfüllen WCAG AA (nachgemessen).
 
 ## Loslegen
 
@@ -109,6 +112,7 @@ src/
   state.ts          einziger Ort, der localStorage liest/schreibt
   gamification.ts   Punkte, Level, Sterne, Streak, Abzeichen
   random.ts         mulberry32 – die einzige Zufallsquelle
+  icons.ts          das Symbolset (35 Icons im 24er-Raster, currentColor)
   figures.ts        Erklärbilder als SVG (Uhr, Geld, Formen, Zahlenmauern, Rechenräder, Tabellen …)
   raetsel.ts        Lösungswörter, Buchstabencode und die Aufgaben dazu
 tools/sw-liste.mjs  erzeugt die Precache-Liste in sw.js aus den echten Dateien

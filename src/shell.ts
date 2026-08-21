@@ -5,19 +5,20 @@
  */
 
 import { el, leeren } from "./dom.js";
+import { icon, type IconName } from "./icons.js";
 import { levelInfo } from "./gamification.js";
 import { ladeFortschritt } from "./state.js";
 
 interface NavPunkt {
   pfad: string;
   titel: string;
-  symbol: string;
+  symbol: IconName;
 }
 
 const NAVIGATION: readonly NavPunkt[] = [
-  { pfad: "#/", titel: "Start", symbol: "🏠" },
-  { pfad: "#/fortschritt", titel: "Fortschritt", symbol: "📈" },
-  { pfad: "#/eltern", titel: "Eltern", symbol: "👨‍👩‍👧" },
+  { pfad: "#/", titel: "Start", symbol: "haus" },
+  { pfad: "#/fortschritt", titel: "Fortschritt", symbol: "diagramm" },
+  { pfad: "#/eltern", titel: "Eltern", symbol: "eltern" },
 ];
 
 export function baueShell(wurzel: HTMLElement): HTMLElement {
@@ -55,7 +56,7 @@ export function frischeShellAuf(): void {
     el(
       "a",
       { class: "kopf-titel", href: "#/" },
-      el("span", { class: "kopf-symbol", "aria-hidden": "true", text: "🦉" }),
+      icon("eule", "kopf-symbol"),
       el("span", { text: "Mathe-Schule" })
     ),
     el(
@@ -71,7 +72,7 @@ export function frischeShellAuf(): void {
         el(
           "div",
           { class: "chip chip-streak", title: "Tage hintereinander geübt" },
-          el("span", { "aria-hidden": "true", text: "🔥" }),
+          icon("flamme", "chip-symbol"),
           el("span", { class: "chip-zahl", text: fortschritt.streakTage })
         ),
       // `navigator.onLine` ist bewusst nur ein Hinweis, keine Sperre: Die App
@@ -84,7 +85,7 @@ export function frischeShellAuf(): void {
             role: "status",
             title: "Kein Internet – die Mathe-Schule funktioniert trotzdem",
           },
-          el("span", { "aria-hidden": "true", text: "📴" }),
+          icon("offline", "chip-symbol"),
           el("span", { class: "chip-text", text: "Offline" })
         )
     )
@@ -102,7 +103,7 @@ export function frischeShellAuf(): void {
           href: punkt.pfad,
           "aria-current": istAktiv ? "page" : undefined,
         },
-        el("span", { class: "nav-symbol", "aria-hidden": "true", text: punkt.symbol }),
+        icon(punkt.symbol, "nav-symbol"),
         el("span", { class: "nav-titel", text: punkt.titel })
       )
     );

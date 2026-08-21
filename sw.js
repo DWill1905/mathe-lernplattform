@@ -30,6 +30,7 @@ const KERN = [
   "./js/dom.js",
   "./js/figures.js",
   "./js/gamification.js",
+  "./js/icons.js",
   "./js/raetsel.js",
   "./js/random.js",
   "./js/router.js",

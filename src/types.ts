@@ -79,7 +79,8 @@ export interface ThemaInfo {
   id: ThemaId;
   titel: string;
   kurz: string;
-  symbol: string;
+  /** Name eines Symbols aus `icons.ts` – kein Emoji. */
+  symbol: import("./icons.js").IconName;
   farbe: string;
   /** Was in den drei Stufen geübt wird – erscheint im Elternbereich. */
   stufen: [string, string, string];

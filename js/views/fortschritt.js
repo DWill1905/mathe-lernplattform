@@ -1,4 +1,5 @@
 import { el } from "../dom.js";
+import { icon } from "../icons.js";
 import { ERFOLGE, levelInfo, zeitText } from "../gamification.js";
 import { ladeFortschritt, tagesSchluessel } from "../state.js";
 import { THEMEN } from "../topics.js";
@@ -18,7 +19,7 @@ export const zeige = (ziel) => {
     for (const eintrag of THEMEN) {
         const stand = fortschritt.themen[eintrag.id];
         const themenQuote = stand.gesamt === 0 ? 0 : Math.round((stand.richtig / stand.gesamt) * 100);
-        themenliste.appendChild(el("a", { class: "themenzeile", href: `#/uebung/${eintrag.id}` }, el("span", { class: "themenzeile-symbol", "aria-hidden": "true", text: eintrag.symbol }), el("span", { class: "themenzeile-mitte" }, el("span", { class: "themenzeile-kopf" }, el("strong", { text: eintrag.titel }), el("span", { class: "marke", text: `Stufe ${stand.stufe}` })), el("span", { class: "balken balken-schmal" }, el("span", { class: "balken-fuellung", stil: { width: `${themenQuote}%` } })), el("span", {
+        themenliste.appendChild(el("a", { class: "themenzeile", href: `#/uebung/${eintrag.id}` }, icon(eintrag.symbol, `themenzeile-symbol farbe-${eintrag.farbe}`), el("span", { class: "themenzeile-mitte" }, el("span", { class: "themenzeile-kopf" }, el("strong", { text: eintrag.titel }), el("span", { class: "marke", text: `Stufe ${stand.stufe}` })), el("span", { class: "balken balken-schmal" }, el("span", { class: "balken-fuellung", stil: { width: `${themenQuote}%` } })), el("span", {
             class: "themenzeile-text",
             text: stand.gesamt === 0
                 ? "Noch nicht geübt"
@@ -35,7 +36,7 @@ export const zeige = (ziel) => {
     const gitter = el("div", { class: "abzeichen" });
     for (const erfolg of ERFOLGE) {
         const geschafft = fortschritt.erfolge.includes(erfolg.id);
-        gitter.appendChild(el("div", { class: `abzeichen-karte${geschafft ? "" : " abzeichen-offen"}` }, el("span", { class: "abzeichen-symbol", "aria-hidden": "true", text: geschafft ? erfolg.symbol : "🔒" }), el("strong", { class: "abzeichen-titel", text: erfolg.titel }), el("span", { class: "abzeichen-text", text: erfolg.text })));
+        gitter.appendChild(el("div", { class: `abzeichen-karte${geschafft ? "" : " abzeichen-offen"}` }, icon(geschafft ? erfolg.symbol : "schloss", `abzeichen-symbol${geschafft ? "" : " abzeichen-symbol-zu"}`), el("strong", { class: "abzeichen-titel", text: erfolg.titel }), el("span", { class: "abzeichen-text", text: erfolg.text })));
     }
     abzeichen.appendChild(gitter);
     ziel.replaceChildren(uebersicht, aktivitaet(fortschritt), themenliste, abzeichen);

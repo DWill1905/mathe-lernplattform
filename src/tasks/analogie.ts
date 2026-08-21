@@ -147,7 +147,7 @@ function hunderter(rng: Rng): Aufgabe {
   };
 }
 
-/** ☐ + 30 = 70 */
+/** Lücke ergänzen: ? + 30 = 70 */
 function luecke(rng: Rng): Aufgabe {
   const ergebnis = rng.int(3, 10) * 10;
   const bekannt = rng.int(1, ergebnis / 10 - 1) * 10;
