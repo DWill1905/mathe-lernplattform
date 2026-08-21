@@ -4,6 +4,42 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.10.0] – 2026-08-21
+
+### Behoben
+
+**Aufgaben wiederholen sich nicht mehr von Runde zu Runde.**
+Bisher achtete die Ziehung nur INNERHALB einer Runde darauf, keine Aufgabe
+zweimal zu stellen. Wer mehrere Runden hintereinander übte, bekam deshalb
+Bekanntes wieder vorgesetzt – gemessen über fünf Runden (50 Aufgaben) waren
+das je nach Thema 3 bis 65 % Wiederholungen.
+
+Der Fortschritt merkt sich jetzt die zuletzt gestellten Aufgaben (`letzteAufgaben`,
+gedeckelt auf 60 Einträge ≈ sechs Runden) und die Ziehung geht ihnen aus dem Weg.
+Gespeichert wird nicht die volle Kennung, sondern ein 32-Bit-Kurzschlüssel
+(FNV-1a) – die volle Kennung enthält bei Bildaufgaben das komplette SVG und
+würde den Speicher sprengen.
+
+Wirkung, gemessen über fünf Runden je Thema und Stufe:
+
+| Thema | vorher | nachher |
+| --- | --- | --- |
+| Plus & Minus, Aufgabenfamilien, Mauern, Geld, Zahlenraum, Analogie | 0–23 % | 0 % |
+| Einmaleins, Knobeln, Geometrie, Sachaufgaben | 0–42 % | 0 % |
+| Uhrzeit/Längen/Geteilt auf Stufe 1 | 48–65 % | 40–64 % |
+
+Die letzte Zeile ist keine Schwäche der Ziehung, sondern die rechnerische
+Untergrenze: „Volle Stunden“ kennt nur 24 verschiedene Aufgaben, Längen auf
+Stufe 1 nur 18. Wer 50 Aufgaben zieht, MUSS dort wiederholen. Diese Themen
+brauchen breitere Generatoren, keine bessere Auswahl.
+
+Wichtig für die Ziehung: Der Verlauf ist ein **Wunsch**, keine Sperre. Wäre er
+Pflicht, fände die Suche in genau diesen kleinen Themen irgendwann nichts mehr
+und die Runde bräche ab. Die Frische innerhalb einer Runde bleibt Pflicht.
+
+Gemerkt wird beim BAU der Runde, nicht am Ende: Bricht ein Kind mittendrin ab,
+zeigt die nächste Runde trotzdem andere Aufgaben.
+
 ## [1.9.0] – 2026-08-21
 
 ### Geändert

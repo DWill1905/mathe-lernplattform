@@ -118,6 +118,11 @@ export interface Fortschritt {
   herzen: number;
   /** Fehlerfrei gelöste Rätselwörter. */
   raetselGeloest: number;
+  /**
+   * Kurzschlüssel der zuletzt gestellten Aufgaben. Die nächste Runde meidet
+   * sie, damit nicht jede Sitzung dieselben Rechnungen zeigt.
+   */
+  letzteAufgaben: string[];
 }
 
 /** Ergebnis einer abgeschlossenen Übungsrunde. */

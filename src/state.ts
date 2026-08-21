@@ -18,6 +18,10 @@ const MAX_PUNKTE = 9_999_999;
 const MAX_VERLAUF = 90;
 const MAX_FEHLERTYPEN = 300;
 const MAX_NAME = 20;
+/** Sechs Runden Gedächtnis – mehr bringt nichts und kostet nur Speicher. */
+const MAX_LETZTE = 60;
+/** Ein Kurzschlüssel ist ein 32-Bit-Wert in Basis 36, also nie länger. */
+const MAX_SCHLUESSEL = 8;
 
 /**
  * Datum als `JJJJ-MM-TT` in der ORTSZEIT. `toISOString()` wäre UTC – in
@@ -54,6 +58,7 @@ export function standardFortschritt(): Fortschritt {
     meister: { besteZeit: 0, besteTreffer: 0 },
     herzen: 0,
     raetselGeloest: 0,
+    letzteAufgaben: [],
   };
 }
 
@@ -154,7 +159,31 @@ export function ladeFortschritt(): Fortschritt {
     meister,
     herzen: ganzeZahl(daten["herzen"], 0, MAX_PUNKTE, 0),
     raetselGeloest: ganzeZahl(daten["raetselGeloest"], 0, MAX_PUNKTE, 0),
+    letzteAufgaben: schluesselListe(daten["letzteAufgaben"]),
   };
+}
+
+/**
+ * Prüft die gespeicherten Kurzschlüssel. Ein manipulierter Eintrag könnte
+ * sonst beliebig lang sein oder gar kein Text – beides landete ungeprüft in
+ * einem `Set`, das jede Ziehung befragt.
+ */
+function schluesselListe(wert: unknown): string[] {
+  if (!Array.isArray(wert)) return [];
+  return wert
+    .filter((e): e is string => typeof e === "string" && e.length > 0 && e.length <= MAX_SCHLUESSEL)
+    .slice(-MAX_LETZTE);
+}
+
+/**
+ * Merkt sich, welche Aufgaben gerade gestellt wurden. Wird beim BAU der Runde
+ * aufgerufen, nicht erst am Ende – bricht ein Kind mittendrin ab, soll die
+ * nächste Runde trotzdem andere Aufgaben zeigen.
+ */
+export function merkeGestellteAufgaben(schluessel: readonly string[]): void {
+  const fortschritt = ladeFortschritt();
+  fortschritt.letzteAufgaben = [...fortschritt.letzteAufgaben, ...schluessel].slice(-MAX_LETZTE);
+  speichereFortschritt(fortschritt);
 }
 
 export function speichereFortschritt(fortschritt: Fortschritt): void {

@@ -15,8 +15,8 @@ import { icon } from "../icons.js";
 import { ERFOLGE, lobText, schwerpunkte, merkeMeisterErgebnis, werteMixAus, werteRundeAus, zeitText, } from "../gamification.js";
 import { mulberry32, zufallsSeed } from "../random.js";
 import { baueRaetsel } from "../raetsel.js";
-import { ladeFortschritt } from "../state.js";
-import { MEISTERLAENGE, MEISTER_THEMEN, RUNDENLAENGE, gemischteRunde, runde } from "../tasks/index.js";
+import { ladeFortschritt, merkeGestellteAufgaben } from "../state.js";
+import { MEISTERLAENGE, MEISTER_THEMEN, RUNDENLAENGE, aufgabenSchluessel, gemischteRunde, runde, } from "../tasks/index.js";
 import { THEMEN, istThemaId, thema } from "../topics.js";
 import { pfadTeile } from "../router.js";
 import { sterneAnzeige } from "./start.js";
@@ -79,10 +79,19 @@ export const zeige = (ziel, parameter) => {
  * auf der neuen Stufe weiter, auch beim direkten „Nochmal üben“.
  */
 function baueSitzung(wunsch) {
+    const sitzung = baueRunde(wunsch);
+    // Was gerade gestellt wurde, meidet die nächste Runde.
+    if (sitzung)
+        merkeGestellteAufgaben(sitzung.eintraege.map((e) => aufgabenSchluessel(e.aufgabe)));
+    return sitzung;
+}
+function baueRunde(wunsch) {
     const fortschritt = ladeFortschritt();
     const rng = mulberry32(zufallsSeed());
     // Wo es zuletzt hakte, kommt gezielt häufiger dran.
     const wiederholen = schwerpunkte(fortschritt);
+    // Die Aufgaben der letzten Runden – die Ziehung geht ihnen aus dem Weg.
+    const zuletzt = new Set(fortschritt.letzteAufgaben);
     if (wunsch === "raetsel") {
         const raetsel = baueRaetsel(rng);
         return neueSitzung(null, 1, raetsel.aufgaben.map((aufgabe) => ({ thema: "plusminus", aufgabe })), false, raetsel);
@@ -95,13 +104,16 @@ function baueSitzung(wunsch) {
             // Der Rechenmeister bleibt bewusst ungewichtet: Seine Bestzeit ist nur
             // vergleichbar, wenn die Aufgaben nicht mit wachsender Fehlerhistorie
             // immer schwerer werden.
-            return neueSitzung(null, 2, gemischteRunde(rng, stufen, MEISTERLAENGE, MEISTER_THEMEN), true);
+            return neueSitzung(null, 2, gemischteRunde(rng, stufen, MEISTERLAENGE, MEISTER_THEMEN, new Set(), zuletzt), true);
         }
-        return neueSitzung(null, 2, gemischteRunde(rng, stufen, RUNDENLAENGE, undefined, wiederholen));
+        return neueSitzung(null, 2, gemischteRunde(rng, stufen, RUNDENLAENGE, undefined, wiederholen, zuletzt));
     }
     if (istThemaId(wunsch)) {
         const stufe = fortschritt.themen[wunsch].stufe;
-        return neueSitzung(wunsch, stufe, runde(wunsch, rng, stufe, RUNDENLAENGE, wiederholen).map((aufgabe) => ({ thema: wunsch, aufgabe })));
+        return neueSitzung(wunsch, stufe, runde(wunsch, rng, stufe, RUNDENLAENGE, wiederholen, zuletzt).map((aufgabe) => ({
+            thema: wunsch,
+            aufgabe,
+        })));
     }
     return null;
 }

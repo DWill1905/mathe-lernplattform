@@ -66,6 +66,26 @@ function kennung(aufgabe: Aufgabe): string {
 }
 
 /**
+ * Kurzschlüssel einer Aufgabe für das Gedächtnis über Runden hinweg. Die volle
+ * Kennung enthält bei Bildaufgaben das komplette SVG und wäre kilobytegroß –
+ * im `localStorage` stünde nach wenigen Runden mehr Bild als Fortschritt.
+ * Deshalb wird sie mit FNV-1a auf 32 Bit eingedampft. Eine Kollision ist
+ * folgenlos: Der Verlauf ist nur ein Wunsch, keine Sperre.
+ */
+export function aufgabenSchluessel(aufgabe: Aufgabe): string {
+  const text = kennung(aufgabe);
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < text.length; i++) {
+    hash ^= text.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return (hash >>> 0).toString(36);
+}
+
+/** So viele Kandidaten sieht sich eine Ziehung höchstens an. */
+const VERSUCHE = 16;
+
+/**
  * Baut eine komplette Übungsrunde. Innerhalb einer Runde wird dieselbe
  * Aufgabe nicht zweimal gestellt – bei kleinen Zahlenräumen (z. B. Uhrzeit
  * Stufe 1) kann das nicht immer gelingen, deshalb bricht die Suche nach
@@ -76,43 +96,53 @@ export function runde(
   rng: Rng,
   stufe: Stufe,
   anzahl = RUNDENLAENGE,
-  schwerpunkte: ReadonlySet<string> = new Set()
+  schwerpunkte: ReadonlySet<string> = new Set(),
+  zuletzt: ReadonlySet<string> = new Set()
 ): Aufgabe[] {
   const generator = GENERATOREN[thema];
   const aufgaben: Aufgabe[] = [];
   const gesehen = new Set<string>();
   while (aufgaben.length < anzahl) {
-    aufgaben.push(zieheAufgabe(() => generator(rng, stufe), gesehen, schwerpunkte, aufgaben.length));
+    aufgaben.push(
+      zieheAufgabe(() => generator(rng, stufe), gesehen, zuletzt, schwerpunkte, aufgaben.length)
+    );
   }
   return aufgaben;
 }
 
 /**
- * Zieht eine Aufgabe, die noch nicht dran war. Bei jeder zweiten Aufgabe wird
- * bevorzugt ein Fehlerschwerpunkt gesucht – so wiederholt die Runde gezielt,
- * ohne nur noch aus Schwachstellen zu bestehen.
+ * Zieht eine Aufgabe nach drei Kriterien, in dieser Rangfolge:
  *
- * Wichtig: Der Schwerpunkt ist nur ein WUNSCH, die Frische ist Pflicht. Kommt
- * die gesuchte Aufgabenart im Thema oder auf der Stufe gar nicht vor, wird der
- * erste frische Kandidat genommen – sonst stünde am Ende fast jede Runde
- * voller Doppelungen.
+ * 1. **Pflicht**: In DIESER Runde noch nicht dran gewesen.
+ * 2. **Wunsch**: Auch in den letzten Runden nicht dran gewesen (`zuletzt`).
+ * 3. **Wunsch**: Bei jeder zweiten Aufgabe ein Fehlerschwerpunkt – so
+ *    wiederholt die Runde gezielt, ohne nur aus Schwachstellen zu bestehen.
+ *
+ * Die beiden Wünsche sind bewusst keine Sperren: Themen wie „volle Stunden“
+ * haben nur ein paar Dutzend mögliche Aufgaben. Wären sie Pflicht, fände die
+ * Suche dort irgendwann gar nichts mehr und die Runde bräche ab. Stattdessen
+ * gewinnt der beste gefundene Kandidat.
  */
 function zieheAufgabe(
   erzeuge: () => Aufgabe,
   gesehen: Set<string>,
+  zuletzt: ReadonlySet<string>,
   schwerpunkte: ReadonlySet<string>,
   platz: number
 ): Aufgabe {
   const suchtSchwerpunkt = schwerpunkte.size > 0 && platz % 2 === 0;
   let kandidat = erzeuge();
   let bester: Aufgabe | null = null;
-  for (let versuch = 0; versuch < 12; versuch++) {
+  let besterRang = -1;
+  for (let versuch = 0; versuch < VERSUCHE; versuch++) {
     if (!gesehen.has(kennung(kandidat))) {
-      if (!suchtSchwerpunkt || schwerpunkte.has(kandidat.typ)) {
+      const frisch = zuletzt.has(aufgabenSchluessel(kandidat)) ? 0 : 2;
+      const passend = !suchtSchwerpunkt || schwerpunkte.has(kandidat.typ) ? 1 : 0;
+      if (frisch + passend > besterRang) {
         bester = kandidat;
-        break;
+        besterRang = frisch + passend;
       }
-      bester ??= kandidat;
+      if (besterRang === 3) break;
     }
     kandidat = erzeuge();
   }
@@ -130,14 +160,21 @@ export function gemischteRunde(
   stufen: Record<ThemaId, Stufe>,
   anzahl = RUNDENLAENGE,
   themen: readonly ThemaId[] = MIX_TOPF,
-  schwerpunkte: ReadonlySet<string> = new Set()
+  schwerpunkte: ReadonlySet<string> = new Set(),
+  zuletzt: ReadonlySet<string> = new Set()
 ): { thema: ThemaId; aufgabe: Aufgabe }[] {
   const reihenfolge: ThemaId[] = [];
   while (reihenfolge.length < anzahl) reihenfolge.push(...rng.shuffle([...themen]));
   const gesehen = new Set<string>();
   return reihenfolge.slice(0, anzahl).map((thema, platz) => {
     const stufe = stufen[thema];
-    const aufgabe = zieheAufgabe(() => GENERATOREN[thema](rng, stufe), gesehen, schwerpunkte, platz);
+    const aufgabe = zieheAufgabe(
+      () => GENERATOREN[thema](rng, stufe),
+      gesehen,
+      zuletzt,
+      schwerpunkte,
+      platz
+    );
     return { thema, aufgabe };
   });
 }
