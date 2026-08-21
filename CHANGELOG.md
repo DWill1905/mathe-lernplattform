@@ -4,6 +4,35 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.8.0] – 2026-08-21
+
+### Neu
+
+**Für iPad und iPhone eingerichtet.** Gemessen wurde auf sechs Viewports
+(iPhone SE, iPhone 14, beide quer, iPad mini, iPad Pro 11 quer und hoch):
+
+- **Installation auf iOS**: `apple-touch-icon` (180 px) sowie die Metaangaben
+  `apple-mobile-web-app-capable`, `-title` und `-status-bar-style`. iOS wertet
+  das Manifest für den Startbildschirm nicht aus – ohne diese Angaben nahm
+  Safari einen Bildschirmausschnitt als Symbol und startete mit Adresszeile.
+- **Safe Areas**: Kopfzeile, Inhalt und Navigation sparen Notch und
+  Home-Indikator aus – auch im Querformat, wo die Kerbe seitlich sitzt.
+- **Touch-Verhalten**: kein graues Aufblitzen beim Antippen, kein
+  Doppeltipp-Zoom (`touch-action: manipulation`), keine Textauswahl und kein
+  Kontextmenü, wenn ein Finger auf einer Taste liegen bleibt, und kein
+  Überziehen der Seite im installierten Zustand.
+- **Kleine und flache Bildschirme**: Auf dem iPhone SE lag die OK-Taste bisher
+  hinter der Navigation. Unter 720 px Höhe wird das Layout kompakter; im
+  Querformat rücken Aufgabe und Zahlentastatur nebeneinander (die Kartenhöhe
+  ist dann das Maximum beider Spalten statt ihrer Summe), und unter 430 px
+  weichen App-Kopf und Navigation während einer Übung ganz – zurück führt dort
+  „← Abbrechen“.
+- **Tablets ab 820 px**: etwas breiterer Inhalt, größere Erklärbilder (360
+  statt 280 px) und zwei Spalten für die Schnellstart-Knöpfe.
+
+Nachgeprüft: Die OK-Taste ist auf allen sechs Geräten sichtbar, frei von
+Kopfzeile und Navigation, anklickbar – und mindestens 40 px hoch.
+
 ## [1.7.0] – 2026-08-21
 
 ### Neu

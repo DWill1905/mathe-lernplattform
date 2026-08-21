@@ -88,6 +88,13 @@ verwässern.
   Service Worker die Kontrolle übernimmt – Laufzeit-Caching allein reicht also
   nicht. `npm run build` zieht die Liste automatisch nach, `npm run sw:check`
   und `test/offline.test.js` schlagen an, wenn sie veraltet ist.
+- **Touch-Ziele bleiben mindestens 40 px hoch** – auch wenn dafür lieber
+  Kopfzeile oder Navigation weichen (siehe die Querformat-Regeln in
+  `style.css`). Bei Kinderhänden ist das keine Stellschraube.
+- **Die Klasse `uebung-laeuft` am `<body>`** sagt dem Stylesheet, dass gerade
+  geübt wird; nur so lassen sich auf flachen Bildschirmen Kopf und Navigation
+  gezielt ausblenden. Sie wird in `views/uebung.ts` gesetzt und beim
+  Routenwechsel wieder entfernt.
 - **Eine neue Route braucht einen Eintrag in `ANSICHTEN` (`src/app.ts`).**
   Die Liste wird im Leerlauf komplett vorgeladen; nur dadurch bleibt die App
   nach dem Code-Splitting offline vollständig.

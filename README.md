@@ -73,7 +73,11 @@ von Hand setzen.
   auf dem Gerät – jede Ansicht, jedes Bild, jede Aufgabe. Ohne Netz ändert sich
   nichts außer einem Hinweis in der Kopfzeile.
 - **Als App installierbar** („Zum Startbildschirm hinzufügen“): eigenes Symbol,
-  Start ohne Adresszeile.
+  Start ohne Adresszeile – auf iPhone und iPad ebenso wie auf Android.
+- **Für iPad und iPhone eingerichtet**: Notch und Home-Indikator werden
+  ausgespart, kein Doppeltipp-Zoom, keine Textauswahl auf Tasten. Im
+  Handy-Querformat rücken Aufgabe und Zahlentastatur nebeneinander, damit die
+  OK-Taste ohne Scrollen erreichbar bleibt.
 - **Hell- und Dunkelmodus**, große Schaltflächen, Tastatur- und
   Screenreader-tauglich.
 

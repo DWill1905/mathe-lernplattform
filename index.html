@@ -17,6 +17,17 @@
     <link rel="stylesheet" href="style.css" />
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+
+    <!--
+      iOS wertet das Manifest für den Startbildschirm nicht aus: Ohne
+      apple-touch-icon nimmt Safari einen Bildschirmausschnitt als Symbol, und
+      ohne die apple-Metaangaben startet die Seite mit Adresszeile statt als App.
+    -->
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Mathe-Schule" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   </head>
   <body>
     <a class="sprungmarke" href="#inhalt">Zum Inhalt springen</a>

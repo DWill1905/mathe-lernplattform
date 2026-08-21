@@ -1392,3 +1392,279 @@ details[open] summary {
   background: color-mix(in srgb, var(--orange) 22%, transparent);
   color: var(--text);
 }
+
+/* ==========================================================================
+   iPad und iPhone
+   Safe Areas (Notch, Home-Indikator), Touch-Verhalten und ein kompakteres
+   Layout, damit die Aufgabe auch auf kleinen und querliegenden Geräten ohne
+   Scrollen erreichbar bleibt.
+   ========================================================================== */
+
+body {
+  /* Kein graues Aufblitzen beim Antippen und kein Überziehen der Seite
+     (Pull-to-Refresh) im installierten Zustand. */
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: contain;
+}
+
+/* Alles, was angetippt wird: kein Doppeltipp-Zoom, keine Textauswahl und kein
+   Kontextmenü, wenn ein Kind den Finger auf einer Taste liegen lässt. */
+.knopf,
+.taste,
+.kachel,
+.nav-punkt,
+.bildkarte,
+.chip,
+.wortfeld,
+.sterne {
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Notch und Home-Indikator aussparen – auch quer, wo die Kerbe seitlich sitzt. */
+.kopf {
+  padding-top: calc(0.7rem + env(safe-area-inset-top));
+  padding-left: calc(clamp(0.75rem, 3vw, 1.5rem) + env(safe-area-inset-left));
+  padding-right: calc(clamp(0.75rem, 3vw, 1.5rem) + env(safe-area-inset-right));
+}
+
+.inhalt {
+  padding-left: calc(clamp(0.75rem, 3vw, 1.5rem) + env(safe-area-inset-left));
+  padding-right: calc(clamp(0.75rem, 3vw, 1.5rem) + env(safe-area-inset-right));
+}
+
+.navigation {
+  padding-left: calc(0.5rem + env(safe-area-inset-left));
+  padding-right: calc(0.5rem + env(safe-area-inset-right));
+}
+
+/* --- Wenig Höhe (iPhone SE, jedes Handy im Querformat) ------------------- */
+
+@media (max-height: 720px) {
+  .karte {
+    padding: 0.8rem;
+  }
+
+  .aufgabe-frage {
+    margin-bottom: 0.5rem;
+    font-size: clamp(1.05rem, 4vw, 1.25rem);
+  }
+
+  .aufgabe-rechnung {
+    margin: 0.3rem 0 0.6rem;
+    font-size: clamp(1.8rem, 8vw, 2.3rem);
+  }
+
+  .bild {
+    max-width: 200px;
+    margin-bottom: 0.6rem;
+  }
+
+  .eingabe-anzeige {
+    min-height: 54px;
+    margin-bottom: 0.6rem;
+  }
+
+  .eingabe-zahl {
+    font-size: 2rem;
+  }
+
+  .tastenfeld {
+    gap: 0.4rem;
+  }
+
+  .taste {
+    min-height: 50px;
+    font-size: 1.3rem;
+  }
+
+  .knopf-auswahl {
+    min-height: 50px;
+  }
+}
+
+/* --- Querformat auf dem Handy: Anzeige und Tastenfeld nebeneinander ------ */
+
+@media (orientation: landscape) and (max-height: 560px) {
+  /*
+   * Untereinander passt die Aufgabe hier nicht: Frage, Rechnung und
+   * Tastenfeld ergeben zusammen mehr als die Bildschirmhöhe. Deshalb wandert
+   * der Antwortbereich in eine zweite Spalte – die Kartenhöhe ist dann das
+   * Maximum beider Spalten statt ihrer Summe.
+   */
+  .karte-aufgabe {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: 1rem;
+    align-items: start;
+    text-align: left;
+  }
+
+  .karte-aufgabe > * {
+    grid-column: 1;
+  }
+
+  .karte-aufgabe > .eingabe-bereich,
+  .karte-aufgabe > .auswahl,
+  .karte-aufgabe > .bildauswahl {
+    grid-column: 2;
+    grid-row: 1 / span 20;
+    align-self: center;
+    margin: 0;
+  }
+
+  .karte-aufgabe > .rueckmeldung {
+    grid-column: 1 / -1;
+  }
+
+  .karte-aufgabe .bild {
+    margin-left: 0;
+  }
+
+  /* Der Tipp-Knopf sitzt in der linken Spalte und soll dort auch beginnen. */
+  .karte-aufgabe > .knopf-still,
+  .karte-aufgabe > .tipp {
+    justify-self: start;
+  }
+
+  .eingabe-anzeige {
+    min-height: 46px;
+    margin-bottom: 0.5rem;
+  }
+
+  .tastenfeld {
+    max-width: 250px;
+    gap: 0.3rem;
+  }
+
+  .taste {
+    min-height: 40px;
+    font-size: 1.1rem;
+  }
+
+  .knopf-auswahl {
+    min-height: 42px;
+    font-size: 1rem;
+  }
+
+  .bild {
+    max-width: 130px;
+  }
+
+  .aufgabe-rechnung {
+    margin: 0.2rem 0 0.4rem;
+    font-size: clamp(1.6rem, 6vw, 2rem);
+  }
+
+  /* Der Tipp-Knopf darf im Querformat keine Zeile mehr kosten. */
+  .karte-aufgabe {
+    padding-bottom: 0.6rem;
+  }
+
+  /* Bei rund 390 px Höhe ist jede feste Leiste teuer: Die Kopfzeile scrollt
+     mit, statt oben zu kleben, und die Navigation wird zur schmalen
+     Symbolleiste. Sonst läge die OK-Taste hinter der Navigation. */
+  .kopf {
+    position: static;
+    padding-top: calc(0.4rem + env(safe-area-inset-top));
+    padding-bottom: 0.4rem;
+  }
+
+  .nav-punkt {
+    flex-direction: row;
+    gap: 0.4rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  .nav-symbol {
+    font-size: 1.1rem;
+  }
+
+  .nav-titel {
+    font-size: 0.72rem;
+  }
+
+  .navigation {
+    padding-top: 0.2rem;
+    padding-bottom: calc(0.2rem + env(safe-area-inset-bottom));
+  }
+
+  .inhalt {
+    padding-top: 0.6rem;
+    padding-bottom: 4rem;
+  }
+
+  .uebung-kopf {
+    margin-bottom: 0.5rem;
+  }
+
+  .uebung-kopf-zeile {
+    margin-bottom: 0.35rem;
+  }
+}
+
+/* --- Große Tablets: mehr Luft, aber lesbare Zeilenlänge ------------------ */
+
+@media (min-width: 820px) {
+  .inhalt {
+    max-width: 860px;
+  }
+
+  /* Auf dem Tablet ist Platz: Uhr, Mauern und Tabellen dürfen größer sein. */
+  .bild {
+    max-width: 360px;
+  }
+
+  .bild-breit {
+    max-width: 100%;
+  }
+
+  .kacheln {
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  }
+
+  .schnellstart {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .schnellstart .knopf-haupt {
+    grid-column: 1 / -1;
+  }
+
+  .navigation {
+    gap: 1rem;
+  }
+}
+
+/* Unter etwa 430 px Höhe zählt jede Zeile – der Fortschrittsbalken zeigt den
+   Stand bereits, die Zahlen darunter dürfen weichen. */
+@media (orientation: landscape) and (max-height: 430px) {
+  /*
+   * Während einer Übung zählt hier jeder Pixel. App-Kopf und Navigation
+   * weichen, damit die Aufgabe samt Tastenfeld ohne Scrollen auf den Schirm
+   * passt – zurück führt die Zeile „← Abbrechen“ in der Übung selbst.
+   */
+  body.uebung-laeuft .kopf,
+  body.uebung-laeuft .navigation {
+    display: none;
+  }
+
+  body.uebung-laeuft .inhalt {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .uebung-zaehler {
+    display: none;
+  }
+
+  .uebung-kopf {
+    margin-bottom: 0.4rem;
+  }
+
+  .karte {
+    padding: 0.7rem;
+  }
+}

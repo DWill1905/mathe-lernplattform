@@ -40,6 +40,13 @@ function aufraeumen() {
 /** Routen, hinter denen diese Ansicht steckt (siehe `ANSICHTEN` in `app.ts`). */
 const EIGENE_ROUTEN = new Set(["uebung", "rechenmeister", "raetsel"]);
 /**
+ * Markiert am `<body>`, dass gerade geübt wird. Auf sehr flachen Bildschirmen
+ * (Handy im Querformat) blendet `style.css` daraufhin App-Kopf und Navigation
+ * aus – sonst müsste das Kind mitten in der Aufgabe scrollen, um die
+ * OK-Taste zu erreichen. Zurück geht es dort über „← Abbrechen“.
+ */
+const LAEUFT = "uebung-laeuft";
+/**
  * Wer die Übung verlässt, darf ihre Nachwirkungen nicht mitnehmen: Ohne diesen
  * Haken bliebe der Tastatur-Listener am `document` hängen (auf der Startseite
  * würde eine Ziffer die Übung zurückholen und Eingabefelder schluckten
@@ -48,11 +55,14 @@ const EIGENE_ROUTEN = new Set(["uebung", "rechenmeister", "raetsel"]);
  * selbst wieder aufgerufen wird – deshalb hier zusätzlich beim Routenwechsel.
  */
 window.addEventListener("hashchange", () => {
-    if (!EIGENE_ROUTEN.has(pfadTeile()[0] ?? "start"))
-        aufraeumen();
+    if (EIGENE_ROUTEN.has(pfadTeile()[0] ?? "start"))
+        return;
+    aufraeumen();
+    document.body.classList.remove(LAEUFT);
 });
 export const zeige = (ziel, parameter) => {
     aufraeumen();
+    document.body.classList.add(LAEUFT);
     const ersteRoute = parameter[0];
     const wunsch = ersteRoute === "rechenmeister" ? "meister" : ersteRoute === "raetsel" ? "raetsel" : (parameter[1] ?? "mix");
     const sitzung = baueSitzung(wunsch);
