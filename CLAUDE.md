@@ -85,8 +85,18 @@ verwässern.
   hineingehört, muss ein Neuzeichnen überleben dürfen. Der Jubel darf es NICHT:
   Er wird direkt vor einem Neuzeichnen gestartet und hätte sich selbst gelöscht.
   Deshalb steht `raeumeJubel()` nur im `hashchange`-Haken.
+- **Ein Inline-SVG hat nur seine `viewBox`, sonst keine eigene Größe.** Sobald
+  seine Höhe am Elternteil hängt UND die Höhe des Elternteils am Inhalt, löst
+  der Browser das mit **null** auf – das Bild verschwindet spurlos. Genauso
+  `width: auto` auf einem SVG ohne Breitenangabe. Beides ist schon passiert
+  (Rechenrad, Rechenkasten, Zahlenmauer, siehe Changelog 1.11.1); ein Test in
+  `test/bilder.test.js` hält die Fehlerklasse fest.
+- **Wer Platzprobleme misst, muss auch messen, dass noch etwas da ist.** Die
+  Prüfung „passt der Antwortbereich ins Fenster?" war grün, WEIL das Erklärbild
+  fehlte. Immer beides prüfen: Inhalt sichtbar und Platz ausreichend.
 - **Die Übungsseite ist eine Flexspalte über die volle Fensterhöhe**, und das
-  Erklärbild bekommt nur den Rest (`flex: 0 1 auto` mit `min-height: 0`).
+  Erklärbild bekommt den übrigen Platz über `flex-grow` (nie über die
+  Basisgröße!), mit `min-height` als Untergrenze.
   Feste Höhengrenzen in `vh` reichten nicht: Je nach Aufgabenart sind Frage
   und Antwortbereich unterschiedlich hoch, mal blieb Luft, mal fehlten 90 px
   und das Tastenfeld rutschte aus dem Bild. Im schmalen Querformat gilt das

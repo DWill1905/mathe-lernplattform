@@ -119,3 +119,38 @@ test("die Deckel decken die Bildfläche lückenlos ab", () => {
   assert.equal(flaeche, 120 * 90, "die Deckel füllen das Bild nicht aus");
   assert.equal(ecken.size, PUZZLE_TEILE, "zwei Deckel liegen aufeinander");
 });
+
+/*
+ * Regressionsschutz für einen Fehler, der zweimal auf dieselbe Art auftrat:
+ * Ein Inline-SVG hat nur eine `viewBox` und sonst keine eigene Größe. Sobald
+ * seine Höhe (oder Breite) am Elternteil hängt und dessen Größe wiederum am
+ * Inhalt, löst der Browser das mit NULL auf – Rechenrad, Rechenkasten und
+ * Zahlenmauer verschwanden dadurch spurlos aus der Übung.
+ */
+test("das Erklärbild der Übung kann nicht auf null zusammenfallen", () => {
+  const regeln = [...CSS.matchAll(/\.karte-aufgabe[^{}]*\.bild\s+svg\s*\{([^}]*)\}/g)].map((t) => t[1]);
+  assert.ok(regeln.length > 0, "keine Regel für das Erklärbild gefunden");
+  for (const regel of regeln) {
+    assert.ok(
+      !/width:\s*auto/.test(regel),
+      "width: auto nimmt einem Inline-SVG jede Bezugsgröße – es fällt auf 0 zusammen"
+    );
+    // Hängt die Höhe am Elternteil, muss der Elternteil eine eigene Höhe haben.
+    if (/height:\s*100%/.test(regel)) {
+      const eltern = [...CSS.matchAll(/\.karte-aufgabe\s+\.bild\s*\{([^}]*)\}/g)].map((t) => t[1]);
+      assert.ok(
+        eltern.some((e) => /flex:\s*1\s/.test(e)),
+        "height: 100% braucht einen Elternteil mit eigener Höhe (flex-grow), sonst wird es 0"
+      );
+    }
+  }
+
+  // Und in jedem Fall ein Mindestmaß, damit bei wenig Platz etwas übrig bleibt.
+  const eltern = [...CSS.matchAll(/body\.uebung-laeuft\s+\.karte-aufgabe\s+\.bild\s*\{([^}]*)\}/g)].map((t) => t[1]);
+  assert.ok(eltern.length > 0, "keine Flexregel für das Erklärbild gefunden");
+  for (const regel of eltern) {
+    const treffer = regel.match(/min-height:\s*(\d+)px/);
+    assert.ok(treffer, "dem Erklärbild fehlt ein Mindestmaß");
+    assert.ok(Number(treffer[1]) >= 40, `Mindestmaß ${treffer[1]}px ist zu klein zum Erkennen`);
+  }
+});

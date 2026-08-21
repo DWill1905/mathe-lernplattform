@@ -4,6 +4,54 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.11.1] – 2026-08-21
+
+### Behoben
+
+**Rechenrad, Rechenkasten und Zahlenmauer waren komplett verschwunden.**
+Der Flexspalten-Umbau aus 1.11.0 hatte dem Erklärbild `flex: 0 1 auto` gegeben
+– damit kam seine Basisgröße aus dem Inhalt. Der Inhalt war ein SVG mit
+`height: 100%`. Höhe des Kastens hängt am SVG, Höhe des SVG hängt am Kasten:
+Diesen Ringschluss löst der Browser mit null auf. Alle Erklärbilder der Übung
+waren 0 × 0 groß.
+
+Derselbe Fehler steckte ein zweites Mal in der Seite: `width: auto` auf einem
+Inline-SVG, das nur eine `viewBox` hat. Auch dort fehlt jede Bezugsgröße, auch
+dort war das Ergebnis 0 × 0 – im Querformat.
+
+Beides ist behoben: Die Höhe kommt jetzt über `flex-grow` aus dem übrigen
+Platz (eindeutig, nicht aus dem Inhalt), das SVG hat immer eine feste Breite,
+und ein `min-height` sorgt dafür, dass bei wenig Platz etwas Sichtbares übrig
+bleibt.
+
+**Warum das nicht aufgefallen ist.**
+Meine Messung in 1.11.0 prüfte, ob der Antwortbereich ohne Scrollen ins
+Fenster passt. Mit verschwundenem Erklärbild passte er natürlich immer – die
+Messung bestätigte also genau den Fehler, den sie hätte finden sollen. Sie
+prüft jetzt beides: dass das Bild sichtbar ist UND dass der Antwortbereich
+passt.
+
+Die ehrlichen Zahlen über sechs Geräte, je 30 zufällige Aufgaben aus
+Mauern/Gemischt/Puzzle:
+
+| Gerät | Bilder sichtbar | ohne Scrollen |
+| --- | --- | --- |
+| iPhone SE | 16 von 16 | 25 von 30 |
+| iPhone 14 | 18 von 18 | 25 von 30 |
+| iPhone 14 quer | 20 von 20 | 30 von 30 |
+| iPad mini | 17 von 17 | 30 von 30 |
+| iPad Pro 11 | 19 von 19 | 30 von 30 |
+| iPad Pro quer | 14 von 14 | 26 von 30 |
+
+Auf den kleinen Telefonen muss man bei den höchsten Bildaufgaben also weiter
+ein Stück scrollen. Das war auch vor 1.11.0 so; ein sichtbares Bild ist
+wichtiger als eine scrollfreie Seite.
+
+Ein neuer Test hält die ganze Fehlerklasse fest: kein `width: auto` auf dem
+Erklärbild, `height: 100%` nur bei einem Elternteil mit eigener Höhe, und immer
+ein Mindestmaß. Gegengeprüft, indem beide Fehler noch einmal eingebaut wurden –
+der Test schlägt bei jedem an.
+
 ## [1.11.0] – 2026-08-21
 
 ### Geändert
@@ -64,8 +112,12 @@ vor dieser Version.
 Die Übungsseite ist jetzt eine Flexspalte über die volle Fensterhöhe, und das
 Erklärbild bekommt nur den Platz, der übrig bleibt. Feste `vh`-Grenzen hatten
 nicht gereicht, weil Frage und Antwortbereich je nach Aufgabenart verschieden
-hoch sind. Nachgemessen mit je zwölf zufälligen Aufgaben: **alle sechs Geräte,
-beide Modi, ohne Scrollen.**
+hoch sind.
+
+> **Nachtrag zu 1.11.1:** Hier stand ursprünglich, alle sechs Geräte kämen in
+> beiden Modi ohne Scrollen aus. Das war falsch – die Messung prüfte nur, ob
+> der Antwortbereich ins Fenster passt, und genau das tat er immer, weil das
+> Erklärbild verschwunden war. Die richtigen Zahlen stehen in 1.11.1.
 
 Außerdem weichen Kopfzeile und Navigation während einer Übung jetzt auch im
 Hochformat, sobald das Fenster schmal oder niedrig ist – bisher nur im

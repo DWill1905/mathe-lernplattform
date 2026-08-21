@@ -2387,10 +2387,17 @@ body {
     margin-bottom: 0.6rem;
   }
 
+  /*
+   * NIEMALS `width: auto` auf ein Inline-SVG, das nur eine viewBox hat: Dann
+   * fehlt ihm jede Bezugsgröße und es fällt auf 0 × 0 zusammen. Mit fester
+   * Breite und `height: auto` stimmt das Seitenverhältnis; greift dann die
+   * Höhengrenze, rahmt `preserveAspectRatio` die Zeichnung sauber ein,
+   * statt sie zu stauchen.
+   */
   .karte-aufgabe .bild svg {
+    width: 100%;
+    height: auto;
     max-height: 30vh;
-    width: auto;
-    margin: 0 auto;
   }
 }
 
@@ -2421,19 +2428,30 @@ body {
     flex: none;
   }
 
+  /*
+   * ACHTUNG, hier lag ein Fehler: Mit `flex: 0 1 auto` kam die Basisgröße aus
+   * dem Inhalt – und der Inhalt war ein SVG mit `height: 100%`. Höhe des
+   * Kastens hängt am SVG, Höhe des SVG hängt am Kasten: Das löst der Browser
+   * mit null auf, und ALLE Erklärbilder (Rechenrad, Kasten, Zahlenmauer)
+   * verschwanden spurlos.
+   *
+   * Mit `flex-grow: 1` ist die Höhe dagegen eindeutig – sie kommt aus dem
+   * übrigen Platz, nicht aus dem Inhalt. `min-height` sorgt dafür, dass das
+   * Bild auch bei ganz wenig Platz sichtbar bleibt, `max-height`, dass es auf
+   * hohen Schirmen nicht die ganze Karte auffrisst.
+   */
   body.uebung-laeuft .karte-aufgabe .bild {
-    flex: 0 1 auto;
-    min-height: 0;
+    flex: 1 1 auto;
+    min-height: 64px;
+    max-height: 30vh;
     display: flex;
     justify-content: center;
-    max-height: none;
   }
 
   body.uebung-laeuft .karte-aufgabe .bild svg {
+    width: 100%;
     height: 100%;
     max-height: 100%;
-    width: auto;
-    max-width: 100%;
   }
 }
 
@@ -2458,19 +2476,30 @@ body {
     flex: none;
   }
 
+  /*
+   * ACHTUNG, hier lag ein Fehler: Mit `flex: 0 1 auto` kam die Basisgröße aus
+   * dem Inhalt – und der Inhalt war ein SVG mit `height: 100%`. Höhe des
+   * Kastens hängt am SVG, Höhe des SVG hängt am Kasten: Das löst der Browser
+   * mit null auf, und ALLE Erklärbilder (Rechenrad, Kasten, Zahlenmauer)
+   * verschwanden spurlos.
+   *
+   * Mit `flex-grow: 1` ist die Höhe dagegen eindeutig – sie kommt aus dem
+   * übrigen Platz, nicht aus dem Inhalt. `min-height` sorgt dafür, dass das
+   * Bild auch bei ganz wenig Platz sichtbar bleibt, `max-height`, dass es auf
+   * hohen Schirmen nicht die ganze Karte auffrisst.
+   */
   body.uebung-laeuft .karte-aufgabe .bild {
-    flex: 0 1 auto;
-    min-height: 0;
+    flex: 1 1 auto;
+    min-height: 64px;
+    max-height: 30vh;
     display: flex;
     justify-content: center;
-    max-height: none;
   }
 
   body.uebung-laeuft .karte-aufgabe .bild svg {
+    width: 100%;
     height: 100%;
     max-height: 100%;
-    width: auto;
-    max-width: 100%;
   }
 }
 
