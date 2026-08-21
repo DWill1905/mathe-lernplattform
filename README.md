@@ -12,6 +12,7 @@ des Geräts.
 | 🔢 Zahlen bis 100 | Vorgänger/Nachfolger, Zehner und Einer, Nachbarzehner, Zahlenstrahl, Runden, Zahlenfolgen |
 | ➕ Plus & Minus | bis 20, mit vollen Zehnern, bis 100 ohne und mit Zehnerübergang, Platzhalteraufgaben |
 | 💡 Rechentricks | Analogieaufgaben: 3 + 4 → 30 + 40, 3 + 2 → 13 + 2, plus/minus 10, Hunderter, Tabellenzeilen |
+| 💖 Hilfsaufgaben | Bei Rechentricks und Umkehraufgaben rechnet das Kind zuerst die Hilfsaufgabe selbst – das gibt ein Herz |
 | 👨‍👩‍👧‍👦 Aufgabenfamilien | „3 Zahlen, 4 Aufgaben“: Tausch- und Umkehraufgaben, Lücken in allen vier Formen |
 | 🧱 Mauern & Räder | Zahlenmauern mit fehlendem Stein, Rechenräder mit Zielzahl in der Mitte |
 | ✖️ Einmaleins | alle Reihen von 1 bis 10, Punktefelder, Umkehraufgaben |
@@ -34,6 +35,10 @@ von Hand setzen.
   Fehler – dem ausgeschriebenen Rechenweg.
 - **Zahlentastatur** statt Systemtastatur; auf dem Rechner funktionieren auch
   die Zifferntasten, Rücktaste und Enter.
+- **Zweischrittige Aufgaben**: Bei Rechentricks und Umkehraufgaben rechnet das
+  Kind erst die Hilfsaufgabe (`3 + 4 = ?`). Stimmt sie, springt ein animiertes
+  Herz auf und es gibt Extrapunkte; danach steht die Hilfsaufgabe als Hinweis
+  über der großen Aufgabe (`30 + 40 = ?`).
 - **Tipps** zu jeder Aufgabe, die das Kind selbst aufklappen kann.
 - **Gemischtes Training** über alle Themen hinweg.
 - **Rechenmeister**: 20 Aufgaben gegen die Uhr aus Plus/Minus, Rechentricks,

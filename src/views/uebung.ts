@@ -4,6 +4,11 @@
  * Eine Runde besteht aus zehn Aufgaben. Nach jeder Antwort gibt es sofort
  * Rückmeldung: Richtiges wird kurz bestätigt und läuft automatisch weiter,
  * bei einem Fehler bleibt der Rechenweg stehen, bis das Kind weiterklickt.
+ *
+ * Aufgaben mit einer `vorstufe` laufen in zwei Schritten: Erst rechnet das
+ * Kind die Hilfsaufgabe selbst (das gibt ein Herz), danach steht sie als
+ * Hinweis über der eigentlichen Aufgabe. Im Rechenmeister entfällt dieser
+ * Schritt – dort zählt die Zeit.
  */
 
 import { el, svgBild } from "../dom.js";
@@ -21,7 +26,7 @@ import { ladeFortschritt } from "../state.js";
 import { MEISTERLAENGE, MEISTER_THEMEN, RUNDENLAENGE, gemischteRunde, runde } from "../tasks/index.js";
 import { THEMEN, istThemaId, thema } from "../topics.js";
 import type { RouteHandler } from "../router.js";
-import type { Aufgabe, RundenErgebnis, Stufe, ThemaId } from "../types.js";
+import type { Antwortfeld, Aufgabe, RundenErgebnis, Stufe, ThemaId } from "../types.js";
 import { sterneAnzeige } from "./start.js";
 
 interface Eintrag {
@@ -49,6 +54,10 @@ interface Sitzung {
   beantwortet: boolean;
   warRichtig: boolean;
   tippOffen: boolean;
+  /** Welcher Schritt der aktuellen Aufgabe gerade dran ist. */
+  phase: "vorstufe" | "haupt";
+  /** Selbst gelöste Hilfsaufgaben in dieser Runde. */
+  herzen: number;
 }
 
 /** Aufräumhaken der laufenden Runde – Timer und Tastatur dürfen nie überleben. */
@@ -122,7 +131,7 @@ function neueSitzung(
   eintraege: Eintrag[],
   meister = false
 ): Sitzung {
-  return {
+  const sitzung: Sitzung = {
     themaId,
     meister,
     startZeit: Date.now(),
@@ -138,6 +147,46 @@ function neueSitzung(
     beantwortet: false,
     warRichtig: false,
     tippOffen: false,
+    phase: "haupt",
+    herzen: 0,
+  };
+  phaseSetzen(sitzung);
+  return sitzung;
+}
+
+/**
+ * Setzt den Schritt für die aktuelle Aufgabe. Im Rechenmeister wird die
+ * Hilfsaufgabe übersprungen – dort läuft die Uhr.
+ */
+function phaseSetzen(sitzung: Sitzung): void {
+  const aufgabe = sitzung.eintraege[sitzung.index]?.aufgabe;
+  sitzung.phase = aufgabe?.vorstufe && !sitzung.meister ? "vorstufe" : "haupt";
+}
+
+/** Was gerade gefragt wird – die Hilfsaufgabe oder die eigentliche Aufgabe. */
+interface Schritt {
+  frage: string;
+  rechnung?: string;
+  antwortfeld: Antwortfeld;
+  loesung: string;
+  erklaerung?: string;
+}
+
+function aktuellerSchritt(aufgabe: Aufgabe, sitzung: Sitzung): Schritt {
+  if (sitzung.phase === "vorstufe" && aufgabe.vorstufe) {
+    return {
+      frage: aufgabe.vorstufe.frage,
+      rechnung: aufgabe.vorstufe.rechnung,
+      antwortfeld: { art: "zahl" },
+      loesung: aufgabe.vorstufe.loesung,
+    };
+  }
+  return {
+    frage: aufgabe.frage,
+    rechnung: aufgabe.rechnung,
+    antwortfeld: aufgabe.antwortfeld,
+    loesung: aufgabe.loesung,
+    erklaerung: aufgabe.erklaerung,
   };
 }
 
@@ -152,6 +201,8 @@ function zeichne(ziel: HTMLElement, sitzung: Sitzung): void {
 
   const eintrag = sitzung.eintraege[sitzung.index]!;
   const aufgabe = eintrag.aufgabe;
+  const schritt = aktuellerSchritt(aufgabe, sitzung);
+  const inVorstufe = sitzung.phase === "vorstufe";
   const nummer = sitzung.index + 1;
   const gesamt = sitzung.eintraege.length;
   const titel = sitzung.meister
@@ -190,23 +241,41 @@ function zeichne(ziel: HTMLElement, sitzung: Sitzung): void {
       "div",
       { class: "uebung-zaehler" },
       el("span", { text: `Aufgabe ${nummer} von ${gesamt}` }),
-      el("span", { class: "uebung-treffer", text: `${sitzung.richtig} richtig` })
+      el(
+        "span",
+        { class: "uebung-bilanz" },
+        sitzung.herzen > 0 &&
+          el("span", { class: "uebung-herzen", text: `💖 ${sitzung.herzen}` }),
+        el("span", { class: "uebung-treffer", text: `${sitzung.richtig} richtig` })
+      )
     )
   );
 
-  const karte = el("section", { class: "karte karte-aufgabe" });
-  if (!sitzung.themaId) {
+  const karte = el("section", { class: `karte karte-aufgabe${inVorstufe ? " karte-vorstufe" : ""}` });
+  if (!sitzung.themaId && !inVorstufe) {
     karte.appendChild(
       el("span", { class: "aufgabe-thema", text: `${thema(eintrag.thema).symbol} ${thema(eintrag.thema).titel}` })
     );
   }
-  karte.appendChild(el("p", { class: "aufgabe-frage", text: aufgabe.frage }));
-  if (aufgabe.bild) karte.appendChild(svgBild(aufgabe.bild.svg, aufgabe.bild.beschriftung));
-  if (aufgabe.rechnung) karte.appendChild(el("p", { class: "aufgabe-rechnung", text: aufgabe.rechnung }));
 
-  karte.appendChild(antwortbereich(ziel, sitzung, aufgabe));
+  // In der Hauptphase steht die selbst gerechnete Hilfsaufgabe als Hinweis darüber.
+  if (!inVorstufe && aufgabe.vorstufe) {
+    karte.appendChild(
+      el("p", {
+        class: "hilfszeile",
+        text: `Hilfsaufgabe: ${aufgabe.vorstufe.rechnung} ${aufgabe.vorstufe.loesung}`,
+      })
+    );
+  }
+  if (inVorstufe) karte.appendChild(el("span", { class: "aufgabe-thema", text: "Schritt 1 von 2" }));
 
-  if (aufgabe.tipp && !sitzung.beantwortet && !sitzung.meister) {
+  karte.appendChild(el("p", { class: "aufgabe-frage", text: schritt.frage }));
+  if (aufgabe.bild && !inVorstufe) karte.appendChild(svgBild(aufgabe.bild.svg, aufgabe.bild.beschriftung));
+  if (schritt.rechnung) karte.appendChild(el("p", { class: "aufgabe-rechnung", text: schritt.rechnung }));
+
+  karte.appendChild(antwortbereich(ziel, sitzung, schritt));
+
+  if (aufgabe.tipp && !sitzung.beantwortet && !sitzung.meister && !inVorstufe) {
     karte.appendChild(
       sitzung.tippOffen
         ? el("p", { class: "tipp tipp-offen", text: `💡 ${aufgabe.tipp}` })
@@ -221,7 +290,7 @@ function zeichne(ziel: HTMLElement, sitzung: Sitzung): void {
     );
   }
 
-  if (sitzung.beantwortet) karte.appendChild(rueckmeldung(ziel, sitzung, aufgabe));
+  if (sitzung.beantwortet) karte.appendChild(rueckmeldung(ziel, sitzung, schritt));
 
   ziel.replaceChildren(kopf, karte);
 }
@@ -250,12 +319,12 @@ function vergangeneSekunden(sitzung: Sitzung): number {
 
 /* ---------------------------------------------------------- Antwortfeld */
 
-function antwortbereich(ziel: HTMLElement, sitzung: Sitzung, aufgabe: Aufgabe): HTMLElement {
-  if (aufgabe.antwortfeld.art === "auswahl") {
+function antwortbereich(ziel: HTMLElement, sitzung: Sitzung, schritt: Schritt): HTMLElement {
+  if (schritt.antwortfeld.art === "auswahl") {
     const knoepfe = el("div", { class: "auswahl" });
-    for (const option of aufgabe.antwortfeld.optionen) {
+    for (const option of schritt.antwortfeld.optionen) {
       const gewaehlt = sitzung.beantwortet && sitzung.eingabe === option;
-      const istLoesung = sitzung.beantwortet && option === aufgabe.loesung;
+      const istLoesung = sitzung.beantwortet && option === schritt.loesung;
       knoepfe.appendChild(
         el("button", {
           class: `knopf knopf-auswahl${istLoesung ? " knopf-richtig" : gewaehlt ? " knopf-falsch" : ""}`,
@@ -269,7 +338,7 @@ function antwortbereich(ziel: HTMLElement, sitzung: Sitzung, aufgabe: Aufgabe): 
     return knoepfe;
   }
 
-  const einheit = aufgabe.antwortfeld.einheit;
+  const einheit = schritt.antwortfeld.einheit;
   const anzeige = el(
     "div",
     { class: "eingabe-anzeige", "aria-live": "polite" },
@@ -352,23 +421,38 @@ function antwortbereich(ziel: HTMLElement, sitzung: Sitzung, aufgabe: Aufgabe): 
 
 /* ---------------------------------------------------------- Rückmeldung */
 
-function rueckmeldung(ziel: HTMLElement, sitzung: Sitzung, aufgabe: Aufgabe): HTMLElement {
+function rueckmeldung(ziel: HTMLElement, sitzung: Sitzung, schritt: Schritt): HTMLElement {
+  const inVorstufe = sitzung.phase === "vorstufe";
+
+  /** Zum nächsten Schritt – entweder zur Hauptaufgabe oder zur nächsten Aufgabe. */
   const weiter = (): void => {
-    sitzung.index++;
     sitzung.eingabe = "";
     sitzung.beantwortet = false;
-    sitzung.tippOffen = false;
+    if (inVorstufe) {
+      sitzung.phase = "haupt";
+    } else {
+      sitzung.index++;
+      sitzung.tippOffen = false;
+      phaseSetzen(sitzung);
+    }
     zeichne(ziel, sitzung);
   };
 
   if (sitzung.warRichtig) {
-    timer = window.setTimeout(weiter, 900);
-    return el(
-      "div",
-      { class: "rueckmeldung rueckmeldung-richtig", role: "status" },
-      el("span", { class: "rueckmeldung-symbol", "aria-hidden": "true", text: "✅" }),
-      el("span", { text: "Richtig!" })
-    );
+    timer = window.setTimeout(weiter, inVorstufe ? 1300 : 900);
+    return inVorstufe
+      ? el(
+          "div",
+          { class: "rueckmeldung rueckmeldung-herz", role: "status" },
+          el("span", { class: "herz", "aria-hidden": "true", text: "💖" }),
+          el("span", { text: "Richtig! Ein Herz für dich." })
+        )
+      : el(
+          "div",
+          { class: "rueckmeldung rueckmeldung-richtig", role: "status" },
+          el("span", { class: "rueckmeldung-symbol", "aria-hidden": "true", text: "✅" }),
+          el("span", { text: "Richtig!" })
+        );
   }
 
   return el(
@@ -378,19 +462,33 @@ function rueckmeldung(ziel: HTMLElement, sitzung: Sitzung, aufgabe: Aufgabe): HT
       "p",
       { class: "rueckmeldung-zeile" },
       el("span", { class: "rueckmeldung-symbol", "aria-hidden": "true", text: "💭" }),
-      el("span", { text: `Richtig ist: ${aufgabe.loesung}` })
+      el("span", { text: `Richtig ist: ${schritt.loesung}` })
     ),
-    aufgabe.erklaerung ? el("p", { class: "rueckmeldung-weg", text: aufgabe.erklaerung }) : null,
-    el("button", { class: "knopf knopf-gross", type: "button", text: "Weiter", onclick: weiter })
+    schritt.erklaerung ? el("p", { class: "rueckmeldung-weg", text: schritt.erklaerung }) : null,
+    el("button", {
+      class: "knopf knopf-gross",
+      type: "button",
+      text: inVorstufe ? "Weiter zur Aufgabe" : "Weiter",
+      onclick: weiter,
+    })
   );
 }
 
 function pruefe(ziel: HTMLElement, sitzung: Sitzung, antwort: string): void {
   const eintrag = sitzung.eintraege[sitzung.index]!;
-  const richtig = normalisiere(antwort) === normalisiere(eintrag.aufgabe.loesung);
+  const schritt = aktuellerSchritt(eintrag.aufgabe, sitzung);
+  const richtig = normalisiere(antwort) === normalisiere(schritt.loesung);
   sitzung.eingabe = antwort;
   sitzung.beantwortet = true;
   sitzung.warRichtig = richtig;
+
+  if (sitzung.phase === "vorstufe") {
+    // Die Hilfsaufgabe bringt ein Herz, zählt aber nicht in die Trefferbilanz.
+    if (richtig) sitzung.herzen++;
+    zeichne(ziel, sitzung);
+    return;
+  }
+
   sitzung.ergebnisse.push(richtig);
   if (richtig) {
     sitzung.richtig++;
@@ -424,6 +522,7 @@ function zeichneErgebnis(ziel: HTMLElement, sitzung: Sitzung): void {
       gesamt: sitzung.eintraege.length,
       besteSerie: sitzung.besteSerie,
       fehlerTypen: sitzung.fehlerTypen,
+      herzen: sitzung.herzen,
     });
   } else {
     const proThema = new Map<ThemaId, { richtig: number; gesamt: number }>();
@@ -439,6 +538,7 @@ function zeichneErgebnis(ziel: HTMLElement, sitzung: Sitzung): void {
       proThema: [...proThema.entries()].map(([id, stand]) => ({ thema: id, ...stand })),
       fehlerTypen: sitzung.fehlerTypen,
       besteSerie: sitzung.besteSerie,
+      herzen: sitzung.herzen,
     };
     if (sitzung.meister) {
       sekunden = vergangeneSekunden(sitzung);
@@ -461,6 +561,17 @@ function zeichneErgebnis(ziel: HTMLElement, sitzung: Sitzung): void {
       text: `${ergebnis.richtig} von ${ergebnis.gesamt} Aufgaben richtig · +${ergebnis.punkte} Punkte`,
     })
   );
+
+  if (ergebnis.herzen > 0) {
+    karte.appendChild(
+      el(
+        "p",
+        { class: "ergebnis-herzen" },
+        el("span", { class: "herz", "aria-hidden": "true", text: "💖" }),
+        ` ${ergebnis.herzen} ${ergebnis.herzen === 1 ? "Hilfsaufgabe" : "Hilfsaufgaben"} selbst gelöst`
+      )
+    );
+  }
 
   if (sitzung.meister) {
     karte.appendChild(

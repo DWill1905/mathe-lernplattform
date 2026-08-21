@@ -40,6 +40,7 @@ export function standardFortschritt(): Fortschritt {
     verlauf: [],
     fehler: {},
     meister: { besteZeit: 0, besteTreffer: 0 },
+    herzen: 0,
   };
 }
 
@@ -138,6 +139,7 @@ export function ladeFortschritt(): Fortschritt {
     verlauf,
     fehler,
     meister,
+    herzen: ganzeZahl(daten["herzen"], 0, MAX_PUNKTE, 0),
   };
 }
 

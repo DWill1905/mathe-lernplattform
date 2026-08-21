@@ -4,6 +4,14 @@
  * 30 + 40. Die Hilfsaufgabe steht deshalb immer mit in der Frage.
  */
 import { zahlfeld } from "./helpers.js";
+/** Die Hilfsaufgabe, die das Kind zuerst selbst rechnet. */
+function hilfsaufgabe(a, zeichen, b, ergebnis) {
+    return {
+        frage: "Rechne zuerst die Hilfsaufgabe.",
+        rechnung: `${a} ${zeichen} ${b} =`,
+        loesung: String(ergebnis),
+    };
+}
 export function analogie(rng, stufe) {
     if (stufe === 1)
         return rng.chance(0.5) ? einerZuZehnern(rng, "+") : einerZuZehnern(rng, "−");
@@ -40,7 +48,8 @@ function einerZuZehnern(rng, zeichen) {
     const gross = klein * 10;
     return {
         typ: "analogie/einer-zehner",
-        frage: `Die Hilfsaufgabe lautet ${a} ${zeichen} ${b} = ${klein}. Wie heißt das Ergebnis?`,
+        frage: "Und jetzt die große Aufgabe:",
+        vorstufe: hilfsaufgabe(a, zeichen, b, klein),
         rechnung: `${a * 10} ${zeichen} ${b * 10} =`,
         antwortfeld: zahlfeld(),
         loesung: String(gross),
@@ -66,7 +75,8 @@ function zehnerDavor(rng) {
     const zeichen = plus ? "+" : "−";
     return {
         typ: "analogie/zehner-davor",
-        frage: `Die Hilfsaufgabe lautet ${a} ${zeichen} ${b} = ${klein}. Wie heißt das Ergebnis?`,
+        frage: "Und jetzt die große Aufgabe:",
+        vorstufe: hilfsaufgabe(a, zeichen, b, klein),
         rechnung: `${zehner + a} ${zeichen} ${b} =`,
         antwortfeld: zahlfeld(),
         loesung: String(zehner + klein),
@@ -107,7 +117,8 @@ function hunderter(rng) {
         const b = 10 - a;
         return {
             typ: "analogie/hunderter",
-            frage: `Die Hilfsaufgabe lautet ${a} + ${b} = 10. Wie heißt das Ergebnis?`,
+            frage: "Und jetzt die große Aufgabe:",
+            vorstufe: hilfsaufgabe(a, "+", b, 10),
             rechnung: `${a * 10} + ${b * 10} =`,
             antwortfeld: zahlfeld(),
             loesung: "100",
@@ -118,7 +129,8 @@ function hunderter(rng) {
     const b = rng.int(1, 9);
     return {
         typ: "analogie/hunderter",
-        frage: `Die Hilfsaufgabe lautet 10 − ${b} = ${10 - b}. Wie heißt das Ergebnis?`,
+        frage: "Und jetzt die große Aufgabe:",
+        vorstufe: hilfsaufgabe(10, "−", b, 10 - b),
         rechnung: `100 − ${b * 10} =`,
         antwortfeld: zahlfeld(),
         loesung: String((10 - b) * 10),

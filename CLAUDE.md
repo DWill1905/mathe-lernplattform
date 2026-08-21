@@ -54,6 +54,11 @@ Abzeichen) und ein Elternbereich. Feature-Liste: `README.md`.
 
 ## Wichtigste Fallstricke
 
+- **Aufgaben mit `vorstufe` laufen in zwei Schritten.** `views/uebung.ts`
+  hält dafür `sitzung.phase`; `aktuellerSchritt()` entscheidet, was gerade
+  gefragt wird. Die Hilfsaufgabe zählt NICHT in die Trefferbilanz – sie bringt
+  ein Herz. Wer eine neue `vorstufe` ergänzt: Ihr Ergebnis muss im Zahlenraum
+  bleiben und darf nie negativ werden (Test in `test/mauern.test.js`).
 - **In einer Zahlenmauer fehlt immer genau ein Stein.** Nur dann ist er
   eindeutig bestimmt, weil alle Nachbarn sichtbar bleiben. Ein Test prüft das.
 - **Der Rechenmeister ist eine Betriebsart der Übungsansicht**, keine eigene

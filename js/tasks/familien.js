@@ -35,7 +35,8 @@ function umkehrZuPlus(rng, max) {
     const { a, b, summe } = trio(rng, max);
     return {
         typ: "familien/umkehr-plus",
-        frage: `Du weißt: ${a} + ${b} = ${summe}. Wie heißt die Umkehraufgabe?`,
+        frage: "Und jetzt die Umkehraufgabe:",
+        vorstufe: { frage: "Rechne zuerst diese Aufgabe.", rechnung: `${a} + ${b} =`, loesung: String(summe) },
         rechnung: `${summe} − ${b} =`,
         antwortfeld: zahlfeld(),
         loesung: String(a),
@@ -48,7 +49,8 @@ function umkehrZuMinus(rng, max) {
     const { a, b, summe } = trio(rng, max);
     return {
         typ: "familien/umkehr-minus",
-        frage: `Du weißt: ${summe} − ${a} = ${b}. Wie heißt die Umkehraufgabe?`,
+        frage: "Und jetzt die Umkehraufgabe:",
+        vorstufe: { frage: "Rechne zuerst diese Aufgabe.", rechnung: `${summe} − ${a} =`, loesung: String(b) },
         rechnung: `${b} + ${a} =`,
         antwortfeld: zahlfeld(),
         loesung: String(summe),

@@ -4,6 +4,11 @@
  * Eine Runde besteht aus zehn Aufgaben. Nach jeder Antwort gibt es sofort
  * Rückmeldung: Richtiges wird kurz bestätigt und läuft automatisch weiter,
  * bei einem Fehler bleibt der Rechenweg stehen, bis das Kind weiterklickt.
+ *
+ * Aufgaben mit einer `vorstufe` laufen in zwei Schritten: Erst rechnet das
+ * Kind die Hilfsaufgabe selbst (das gibt ein Herz), danach steht sie als
+ * Hinweis über der eigentlichen Aufgabe. Im Rechenmeister entfällt dieser
+ * Schritt – dort zählt die Zeit.
  */
 import { el, svgBild } from "../dom.js";
 import { ERFOLGE, lobText, merkeMeisterErgebnis, werteMixAus, werteRundeAus, zeitText, } from "../gamification.js";
@@ -63,7 +68,7 @@ function baueSitzung(wunsch) {
     return null;
 }
 function neueSitzung(themaId, stufe, eintraege, meister = false) {
-    return {
+    const sitzung = {
         themaId,
         meister,
         startZeit: Date.now(),
@@ -79,6 +84,35 @@ function neueSitzung(themaId, stufe, eintraege, meister = false) {
         beantwortet: false,
         warRichtig: false,
         tippOffen: false,
+        phase: "haupt",
+        herzen: 0,
+    };
+    phaseSetzen(sitzung);
+    return sitzung;
+}
+/**
+ * Setzt den Schritt für die aktuelle Aufgabe. Im Rechenmeister wird die
+ * Hilfsaufgabe übersprungen – dort läuft die Uhr.
+ */
+function phaseSetzen(sitzung) {
+    const aufgabe = sitzung.eintraege[sitzung.index]?.aufgabe;
+    sitzung.phase = aufgabe?.vorstufe && !sitzung.meister ? "vorstufe" : "haupt";
+}
+function aktuellerSchritt(aufgabe, sitzung) {
+    if (sitzung.phase === "vorstufe" && aufgabe.vorstufe) {
+        return {
+            frage: aufgabe.vorstufe.frage,
+            rechnung: aufgabe.vorstufe.rechnung,
+            antwortfeld: { art: "zahl" },
+            loesung: aufgabe.vorstufe.loesung,
+        };
+    }
+    return {
+        frage: aufgabe.frage,
+        rechnung: aufgabe.rechnung,
+        antwortfeld: aufgabe.antwortfeld,
+        loesung: aufgabe.loesung,
+        erklaerung: aufgabe.erklaerung,
     };
 }
 /* ------------------------------------------------------------- Zeichnen */
@@ -90,6 +124,8 @@ function zeichne(ziel, sitzung) {
     }
     const eintrag = sitzung.eintraege[sitzung.index];
     const aufgabe = eintrag.aufgabe;
+    const schritt = aktuellerSchritt(aufgabe, sitzung);
+    const inVorstufe = sitzung.phase === "vorstufe";
     const nummer = sitzung.index + 1;
     const gesamt = sitzung.eintraege.length;
     const titel = sitzung.meister
@@ -109,18 +145,28 @@ function zeichne(ziel, sitzung) {
         "aria-valuemax": String(gesamt),
         "aria-valuenow": String(nummer),
         "aria-label": `Aufgabe ${nummer} von ${gesamt}`,
-    }, el("div", { class: "balken-fuellung", stil: { width: `${(sitzung.index / gesamt) * 100}%` } })), el("div", { class: "uebung-zaehler" }, el("span", { text: `Aufgabe ${nummer} von ${gesamt}` }), el("span", { class: "uebung-treffer", text: `${sitzung.richtig} richtig` })));
-    const karte = el("section", { class: "karte karte-aufgabe" });
-    if (!sitzung.themaId) {
+    }, el("div", { class: "balken-fuellung", stil: { width: `${(sitzung.index / gesamt) * 100}%` } })), el("div", { class: "uebung-zaehler" }, el("span", { text: `Aufgabe ${nummer} von ${gesamt}` }), el("span", { class: "uebung-bilanz" }, sitzung.herzen > 0 &&
+        el("span", { class: "uebung-herzen", text: `💖 ${sitzung.herzen}` }), el("span", { class: "uebung-treffer", text: `${sitzung.richtig} richtig` }))));
+    const karte = el("section", { class: `karte karte-aufgabe${inVorstufe ? " karte-vorstufe" : ""}` });
+    if (!sitzung.themaId && !inVorstufe) {
         karte.appendChild(el("span", { class: "aufgabe-thema", text: `${thema(eintrag.thema).symbol} ${thema(eintrag.thema).titel}` }));
     }
-    karte.appendChild(el("p", { class: "aufgabe-frage", text: aufgabe.frage }));
-    if (aufgabe.bild)
+    // In der Hauptphase steht die selbst gerechnete Hilfsaufgabe als Hinweis darüber.
+    if (!inVorstufe && aufgabe.vorstufe) {
+        karte.appendChild(el("p", {
+            class: "hilfszeile",
+            text: `Hilfsaufgabe: ${aufgabe.vorstufe.rechnung} ${aufgabe.vorstufe.loesung}`,
+        }));
+    }
+    if (inVorstufe)
+        karte.appendChild(el("span", { class: "aufgabe-thema", text: "Schritt 1 von 2" }));
+    karte.appendChild(el("p", { class: "aufgabe-frage", text: schritt.frage }));
+    if (aufgabe.bild && !inVorstufe)
         karte.appendChild(svgBild(aufgabe.bild.svg, aufgabe.bild.beschriftung));
-    if (aufgabe.rechnung)
-        karte.appendChild(el("p", { class: "aufgabe-rechnung", text: aufgabe.rechnung }));
-    karte.appendChild(antwortbereich(ziel, sitzung, aufgabe));
-    if (aufgabe.tipp && !sitzung.beantwortet && !sitzung.meister) {
+    if (schritt.rechnung)
+        karte.appendChild(el("p", { class: "aufgabe-rechnung", text: schritt.rechnung }));
+    karte.appendChild(antwortbereich(ziel, sitzung, schritt));
+    if (aufgabe.tipp && !sitzung.beantwortet && !sitzung.meister && !inVorstufe) {
         karte.appendChild(sitzung.tippOffen
             ? el("p", { class: "tipp tipp-offen", text: `💡 ${aufgabe.tipp}` })
             : el("button", {
@@ -133,7 +179,7 @@ function zeichne(ziel, sitzung) {
             }));
     }
     if (sitzung.beantwortet)
-        karte.appendChild(rueckmeldung(ziel, sitzung, aufgabe));
+        karte.appendChild(rueckmeldung(ziel, sitzung, schritt));
     ziel.replaceChildren(kopf, karte);
 }
 /**
@@ -152,12 +198,12 @@ function vergangeneSekunden(sitzung) {
     return Math.max(0, Math.round((Date.now() - sitzung.startZeit) / 1000));
 }
 /* ---------------------------------------------------------- Antwortfeld */
-function antwortbereich(ziel, sitzung, aufgabe) {
-    if (aufgabe.antwortfeld.art === "auswahl") {
+function antwortbereich(ziel, sitzung, schritt) {
+    if (schritt.antwortfeld.art === "auswahl") {
         const knoepfe = el("div", { class: "auswahl" });
-        for (const option of aufgabe.antwortfeld.optionen) {
+        for (const option of schritt.antwortfeld.optionen) {
             const gewaehlt = sitzung.beantwortet && sitzung.eingabe === option;
-            const istLoesung = sitzung.beantwortet && option === aufgabe.loesung;
+            const istLoesung = sitzung.beantwortet && option === schritt.loesung;
             knoepfe.appendChild(el("button", {
                 class: `knopf knopf-auswahl${istLoesung ? " knopf-richtig" : gewaehlt ? " knopf-falsch" : ""}`,
                 type: "button",
@@ -168,7 +214,7 @@ function antwortbereich(ziel, sitzung, aufgabe) {
         }
         return knoepfe;
     }
-    const einheit = aufgabe.antwortfeld.einheit;
+    const einheit = schritt.antwortfeld.einheit;
     const anzeige = el("div", { class: "eingabe-anzeige", "aria-live": "polite" }, el("span", { class: "eingabe-zahl", text: sitzung.eingabe || "?" }), einheit ? el("span", { class: "eingabe-einheit", text: einheit }) : null);
     const absenden = () => {
         if (sitzung.beantwortet || sitzung.eingabe === "")
@@ -241,26 +287,49 @@ function antwortbereich(ziel, sitzung, aufgabe) {
     return el("div", { class: "eingabe-bereich" }, anzeige, feld);
 }
 /* ---------------------------------------------------------- Rückmeldung */
-function rueckmeldung(ziel, sitzung, aufgabe) {
+function rueckmeldung(ziel, sitzung, schritt) {
+    const inVorstufe = sitzung.phase === "vorstufe";
+    /** Zum nächsten Schritt – entweder zur Hauptaufgabe oder zur nächsten Aufgabe. */
     const weiter = () => {
-        sitzung.index++;
         sitzung.eingabe = "";
         sitzung.beantwortet = false;
-        sitzung.tippOffen = false;
+        if (inVorstufe) {
+            sitzung.phase = "haupt";
+        }
+        else {
+            sitzung.index++;
+            sitzung.tippOffen = false;
+            phaseSetzen(sitzung);
+        }
         zeichne(ziel, sitzung);
     };
     if (sitzung.warRichtig) {
-        timer = window.setTimeout(weiter, 900);
-        return el("div", { class: "rueckmeldung rueckmeldung-richtig", role: "status" }, el("span", { class: "rueckmeldung-symbol", "aria-hidden": "true", text: "✅" }), el("span", { text: "Richtig!" }));
+        timer = window.setTimeout(weiter, inVorstufe ? 1300 : 900);
+        return inVorstufe
+            ? el("div", { class: "rueckmeldung rueckmeldung-herz", role: "status" }, el("span", { class: "herz", "aria-hidden": "true", text: "💖" }), el("span", { text: "Richtig! Ein Herz für dich." }))
+            : el("div", { class: "rueckmeldung rueckmeldung-richtig", role: "status" }, el("span", { class: "rueckmeldung-symbol", "aria-hidden": "true", text: "✅" }), el("span", { text: "Richtig!" }));
     }
-    return el("div", { class: "rueckmeldung rueckmeldung-falsch", role: "status" }, el("p", { class: "rueckmeldung-zeile" }, el("span", { class: "rueckmeldung-symbol", "aria-hidden": "true", text: "💭" }), el("span", { text: `Richtig ist: ${aufgabe.loesung}` })), aufgabe.erklaerung ? el("p", { class: "rueckmeldung-weg", text: aufgabe.erklaerung }) : null, el("button", { class: "knopf knopf-gross", type: "button", text: "Weiter", onclick: weiter }));
+    return el("div", { class: "rueckmeldung rueckmeldung-falsch", role: "status" }, el("p", { class: "rueckmeldung-zeile" }, el("span", { class: "rueckmeldung-symbol", "aria-hidden": "true", text: "💭" }), el("span", { text: `Richtig ist: ${schritt.loesung}` })), schritt.erklaerung ? el("p", { class: "rueckmeldung-weg", text: schritt.erklaerung }) : null, el("button", {
+        class: "knopf knopf-gross",
+        type: "button",
+        text: inVorstufe ? "Weiter zur Aufgabe" : "Weiter",
+        onclick: weiter,
+    }));
 }
 function pruefe(ziel, sitzung, antwort) {
     const eintrag = sitzung.eintraege[sitzung.index];
-    const richtig = normalisiere(antwort) === normalisiere(eintrag.aufgabe.loesung);
+    const schritt = aktuellerSchritt(eintrag.aufgabe, sitzung);
+    const richtig = normalisiere(antwort) === normalisiere(schritt.loesung);
     sitzung.eingabe = antwort;
     sitzung.beantwortet = true;
     sitzung.warRichtig = richtig;
+    if (sitzung.phase === "vorstufe") {
+        // Die Hilfsaufgabe bringt ein Herz, zählt aber nicht in die Trefferbilanz.
+        if (richtig)
+            sitzung.herzen++;
+        zeichne(ziel, sitzung);
+        return;
+    }
     sitzung.ergebnisse.push(richtig);
     if (richtig) {
         sitzung.richtig++;
@@ -291,6 +360,7 @@ function zeichneErgebnis(ziel, sitzung) {
             gesamt: sitzung.eintraege.length,
             besteSerie: sitzung.besteSerie,
             fehlerTypen: sitzung.fehlerTypen,
+            herzen: sitzung.herzen,
         });
     }
     else {
@@ -308,6 +378,7 @@ function zeichneErgebnis(ziel, sitzung) {
             proThema: [...proThema.entries()].map(([id, stand]) => ({ thema: id, ...stand })),
             fehlerTypen: sitzung.fehlerTypen,
             besteSerie: sitzung.besteSerie,
+            herzen: sitzung.herzen,
         };
         if (sitzung.meister) {
             sekunden = vergangeneSekunden(sitzung);
@@ -324,6 +395,9 @@ function zeichneErgebnis(ziel, sitzung) {
         class: "ergebnis-bilanz",
         text: `${ergebnis.richtig} von ${ergebnis.gesamt} Aufgaben richtig · +${ergebnis.punkte} Punkte`,
     }));
+    if (ergebnis.herzen > 0) {
+        karte.appendChild(el("p", { class: "ergebnis-herzen" }, el("span", { class: "herz", "aria-hidden": "true", text: "💖" }), ` ${ergebnis.herzen} ${ergebnis.herzen === 1 ? "Hilfsaufgabe" : "Hilfsaufgaben"} selbst gelöst`));
+    }
     if (sitzung.meister) {
         karte.appendChild(el("p", { class: "ergebnis-zeit" }, el("span", { "aria-hidden": "true", text: "⏱️ " }), `Deine Zeit: ${zeitText(sekunden)}`));
         karte.appendChild(el("p", {

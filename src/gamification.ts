@@ -63,6 +63,9 @@ export function sterneFuerRunde(richtig: number, gesamt: number): number {
   return 0;
 }
 
+/** Punkte, die ein selbst gelöstes Herz (Hilfsaufgabe) einbringt. */
+export const HERZ_PUNKTE = 5;
+
 /** Punkte einer Runde: schwerere Stufen zählen mehr, fehlerfrei gibt Bonus. */
 export function punkteFuerRunde(richtig: number, gesamt: number, stufe: Stufe): number {
   const proAufgabe = stufe === 1 ? 10 : stufe === 2 ? 15 : 20;
@@ -178,6 +181,13 @@ export const ERFOLGE: readonly Erfolg[] = [
     erreicht: (f) => f.meister.besteTreffer >= 20,
   },
   {
+    id: "herzen25",
+    titel: "Herzensache",
+    text: "25 Hilfsaufgaben selbst gelöst.",
+    symbol: "💖",
+    erreicht: (f) => f.herzen >= 25,
+  },
+  {
     id: "level5",
     titel: "Rechenmeister",
     text: "Level 5 erreicht.",
@@ -233,6 +243,8 @@ export interface RundenEingabe {
   besteSerie: number;
   /** Aufgabentypen, die falsch beantwortet wurden. */
   fehlerTypen: readonly string[];
+  /** Selbst gelöste Hilfsaufgaben. */
+  herzen: number;
 }
 
 /**
@@ -242,7 +254,7 @@ export interface RundenEingabe {
 export function werteRundeAus(f: Fortschritt, eingabe: RundenEingabe): RundenErgebnis {
   const eintrag = f.themen[eingabe.thema];
   const sterne = sterneFuerRunde(eingabe.richtig, eingabe.gesamt);
-  const punkte = punkteFuerRunde(eingabe.richtig, eingabe.gesamt, eingabe.stufe);
+  const punkte = punkteFuerRunde(eingabe.richtig, eingabe.gesamt, eingabe.stufe) + eingabe.herzen * HERZ_PUNKTE;
   const vorher = f.erfolge.slice();
 
   eintrag.gesamt += eingabe.gesamt;
@@ -257,6 +269,7 @@ export function werteRundeAus(f: Fortschritt, eingabe: RundenEingabe): RundenErg
   eintrag.stufe = neueStufe;
 
   f.punkte += punkte;
+  f.herzen += eingabe.herzen;
   for (const typ of eingabe.fehlerTypen) {
     f.fehler[typ] = (f.fehler[typ] ?? 0) + 1;
   }
@@ -276,6 +289,7 @@ export function werteRundeAus(f: Fortschritt, eingabe: RundenEingabe): RundenErg
     gesamt: eingabe.gesamt,
     sterne,
     punkte,
+    herzen: eingabe.herzen,
     neueErfolge,
     stufeAufgestiegen: aufgestiegen,
   };
@@ -322,6 +336,8 @@ export interface MixEingabe {
   proThema: readonly { thema: ThemaId; richtig: number; gesamt: number }[];
   fehlerTypen: readonly string[];
   besteSerie: number;
+  /** Selbst gelöste Hilfsaufgaben. */
+  herzen: number;
 }
 
 /**
@@ -336,8 +352,9 @@ export function werteMixAus(f: Fortschritt, eingabe: MixEingabe): RundenErgebnis
     stand.gesamt += eintrag.gesamt;
     stand.richtig += eintrag.richtig;
   }
-  const punkte = punkteFuerRunde(eingabe.richtig, eingabe.gesamt, 2);
+  const punkte = punkteFuerRunde(eingabe.richtig, eingabe.gesamt, 2) + eingabe.herzen * HERZ_PUNKTE;
   f.punkte += punkte;
+  f.herzen += eingabe.herzen;
   for (const typ of eingabe.fehlerTypen) f.fehler[typ] = (f.fehler[typ] ?? 0) + 1;
   streakFortschreiben(f);
   verlaufFortschreiben(f, eingabe.richtig, eingabe.gesamt);
@@ -355,6 +372,7 @@ export function werteMixAus(f: Fortschritt, eingabe: MixEingabe): RundenErgebnis
     gesamt: eingabe.gesamt,
     sterne: sterneFuerRunde(eingabe.richtig, eingabe.gesamt),
     punkte,
+    herzen: eingabe.herzen,
     neueErfolge,
     stufeAufgestiegen: false,
   };

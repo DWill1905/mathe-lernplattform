@@ -48,6 +48,8 @@ export function sterneFuerRunde(richtig, gesamt) {
         return 1;
     return 0;
 }
+/** Punkte, die ein selbst gelöstes Herz (Hilfsaufgabe) einbringt. */
+export const HERZ_PUNKTE = 5;
 /** Punkte einer Runde: schwerere Stufen zählen mehr, fehlerfrei gibt Bonus. */
 export function punkteFuerRunde(richtig, gesamt, stufe) {
     const proAufgabe = stufe === 1 ? 10 : stufe === 2 ? 15 : 20;
@@ -149,6 +151,13 @@ export const ERFOLGE = [
         erreicht: (f) => f.meister.besteTreffer >= 20,
     },
     {
+        id: "herzen25",
+        titel: "Herzensache",
+        text: "25 Hilfsaufgaben selbst gelöst.",
+        symbol: "💖",
+        erreicht: (f) => f.herzen >= 25,
+    },
+    {
         id: "level5",
         titel: "Rechenmeister",
         text: "Level 5 erreicht.",
@@ -201,7 +210,7 @@ function stufeAnpassen(alt, richtig, gesamt) {
 export function werteRundeAus(f, eingabe) {
     const eintrag = f.themen[eingabe.thema];
     const sterne = sterneFuerRunde(eingabe.richtig, eingabe.gesamt);
-    const punkte = punkteFuerRunde(eingabe.richtig, eingabe.gesamt, eingabe.stufe);
+    const punkte = punkteFuerRunde(eingabe.richtig, eingabe.gesamt, eingabe.stufe) + eingabe.herzen * HERZ_PUNKTE;
     const vorher = f.erfolge.slice();
     eintrag.gesamt += eingabe.gesamt;
     eintrag.richtig += eingabe.richtig;
@@ -213,6 +222,7 @@ export function werteRundeAus(f, eingabe) {
     // soll ein Kind nicht dauerhaft überfordern.
     eintrag.stufe = neueStufe;
     f.punkte += punkte;
+    f.herzen += eingabe.herzen;
     for (const typ of eingabe.fehlerTypen) {
         f.fehler[typ] = (f.fehler[typ] ?? 0) + 1;
     }
@@ -231,6 +241,7 @@ export function werteRundeAus(f, eingabe) {
         gesamt: eingabe.gesamt,
         sterne,
         punkte,
+        herzen: eingabe.herzen,
         neueErfolge,
         stufeAufgestiegen: aufgestiegen,
     };
@@ -281,8 +292,9 @@ export function werteMixAus(f, eingabe) {
         stand.gesamt += eintrag.gesamt;
         stand.richtig += eintrag.richtig;
     }
-    const punkte = punkteFuerRunde(eingabe.richtig, eingabe.gesamt, 2);
+    const punkte = punkteFuerRunde(eingabe.richtig, eingabe.gesamt, 2) + eingabe.herzen * HERZ_PUNKTE;
     f.punkte += punkte;
+    f.herzen += eingabe.herzen;
     for (const typ of eingabe.fehlerTypen)
         f.fehler[typ] = (f.fehler[typ] ?? 0) + 1;
     streakFortschreiben(f);
@@ -300,6 +312,7 @@ export function werteMixAus(f, eingabe) {
         gesamt: eingabe.gesamt,
         sterne: sterneFuerRunde(eingabe.richtig, eingabe.gesamt),
         punkte,
+        herzen: eingabe.herzen,
         neueErfolge,
         stufeAufgestiegen: false,
     };

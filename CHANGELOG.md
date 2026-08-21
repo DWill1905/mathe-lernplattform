@@ -4,6 +4,30 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.2.0] – 2026-08-21
+
+### Neu
+
+- **Hilfsaufgaben werden jetzt selbst gerechnet.** Aufgaben mit einer
+  `vorstufe` laufen in zwei Schritten: Erst löst das Kind die Hilfsaufgabe
+  (`3 + 4 = ?`), danach die große Aufgabe (`30 + 40 = ?`). Bisher stand das
+  Ergebnis der Hilfsaufgabe einfach in der Frage.
+- **Herzen** als eigene Belohnung: Jede selbst gelöste Hilfsaufgabe bringt ein
+  animiertes Herz und fünf Extrapunkte. Der Zähler läuft in der Kopfzeile der
+  Runde mit, die Gesamtzahl steht auf der Fortschrittsseite, und ab 25 Herzen
+  gibt es das Abzeichen „Herzensache“.
+- Nach dem ersten Schritt steht die Hilfsaufgabe als Hinweiszeile über der
+  eigentlichen Aufgabe – auch dann, wenn sie falsch beantwortet wurde.
+
+### Geändert
+
+- Betroffen sind die Rechentricks (Einer→Zehner, Zehner davor, Hunderter) und
+  die Umkehraufgaben der Aufgabenfamilien.
+- Im **Rechenmeister** entfällt der Schritt: Dort läuft die Uhr, die
+  Hilfsaufgabe steht wie bisher gleich als Hinweis da.
+- Der Fortschritt speichert die gesammelten Herzen (`herzen`). Ältere
+  Spielstände ohne dieses Feld werden beim Laden ergänzt.
+
 ## [1.1.0] – 2026-08-21
 
 ### Neu

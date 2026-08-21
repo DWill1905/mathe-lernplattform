@@ -48,6 +48,7 @@ test("kaputte oder manipulierte Daten werden geprüft statt übernommen", () => 
       verlauf: "kein Array",
       fehler: { "geld/rueckgeld": -3, "einmaleins/reihe-7": 4 },
       meister: { besteZeit: "schnell", besteTreffer: 9999 },
+      herzen: -5,
     })
   );
 
@@ -65,6 +66,7 @@ test("kaputte oder manipulierte Daten werden geprüft statt übernommen", () => 
   assert.deepEqual(geladen.verlauf, []);
   assert.deepEqual(geladen.fehler, { "einmaleins/reihe-7": 4 });
   assert.deepEqual(geladen.meister, { besteZeit: 0, besteTreffer: 0 });
+  assert.equal(geladen.herzen, 0, "negative Herzen gibt es nicht");
 });
 
 test("fehlende Bestwerte des Rechenmeisters werden ergänzt", () => {

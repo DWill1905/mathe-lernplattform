@@ -75,16 +75,28 @@ test("im Rechenrad ergeben außen und innen immer die Zahl der Mitte", () => {
   }
 });
 
-test("Analogieaufgaben nennen eine Hilfsaufgabe, die selbst stimmt", () => {
-  for (const stufe of [1, 2, 3]) {
-    const rng = mulberry32(1234 + stufe);
-    for (let i = 0; i < 400; i++) {
-      const aufgabe = GENERATOREN.analogie(rng, stufe);
-      const treffer = aufgabe.frage.match(/lautet (\d+) ([+−]) (\d+) = (\d+)\./);
-      if (!treffer) continue;
-      const [, a, zeichen, b, ergebnis] = treffer;
-      const erwartet = zeichen === "+" ? Number(a) + Number(b) : Number(a) - Number(b);
-      assert.equal(Number(ergebnis), erwartet, `falsche Hilfsaufgabe: ${aufgabe.frage}`);
+test("die Hilfsaufgabe der Vorstufe stimmt selbst", () => {
+  for (const id of ["analogie", "familien"]) {
+    for (const stufe of [1, 2, 3]) {
+      const rng = mulberry32(1234 + stufe);
+      let vorstufen = 0;
+      for (let i = 0; i < 400; i++) {
+        const aufgabe = GENERATOREN[id](rng, stufe);
+        if (!aufgabe.vorstufe) continue;
+        vorstufen++;
+        const treffer = aufgabe.vorstufe.rechnung.match(/^(\d+) ([+−]) (\d+) =$/);
+        assert.ok(treffer, `unerwartete Hilfsaufgabe: ${aufgabe.vorstufe.rechnung}`);
+        const [, a, zeichen, b] = treffer;
+        const erwartet = zeichen === "+" ? Number(a) + Number(b) : Number(a) - Number(b);
+        assert.equal(
+          Number(aufgabe.vorstufe.loesung),
+          erwartet,
+          `falsche Hilfsaufgabe: ${aufgabe.vorstufe.rechnung} ${aufgabe.vorstufe.loesung}`
+        );
+        assert.ok(erwartet >= 0, "eine Hilfsaufgabe darf nie negativ werden");
+        assert.ok(aufgabe.vorstufe.frage.length > 5);
+      }
+      assert.ok(vorstufen > 30, `${id}/Stufe ${stufe}: kaum Hilfsaufgaben gezogen`);
     }
   }
 });

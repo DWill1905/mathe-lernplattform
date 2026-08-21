@@ -28,6 +28,17 @@ export type Antwortfeld =
   | { art: "zahl"; einheit?: string }
   | { art: "auswahl"; optionen: string[] };
 
+/**
+ * Vorgeschalteter Rechenschritt („Rechne zuerst die Hilfsaufgabe“). Wer ihn
+ * selbst löst, bekommt ein Herz – die Hilfsaufgabe steht danach als Hinweis
+ * über der eigentlichen Aufgabe.
+ */
+export interface Vorstufe {
+  frage: string;
+  rechnung: string;
+  loesung: string;
+}
+
 export interface Aufgabe {
   /**
    * Kennung des Aufgaben-TYPS (nicht der einzelnen Aufgabe). Sie ist die
@@ -47,6 +58,8 @@ export interface Aufgabe {
   tipp?: string;
   /** Rechenweg, der nach einer falschen Antwort gezeigt wird. */
   erklaerung?: string;
+  /** Optionaler erster Schritt, der ein Herz einbringt. */
+  vorstufe?: Vorstufe;
 }
 
 /** Ein Generator erzeugt zu einer Stufe eine frische Aufgabe. */
@@ -84,6 +97,8 @@ export interface Fortschritt {
   fehler: Record<string, number>;
   /** Bestwerte des Rechenmeisters (Zeit in Sekunden, 0 = noch keiner). */
   meister: { besteZeit: number; besteTreffer: number };
+  /** Gesammelte Herzen aus selbst gelösten Hilfsaufgaben. */
+  herzen: number;
 }
 
 /** Ergebnis einer abgeschlossenen Übungsrunde. */
@@ -94,6 +109,8 @@ export interface RundenErgebnis {
   gesamt: number;
   sterne: number;
   punkte: number;
+  /** In dieser Runde verdiente Herzen. */
+  herzen: number;
   neueErfolge: string[];
   stufeAufgestiegen: boolean;
 }

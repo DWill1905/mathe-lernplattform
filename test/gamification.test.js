@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 
 import {
   ERFOLGE,
+  HERZ_PUNKTE,
   empfehlung,
   levelInfo,
   levelSchwelle,
@@ -53,6 +54,7 @@ test("eine sehr gute Runde lässt aufsteigen, eine sehr schwache absteigen", () 
     gesamt: 10,
     besteSerie: 10,
     fehlerTypen: [],
+    herzen: 0,
   });
   assert.equal(ergebnisAuf.sterne, 3);
   assert.equal(ergebnisAuf.stufeAufgestiegen, true);
@@ -69,6 +71,7 @@ test("eine sehr gute Runde lässt aufsteigen, eine sehr schwache absteigen", () 
     gesamt: 10,
     besteSerie: 1,
     fehlerTypen: ["geld/rueckgeld", "geld/rueckgeld"],
+    herzen: 0,
   });
   assert.equal(ab.themen.geld.stufe, 2, "nach einer schwachen Runde wird es leichter");
   assert.equal(ab.fehler["geld/rueckgeld"], 2);
@@ -83,6 +86,7 @@ test("die erste Runde schaltet ein Abzeichen frei und startet die Serie", () => 
     gesamt: 10,
     besteSerie: 4,
     fehlerTypen: ["zahlenraum/runden"],
+    herzen: 0,
   });
   assert.ok(ergebnis.neueErfolge.includes("start"));
   assert.equal(fortschritt.streakTage, 1);
@@ -97,6 +101,7 @@ test("die erste Runde schaltet ein Abzeichen frei und startet die Serie", () => 
     gesamt: 10,
     besteSerie: 2,
     fehlerTypen: [],
+    herzen: 0,
   });
   assert.equal(fortschritt.streakTage, 1);
   assert.equal(fortschritt.verlauf.length, 1);
@@ -115,6 +120,7 @@ test("das gemischte Training verschiebt keine Stufen", () => {
     ],
     fehlerTypen: [],
     besteSerie: 10,
+    herzen: 0,
   });
   assert.equal(fortschritt.themen.geometrie.stufe, 2);
   assert.equal(fortschritt.themen.geometrie.sterne, 0, "eine Mischrunde vergibt keine Sterne");
@@ -169,4 +175,39 @@ test("Zeiten werden als Minuten und Sekunden angezeigt", () => {
   assert.equal(zeitText(0), "0:00 min");
   assert.equal(zeitText(59), "0:59 min");
   assert.equal(zeitText(127), "2:07 min");
+});
+
+test("Herzen zählen extra Punkte und werden dauerhaft gesammelt", () => {
+  const fortschritt = standardFortschritt();
+  const ergebnis = werteRundeAus(fortschritt, {
+    thema: "analogie",
+    stufe: 1,
+    richtig: 5,
+    gesamt: 10,
+    besteSerie: 3,
+    fehlerTypen: [],
+    herzen: 4,
+  });
+  assert.equal(ergebnis.herzen, 4);
+  assert.equal(fortschritt.herzen, 4);
+  assert.equal(ergebnis.punkte, 5 * 10 + 4 * HERZ_PUNKTE, "Herzen kommen zu den Rundenpunkten dazu");
+
+  werteMixAus(fortschritt, {
+    richtig: 2,
+    gesamt: 10,
+    proThema: [{ thema: "analogie", richtig: 2, gesamt: 10 }],
+    fehlerTypen: [],
+    besteSerie: 2,
+    herzen: 3,
+  });
+  assert.equal(fortschritt.herzen, 7, "Herzen aus dem gemischten Training zählen mit");
+});
+
+test("das Herzensache-Abzeichen gibt es ab 25 Hilfsaufgaben", () => {
+  const fortschritt = standardFortschritt();
+  const abzeichen = ERFOLGE.find((e) => e.id === "herzen25");
+  fortschritt.herzen = 24;
+  assert.equal(abzeichen.erreicht(fortschritt), false);
+  fortschritt.herzen = 25;
+  assert.equal(abzeichen.erreicht(fortschritt), true);
 });
