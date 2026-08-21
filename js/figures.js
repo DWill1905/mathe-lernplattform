@@ -310,26 +310,6 @@ export function rechentabelle(zeichen, zeilen, spalten, markiert) {
     });
     return huelle(breite, hoehe, teile);
 }
-/* --------------------------------------------------------- Buchstabencode */
-/** Legende der Rätselseite: welcher Buchstabe zu welcher Zahl gehört. */
-export function buchstabencode(paare) {
-    const zelleBreite = 46;
-    const zelleHoehe = 38;
-    const breite = paare.length * zelleBreite;
-    const hoehe = zelleHoehe * 2;
-    let teile = "";
-    paare.forEach((paar, i) => {
-        const x = i * zelleBreite;
-        teile +=
-            `<rect x="${x}" y="0" width="${zelleBreite}" height="${zelleHoehe}" class="fig-code-buchstabe"/>` +
-                `<rect x="${x}" y="0" width="${zelleBreite}" height="${zelleHoehe}" class="fig-linie" fill="none" stroke-width="2"/>` +
-                `<text x="${x + zelleBreite / 2}" y="${zelleHoehe / 2 + 7}" class="fig-text" text-anchor="middle" font-size="20">${paar.buchstabe}</text>` +
-                `<rect x="${x}" y="${zelleHoehe}" width="${zelleBreite}" height="${zelleHoehe}" class="fig-tabelle-feld"/>` +
-                `<rect x="${x}" y="${zelleHoehe}" width="${zelleBreite}" height="${zelleHoehe}" class="fig-linie" fill="none" stroke-width="2"/>` +
-                `<text x="${x + zelleBreite / 2}" y="${zelleHoehe * 1.5 + 7}" class="fig-text" text-anchor="middle" font-size="19">${paar.zahl}</text>`;
-    });
-    return huelle(breite, hoehe, teile);
-}
 /* -------------------------------------------------------- Rechenkästen */
 /**
  * Rechenkasten: vier Zahlen in einem 2×2-Feld, daneben das Fähnchen mit der

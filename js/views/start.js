@@ -1,5 +1,6 @@
-import { el } from "../dom.js";
+import { el, svgBild } from "../dom.js";
 import { icon } from "../icons.js";
+import { themenbild } from "../bilder.js";
 import { empfehlung, levelInfo } from "../gamification.js";
 import { ladeFortschritt, speichereFortschritt } from "../state.js";
 import { HEFT_THEMEN, WEITERE_THEMEN, thema } from "../topics.js";
@@ -15,36 +16,48 @@ export const zeige = (ziel) => {
     const fortschritt = ladeFortschritt();
     const level = levelInfo(fortschritt.punkte);
     const naechstes = thema(empfehlung(fortschritt));
-    const begruessung = el("section", { class: "karte karte-begruessung" }, el("h1", { class: "begruessung-titel", text: fortschritt.name ? `Hallo ${fortschritt.name}!` : "Hallo!" }), el("p", { class: "begruessung-text", text: "Womit möchtest du heute rechnen?" }), el("div", { class: "level-leiste" }, el("div", { class: "level-kopf" }, el("span", { class: "level-titel", text: `Level ${level.stufe} · ${level.titel}` }), el("span", { class: "level-punkte", text: `${fortschritt.punkte} Punkte` })), el("div", {
+    /*
+     * Die Begrüßung ist bewusst schmal: Sie stand früher als hohe Karte über
+     * allem und schob die eigentliche Auswahl aus dem Bild. Level und Punkte
+     * sind Beiwerk, die Themen sind die Hauptsache.
+     */
+    const begruessung = el("section", { class: "karte karte-begruessung" }, el("div", { class: "begruessung-zeile" }, el("h1", {
+        class: "begruessung-titel",
+        text: fortschritt.name ? `Hallo ${fortschritt.name}!` : "Hallo!",
+    }), el("span", { class: "marke marke-level", text: `Level ${level.stufe}` })), el("div", {
         class: "balken",
         role: "progressbar",
         "aria-valuemin": "0",
         "aria-valuemax": "100",
         "aria-valuenow": String(Math.round(level.anteil * 100)),
-        "aria-label": "Fortschritt bis zum nächsten Level",
-    }, el("div", { class: "balken-fuellung", stil: { width: `${Math.round(level.anteil * 100)}%` } })), el("p", {
-        class: "level-rest",
-        text: level.levelBreite - level.imLevel > 0
-            ? `Noch ${level.levelBreite - level.imLevel} Punkte bis Level ${level.stufe + 1}.`
-            : "Nächstes Level erreicht!",
-    })));
+        "aria-label": `Fortschritt bis Level ${level.stufe + 1}`,
+    }, el("div", { class: "balken-fuellung", stil: { width: `${Math.round(level.anteil * 100)}%` } })), el("p", { class: "level-rest", text: `${fortschritt.punkte} Punkte · ${level.titel}` }));
     if (!fortschritt.name)
         begruessung.appendChild(namensFeld());
-    const schnellstart = el("section", { class: "schnellstart" }, el("a", { class: "knopf knopf-gross knopf-haupt", href: "#/uebung/mix" }, icon("wuerfel", "knopf-symbol"), el("span", {}, el("span", { class: "knopf-titel", text: "Gemischtes Training" }), el("span", { class: "knopf-unter", text: "10 Aufgaben aus allen Themen" }))), el("a", { class: "knopf knopf-gross", href: "#/raetsel" }, icon("buchstaben", "knopf-symbol"), el("span", {}, el("span", { class: "knopf-titel", text: "Rätselwort" }), el("span", { class: "knopf-unter", text: "Rechne und finde das geheime Wort" }))), el("a", { class: "knopf knopf-gross", href: "#/rechenmeister" }, icon("stoppuhr", "knopf-symbol"), el("span", {}, el("span", { class: "knopf-titel", text: "Rechenmeister" }), el("span", {
-        class: "knopf-unter",
-        text: fortschritt.meister.besteTreffer > 0
-            ? `20 Aufgaben gegen die Uhr · Bestleistung ${fortschritt.meister.besteTreffer} richtig`
-            : "20 Aufgaben gegen die Uhr",
-    }))), el("a", { class: "knopf knopf-gross", href: `#/uebung/${naechstes.id}` }, icon(naechstes.symbol, "knopf-symbol"), el("span", {}, el("span", { class: "knopf-titel", text: `Weiter mit ${naechstes.titel}` }), el("span", { class: "knopf-unter", text: naechstes.kurz }))));
-    const kachelgitter = (liste) => {
-        const kacheln = el("div", { class: "kacheln" });
+    /** Ein großer Bildknopf – Bild oben, ein kurzer Titel darunter. */
+    const bildknopf = (ziel_, bild, titel, klasse) => el("a", { class: `bildknopf ${klasse}`, href: ziel_ }, el("span", { class: "bildknopf-bild" }, svgBild(themenbild(bild), "")), el("span", { class: "bildknopf-titel", text: titel }));
+    const schnellstart = el("section", { class: "schnellstart" }, bildknopf("#/uebung/mix", "mix", "Gemischt", "bildknopf-haupt"), bildknopf("#/puzzle", "puzzle", "Puzzle", ""), bildknopf("#/rechenmeister", "meister", "Auf Zeit", ""));
+    const weiter = el("a", { class: "weiterknopf", href: `#/uebung/${naechstes.id}` }, el("span", { class: "weiterknopf-bild" }, svgBild(themenbild(naechstes.id), "")), el("span", { class: "weiterknopf-text" }, el("span", { class: "weiterknopf-oben", text: "Mach weiter mit" }), el("span", { class: "weiterknopf-titel", text: naechstes.titel })), icon("pfeil", "weiterknopf-pfeil"));
+    /*
+     * Themenkacheln: großes Bild, kurzer Titel, Sterne. Die frühere
+     * Beschreibungszeile ist weg – drei Zeilen Fließtext je Kachel waren für ein
+     * Kind der 2. Klasse, das gerade erst liest, nur Lärm. Der Text lebt als
+     * `title` weiter, damit die Information nicht verloren geht.
+     */
+    const kachelgitter = (liste, klein = false) => {
+        const kacheln = el("div", { class: `kacheln${klein ? " kacheln-klein" : ""}` });
         for (const eintrag of liste) {
             const stand = fortschritt.themen[eintrag.id];
-            kacheln.appendChild(el("a", { class: `kachel kachel-${eintrag.farbe}`, href: `#/uebung/${eintrag.id}` }, icon(eintrag.symbol, "kachel-symbol"), el("span", { class: "kachel-titel", text: eintrag.titel }), el("span", { class: "kachel-kurz", text: eintrag.kurz }), el("span", { class: "kachel-fuss" }, el("span", { class: "marke", text: `Stufe ${stand.stufe}` }), sterneAnzeige(stand.sterne))));
+            kacheln.appendChild(el("a", {
+                class: `kachel kachel-${eintrag.farbe}`,
+                href: `#/uebung/${eintrag.id}`,
+                title: eintrag.kurz,
+                "aria-label": `${eintrag.titel}: ${eintrag.kurz}. Stufe ${stand.stufe}, ${stand.sterne} von 3 Sternen`,
+            }, el("span", { class: "kachel-bild" }, svgBild(themenbild(eintrag.id), "")), el("span", { class: "kachel-titel", text: eintrag.titel }), el("span", { class: "kachel-fuss" }, el("span", { class: "marke", text: `Stufe ${stand.stufe}` }), sterneAnzeige(stand.sterne))));
         }
         return kacheln;
     };
-    ziel.replaceChildren(begruessung, schnellstart, el("h2", { class: "abschnitt-titel", text: "Aus dem Übungsheft" }), kachelgitter(HEFT_THEMEN), el("h2", { class: "abschnitt-titel abschnitt-titel-weit", text: "Weitere Themen" }), el("p", { class: "hinweis", text: "Zusatzübungen, die im Heft nicht vorkommen." }), kachelgitter(WEITERE_THEMEN));
+    ziel.replaceChildren(begruessung, schnellstart, weiter, el("h2", { class: "abschnitt-titel", text: "Aus dem Übungsheft" }), kachelgitter(HEFT_THEMEN), el("h2", { class: "abschnitt-titel abschnitt-titel-weit", text: "Weitere Themen" }), kachelgitter(WEITERE_THEMEN, true));
 };
 function namensFeld() {
     const eingabe = el("input", {

@@ -24,7 +24,8 @@ import {
   type MixEingabe,
 } from "../gamification.js";
 import { mulberry32, zufallsSeed } from "../random.js";
-import { baueRaetsel, type Raetsel } from "../raetsel.js";
+import { PUZZLE_TEILE, puzzleBild, waehleMotiv, type Puzzle, type Teilstand } from "../bilder.js";
+import { raeumeJubel, waehleJubel, zeigeJubel } from "../jubel.js";
 import { ladeFortschritt, merkeGestellteAufgaben } from "../state.js";
 import {
   MEISTERLAENGE,
@@ -50,7 +51,11 @@ interface Sitzung {
   /** Runde gegen die Uhr (Rechenmeister). */
   meister: boolean;
   /** Rätselrunde mit Lösungswort, sonst `null`. */
-  raetsel: Raetsel | null;
+  puzzle: Puzzle | null;
+  /** Wie oft in DIESER Runde schon gejubelt wurde – bestimmt die nächste Art. */
+  jubelZaehler: number;
+  /** Startpunkt der Reihenfolge, damit nicht jede Runde gleich beginnt. */
+  jubelStart: number;
   /** Startzeitpunkt in Millisekunden – nur im Rechenmeister genutzt. */
   startZeit: number;
   stufe: Stufe;
@@ -94,7 +99,7 @@ function aufraeumen(): void {
 }
 
 /** Routen, hinter denen diese Ansicht steckt (siehe `ANSICHTEN` in `app.ts`). */
-const EIGENE_ROUTEN = new Set(["uebung", "rechenmeister", "raetsel"]);
+const EIGENE_ROUTEN = new Set(["uebung", "rechenmeister", "puzzle"]);
 
 /**
  * Markiert am `<body>`, dass gerade geübt wird. Auf sehr flachen Bildschirmen
@@ -115,6 +120,11 @@ const LAEUFT = "uebung-laeuft";
 window.addEventListener("hashchange", () => {
   if (EIGENE_ROUTEN.has(pfadTeile()[0] ?? "start")) return;
   aufraeumen();
+  // Nur hier, nicht in `aufraeumen()`: Das läuft bei JEDEM Neuzeichnen, und
+  // die Rückmeldung zeichnet direkt nach dem Jubel neu – der Jubel hätte sich
+  // im selben Moment selbst gelöscht. Sonst schwebte ein fliegendes Schwein
+  // über der Startseite weiter.
+  raeumeJubel();
   document.body.classList.remove(LAEUFT);
 });
 
@@ -123,7 +133,7 @@ export const zeige: RouteHandler = (ziel, parameter) => {
   document.body.classList.add(LAEUFT);
   const ersteRoute = parameter[0];
   const wunsch =
-    ersteRoute === "rechenmeister" ? "meister" : ersteRoute === "raetsel" ? "raetsel" : (parameter[1] ?? "mix");
+    ersteRoute === "rechenmeister" ? "meister" : ersteRoute === "puzzle" ? "puzzle" : (parameter[1] ?? "mix");
   const sitzung = baueSitzung(wunsch);
   if (!sitzung) {
     ziel.replaceChildren(
@@ -159,14 +169,17 @@ function baueRunde(wunsch: string): Sitzung | null {
   // Die Aufgaben der letzten Runden – die Ziehung geht ihnen aus dem Weg.
   const zuletzt = new Set(fortschritt.letzteAufgaben);
 
-  if (wunsch === "raetsel") {
-    const raetsel = baueRaetsel(rng);
+  if (wunsch === "puzzle") {
+    // Das Puzzle ist eine ganz normale gemischte Runde – nur mit einem Bild
+    // darüber. Dadurch gelten Stufen, Schwerpunkte und das Gedächtnis auch hier.
+    const stufen = {} as Record<ThemaId, Stufe>;
+    for (const t of THEMEN) stufen[t.id] = fortschritt.themen[t.id].stufe;
     return neueSitzung(
       null,
-      1,
-      raetsel.aufgaben.map((aufgabe) => ({ thema: "plusminus" as ThemaId, aufgabe })),
+      2,
+      gemischteRunde(rng, stufen, PUZZLE_TEILE, undefined, wiederholen, zuletzt),
       false,
-      raetsel
+      waehleMotiv(zufallsSeed())
     );
   }
   if (wunsch === "mix" || wunsch === "meister") {
@@ -208,12 +221,14 @@ function neueSitzung(
   stufe: Stufe,
   eintraege: Eintrag[],
   meister = false,
-  raetsel: Raetsel | null = null
+  puzzle: Puzzle | null = null
 ): Sitzung {
   const sitzung: Sitzung = {
     themaId,
     meister,
-    raetsel,
+    puzzle,
+    jubelZaehler: 0,
+    jubelStart: Math.abs(zufallsSeed()) % 7,
     startZeit: Date.now(),
     stufe,
     eintraege,
@@ -286,8 +301,8 @@ function zeichne(ziel: HTMLElement, sitzung: Sitzung): void {
   const inVorstufe = sitzung.phase === "vorstufe";
   const nummer = sitzung.index + 1;
   const gesamt = sitzung.eintraege.length;
-  const titel = sitzung.raetsel
-    ? "Rätselwort"
+  const titel = sitzung.puzzle
+    ? "Puzzle"
     : sitzung.meister
     ? "Rechenmeister"
     : sitzung.themaId
@@ -334,16 +349,26 @@ function zeichne(ziel: HTMLElement, sitzung: Sitzung): void {
     )
   );
 
-  if (sitzung.raetsel) kopf.appendChild(wortstreifen(sitzung, sitzung.raetsel));
+  if (sitzung.puzzle) {
+    /*
+     * Das Puzzle rückt NEBEN den Zähler, nicht darüber. Als eigene Zeile
+     * kostete es auf dem iPhone rund 150 px Höhe – genug, um die OK-Taste
+     * unter den Fensterrand zu schieben (gemessen: 737 von 667 px auf dem
+     * iPhone SE). Auf dem Tablet ist Platz, dort steht es wieder groß darunter.
+     */
+    // Der Fortschrittsbalken ist hier doppelt gemoppelt: Die aufgedeckten
+    // Teile ZEIGEN den Fortschritt bereits. Weg damit – der Platz gehört dem
+    // Bild und den Zifferntasten.
+    kopf.querySelector(".balken-uebung")?.remove();
+    const zaehler = kopf.lastElementChild;
+    const reihe = el("div", { class: "uebung-kopf-fuss" });
+    kopf.appendChild(reihe);
+    if (zaehler) reihe.appendChild(zaehler);
+    reihe.appendChild(puzzlestreifen(sitzung, sitzung.puzzle));
+  }
 
   const karte = el("section", { class: `karte karte-aufgabe${inVorstufe ? " karte-vorstufe" : ""}` });
-  if (sitzung.raetsel) {
-    const legende = svgBild(sitzung.raetsel.codeBild, "Tabelle: welche Zahl zu welchem Buchstaben gehört");
-    legende.classList.add("bild-breit");
-    karte.append(el("p", { class: "hilfszeile", text: "Welche Zahl gehört zu welchem Buchstaben?" }), legende);
-  }
-  // Im Rätsel wäre die Themenmarke nur Ballast – dort geht es ums Wort.
-  if (!sitzung.themaId && !inVorstufe && !sitzung.raetsel) {
+  if (!sitzung.themaId && !inVorstufe) {
     karte.appendChild(
       el(
         "span",
@@ -400,25 +425,30 @@ function zeichne(ziel: HTMLElement, sitzung: Sitzung): void {
 }
 
 /**
- * Das Lösungswort als Kästchenreihe. Ein Buchstabe wird aufgedeckt, sobald
- * seine Aufgabe beantwortet ist – richtig in Farbe, falsch in Grau.
+ * Das Puzzle über der Aufgabe. Ein Teil deckt sich auf, sobald seine Aufgabe
+ * beantwortet ist – richtig gerechnet wird es ganz sichtbar, falsch gerechnet
+ * bleibt es blass. Ein fehlerfreies Puzzle ist am Ende also ganz klar.
  */
-function wortstreifen(sitzung: Sitzung, raetsel: Raetsel): HTMLElement {
-  const streifen = el("div", {
-    class: "wortstreifen",
-    "aria-label": `Lösungswort mit ${raetsel.wort.length} Buchstaben`,
-  });
-  raetsel.wort.split("").forEach((buchstabe, i) => {
-    const aufgedeckt = i < sitzung.index || (i === sitzung.index && sitzung.beantwortet);
-    const richtig = sitzung.ergebnisse[i] === true;
-    streifen.appendChild(
-      el("span", {
-        class: `wortfeld${aufgedeckt ? (richtig ? " wortfeld-richtig" : " wortfeld-grau") : ""}`,
-        text: aufgedeckt ? buchstabe : "",
-      })
-    );
-  });
-  return streifen;
+function puzzlestreifen(sitzung: Sitzung, puzzle: Puzzle): HTMLElement {
+  const stand: Teilstand[] = [];
+  for (let i = 0; i < PUZZLE_TEILE; i++) {
+    const beantwortet = i < sitzung.index || (i === sitzung.index && sitzung.beantwortet);
+    stand.push(!beantwortet ? "zu" : sitzung.ergebnisse[i] === true ? "auf" : "grau");
+  }
+  const offen = stand.filter((t) => t !== "zu").length;
+  const rahmen = el(
+    "div",
+    { class: `puzzle-rahmen${sitzung.beantwortet ? " frisch" : ""}` },
+    // Kurz halten: „3 von 12 Teilen" brach neben dem Zähler auf zwei Zeilen
+    // um und kostete mehr Höhe als das Bild selbst. Der ganze Satz steht in
+    // der Bildbeschreibung.
+    el("p", {
+      class: "puzzle-stand",
+      text: offen >= PUZZLE_TEILE ? "Fertig!" : `${offen}/${PUZZLE_TEILE}`,
+    }),
+    svgBild(puzzleBild(puzzle, stand), `Puzzle, ${offen} von ${PUZZLE_TEILE} Teilen aufgedeckt`)
+  );
+  return rahmen;
 }
 
 /**
@@ -632,7 +662,10 @@ function pruefe(ziel: HTMLElement, sitzung: Sitzung, antwort: string): void {
 
   if (sitzung.phase === "vorstufe") {
     // Die Hilfsaufgabe bringt ein Herz, zählt aber nicht in die Trefferbilanz.
-    if (richtig) sitzung.herzen++;
+    if (richtig) {
+      sitzung.herzen++;
+      jubele(sitzung);
+    }
     zeichne(ziel, sitzung);
     return;
   }
@@ -643,11 +676,25 @@ function pruefe(ziel: HTMLElement, sitzung: Sitzung, antwort: string): void {
     sitzung.serie++;
     sitzung.besteSerie = Math.max(sitzung.besteSerie, sitzung.serie);
     sitzung.richtigeTypen.push(eintrag.aufgabe.typ);
+    jubele(sitzung);
   } else {
     sitzung.serie = 0;
     sitzung.fehlerTypen.push(eintrag.aufgabe.typ);
   }
   zeichne(ziel, sitzung);
+}
+
+/**
+ * Feiert eine richtige Antwort. Die Art wechselt reihum statt zufällig: So
+ * kommt nie zweimal hintereinander dasselbe, und über eine Runde sieht ein
+ * Kind mehrere verschiedene Überraschungen.
+ *
+ * Der Zähler steht in der Sitzung, nicht im Modul – sonst hinge die Reihenfolge
+ * daran, was vorher in einer ANDEREN Runde passiert ist.
+ */
+function jubele(sitzung: Sitzung): void {
+  zeigeJubel(waehleJubel(sitzung.jubelZaehler + sitzung.jubelStart));
+  sitzung.jubelZaehler++;
 }
 
 /** Groß-/Kleinschreibung und Leerzeichen sollen nie über richtig/falsch entscheiden. */
@@ -691,8 +738,8 @@ function zeichneErgebnis(ziel: HTMLElement, sitzung: Sitzung): void {
       besteSerie: sitzung.besteSerie,
       herzen: sitzung.herzen,
     };
-    if (sitzung.raetsel && sitzung.richtig === sitzung.eintraege.length) {
-      fortschritt.raetselGeloest++;
+    if (sitzung.puzzle && sitzung.richtig === sitzung.eintraege.length) {
+      fortschritt.puzzleGeloest++;
     }
     if (sitzung.meister) {
       sekunden = vergangeneSekunden(sitzung);
@@ -702,7 +749,7 @@ function zeichneErgebnis(ziel: HTMLElement, sitzung: Sitzung): void {
   }
 
   const nochmal = (): void => {
-    const wunsch = sitzung.raetsel ? "raetsel" : sitzung.meister ? "meister" : (sitzung.themaId ?? "mix");
+    const wunsch = sitzung.puzzle ? "puzzle" : sitzung.meister ? "meister" : (sitzung.themaId ?? "mix");
     const neue = baueSitzung(wunsch);
     if (neue) zeichne(ziel, neue);
   };
@@ -728,20 +775,23 @@ function zeichneErgebnis(ziel: HTMLElement, sitzung: Sitzung): void {
     );
   }
 
-  if (sitzung.raetsel) {
-    const streifen = el("div", { class: "wortstreifen wortstreifen-gross" });
-    sitzung.raetsel.wort.split("").forEach((buchstabe, i) => {
-      streifen.appendChild(
-        el("span", {
-          class: `wortfeld${sitzung.ergebnisse[i] ? " wortfeld-richtig" : " wortfeld-grau"}`,
-          text: buchstabe,
-        })
-      );
-    });
+  if (sitzung.puzzle) {
+    const stand: Teilstand[] = [];
+    for (let i = 0; i < PUZZLE_TEILE; i++) stand.push(sitzung.ergebnisse[i] ? "auf" : "grau");
+    const alleRichtig = sitzung.ergebnisse.every((e) => e);
     karte.append(
-      el("p", { class: "hinweis", text: "Dein Lösungswort:" }),
-      streifen,
-      el("p", { class: "raetsel-satz", text: sitzung.raetsel.satz })
+      el("p", { class: "hinweis", text: `Dein Puzzle: ${sitzung.puzzle.name}` }),
+      el(
+        "div",
+        { class: "puzzle-rahmen puzzle-rahmen-gross" },
+        svgBild(puzzleBild(sitzung.puzzle, stand), `Fertiges Puzzle: ${sitzung.puzzle.name}`)
+      ),
+      el("p", {
+        class: alleRichtig ? "ergebnis-aufstieg" : "hinweis",
+        text: alleRichtig
+          ? "Alle Teile leuchten – kein einziger Fehler!"
+          : "Die blassen Teile waren die Aufgaben, die noch nicht saßen.",
+      })
     );
   }
 
@@ -793,7 +843,7 @@ function zeichneErgebnis(ziel: HTMLElement, sitzung: Sitzung): void {
       el("button", {
         class: "knopf knopf-gross knopf-haupt",
         type: "button",
-        text: sitzung.raetsel ? "Neues Rätselwort" : "Nochmal üben",
+        text: sitzung.puzzle ? "Neues Puzzle" : "Nochmal üben",
         onclick: nochmal,
       }),
       el("a", { class: "knopf knopf-gross", href: "#/", text: "Anderes Thema" })

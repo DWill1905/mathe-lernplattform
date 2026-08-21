@@ -1961,3 +1961,979 @@ body {
 .eingabe-zahl {
   color: var(--haupt-text);
 }
+
+/* ===================================================== Illustrationen */
+
+/*
+ * Farben der Illustrationen (`src/bilder.ts`, `src/jubel.ts`). Sie sind in
+ * BEIDEN Farbschemata gleich – eine Zeichnung ist wie auf Papier: bunte
+ * Flächen, weiße Stellen, dunkle Tinte.
+ *
+ * Der erste Versuch drehte Umriss und Weiß im Dunkelmodus mit. Das ging
+ * schief, weil beides gleichzeitig hell wurde: Die Uhr bekam einen hellen
+ * Umriss auf hellem Zifferblatt und verschwand ganz. Deshalb bleibt die Tinte
+ * dunkel – und stattdessen bekommt jede Illustration unten einen hellen Grund.
+ */
+:root {
+  --bild-strich: #1f2937;
+  --bild-hell: #ffffff;
+  --bild-grau: #cbd5e1;
+  --bild-dunkel: #1f2937;
+  /* Der helle Grund unter jeder Zeichnung – im Dunkelmodus etwas gedämpft,
+     damit er nicht blendet. */
+  --bild-grund: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bild-grund: #e7e2f4;
+  }
+}
+
+/* Eigene Klasse, nicht `bild` – so heißt schon der Rahmen aus `dom.ts`. */
+.illu {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.bild-rot {
+  fill: #ef4444;
+}
+.bild-orange {
+  fill: #f97316;
+}
+.bild-gelb {
+  fill: #facc15;
+}
+.bild-gruen {
+  fill: #22c55e;
+}
+.bild-tuerkis {
+  fill: #14b8a6;
+}
+.bild-blau {
+  fill: #3b82f6;
+}
+.bild-lila {
+  fill: #8b5cf6;
+}
+.bild-rosa {
+  fill: #ec4899;
+}
+.bild-braun {
+  fill: #b45309;
+}
+.bild-hell {
+  fill: var(--bild-hell);
+}
+.bild-grau {
+  fill: var(--bild-grau);
+}
+.bild-dunkel {
+  fill: var(--bild-dunkel);
+}
+.bild-text {
+  fill: var(--bild-strich);
+  font-weight: 700;
+}
+.bild-strich {
+  fill: none;
+  stroke: var(--bild-strich);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ============================================================ Puzzle */
+
+/* Noch nicht gerechnet: das Teil ist ganz zu. Deckend, sonst sieht ein Kind
+   nicht, wie viel vom Bild noch fehlt. */
+.puzzle-zu {
+  fill: var(--haupt);
+  stroke: var(--karte);
+  stroke-width: 1.5;
+}
+
+/* Falsch gerechnet: das Teil ist zu sehen, liegt aber unter einem Schleier. */
+.puzzle-grau {
+  fill: var(--haupt);
+  opacity: 0.42;
+  stroke: var(--karte);
+  stroke-width: 1.5;
+}
+
+.puzzle-fuge {
+  stroke: var(--rand);
+  stroke-width: 0.8;
+  opacity: 0.5;
+}
+
+/*
+ * Während der Runde bleibt das Puzzle klein: Es steht ÜBER der Aufgabe, und
+ * ein großes Bild schöbe Frage und Zifferntasten aus dem Bild. Gemessen auf
+ * dem iPhone – bei 320 px Breite lag die OK-Taste unterhalb des Fensters.
+ */
+.puzzle-rahmen {
+  background: var(--karte);
+  overflow: hidden;
+  border: 2px solid var(--rand);
+  border-radius: 14px;
+  padding: 5px;
+  margin: 0.4rem auto 0;
+  max-width: 168px;
+}
+
+/* Am Ende der Runde ist Platz – dort darf das fertige Bild groß sein. */
+.puzzle-rahmen-gross {
+  max-width: 300px;
+  margin: 0.6rem auto var(--abstand);
+  padding: 8px;
+  border-radius: var(--radius);
+}
+
+.puzzle-rahmen .illu {
+  border-radius: 8px;
+}
+
+.puzzle-stand {
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.78rem;
+  line-height: 1.1;
+  white-space: nowrap;
+  color: var(--text-leise);
+  margin-bottom: 3px;
+}
+
+/* Zähler links, Puzzle rechts – so kostet das Bild kaum Höhe. */
+.uebung-kopf-fuss {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.uebung-kopf-fuss .uebung-zaehler {
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+}
+
+.uebung-kopf-fuss .puzzle-rahmen {
+  flex: none;
+  width: 100px;
+  max-width: none;
+  margin: 0;
+}
+
+/* Groß nur, wenn Breite UND Höhe reichen. Auf dem quer gedrehten iPad ist
+   die Breite üppig, die Höhe aber knapp – dort bleibt es klein. */
+@media (min-width: 820px) and (min-height: 900px) {
+  .uebung-kopf-fuss {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .uebung-kopf-fuss .uebung-zaehler {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .uebung-kopf-fuss .puzzle-rahmen {
+    width: 196px;
+    align-self: center;
+  }
+}
+
+/* Ein frisch aufgedecktes Teil ploppt kurz auf. */
+@keyframes teil-auf {
+  from {
+    transform: scale(0.9);
+    opacity: 0.4;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.puzzle-rahmen.frisch .illu {
+  animation: teil-auf 0.35s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .puzzle-rahmen.frisch .illu {
+    animation: none;
+  }
+}
+
+/* ============================== Bildnavigation (Startseite) ========== */
+
+/*
+ * Die Startseite führt jetzt über Bilder statt über Fließtext. Ein Kind der
+ * 2. Klasse liest gerade erst – ein Bild erkennt es sofort, drei Zeilen
+ * Beschreibung überspringt es.
+ */
+
+.begruessung-zeile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.marke-level {
+  background: linear-gradient(135deg, var(--verlauf-a), var(--verlauf-b));
+  color: var(--verlauf-text);
+  border-color: transparent;
+  white-space: nowrap;
+}
+
+/* Drei große Bildknöpfe nebeneinander: Gemischt, Puzzle, Auf Zeit. */
+.schnellstart {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+}
+
+.bildknopf {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.75rem 0.4rem 0.6rem;
+  border-radius: 20px;
+  border: 1px solid var(--rand);
+  background: var(--karte);
+  box-shadow: var(--schatten);
+  color: var(--text);
+  text-decoration: none;
+  text-align: center;
+}
+
+.bildknopf:hover {
+  transform: translateY(-2px);
+  transition: transform 0.15s ease;
+}
+
+.bildknopf-bild,
+.weiterknopf-bild,
+.kachel-bild {
+  margin: 0;
+  max-width: none;
+}
+
+.bildknopf-bild {
+  display: block;
+  width: 3.6rem;
+  height: 3.6rem;
+}
+
+.bildknopf-titel {
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1.15;
+}
+
+.bildknopf-haupt {
+  background: linear-gradient(150deg, var(--haupt-hell), var(--karte) 70%);
+  border-color: color-mix(in srgb, var(--haupt) 35%, var(--rand));
+}
+
+/* Die Empfehlung: eine breite Zeile mit Bild, damit sie nicht mit den
+   Themenkacheln verwechselt wird. */
+.weiterknopf {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.7rem 0.9rem;
+  margin-bottom: 1.5rem;
+  border-radius: 20px;
+  border: 1px solid transparent;
+  background: linear-gradient(135deg, var(--verlauf-a), var(--verlauf-b));
+  color: var(--verlauf-text);
+  box-shadow: var(--schatten-tief);
+  text-decoration: none;
+}
+
+.weiterknopf-bild {
+  display: block;
+  flex: none;
+  width: 3rem;
+  height: 3rem;
+  padding: 0.3rem;
+  border-radius: 14px;
+  background: var(--karte);
+}
+
+.weiterknopf-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.weiterknopf-oben {
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
+
+.weiterknopf-titel {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+/* Der Haken zeigt nach rechts – als Pfeilersatz gedreht. */
+.weiterknopf-pfeil {
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  opacity: 0.85;
+}
+
+/* Themenkacheln: Bild groß, Titel kurz, Sterne darunter. */
+.kachel {
+  align-items: center;
+  text-align: center;
+  gap: 0.35rem;
+  padding: 0.8rem 0.6rem 0.7rem;
+}
+
+.kachel-bild {
+  display: block;
+  width: 4.2rem;
+  height: 4.2rem;
+}
+
+.kachel-titel {
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.kachel-fuss {
+  width: 100%;
+  margin-top: 0.4rem;
+  justify-content: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+/* „Weitere Themen“ stehen kleiner – sie sind Zusatz, nicht Hauptsache. */
+.kacheln-klein {
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 0.55rem;
+}
+
+.kacheln-klein .kachel {
+  padding: 0.6rem 0.4rem 0.5rem;
+}
+
+.kacheln-klein .kachel-bild {
+  width: 3rem;
+  height: 3rem;
+}
+
+.kacheln-klein .kachel-titel {
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+
+.kacheln-klein .marke {
+  font-size: 0.7rem;
+  padding: 0.1rem 0.4rem;
+}
+
+.kacheln-klein .sterne {
+  font-size: 0.75rem;
+}
+
+/* Auf sehr schmalen Geräten bleiben zwei Spalten – drei würden die Bilder
+   auf Briefmarkengröße schrumpfen. */
+@media (max-width: 380px) {
+  .schnellstart {
+    gap: 0.45rem;
+  }
+
+  .bildknopf-bild {
+    width: 3rem;
+    height: 3rem;
+  }
+}
+
+/* Auf dem Tablet ist Platz für mehr Spalten. */
+@media (min-width: 820px) {
+  .kacheln {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+
+  .kachel-bild {
+    width: 5rem;
+    height: 5rem;
+  }
+}
+
+
+/*
+ * Erklärbilder auf kleinen Schirmen deckeln. Ohne die Grenze schob eine
+ * Bildaufgabe (Uhr, Mauer, Rechenkasten) den Antwortbereich unter den
+ * Fensterrand – gemessen 749 px Inhalt bei 667 px Fenster auf dem iPhone SE,
+ * und das schon ohne Puzzle.
+ */
+@media (max-height: 900px) {
+  .karte-aufgabe .bild {
+    max-height: 30vh;
+    margin-bottom: 0.6rem;
+  }
+
+  .karte-aufgabe .bild svg {
+    max-height: 30vh;
+    width: auto;
+    margin: 0 auto;
+  }
+}
+
+/*
+ * Feste Obergrenzen (vh) reichten nicht: Je nach Aufgabe sind Frage, Antwort-
+ * feld und Tastenfeld unterschiedlich hoch, also war mal Luft übrig und mal
+ * fehlten 90 px. Deshalb wird die Übungsseite eine Spalte über die volle
+ * Fensterhöhe, und das Erklärbild bekommt NUR den Rest: `flex: 0 1 auto` mit
+ * `min-height: 0`. Damit passt jede Aufgabenart ohne Scrollen, ohne dass
+ * irgendwo eine geratene Pixelzahl steht.
+ */
+@media (orientation: portrait) {
+  body.uebung-laeuft .inhalt {
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+  }
+
+  body.uebung-laeuft .karte-aufgabe {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  /* Alles außer dem Bild behält seine natürliche Höhe. */
+  body.uebung-laeuft .karte-aufgabe > * {
+    flex: none;
+  }
+
+  body.uebung-laeuft .karte-aufgabe .bild {
+    flex: 0 1 auto;
+    min-height: 0;
+    display: flex;
+    justify-content: center;
+    max-height: none;
+  }
+
+  body.uebung-laeuft .karte-aufgabe .bild svg {
+    height: 100%;
+    max-height: 100%;
+    width: auto;
+    max-width: 100%;
+  }
+}
+
+/* Gleiches Spiel im breiten Querformat (z. B. iPad quer): Dort ist die Karte
+   einspaltig – das zweispaltige Raster greift erst unter 560 px Höhe. */
+@media (orientation: landscape) and (min-height: 561px) {
+  body.uebung-laeuft .inhalt {
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+  }
+
+  body.uebung-laeuft .karte-aufgabe {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  /* Alles außer dem Bild behält seine natürliche Höhe. */
+  body.uebung-laeuft .karte-aufgabe > * {
+    flex: none;
+  }
+
+  body.uebung-laeuft .karte-aufgabe .bild {
+    flex: 0 1 auto;
+    min-height: 0;
+    display: flex;
+    justify-content: center;
+    max-height: none;
+  }
+
+  body.uebung-laeuft .karte-aufgabe .bild svg {
+    height: 100%;
+    max-height: 100%;
+    width: auto;
+    max-width: 100%;
+  }
+}
+
+/* Im Querformat ist die Höhe am knappsten. */
+@media (orientation: landscape) and (max-height: 520px) {
+  /* Quer bleibt die Karte zweispaltig (Frage links, Tasten rechts). Statt der
+     Flexspalte greift hier eine Höhengrenze – 26vh reichten nicht, gemessen
+     fehlten noch 75 px. */
+  .karte-aufgabe .bild,
+  .karte-aufgabe .bild svg {
+    max-height: 16vh;
+  }
+
+  .uebung-kopf-fuss .puzzle-rahmen {
+    width: 76px;
+  }
+}
+
+/*
+ * Auch im HOCHFORMAT weichen Kopfzeile und Navigation während einer Übung,
+ * sobald das Fenster niedrig ist. Bisher galt das nur quer – auf einem iPhone
+ * SE (667 px hoch) kosteten Kopf und Navigation zusammen rund 155 px, die der
+ * Aufgabe fehlten. Zurück führt weiterhin „← Abbrechen“ in der Übung selbst.
+ */
+@media (max-width: 700px), (max-height: 900px) {
+  body.uebung-laeuft .kopf,
+  body.uebung-laeuft .navigation {
+    display: none;
+  }
+
+  body.uebung-laeuft .inhalt {
+    padding-top: 0.5rem;
+    padding-bottom: 0.75rem;
+  }
+}
+
+/* Auf dem Telefon quer bleibt das Puzzle klein – dort ist die Höhe am knappsten. */
+@media (orientation: landscape) and (max-height: 430px) {
+  .uebung-kopf-fuss .puzzle-rahmen {
+    width: 64px;
+  }
+
+  .uebung-kopf-fuss .puzzle-stand {
+    display: none;
+  }
+}
+
+
+/* ============================================================= Jubel */
+
+/*
+ * Was passiert, wenn eine Aufgabe richtig war (`src/jubel.ts`). Die Ebene
+ * liegt über allem, lässt aber JEDEN Klick durch – ein Kind, das schnell
+ * weitertippt, darf nie ausgebremst werden.
+ */
+.jubel {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.jubel-buehne {
+  margin: 0;
+  max-width: none;
+  width: min(64vw, 260px);
+}
+
+.jubel .illu {
+  overflow: visible;
+}
+
+/* --- Zauberhut: Das Kaninchen steigt aus der Krone -------------------- */
+
+.jubel-hase {
+  animation: hase-hoch 1.6s cubic-bezier(0.25, 1.4, 0.4, 1) 0.25s both;
+  transform-origin: 100px 100px;
+}
+
+@keyframes hase-hoch {
+  0% {
+    transform: translateY(96px) scale(0.9);
+  }
+  55% {
+    transform: translateY(-6px) scale(1);
+  }
+  70% {
+    transform: translateY(4px) scale(1);
+  }
+  85% {
+    transform: translateY(-2px) scale(1);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+.jubel-hut {
+  animation: hut-wippe 1.6s ease-out 0.2s both;
+  transform-origin: 100px 128px;
+}
+
+@keyframes hut-wippe {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  20% {
+    transform: rotate(-4deg);
+  }
+  40% {
+    transform: rotate(3deg);
+  }
+  60% {
+    transform: rotate(-1.5deg);
+  }
+}
+
+.jubel-stab {
+  animation: stab-schwung 0.6s ease-out both;
+  transform-origin: 18px 118px;
+}
+
+@keyframes stab-schwung {
+  0% {
+    transform: rotate(-28deg);
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(0deg);
+    opacity: 1;
+  }
+}
+
+/* --- Funkeln: vier Sterne, versetzt ---------------------------------- */
+
+.jubel-funke {
+  animation: funkeln 1.1s ease-out both;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.jubel-funke-1 {
+  animation-delay: 0.5s;
+}
+.jubel-funke-2 {
+  animation-delay: 0.68s;
+}
+.jubel-funke-3 {
+  animation-delay: 0.84s;
+}
+.jubel-funke-4 {
+  animation-delay: 1s;
+}
+
+@keyframes funkeln {
+  0% {
+    transform: scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  45% {
+    transform: scale(1.15) rotate(40deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.5) rotate(80deg);
+    opacity: 0;
+  }
+}
+
+/* --- Fliegendes Tier: quer über den Schirm ---------------------------- */
+
+.jubel-flug {
+  place-items: start center;
+}
+
+.jubel-flug .jubel-buehne {
+  position: absolute;
+  /* Weit oben: Dort liegt bei jeder Aufgabenart die Frage, nicht das
+     Antwortfeld – ein Kind soll beim Tippen nichts zugedeckt bekommen. */
+  top: 12%;
+  left: 0;
+  width: min(58vw, 260px);
+  animation: quer-flug 2.2s linear both;
+}
+
+@keyframes quer-flug {
+  from {
+    transform: translateX(-280px) rotate(-7deg);
+  }
+  to {
+    transform: translateX(calc(100vw + 40px)) rotate(7deg);
+  }
+}
+
+/* Auf und ab, während es fliegt. */
+.jubel-flug .illu {
+  animation: flug-wippe 0.75s ease-in-out infinite;
+}
+
+@keyframes flug-wippe {
+  0%,
+  100% {
+    transform: translateY(-9px);
+  }
+  50% {
+    transform: translateY(9px);
+  }
+}
+
+.jubel-fluegel {
+  animation: fluegelschlag 0.22s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: bottom right;
+}
+
+@keyframes fluegelschlag {
+  0%,
+  100% {
+    transform: rotate(-16deg) scaleY(1);
+  }
+  50% {
+    transform: rotate(16deg) scaleY(0.7);
+  }
+}
+
+/* --- Konfetti: Schnipsel fallen und trudeln -------------------------- */
+
+.jubel-konfetti .jubel-buehne {
+  width: min(92vw, 420px);
+}
+
+.jubel-schnipsel {
+  animation: schnipsel-fall 2s linear both;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.jubel-schnipsel-0 {
+  animation-delay: 0s;
+  animation-duration: 1.7s;
+}
+.jubel-schnipsel-1 {
+  animation-delay: 0.12s;
+  animation-duration: 2s;
+}
+.jubel-schnipsel-2 {
+  animation-delay: 0.05s;
+  animation-duration: 1.5s;
+}
+.jubel-schnipsel-3 {
+  animation-delay: 0.22s;
+  animation-duration: 1.9s;
+}
+.jubel-schnipsel-4 {
+  animation-delay: 0.16s;
+  animation-duration: 1.6s;
+}
+.jubel-schnipsel-5 {
+  animation-delay: 0.3s;
+  animation-duration: 1.8s;
+}
+
+@keyframes schnipsel-fall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(190px) rotate(520deg);
+    opacity: 0;
+  }
+}
+
+/* --- Rakete: startet nach oben --------------------------------------- */
+
+.jubel-rakete-start,
+.jubel-rakete .jubel-rakete {
+  animation: rakete-start 1.6s cubic-bezier(0.4, 0, 0.5, 1) both;
+}
+
+@keyframes rakete-start {
+  0% {
+    transform: translateY(70px) scale(0.85);
+    opacity: 0;
+  }
+  25% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  60% {
+    transform: translateY(-14px) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-190px) scale(0.7);
+    opacity: 0;
+  }
+}
+
+/* --- Sternenregen: nach außen ---------------------------------------- */
+
+.jubel-stern {
+  animation: stern-flug 1.2s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.jubel-stern-0 {
+  animation-delay: 0.00s;
+  --weg-x: 130px;
+  --weg-y: 0px;
+}
+
+.jubel-stern-1 {
+  animation-delay: 0.03s;
+  --weg-x: 105px;
+  --weg-y: 76px;
+}
+
+.jubel-stern-2 {
+  animation-delay: 0.06s;
+  --weg-x: 40px;
+  --weg-y: 124px;
+}
+
+.jubel-stern-3 {
+  animation-delay: 0.09s;
+  --weg-x: -40px;
+  --weg-y: 124px;
+}
+
+.jubel-stern-4 {
+  animation-delay: 0.12s;
+  --weg-x: -105px;
+  --weg-y: 76px;
+}
+
+.jubel-stern-5 {
+  animation-delay: 0.15s;
+  --weg-x: -130px;
+  --weg-y: 0px;
+}
+
+.jubel-stern-6 {
+  animation-delay: 0.18s;
+  --weg-x: -105px;
+  --weg-y: -76px;
+}
+
+.jubel-stern-7 {
+  animation-delay: 0.21s;
+  --weg-x: -40px;
+  --weg-y: -124px;
+}
+
+.jubel-stern-8 {
+  animation-delay: 0.24s;
+  --weg-x: 40px;
+  --weg-y: -124px;
+}
+
+.jubel-stern-9 {
+  animation-delay: 0.27s;
+  --weg-x: 105px;
+  --weg-y: -76px;
+}
+
+@keyframes stern-flug {
+  0% {
+    transform: translate(0, 0) scale(0.2);
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--weg-x), var(--weg-y)) scale(1.1);
+    opacity: 0;
+  }
+}
+
+/*
+ * Wer Bewegung reduziert haben möchte, bekommt trotzdem eine Rückmeldung –
+ * nur eben ohne Flug und Geschüttel: Das Bild blendet ruhig auf und wieder ab.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .jubel *,
+  .jubel .illu {
+    animation: none !important;
+  }
+
+  .jubel .jubel-buehne {
+    position: static;
+    animation: ruhiger-jubel 1.2s ease-in-out both !important;
+  }
+
+  .jubel-flug {
+    place-items: center;
+  }
+
+  @keyframes ruhiger-jubel {
+    0% {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    25%,
+    70% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1);
+    }
+  }
+}
+
+
+/* ------------------------------- Heller Grund unter jeder Illustration */
+
+/*
+ * Zeichnungen brauchen Papier. Ohne diesen Grund läge im Dunkelmodus dunkle
+ * Tinte auf dunkler Kachel – Uhrzeiger, Fuchsschnurrhaare und Wellen wären
+ * schlicht weg.
+ */
+.kachel-bild,
+.bildknopf-bild,
+.weiterknopf-bild {
+  background: var(--bild-grund);
+  border-radius: 16px;
+  padding: 5px;
+}
+
+.kacheln-klein .kachel-bild {
+  border-radius: 12px;
+  padding: 4px;
+}
+
+.puzzle-rahmen {
+  background: var(--bild-grund);
+}
+
+/* Beim Jubel wäre ein Kasten störend – dort steht ein weicher Lichtkegel. */
+.jubel-buehne {
+  background: radial-gradient(closest-side, rgb(255 255 255 / 94%), rgb(255 255 255 / 0%) 78%);
+}
+
+/* Lange Themennamen dürfen in der kleinen Kachel nicht mitten im Wort brechen. */
+.kacheln-klein .kachel-titel {
+  overflow-wrap: break-word;
+  hyphens: auto;
+  hyphenate-limit-chars: 8 4 4;
+}

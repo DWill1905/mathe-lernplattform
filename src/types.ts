@@ -116,8 +116,8 @@ export interface Fortschritt {
   meister: { besteZeit: number; besteTreffer: number };
   /** Gesammelte Herzen aus selbst gelösten Hilfsaufgaben. */
   herzen: number;
-  /** Fehlerfrei gelöste Rätselwörter. */
-  raetselGeloest: number;
+  /** Fehlerfrei gelöste Puzzles. */
+  puzzleGeloest: number;
   /**
    * Kurzschlüssel der zuletzt gestellten Aufgaben. Die nächste Runde meidet
    * sie, damit nicht jede Sitzung dieselben Rechnungen zeigt.

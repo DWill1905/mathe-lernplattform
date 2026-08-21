@@ -50,7 +50,7 @@ export function standardFortschritt() {
         fehler: {},
         meister: { besteZeit: 0, besteTreffer: 0 },
         herzen: 0,
-        raetselGeloest: 0,
+        puzzleGeloest: 0,
         letzteAufgaben: [],
     };
 }
@@ -146,7 +146,7 @@ export function ladeFortschritt() {
         fehler,
         meister,
         herzen: ganzeZahl(daten["herzen"], 0, MAX_PUNKTE, 0),
-        raetselGeloest: ganzeZahl(daten["raetselGeloest"], 0, MAX_PUNKTE, 0),
+        puzzleGeloest: ganzeZahl(daten["puzzleGeloest"], 0, MAX_PUNKTE, 0),
         letzteAufgaben: schluesselListe(daten["letzteAufgaben"]),
     };
 }

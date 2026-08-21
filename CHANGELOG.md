@@ -4,6 +4,86 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.11.0] – 2026-08-21
+
+### Geändert
+
+**Die Startseite führt jetzt über Bilder, nicht über Fließtext.**
+Sie war 2558 px hoch auf einem 844-px-Schirm – dreimal scrollen –, und jede der
+13 Themenkacheln trug drei Zeilen Beschreibung. Für ein Kind der 2. Klasse, das
+gerade erst liest, ist das Lärm.
+
+- Neues Modul `src/bilder.ts`: 16 farbige Illustrationen (ein Bild je Thema
+  plus je eines für Gemischt, Puzzle und Auf Zeit), gezeichnet als SVG.
+- Kacheln zeigen Bild, kurzen Titel und Sterne. Die Beschreibung lebt als
+  `title` und in der Bildbeschreibung weiter, verschwindet also nicht.
+- Begrüßung auf eine schmale Zeile eingedampft, „Weitere Themen" kleiner.
+- Ergebnis: 1682 statt 2558 px – ein Drittel weniger.
+
+**Statt Rätselwort jetzt Puzzle.**
+Das Rätselwort verlangte Lesen und Buchstabenzuordnung – beim Rechnenüben eine
+Nebenbaustelle. An seiner Stelle steht ein Bild aus zwölf Teilen: Jede richtig
+gerechnete Aufgabe deckt ein Teil auf, falsch gerechnete bleiben blass. Am Ende
+ist das ganze Bild zu sehen (zehn Motive: Rakete, Katze, Segelschiff, Blume,
+Schmetterling, Regenbogen, Fuchs, Leuchtturm, Heißluftballon, Dino).
+
+Anders als das Rätselwort braucht das Puzzle keine eigenen Aufgaben: Es ist
+eine ganz normale gemischte Runde mit einem Bild darüber. Damit gelten Stufen,
+Fehlerschwerpunkte und das Aufgabengedächtnis auch hier. Der Fortschrittsbalken
+entfällt in diesem Modus – die aufgedeckten Teile ZEIGEN den Fortschritt.
+
+`src/raetsel.ts`, `buchstabencode()` und das Abzeichen „Wortfinder" sind weg;
+das Abzeichen heißt jetzt „Puzzlemeister", die Route `#/raetsel` heißt `#/puzzle`.
+
+### Hinzugefügt
+
+**Jubel: Wenn etwas richtig ist, passiert etwas.**
+Neues Modul `src/jubel.ts` mit sieben Überraschungen, die reihum kommen (nie
+zweimal dieselbe hintereinander):
+
+| Art | Was passiert |
+| --- | --- |
+| Zauberhut | Ein Zauberstab schwingt, ein Kaninchen springt aus dem Hut, es funkelt |
+| Schwein, Biene, Vogel | Ein Tier fliegt mit schlagenden Flügeln quer über den Schirm |
+| Konfetti | 18 Schnipsel regnen herunter und trudeln |
+| Rakete | Eine Rakete startet nach oben |
+| Sternenregen | Zehn Sterne stieben nach außen |
+
+Die Ebene liegt über allem, lässt aber **jeden Klick durch** – ein Kind, das
+schnell weitertippt, wird nie ausgebremst. Wer `prefers-reduced-motion` gesetzt
+hat, bekommt dieselbe Figur ruhig ein- und ausgeblendet statt fliegend.
+
+### Behoben
+
+**Bildaufgaben schoben das Tastenfeld aus dem Bild.**
+Gemessen auf sechs Geräten: Auf dem iPhone SE fehlten im schlimmsten Fall 89 px,
+auf dem iPad quer 33 px – also musste ein Kind bei Rechenrad-, Punktefeld- oder
+Zahlenmauer-Aufgaben erst scrollen, um die Ziffern zu erreichen. Das galt schon
+vor dieser Version.
+
+Die Übungsseite ist jetzt eine Flexspalte über die volle Fensterhöhe, und das
+Erklärbild bekommt nur den Platz, der übrig bleibt. Feste `vh`-Grenzen hatten
+nicht gereicht, weil Frage und Antwortbereich je nach Aufgabenart verschieden
+hoch sind. Nachgemessen mit je zwölf zufälligen Aufgaben: **alle sechs Geräte,
+beide Modi, ohne Scrollen.**
+
+Außerdem weichen Kopfzeile und Navigation während einer Übung jetzt auch im
+Hochformat, sobald das Fenster schmal oder niedrig ist – bisher nur im
+Querformat. Auf dem iPhone SE waren das 155 px, die der Aufgabe fehlten.
+
+**Kleinere Funde beim Bauen:**
+
+- `class="bild"` der neuen Illustrationen kollidierte mit dem vorhandenen
+  Bildrahmen aus `dom.ts`. Die Illustrationen heißen jetzt `illu`.
+- Die Tinte der Illustrationen wurde im Dunkelmodus mit umgestellt – dadurch
+  lag heller Umriss auf hellem Zifferblatt und die Uhr verschwand ganz. Jetzt
+  bleibt die Tinte dunkel, und jede Zeichnung bekommt einen hellen Grund.
+- `icon()`-Symbole `wuerfel` und `buchstaben` werden nicht mehr gebraucht und
+  sind entfernt.
+
+Zwölf neue Tests (105 insgesamt) zu Illustrationen, Puzzle-Abdeckung,
+Jubel-Reihenfolge, Farbfreiheit der SVGs und dem Verbot von Inline-Styles.
+
 ## [1.10.0] – 2026-08-21
 
 ### Behoben

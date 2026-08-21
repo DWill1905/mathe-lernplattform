@@ -55,9 +55,12 @@ verwässern.
   deshalb direkt testbar.
 - `src/gamification.ts` – Punkte, Level, Sterne, Herzen, Streak, Abzeichen,
   Stufenanpassung.
-- `src/raetsel.ts` – Lösungswörter, Buchstabencode und die passenden Aufgaben
-  der Rätselseite. Jede Aufgabe muss ihre Zielzahl EXAKT treffen, sonst zeigt
-  die Legende einen falschen Buchstaben (Test!).
+- `src/bilder.ts` – farbige Illustrationen: ein Bild je Thema (die Navigation
+  läuft über Bilder, nicht über Fließtext) und die Puzzlemotive. Ohne
+  DOM-Zugriff, deshalb direkt testbar.
+- `src/jubel.ts` – was nach einer richtigen Antwort passiert: Zauberhut,
+  fliegende Tiere, Konfetti, Rakete, Sternenregen. Der SVG-Teil ist rein, die
+  Anzeige hängt die Ebene an `document.body`.
 - `src/views/*` – Start, Übung, Fortschritt, Elternbereich.
 - `src/app.ts` / `src/router.ts` / `src/shell.ts` – Routentabelle,
   Hash-Router, App-Shell.
@@ -70,6 +73,25 @@ verwässern.
 
 ## Wichtigste Fallstricke
 
+- **Illustrationen tragen NIE eine Farbe im SVG**, nur `bild-*`-Klassen. Und
+  die Tinte (`--bild-strich`, `--bild-dunkel`) ist in beiden Farbschemata
+  dunkel; hell wird stattdessen der Grund UNTER der Zeichnung
+  (`--bild-grund`). Der erste Versuch drehte die Tinte im Dunkelmodus mit –
+  dann lag heller Umriss auf hellem Zifferblatt und die Uhr verschwand.
+- **Kein `style="…"` in erzeugtem SVG.** Die CSP dieser Seite verbietet
+  Inline-Styles; Varianten gehören in Klassen (siehe `jubel-stern-0` … `-9`).
+  Ein Test in `test/jubel.test.js` hält das fest.
+- **`aufraeumen()` in `views/uebung.ts` läuft bei JEDEM Neuzeichnen.** Was dort
+  hineingehört, muss ein Neuzeichnen überleben dürfen. Der Jubel darf es NICHT:
+  Er wird direkt vor einem Neuzeichnen gestartet und hätte sich selbst gelöscht.
+  Deshalb steht `raeumeJubel()` nur im `hashchange`-Haken.
+- **Die Übungsseite ist eine Flexspalte über die volle Fensterhöhe**, und das
+  Erklärbild bekommt nur den Rest (`flex: 0 1 auto` mit `min-height: 0`).
+  Feste Höhengrenzen in `vh` reichten nicht: Je nach Aufgabenart sind Frage
+  und Antwortbereich unterschiedlich hoch, mal blieb Luft, mal fehlten 90 px
+  und das Tastenfeld rutschte aus dem Bild. Im schmalen Querformat gilt das
+  nicht – dort ist die Karte zweispaltig.
+
 - **Aufgaben mit `vorstufe` laufen in zwei Schritten.** `views/uebung.ts`
   hält dafür `sitzung.phase`; `aktuellerSchritt()` entscheidet, was gerade
   gefragt wird. Die Hilfsaufgabe zählt NICHT in die Trefferbilanz – sie bringt
@@ -77,9 +99,9 @@ verwässern.
   bleiben und darf nie negativ werden (Test in `test/mauern.test.js`).
 - **In einer Zahlenmauer fehlt immer genau ein Stein.** Nur dann ist er
   eindeutig bestimmt, weil alle Nachbarn sichtbar bleiben. Ein Test prüft das.
-- **Rechenmeister und Rätselwort sind Betriebsarten der Übungsansicht**, keine
-  eigenen Dateien – er hat aber einen eigenen Eintrag in `ANSICHTEN`, damit die Route
-  `#/rechenmeister` bzw. `#/raetsel` auch offline vorgeladen wird.
+- **Rechenmeister und Puzzle sind Betriebsarten der Übungsansicht**, keine
+  eigenen Dateien – sie haben aber je einen Eintrag in `ANSICHTEN`, damit die Routen
+  `#/rechenmeister` und `#/puzzle` auch offline vorgeladen werden.
 - **Bei der Rechentabelle steht die Rechnung bewusst NICHT im Text.** Das
   Ablesen von Zeile und Spalte ist die eigentliche Übung; für Screenreader
   steckt die Aufgabe in der Bildbeschreibung. Ein Test hält das fest.

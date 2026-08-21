@@ -158,11 +158,11 @@ export const ERFOLGE = [
         erreicht: (f) => f.herzen >= 25,
     },
     {
-        id: "raetsel",
-        titel: "Wortfinder",
+        id: "puzzle",
+        titel: "Puzzlemeister",
         text: "Ein Rätselwort ganz ohne Fehler gelöst.",
-        symbol: "buchstaben",
-        erreicht: (f) => f.raetselGeloest >= 1,
+        symbol: "puzzle",
+        erreicht: (f) => f.puzzleGeloest >= 1,
     },
     {
         id: "level5",

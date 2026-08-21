@@ -8,11 +8,11 @@ import { ladeFortschritt, setzeZurueck, speichereFortschritt } from "../state.js
 import { THEMEN, istThemaId } from "../topics.js";
 /**
  * Kennungen, deren Präfix nicht wörtlich einer Themen-Id entspricht. Ohne
- * diese Zuordnung stünde die rohe Kennung („raetsel/rechnung“) im Elternbereich.
+ * diese Zuordnung stünde die rohe Kennung („puzzle/rechnung“) im Elternbereich.
  */
 const BEREICHS_ALIAS = {
     sach: "sachaufgaben",
-    raetsel: "plusminus",
+    puzzle: "plusminus",
 };
 /** Aufgabentyp („einmaleins/reihe-7“) in eine lesbare Beschreibung übersetzen. */
 export function fehlerText(typ) {

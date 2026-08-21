@@ -65,15 +65,6 @@ const FORMEN: Record<string, string> = {
     '<path d="M2.5 20.5v-2A3.5 3.5 0 0 1 6 15h4a3.5 3.5 0 0 1 3.5 3.5v2"/>' +
     '<path d="M16 20.5v-1.8a3 3 0 0 1 3-3h.5a2 2 0 0 1 2 2v2.8"/>',
 
-  wuerfel:
-    '<rect x="3" y="3" width="18" height="18" rx="4"/>' +
-    '<circle cx="8.5" cy="8.5" r="1.4" fill="currentColor" stroke="none"/>' +
-    '<circle cx="15.5" cy="15.5" r="1.4" fill="currentColor" stroke="none"/>' +
-    '<circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/>',
-
-  buchstaben:
-    '<path d="M2.5 18.5 6 6l3.5 12.5M3.6 14.5h4.8"/><path d="M13 6h3.5a3 3 0 0 1 0 6H13zM13 12h4a3.2 3.2 0 0 1 0 6.5h-4z"/>',
-
   stoppuhr:
     '<circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5v4l2.5 1.8"/><path d="M9.5 2.5h5M12 2.5v3.5"/><path d="m18.5 6.5 1.8-1.8"/>',
 
@@ -89,6 +80,7 @@ const FORMEN: Record<string, string> = {
   /* ------------------------------------------------------ Rückmeldungen */
 
   haken: '<circle cx="12" cy="12" r="9.2"/><path d="m7.8 12.3 2.9 2.9 5.5-6.2"/>',
+  pfeil: '<path d="M4 12h15M13 6l6 6-6 6"/>',
 
   gedanke:
     '<path d="M6.5 15.5A4 4 0 0 1 6 7.6a4.5 4.5 0 0 1 8.4-1.4 3.8 3.8 0 0 1 3.1 6.6 3.5 3.5 0 0 1-2.5 2.7z"/>' +

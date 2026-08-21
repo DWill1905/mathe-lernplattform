@@ -13,8 +13,7 @@ arbeitet. Die Themen daraus stehen auf der Startseite unter **„Aus dem
 doppelt so häufig gezogen wie der Rest. Alles Weitere steht darunter als
 Zusatzübung – es verdrängt die Heft-Themen nirgends.
 
-Dazu kommen die beiden Sonderseiten des Hefts als eigene Modi: **Rätselwort**
-und **Rechenmeister**.
+Dazu kommen zwei eigene Modi: **Puzzle** und **Rechenmeister**.
 
 ## Was Kinder hier üben
 
@@ -59,9 +58,10 @@ von Hand setzen.
   sie sitzen.
 - **Tipps** zu jeder Aufgabe, die das Kind selbst aufklappen kann.
 - **Gemischtes Training** über alle Themen hinweg.
-- **Rätselwort**: Zu jedem Buchstaben eines Lösungsworts gehört eine Zahl. Wer
-  die Aufgabe rechnet, deckt den Buchstaben auf – am Ende steht das ganze Wort
-  da, samt einem Satz dazu.
+- **Puzzle**: Hinter zwölf Teilen versteckt sich ein Bild. Jede richtig
+  gerechnete Aufgabe deckt ein Teil auf – am Ende ist das ganze Bild zu sehen.
+  Falsch gerechnete Teile bleiben blass, ein fehlerfreies Puzzle leuchtet also
+  vollständig.
 - **Rechenmeister**: 20 Aufgaben gegen die Uhr aus Plus/Minus, Rechentricks,
   Aufgabenfamilien und Zahlenmauern – mit Stoppuhr und gespeicherter
   Bestleistung.
@@ -114,7 +114,8 @@ src/
   random.ts         mulberry32 – die einzige Zufallsquelle
   icons.ts          das Symbolset (35 Icons im 24er-Raster, currentColor)
   figures.ts        Erklärbilder als SVG (Uhr, Geld, Formen, Zahlenmauern, Rechenräder, Tabellen …)
-  raetsel.ts        Lösungswörter, Buchstabencode und die Aufgaben dazu
+  bilder.ts         farbige Illustrationen: ein Bild je Thema, Puzzlemotive
+  jubel.ts          die Überraschungen nach einer richtigen Antwort
 tools/sw-liste.mjs  erzeugt die Precache-Liste in sw.js aus den echten Dateien
   dom.ts            el()-Helfer zum DOM-Bauen ohne Framework
   tasks/            Aufgaben-Generatoren je Themengruppe

@@ -12,11 +12,11 @@ import type { Stufe, ThemaId } from "../types.js";
 
 /**
  * Kennungen, deren Präfix nicht wörtlich einer Themen-Id entspricht. Ohne
- * diese Zuordnung stünde die rohe Kennung („raetsel/rechnung“) im Elternbereich.
+ * diese Zuordnung stünde die rohe Kennung („puzzle/rechnung“) im Elternbereich.
  */
 const BEREICHS_ALIAS: Record<string, ThemaId> = {
   sach: "sachaufgaben",
-  raetsel: "plusminus",
+  puzzle: "plusminus",
 };
 
 /** Aufgabentyp („einmaleins/reihe-7“) in eine lesbare Beschreibung übersetzen. */
