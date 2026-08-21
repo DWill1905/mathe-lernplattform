@@ -123,3 +123,64 @@ test("Aufgabenfamilien nennen nur stimmige Ausgangsaufgaben", () => {
     }
   }
 });
+
+test("im Differenz-Rad ergibt Mitte plus innen die Zahl außen", () => {
+  for (const stufe of [1, 2, 3]) {
+    const rng = mulberry32(909 + stufe);
+    let raeder = 0;
+    for (let i = 0; i < 600; i++) {
+      const aufgabe = GENERATOREN.mauern(rng, stufe);
+      if (aufgabe.typ !== "mauern/rechenrad-differenz") continue;
+      raeder++;
+      const mitte = Number(aufgabe.frage.match(/Zur (\d+) in der Mitte/)[1]);
+      const zahlen = [...aufgabe.bild.svg.matchAll(/font-size="20">([\d?]+)</g)].map((t) => t[1]);
+      assert.equal(zahlen.length, 12);
+      let luecken = 0;
+      for (let feld = 0; feld < 6; feld++) {
+        const aussen = Number(zahlen[feld * 2]);
+        const innen = zahlen[feld * 2 + 1];
+        if (innen === "?") {
+          luecken++;
+          assert.equal(mitte + Number(aufgabe.loesung), aussen);
+        } else {
+          assert.equal(mitte + Number(innen), aussen, `${mitte} + ${innen} ist nicht ${aussen}`);
+        }
+        assert.ok(aussen <= 100, "das Rad verlässt den Zahlenraum");
+      }
+      assert.equal(luecken, 1);
+    }
+    assert.ok(raeder > 20, `Stufe ${stufe}: zu wenige Differenz-Räder gezogen`);
+  }
+});
+
+test("die Rechentabelle fragt immer ein einziges, passendes Feld", () => {
+  const rng = mulberry32(6161);
+  let tabellen = 0;
+  let unloesbare = 0;
+  for (let i = 0; i < 1200; i++) {
+    const aufgabe = GENERATOREN.plusminus(rng, 3);
+    if (!aufgabe.typ.startsWith("plusminus/tabelle")) continue;
+    tabellen++;
+
+    const luecken = aufgabe.bild.svg.match(/>\?</g) ?? [];
+    assert.equal(luecken.length, 1, "es darf genau ein Feld markiert sein");
+
+    assert.equal(aufgabe.rechnung, undefined, "die Rechnung darf nicht danebenstehen – Ablesen ist die Übung");
+    const [, zeile, zeichen, spalte] = aufgabe.bild.beschriftung.match(/für (\d+) ([+−]) (\d+)$/);
+    const kopfzahlen = [...aufgabe.bild.svg.matchAll(/font-size="20">(\d+)</g)].map((t) => Number(t[1]));
+    assert.ok(kopfzahlen.includes(Number(zeile)), `${zeile} steht nicht in der Tabelle`);
+    assert.ok(kopfzahlen.includes(Number(spalte)), `${spalte} steht nicht in der Tabelle`);
+
+    if (aufgabe.loesung === "Das geht nicht") {
+      unloesbare++;
+      assert.equal(zeichen, "−");
+      assert.ok(Number(zeile) < Number(spalte), "„geht nicht“ nur, wenn die Zeile kleiner ist");
+    } else {
+      const erwartet = zeichen === "+" ? Number(zeile) + Number(spalte) : Number(zeile) - Number(spalte);
+      assert.equal(Number(aufgabe.loesung), erwartet);
+      assert.ok(erwartet >= 0, "eine lösbare Tabellenaufgabe wird nie negativ");
+    }
+  }
+  assert.ok(tabellen > 100, "zu wenige Tabellen gezogen");
+  assert.ok(unloesbare > 0, "der Fall „Das geht nicht“ kommt gar nicht vor");
+});

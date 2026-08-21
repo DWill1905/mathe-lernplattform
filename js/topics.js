@@ -26,7 +26,7 @@ export const THEMEN = [
         stufen: [
             "bis 20 und mit vollen Zehnern",
             "bis 100 ohne Zehnerübergang",
-            "mit Zehnerübergang und Platzhalter-Aufgaben",
+            "mit Zehnerübergang, Platzhalter-Aufgaben und Rechentabellen",
         ],
     },
     {

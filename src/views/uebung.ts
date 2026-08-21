@@ -22,6 +22,7 @@ import {
   type MixEingabe,
 } from "../gamification.js";
 import { mulberry32, zufallsSeed } from "../random.js";
+import { baueRaetsel, type Raetsel } from "../raetsel.js";
 import { ladeFortschritt } from "../state.js";
 import { MEISTERLAENGE, MEISTER_THEMEN, RUNDENLAENGE, gemischteRunde, runde } from "../tasks/index.js";
 import { THEMEN, istThemaId, thema } from "../topics.js";
@@ -39,6 +40,8 @@ interface Sitzung {
   themaId: ThemaId | null;
   /** Runde gegen die Uhr (Rechenmeister). */
   meister: boolean;
+  /** Rätselrunde mit Lösungswort, sonst `null`. */
+  raetsel: Raetsel | null;
   /** Startzeitpunkt in Millisekunden – nur im Rechenmeister genutzt. */
   startZeit: number;
   stufe: Stufe;
@@ -82,7 +85,10 @@ function aufraeumen(): void {
 
 export const zeige: RouteHandler = (ziel, parameter) => {
   aufraeumen();
-  const sitzung = baueSitzung(parameter[0] === "rechenmeister" ? "meister" : (parameter[1] ?? "mix"));
+  const ersteRoute = parameter[0];
+  const wunsch =
+    ersteRoute === "rechenmeister" ? "meister" : ersteRoute === "raetsel" ? "raetsel" : (parameter[1] ?? "mix");
+  const sitzung = baueSitzung(wunsch);
   if (!sitzung) {
     ziel.replaceChildren(
       el(
@@ -106,6 +112,16 @@ function baueSitzung(wunsch: string): Sitzung | null {
   const fortschritt = ladeFortschritt();
   const rng = mulberry32(zufallsSeed());
 
+  if (wunsch === "raetsel") {
+    const raetsel = baueRaetsel(rng);
+    return neueSitzung(
+      null,
+      1,
+      raetsel.aufgaben.map((aufgabe) => ({ thema: "plusminus" as ThemaId, aufgabe })),
+      false,
+      raetsel
+    );
+  }
   if (wunsch === "mix" || wunsch === "meister") {
     const stufen = {} as Record<ThemaId, Stufe>;
     for (const t of THEMEN) stufen[t.id] = fortschritt.themen[t.id].stufe;
@@ -129,11 +145,13 @@ function neueSitzung(
   themaId: ThemaId | null,
   stufe: Stufe,
   eintraege: Eintrag[],
-  meister = false
+  meister = false,
+  raetsel: Raetsel | null = null
 ): Sitzung {
   const sitzung: Sitzung = {
     themaId,
     meister,
+    raetsel,
     startZeit: Date.now(),
     stufe,
     eintraege,
@@ -205,7 +223,9 @@ function zeichne(ziel: HTMLElement, sitzung: Sitzung): void {
   const inVorstufe = sitzung.phase === "vorstufe";
   const nummer = sitzung.index + 1;
   const gesamt = sitzung.eintraege.length;
-  const titel = sitzung.meister
+  const titel = sitzung.raetsel
+    ? "Rätselwort"
+    : sitzung.meister
     ? "Rechenmeister"
     : sitzung.themaId
       ? thema(sitzung.themaId).titel
@@ -251,8 +271,16 @@ function zeichne(ziel: HTMLElement, sitzung: Sitzung): void {
     )
   );
 
+  if (sitzung.raetsel) kopf.appendChild(wortstreifen(sitzung, sitzung.raetsel));
+
   const karte = el("section", { class: `karte karte-aufgabe${inVorstufe ? " karte-vorstufe" : ""}` });
-  if (!sitzung.themaId && !inVorstufe) {
+  if (sitzung.raetsel) {
+    const legende = svgBild(sitzung.raetsel.codeBild, "Tabelle: welche Zahl zu welchem Buchstaben gehört");
+    legende.classList.add("bild-breit");
+    karte.append(el("p", { class: "hilfszeile", text: "Welche Zahl gehört zu welchem Buchstaben?" }), legende);
+  }
+  // Im Rätsel wäre die Themenmarke nur Ballast – dort geht es ums Wort.
+  if (!sitzung.themaId && !inVorstufe && !sitzung.raetsel) {
     karte.appendChild(
       el("span", { class: "aufgabe-thema", text: `${thema(eintrag.thema).symbol} ${thema(eintrag.thema).titel}` })
     );
@@ -293,6 +321,28 @@ function zeichne(ziel: HTMLElement, sitzung: Sitzung): void {
   if (sitzung.beantwortet) karte.appendChild(rueckmeldung(ziel, sitzung, schritt));
 
   ziel.replaceChildren(kopf, karte);
+}
+
+/**
+ * Das Lösungswort als Kästchenreihe. Ein Buchstabe wird aufgedeckt, sobald
+ * seine Aufgabe beantwortet ist – richtig in Farbe, falsch in Grau.
+ */
+function wortstreifen(sitzung: Sitzung, raetsel: Raetsel): HTMLElement {
+  const streifen = el("div", {
+    class: "wortstreifen",
+    "aria-label": `Lösungswort mit ${raetsel.wort.length} Buchstaben`,
+  });
+  raetsel.wort.split("").forEach((buchstabe, i) => {
+    const aufgedeckt = i < sitzung.index || (i === sitzung.index && sitzung.beantwortet);
+    const richtig = sitzung.ergebnisse[i] === true;
+    streifen.appendChild(
+      el("span", {
+        class: `wortfeld${aufgedeckt ? (richtig ? " wortfeld-richtig" : " wortfeld-grau") : ""}`,
+        text: aufgedeckt ? buchstabe : "",
+      })
+    );
+  });
+  return streifen;
 }
 
 /**
@@ -540,6 +590,9 @@ function zeichneErgebnis(ziel: HTMLElement, sitzung: Sitzung): void {
       besteSerie: sitzung.besteSerie,
       herzen: sitzung.herzen,
     };
+    if (sitzung.raetsel && sitzung.richtig === sitzung.eintraege.length) {
+      fortschritt.raetselGeloest++;
+    }
     if (sitzung.meister) {
       sekunden = vergangeneSekunden(sitzung);
       neueBestleistung = merkeMeisterErgebnis(fortschritt, sitzung.richtig, sekunden);
@@ -548,7 +601,8 @@ function zeichneErgebnis(ziel: HTMLElement, sitzung: Sitzung): void {
   }
 
   const nochmal = (): void => {
-    const neue = baueSitzung(sitzung.meister ? "meister" : (sitzung.themaId ?? "mix"));
+    const wunsch = sitzung.raetsel ? "raetsel" : sitzung.meister ? "meister" : (sitzung.themaId ?? "mix");
+    const neue = baueSitzung(wunsch);
     if (neue) zeichne(ziel, neue);
   };
   const karte = el(
@@ -570,6 +624,23 @@ function zeichneErgebnis(ziel: HTMLElement, sitzung: Sitzung): void {
         el("span", { class: "herz", "aria-hidden": "true", text: "💖" }),
         ` ${ergebnis.herzen} ${ergebnis.herzen === 1 ? "Hilfsaufgabe" : "Hilfsaufgaben"} selbst gelöst`
       )
+    );
+  }
+
+  if (sitzung.raetsel) {
+    const streifen = el("div", { class: "wortstreifen wortstreifen-gross" });
+    sitzung.raetsel.wort.split("").forEach((buchstabe, i) => {
+      streifen.appendChild(
+        el("span", {
+          class: `wortfeld${sitzung.ergebnisse[i] ? " wortfeld-richtig" : " wortfeld-grau"}`,
+          text: buchstabe,
+        })
+      );
+    });
+    karte.append(
+      el("p", { class: "hinweis", text: "Dein Lösungswort:" }),
+      streifen,
+      el("p", { class: "raetsel-satz", text: sitzung.raetsel.satz })
     );
   }
 
@@ -621,7 +692,7 @@ function zeichneErgebnis(ziel: HTMLElement, sitzung: Sitzung): void {
       el("button", {
         class: "knopf knopf-gross knopf-haupt",
         type: "button",
-        text: "Nochmal üben",
+        text: sitzung.raetsel ? "Neues Rätselwort" : "Nochmal üben",
         onclick: nochmal,
       }),
       el("a", { class: "knopf knopf-gross", href: "#/", text: "Anderes Thema" })

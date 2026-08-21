@@ -99,6 +99,8 @@ export interface Fortschritt {
   meister: { besteZeit: number; besteTreffer: number };
   /** Gesammelte Herzen aus selbst gelösten Hilfsaufgaben. */
   herzen: number;
+  /** Fehlerfrei gelöste Rätselwörter. */
+  raetselGeloest: number;
 }
 
 /** Ergebnis einer abgeschlossenen Übungsrunde. */

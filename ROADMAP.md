@@ -9,13 +9,15 @@ Offene Ideen, grob nach Nutzen sortiert.
    an der Mathematik.
 2. **Fehlerwiederholung**: Aufgabentypen, die im Elternbereich oben stehen,
    gezielt in die nächste Runde mischen (Grundlage ist `fortschritt.fehler`).
-3. **Additions- und Subtraktionstabellen als echte Tabelle**: Im Heft füllt
-   das Kind eine ganze Zeile (+ 0/10/20 … mit 1, 3, 5). Bisher kommen daraus
-   nur einzelne Aufgaben als „Rechentricks“ vor.
+3. **Ganze Tabellenzeile am Stück ausfüllen**: Bisher fragt die Rechentabelle
+   immer nur ein markiertes Feld. Im Heft füllt das Kind das komplette Raster –
+   dafür braucht es eine Eingabemaske über mehrere Felder.
 4. **Urkunde zum Ausdrucken** nach einem Rechenmeister-Lauf, wie im Lernheft.
-5. **Halbschriftliche Rechenwege anzeigen**: Bei Plus/Minus mit Zehnerübergang
+5. **Eigene Aufgabe erfinden**: Im Heft steht mehrfach „Erfinde selbst eine
+   Aufgabe“. Als Eingabe von Aufgabe und Ergebnis mit Selbstkontrolle denkbar.
+6. **Halbschriftliche Rechenwege anzeigen**: Bei Plus/Minus mit Zehnerübergang
    die Zwischenschritte als Bild statt nur als Satz.
-6. **Mehrere Profile** auf einem Gerät (Geschwister), Umschalter im
+7. **Mehrere Profile** auf einem Gerät (Geschwister), Umschalter im
    Elternbereich.
 
 ## Weitere Ideen

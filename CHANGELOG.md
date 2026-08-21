@@ -4,6 +4,37 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.3.0] – 2026-08-21
+
+### Neu
+
+Weitere Aufgabenformen aus dem Lernheft:
+
+- **Rätselwort** (`#/raetsel`), die große Rätselseite: Zu jedem Buchstaben des
+  Lösungsworts gehört eine Zahl, die Legende steht als Tabelle über der
+  Aufgabe. Jede gerechnete Aufgabe deckt einen Buchstaben auf – richtig in
+  Farbe, falsch in Grau, sodass die Runde nie abbricht. Am Ende erscheinen das
+  Wort und ein Satz dazu. Zwölf Lösungswörter, alle Aufgaben im Zahlenraum bis
+  20. Ein fehlerfreies Rätsel bringt das Abzeichen „Wortfinder“.
+- **Nachbaraufgaben** bei den Rechentricks: `7 + 7 = 14`, also ist `7 + 8` eins
+  mehr – und beim Minusrechnen `18 − 9 = 9`, also ist `18 − 8` eins mehr. Sie
+  laufen wie die Analogieaufgaben zweischrittig und bringen ein Herz.
+- **Rechentabellen** in Plus & Minus (Stufe 3): Zeilen- und Spaltenkopf ergeben
+  den Wert einer Zelle, genau ein Feld ist markiert. Die Rechnung steht
+  bewusst NICHT daneben – das Ablesen ist die Übung. Bei Minus kommt auch der
+  Fall vor, dass eine Aufgabe nicht aufgeht; dann ist „Das geht nicht“ die
+  richtige Antwort.
+- **Zweite Radform**: Bisher ergänzten außen und innen zusammen die Mitte. Neu
+  ist die Gegenrichtung aus dem Heft – zur Mitte kommt der innere Ring dazu,
+  außen steht das Ergebnis (`8 + ? = 11`).
+
+### Geändert
+
+- Der Fortschritt speichert die Zahl fehlerfrei gelöster Rätsel
+  (`raetselGeloest`). Ältere Spielstände werden beim Laden ergänzt.
+- „Nochmal üben“ heißt im Rätsel „Neues Rätselwort“ und startet auch wirklich
+  ein neues – bisher wäre daraus ein gemischtes Training geworden.
+
 ## [1.2.0] – 2026-08-21
 
 ### Neu

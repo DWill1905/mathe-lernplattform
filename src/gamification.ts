@@ -188,6 +188,13 @@ export const ERFOLGE: readonly Erfolg[] = [
     erreicht: (f) => f.herzen >= 25,
   },
   {
+    id: "raetsel",
+    titel: "Wortfinder",
+    text: "Ein Rätselwort ganz ohne Fehler gelöst.",
+    symbol: "🔤",
+    erreicht: (f) => f.raetselGeloest >= 1,
+  },
+  {
     id: "level5",
     titel: "Rechenmeister",
     text: "Level 5 erreicht.",

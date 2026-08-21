@@ -275,3 +275,51 @@ function sektor(cx, cy, rI, rA, w1, w2) {
     return (`M${r(ax1)},${r(ay1)} A${rA},${rA} 0 ${gross} 1 ${r(ax2)},${r(ay2)} ` +
         `L${r(ix2)},${r(iy2)} A${rI},${rI} 0 ${gross} 0 ${r(ix1)},${r(iy1)} Z`);
 }
+/* ------------------------------------------------------- Rechentabellen */
+/**
+ * Additions- oder Subtraktionstabelle mit einem markierten Feld. Die übrigen
+ * Felder bleiben leer – gefragt ist immer genau eine Zelle.
+ */
+export function rechentabelle(zeichen, zeilen, spalten, markiert) {
+    const zelleBreite = 58;
+    const zelleHoehe = 42;
+    const breite = (spalten.length + 1) * zelleBreite;
+    const hoehe = (zeilen.length + 1) * zelleHoehe;
+    const zelle = (x, y, klasse, text, textKlasse) => `<rect x="${x}" y="${y}" width="${zelleBreite}" height="${zelleHoehe}" class="${klasse}"/>` +
+        `<rect x="${x}" y="${y}" width="${zelleBreite}" height="${zelleHoehe}" class="fig-linie" fill="none" stroke-width="2"/>` +
+        (text
+            ? `<text x="${x + zelleBreite / 2}" y="${y + zelleHoehe / 2 + 7}" class="${textKlasse}" text-anchor="middle" font-size="20">${text}</text>`
+            : "");
+    let teile = zelle(0, 0, "fig-tabelle-kopf", zeichen, "fig-text");
+    spalten.forEach((wert, s) => {
+        teile += zelle((s + 1) * zelleBreite, 0, "fig-tabelle-kopf", String(wert), "fig-text");
+    });
+    zeilen.forEach((wert, z) => {
+        teile += zelle(0, (z + 1) * zelleHoehe, "fig-tabelle-kopf", String(wert), "fig-text");
+        spalten.forEach((_, s) => {
+            const istMarkiert = markiert[0] === z && markiert[1] === s;
+            teile += zelle((s + 1) * zelleBreite, (z + 1) * zelleHoehe, istMarkiert ? "fig-stein-luecke" : "fig-tabelle-feld", istMarkiert ? "?" : "", "fig-text-marke");
+        });
+    });
+    return huelle(breite, hoehe, teile);
+}
+/* --------------------------------------------------------- Buchstabencode */
+/** Legende der Rätselseite: welcher Buchstabe zu welcher Zahl gehört. */
+export function buchstabencode(paare) {
+    const zelleBreite = 46;
+    const zelleHoehe = 38;
+    const breite = paare.length * zelleBreite;
+    const hoehe = zelleHoehe * 2;
+    let teile = "";
+    paare.forEach((paar, i) => {
+        const x = i * zelleBreite;
+        teile +=
+            `<rect x="${x}" y="0" width="${zelleBreite}" height="${zelleHoehe}" class="fig-code-buchstabe"/>` +
+                `<rect x="${x}" y="0" width="${zelleBreite}" height="${zelleHoehe}" class="fig-linie" fill="none" stroke-width="2"/>` +
+                `<text x="${x + zelleBreite / 2}" y="${zelleHoehe / 2 + 7}" class="fig-text" text-anchor="middle" font-size="20">${paar.buchstabe}</text>` +
+                `<rect x="${x}" y="${zelleHoehe}" width="${zelleBreite}" height="${zelleHoehe}" class="fig-tabelle-feld"/>` +
+                `<rect x="${x}" y="${zelleHoehe}" width="${zelleBreite}" height="${zelleHoehe}" class="fig-linie" fill="none" stroke-width="2"/>` +
+                `<text x="${x + zelleBreite / 2}" y="${zelleHoehe * 1.5 + 7}" class="fig-text" text-anchor="middle" font-size="19">${paar.zahl}</text>`;
+    });
+    return huelle(breite, hoehe, teile);
+}

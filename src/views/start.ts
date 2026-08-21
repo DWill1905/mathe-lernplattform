@@ -69,6 +69,17 @@ export const zeige: RouteHandler = (ziel) => {
     ),
     el(
       "a",
+      { class: "knopf knopf-gross", href: "#/raetsel" },
+      el("span", { class: "knopf-symbol", "aria-hidden": "true", text: "🔤" }),
+      el(
+        "span",
+        {},
+        el("span", { class: "knopf-titel", text: "Rätselwort" }),
+        el("span", { class: "knopf-unter", text: "Rechne und finde das geheime Wort" })
+      )
+    ),
+    el(
+      "a",
       { class: "knopf knopf-gross", href: "#/rechenmeister" },
       el("span", { class: "knopf-symbol", "aria-hidden": "true", text: "⏱️" }),
       el(

@@ -44,6 +44,7 @@ test("Rechnungen stimmen mit der angegebenen Lösung überein", () => {
       const rng = mulberry32(4711 + stufe);
       for (let i = 0; i < 400; i++) {
         const aufgabe = GENERATOREN[id](rng, stufe);
+        if (aufgabe.antwortfeld.art !== "zahl") continue;
         const treffer = aufgabe.rechnung?.match(/^(\d+) ([+−·:]) (\d+) =$/);
         if (!treffer) continue;
         const [, a, zeichen, b] = treffer;
@@ -68,6 +69,7 @@ test("Plus und Minus bleiben im Zahlenraum bis 100", () => {
     const rng = mulberry32(99 + stufe);
     for (let i = 0; i < 500; i++) {
       const aufgabe = GENERATOREN.plusminus(rng, stufe);
+      if (aufgabe.antwortfeld.art !== "zahl") continue;
       assert.ok(
         Number(aufgabe.loesung) <= 100,
         `Stufe ${stufe}: Ergebnis ${aufgabe.loesung} verlässt den Zahlenraum (${aufgabe.rechnung})`

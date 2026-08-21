@@ -10,11 +10,11 @@ des Geräts.
 | Thema | Inhalte |
 | --- | --- |
 | 🔢 Zahlen bis 100 | Vorgänger/Nachfolger, Zehner und Einer, Nachbarzehner, Zahlenstrahl, Runden, Zahlenfolgen |
-| ➕ Plus & Minus | bis 20, mit vollen Zehnern, bis 100 ohne und mit Zehnerübergang, Platzhalteraufgaben |
-| 💡 Rechentricks | Analogieaufgaben: 3 + 4 → 30 + 40, 3 + 2 → 13 + 2, plus/minus 10, Hunderter, Tabellenzeilen |
+| ➕ Plus & Minus | bis 20, mit vollen Zehnern, bis 100 ohne und mit Zehnerübergang, Platzhalter- und Tabellenaufgaben |
+| 💡 Rechentricks | Analogieaufgaben (3 + 4 → 30 + 40, 3 + 2 → 13 + 2), Nachbaraufgaben (7 + 7 → 7 + 8), plus/minus 10, Hunderter |
 | 💖 Hilfsaufgaben | Bei Rechentricks und Umkehraufgaben rechnet das Kind zuerst die Hilfsaufgabe selbst – das gibt ein Herz |
 | 👨‍👩‍👧‍👦 Aufgabenfamilien | „3 Zahlen, 4 Aufgaben“: Tausch- und Umkehraufgaben, Lücken in allen vier Formen |
-| 🧱 Mauern & Räder | Zahlenmauern mit fehlendem Stein, Rechenräder mit Zielzahl in der Mitte |
+| 🧱 Mauern & Räder | Zahlenmauern mit fehlendem Stein, Rechenräder in zwei Formen (auf die Mitte ergänzen und von der Mitte aus weiterrechnen) |
 | ✖️ Einmaleins | alle Reihen von 1 bis 10, Punktefelder, Umkehraufgaben |
 | ➗ Geteilt | Teilen ohne Rest, Aufgaben mit Rest |
 | 💶 Geld | Münzen zählen, Euro und Cent umrechnen, bezahlen und Rückgeld |
@@ -41,6 +41,9 @@ von Hand setzen.
   über der großen Aufgabe (`30 + 40 = ?`).
 - **Tipps** zu jeder Aufgabe, die das Kind selbst aufklappen kann.
 - **Gemischtes Training** über alle Themen hinweg.
+- **Rätselwort**: Zu jedem Buchstaben eines Lösungsworts gehört eine Zahl. Wer
+  die Aufgabe rechnet, deckt den Buchstaben auf – am Ende steht das ganze Wort
+  da, samt einem Satz dazu.
 - **Rechenmeister**: 20 Aufgaben gegen die Uhr aus Plus/Minus, Rechentricks,
   Aufgabenfamilien und Zahlenmauern – mit Stoppuhr und gespeicherter
   Bestleistung.
@@ -80,7 +83,8 @@ src/
   state.ts          einziger Ort, der localStorage liest/schreibt
   gamification.ts   Punkte, Level, Sterne, Streak, Abzeichen
   random.ts         mulberry32 – die einzige Zufallsquelle
-  figures.ts        Erklärbilder als SVG (Uhr, Geld, Formen, Zahlenmauern, Rechenräder …)
+  figures.ts        Erklärbilder als SVG (Uhr, Geld, Formen, Zahlenmauern, Rechenräder, Tabellen …)
+  raetsel.ts        Lösungswörter, Buchstabencode und die Aufgaben dazu
   dom.ts            el()-Helfer zum DOM-Bauen ohne Framework
   tasks/            Aufgaben-Generatoren je Themengruppe
   views/            Start, Übung, Fortschritt, Elternbereich

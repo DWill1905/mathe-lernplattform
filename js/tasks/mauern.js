@@ -9,11 +9,12 @@
 import { rechenrad, zahlenmauer } from "../figures.js";
 import { zahlfeld } from "./helpers.js";
 export function mauern(rng, stufe) {
+    const radAufgabe = () => (rng.chance(0.5) ? rad(rng, stufe) : radDifferenz(rng, stufe));
     if (stufe === 1)
-        return rng.chance(0.6) ? kleineMauer(rng, false) : rad(rng, stufe);
+        return rng.chance(0.6) ? kleineMauer(rng, false) : radAufgabe();
     if (stufe === 2)
-        return rng.chance(0.6) ? kleineMauer(rng, true) : rad(rng, stufe);
-    return rng.chance(0.65) ? grosseMauer(rng) : rad(rng, stufe);
+        return rng.chance(0.6) ? kleineMauer(rng, true) : radAufgabe();
+    return rng.chance(0.65) ? grosseMauer(rng) : radAufgabe();
 }
 /** Baut aus den Grundsteinen die komplette Mauer (unten → oben). */
 export function baueMauer(grund) {
@@ -98,5 +99,35 @@ function rad(rng, stufe) {
         loesung: String(loesung),
         tipp: `Frage dich: Wie viel fehlt von ${mitte - loesung} bis ${mitte}?`,
         erklaerung: `${mitte - loesung} + ${loesung} = ${mitte}`,
+    };
+}
+/**
+ * Zweite Radform aus dem Heft: Zur Zahl in der Mitte kommt der innere Ring
+ * dazu, außen steht das Ergebnis (`8 + ? = 11`). Beim ersten Rad ergänzt man
+ * dagegen AUF die Mitte – die beiden Formen üben unterschiedliche Richtungen.
+ */
+function radDifferenz(rng, stufe) {
+    const mitte = stufe === 1 ? rng.int(2, 8) : stufe === 2 ? rng.int(5, 12) : rng.int(10, 40);
+    const spielraum = stufe === 3 ? 60 : 20 - mitte;
+    const moeglich = [];
+    for (let wert = 1; wert <= Math.max(6, spielraum); wert++) {
+        if (mitte + wert <= (stufe === 3 ? 100 : 20))
+            moeglich.push(wert);
+    }
+    const innenWerte = rng.shuffle(moeglich).slice(0, 6);
+    const gesucht = rng.int(0, innenWerte.length - 1);
+    const felder = innenWerte.map((wert, i) => ({
+        aussen: mitte + wert,
+        innen: i === gesucht ? null : wert,
+    }));
+    const loesung = innenWerte[gesucht];
+    return {
+        typ: "mauern/rechenrad-differenz",
+        frage: `Zur ${mitte} in der Mitte kommt die innere Zahl dazu – außen steht das Ergebnis. Welche Zahl fehlt?`,
+        bild: { svg: rechenrad(mitte, felder), beschriftung: `Rechenrad mit der Zahl ${mitte} in der Mitte` },
+        antwortfeld: zahlfeld(),
+        loesung: String(loesung),
+        tipp: `Rechne ${mitte + loesung} − ${mitte}.`,
+        erklaerung: `${mitte} + ${loesung} = ${mitte + loesung}`,
     };
 }

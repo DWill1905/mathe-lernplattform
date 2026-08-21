@@ -43,8 +43,11 @@ Abzeichen) und ein Elternbereich. Feature-Liste: `README.md`.
   `familien`, `mauern`); `tasks/index.ts` hält die Registry und baut Runden.
 - `src/figures.ts` – Erklärbilder als SVG-Zeichenketten, ohne DOM-Zugriff und
   deshalb direkt testbar.
-- `src/gamification.ts` – Punkte, Level, Sterne, Streak, Abzeichen,
+- `src/gamification.ts` – Punkte, Level, Sterne, Herzen, Streak, Abzeichen,
   Stufenanpassung.
+- `src/raetsel.ts` – Lösungswörter, Buchstabencode und die passenden Aufgaben
+  der Rätselseite. Jede Aufgabe muss ihre Zielzahl EXAKT treffen, sonst zeigt
+  die Legende einen falschen Buchstaben (Test!).
 - `src/views/*` – Start, Übung, Fortschritt, Elternbereich.
 - `src/app.ts` / `src/router.ts` / `src/shell.ts` – Routentabelle,
   Hash-Router, App-Shell.
@@ -61,9 +64,12 @@ Abzeichen) und ein Elternbereich. Feature-Liste: `README.md`.
   bleiben und darf nie negativ werden (Test in `test/mauern.test.js`).
 - **In einer Zahlenmauer fehlt immer genau ein Stein.** Nur dann ist er
   eindeutig bestimmt, weil alle Nachbarn sichtbar bleiben. Ein Test prüft das.
-- **Der Rechenmeister ist eine Betriebsart der Übungsansicht**, keine eigene
-  Datei – er hat aber einen eigenen Eintrag in `ANSICHTEN`, damit die Route
-  `#/rechenmeister` auch offline vorgeladen wird.
+- **Rechenmeister und Rätselwort sind Betriebsarten der Übungsansicht**, keine
+  eigenen Dateien – er hat aber einen eigenen Eintrag in `ANSICHTEN`, damit die Route
+  `#/rechenmeister` bzw. `#/raetsel` auch offline vorgeladen wird.
+- **Bei der Rechentabelle steht die Rechnung bewusst NICHT im Text.** Das
+  Ablesen von Zeile und Spalte ist die eigentliche Übung; für Screenreader
+  steckt die Aufgabe in der Bildbeschreibung. Ein Test hält das fest.
 - **Eine neue Route braucht einen Eintrag in `ANSICHTEN` (`src/app.ts`).**
   Die Liste wird im Leerlauf komplett vorgeladen; nur dadurch bleibt die App
   nach dem Code-Splitting offline vollständig.

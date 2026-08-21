@@ -1,6 +1,6 @@
 import type { Rng } from "../random.js";
 import type { Aufgabe, Stufe } from "../types.js";
-import { zahlenstrahl } from "../figures.js";
+import { rechentabelle, zahlenstrahl } from "../figures.js";
 import { auswahlfeld, zahlAblenker, zahlfeld } from "./helpers.js";
 
 /* ============================================================ Zahlenraum */
@@ -182,6 +182,9 @@ function folgeSchwer(rng: Rng): Aufgabe {
 export function plusminus(rng: Rng, stufe: Stufe): Aufgabe {
   if (stufe === 1) return rng.pick([bis20, volleZehner])(rng);
   if (stufe === 2) return rng.pick([ohneUebergang, ohneUebergang, zehnerPlus])(rng);
+  // Die Tabellen bleiben Stufe 3 vorbehalten: Ihre Felder überschreiten den
+  // Zehner, was Stufe 2 ausdrücklich noch aussparen soll.
+  if (rng.chance(0.3)) return tabelle(rng, rng.chance(0.4));
   return rng.pick([mitUebergang, mitUebergang, platzhalter])(rng);
 }
 
@@ -348,6 +351,64 @@ function rechenaufgabe(
     loesung: String(loesung),
     tipp: "Rechne in zwei Schritten: erst die Zehner, dann die Einer.",
     erklaerung,
+  };
+}
+
+/**
+ * Rechentabelle wie im Heft: Zeilenkopf und Spaltenkopf ergeben zusammen den
+ * Wert einer Zelle, genau ein Feld ist markiert.
+ *
+ * `mitUnloesbar` erlaubt beim Minusrechnen auch Felder, deren Aufgabe nicht
+ * aufgeht – im Heft kommt dort ein X hinein.
+ */
+function tabelle(rng: Rng, mitUnloesbar: boolean): Aufgabe {
+  let plus = rng.chance(0.55);
+  const spalten = rng.shuffle([1, 2, 3, 4, 5, 8, 10]).slice(0, 3);
+  const zeilen = rng.shuffle([3, 4, 5, 7, 8, 10, 11, 12, 13, 15, 16, 17, 19, 20]).slice(0, 4);
+
+  // Aus welchen Feldern darf gefragt werden? Beim Minusrechnen nur aus den
+  // lösbaren – es sei denn, die Stufe lässt „Das geht nicht“ ausdrücklich zu.
+  const kandidaten: [number, number][] = [];
+  for (let z = 0; z < zeilen.length; z++) {
+    for (let sp = 0; sp < spalten.length; sp++) {
+      if (plus || mitUnloesbar || zeilen[z]! >= spalten[sp]!) kandidaten.push([z, sp]);
+    }
+  }
+  if (kandidaten.length === 0) plus = true;
+  const [z, sp] = kandidaten.length > 0 ? rng.pick(kandidaten) : [0, 0];
+  const zeile = zeilen[z]!;
+  const spalte = spalten[sp]!;
+  const zeichen = plus ? "+" : "−";
+  const bild = {
+    svg: rechentabelle(zeichen, zeilen, spalten, [z, sp]),
+    beschriftung: `Rechentabelle: Das markierte Feld steht für ${zeile} ${zeichen} ${spalte}`,
+  };
+
+  if (!plus && zeile < spalte) {
+    return {
+      typ: "plusminus/tabelle-unloesbar",
+      frage: "Welche Zahl gehört in das markierte Feld?",
+      bild,
+      antwortfeld: auswahlfeld(rng, "Das geht nicht", [
+        String(spalte - zeile),
+        String(zeile + spalte),
+        String(zeile),
+      ]),
+      loesung: "Das geht nicht",
+      tipp: "Von einer kleinen Zahl kann man keine größere wegnehmen.",
+      erklaerung: `${zeile} ist kleiner als ${spalte} – diese Aufgabe geht nicht auf.`,
+    };
+  }
+
+  const loesung = plus ? zeile + spalte : zeile - spalte;
+  return {
+    typ: "plusminus/tabelle",
+    frage: "Welche Zahl gehört in das markierte Feld?",
+    bild,
+    antwortfeld: zahlfeld(),
+    loesung: String(loesung),
+    tipp: "Lies die Zahl links am Rand und oben in der Spalte ab.",
+    erklaerung: `${zeile} ${zeichen} ${spalte} = ${loesung}`,
   };
 }
 

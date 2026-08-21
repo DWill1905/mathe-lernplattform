@@ -1213,3 +1213,72 @@ details[open] summary {
     transform: scale(1);
   }
 }
+
+/* Rechentabellen und Buchstabencode */
+
+.fig-tabelle-kopf {
+  fill: color-mix(in srgb, var(--blau) 24%, var(--karte));
+}
+
+.fig-tabelle-feld {
+  fill: var(--karte);
+}
+
+.fig-code-buchstabe {
+  fill: color-mix(in srgb, var(--gruen) 24%, var(--karte));
+}
+
+/* Rätselwort */
+
+.bild-breit {
+  max-width: 100%;
+}
+
+.wortstreifen {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.3rem;
+  margin-top: 0.6rem;
+}
+
+.wortfeld {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2.4rem;
+  padding: 0 0.25rem;
+  border: 2px solid var(--rand);
+  border-radius: 8px;
+  background: var(--karte);
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.wortfeld-richtig {
+  border-color: var(--richtig);
+  background: var(--richtig-hell);
+  color: var(--richtig);
+}
+
+.wortfeld-grau {
+  background: var(--grund);
+  color: var(--text-leise);
+}
+
+.wortstreifen-gross {
+  margin: 0.2rem 0 0.9rem;
+}
+
+.wortstreifen-gross .wortfeld {
+  min-width: 2.5rem;
+  height: 3rem;
+  font-size: 1.6rem;
+}
+
+.raetsel-satz {
+  margin: 0 0 1rem;
+  font-size: 1.02rem;
+  text-wrap: balance;
+}

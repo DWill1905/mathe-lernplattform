@@ -13,14 +13,20 @@ function hilfsaufgabe(a, zeichen, b, ergebnis) {
     };
 }
 export function analogie(rng, stufe) {
-    if (stufe === 1)
-        return rng.chance(0.5) ? einerZuZehnern(rng, "+") : einerZuZehnern(rng, "−");
-    if (stufe === 2) {
+    if (stufe === 1) {
         const wahl = rng.int(1, 3);
+        if (wahl === 1)
+            return nachbarPlus(rng);
+        return einerZuZehnern(rng, wahl === 2 ? "+" : "−");
+    }
+    if (stufe === 2) {
+        const wahl = rng.int(1, 4);
         if (wahl === 1)
             return zehnerDavor(rng);
         if (wahl === 2)
             return glatteZehnerSchritte(rng);
+        if (wahl === 3)
+            return nachbarMinus(rng);
         return einerZuZehnern(rng, rng.chance(0.5) ? "+" : "−");
     }
     const wahl = rng.int(1, 4);
@@ -178,5 +184,48 @@ function tabellenzeile(rng) {
         loesung: String(zehner - einer),
         tipp: "Gehe vom glatten Zehner rückwärts.",
         erklaerung: `Von ${zehner} ${einer} zurück sind ${zehner - einer}.`,
+    };
+}
+/* --------------------------------------------------------- Nachbaraufgaben */
+/**
+ * Nachbaraufgabe zur Verdopplung: Wer 7 + 7 kann, kann auch 7 + 8 – es ist
+ * genau eins mehr. Im Heft steht dieser Aufgabentyp direkt neben den
+ * Analogieaufgaben.
+ */
+function nachbarPlus(rng) {
+    const a = rng.int(2, 9);
+    const doppelt = a + a;
+    const mehr = rng.chance(0.7);
+    const partner = mehr ? a + 1 : a - 1;
+    const loesung = a + partner;
+    return {
+        typ: "analogie/nachbar-plus",
+        frage: "Und jetzt die Nachbaraufgabe:",
+        vorstufe: hilfsaufgabe(a, "+", a, doppelt),
+        rechnung: `${a} + ${partner} =`,
+        antwortfeld: zahlfeld(),
+        loesung: String(loesung),
+        tipp: mehr ? "Die Nachbaraufgabe ist genau eins mehr." : "Die Nachbaraufgabe ist genau eins weniger.",
+        erklaerung: `${a} + ${a} = ${doppelt}, und ${a} + ${partner} ist eins ${mehr ? "mehr" : "weniger"}: ${loesung}.`,
+    };
+}
+/** Nachbaraufgabe beim Minusrechnen: 18 − 9 = 9, also ist 18 − 8 eins mehr. */
+function nachbarMinus(rng) {
+    const a = rng.int(3, 10);
+    const zahl = a + a;
+    const weniger = rng.chance(0.7);
+    const partner = weniger ? a - 1 : a + 1;
+    const loesung = zahl - partner;
+    return {
+        typ: "analogie/nachbar-minus",
+        frage: "Und jetzt die Nachbaraufgabe:",
+        vorstufe: hilfsaufgabe(zahl, "−", a, a),
+        rechnung: `${zahl} − ${partner} =`,
+        antwortfeld: zahlfeld(),
+        loesung: String(loesung),
+        tipp: weniger
+            ? "Wer weniger wegnimmt, behält mehr übrig."
+            : "Wer mehr wegnimmt, behält weniger übrig.",
+        erklaerung: `${zahl} − ${a} = ${a}. Du nimmst eins ${weniger ? "weniger" : "mehr"} weg, also bleibt ${loesung}.`,
     };
 }
