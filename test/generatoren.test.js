@@ -18,6 +18,19 @@ function pruefeAufgabe(aufgabe, kontext) {
   if (aufgabe.antwortfeld.art === "zahl") {
     assert.match(aufgabe.loesung, /^\d+$/, `${kontext}: Zahlenantwort ist keine natürliche Zahl`);
     assert.ok(Number(aufgabe.loesung) <= 1000, `${kontext}: Lösung ${aufgabe.loesung} zu groß für Klasse 2`);
+  } else if (aufgabe.antwortfeld.art === "bildauswahl") {
+    const optionen = aufgabe.antwortfeld.optionen;
+    const kennungen = optionen.map((o) => o.kennung);
+    assert.ok(optionen.length >= 2, `${kontext}: zu wenige Bildkarten`);
+    assert.equal(new Set(kennungen).size, kennungen.length, `${kontext}: doppelte Kennung`);
+    assert.ok(kennungen.includes(aufgabe.loesung), `${kontext}: Lösung fehlt in der Bildauswahl`);
+    for (const option of optionen) {
+      assert.match(option.svg, /^<svg /, `${kontext}: Bildkarte ohne SVG`);
+      assert.ok(option.beschriftung.length > 3, `${kontext}: Bildkarte ohne Beschreibung`);
+    }
+    // Zwei gleiche Bilder wären nicht entscheidbar.
+    const bilder = optionen.map((o) => o.svg);
+    assert.equal(new Set(bilder).size, bilder.length, `${kontext}: zwei Bildkarten sind identisch`);
   } else {
     const optionen = aufgabe.antwortfeld.optionen;
     assert.ok(optionen.length >= 2, `${kontext}: zu wenige Auswahlmöglichkeiten`);

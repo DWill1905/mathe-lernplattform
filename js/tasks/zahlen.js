@@ -1,12 +1,12 @@
-import { rechentabelle, zahlenstrahl } from "../figures.js";
+import { pfeilfolge, rechentabelle, zahlenstrahl } from "../figures.js";
 import { auswahlfeld, zahlAblenker, zahlfeld } from "./helpers.js";
 /* ============================================================ Zahlenraum */
 export function zahlenraum(rng, stufe) {
     const varianten = stufe === 1
         ? [nachbarzahl, zehnerEiner, zerlegen, vergleich]
         : stufe === 2
-            ? [nachbarzehner, folge, zerlegen, strahl]
-            : [runden, groesste, mitte, folgeSchwer];
+            ? [nachbarzehner, folge, strahl, pfeilkette]
+            : [runden, groesste, mitte, folgeSchwer, pfeilkette];
     return rng.pick(varianten)(rng);
 }
 function nachbarzahl(rng) {
@@ -102,6 +102,42 @@ function strahl(rng) {
         loesung: String(loesung),
         tipp: "Zähle die Zehnerschritte ab 0 ab.",
     };
+}
+/**
+ * Zahlenfolge mit zwei abwechselnden Schritten, wie im Heft mit Pfeilen
+ * dargestellt (0 →+3→ 3 →+0→ 3 →+3→ 6 …). Genau ein Kästchen ist leer.
+ */
+function pfeilkette(rng) {
+    for (let versuch = 0; versuch < 40; versuch++) {
+        const ersterMinus = rng.chance(0.35);
+        const a = (ersterMinus ? -1 : 1) * rng.pick([2, 3, 4, 5, 10]);
+        const b = rng.pick(ersterMinus ? [1, 2, 3] : [0, 1, 2, 3]);
+        const start = ersterMinus ? rng.int(60, 99) : rng.int(0, 20);
+        const werte = [start];
+        for (let i = 0; i < 5; i++)
+            werte.push(werte[i] + (i % 2 === 0 ? a : b));
+        if (werte.some((wert) => wert < 0 || wert > 100))
+            continue;
+        const luecke = rng.int(2, werte.length - 1);
+        const schritte = werte.slice(1).map((_, i) => {
+            const schritt = i % 2 === 0 ? a : b;
+            return `${schritt < 0 ? "−" : "+"}${Math.abs(schritt)}`;
+        });
+        return {
+            typ: "zahlenraum/pfeilfolge",
+            frage: "Die Pfeile zeigen, wie es weitergeht. Welche Zahl fehlt?",
+            bild: {
+                svg: pfeilfolge(werte.map((wert, i) => (i === luecke ? null : wert)), schritte),
+                beschriftung: `Zahlenfolge, die bei ${start} beginnt`,
+                breit: true,
+            },
+            antwortfeld: zahlfeld(),
+            loesung: String(werte[luecke]),
+            tipp: "Schau auf den Pfeil direkt davor – er sagt, was zu rechnen ist.",
+            erklaerung: `${werte[luecke - 1]} ${schritte[luecke - 1].replace("−", "− ").replace("+", "+ ")} = ${werte[luecke]}`,
+        };
+    }
+    return folge(rng);
 }
 function runden(rng) {
     let zahl = rng.int(11, 94);

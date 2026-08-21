@@ -26,7 +26,13 @@ export type Stufe = 1 | 2 | 3;
  */
 export type Antwortfeld =
   | { art: "zahl"; einheit?: string }
-  | { art: "auswahl"; optionen: string[] };
+  | { art: "auswahl"; optionen: string[] }
+  /**
+   * Auswahl aus Bildern. Die Lösung ist die `kennung` der richtigen Karte –
+   * sie steht auch als Buchstabe unter dem Bild, damit die Rückmeldung
+   * („Richtig ist: C“) verständlich bleibt.
+   */
+  | { art: "bildauswahl"; optionen: { kennung: string; svg: string; beschriftung: string }[] };
 
 /**
  * Vorgeschalteter Rechenschritt („Rechne zuerst die Hilfsaufgabe“). Wer ihn
@@ -49,8 +55,12 @@ export interface Aufgabe {
   frage: string;
   /** Optionale große Rechnung, z. B. `37 + 48 =`. */
   rechnung?: string;
-  /** Optionales Erklärbild als SVG-Zeichenkette (siehe `figures.ts`). */
-  bild?: { svg: string; beschriftung: string };
+  /**
+   * Optionales Erklärbild als SVG-Zeichenkette (siehe `figures.ts`).
+   * `breit` nutzt die volle Kartenbreite – nötig bei sehr langen Bildern wie
+   * der Pfeilfolge, die sonst auf Briefmarkengröße schrumpfen.
+   */
+  bild?: { svg: string; beschriftung: string; breit?: boolean };
   antwortfeld: Antwortfeld;
   /** Korrekte Antwort, exakt so wie sie verglichen wird. */
   loesung: string;

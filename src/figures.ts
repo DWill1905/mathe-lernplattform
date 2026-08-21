@@ -421,3 +421,120 @@ export function buchstabencode(paare: readonly { buchstabe: string; zahl: number
   });
   return huelle(breite, hoehe, teile);
 }
+
+/* -------------------------------------------------------- Rechenkästen */
+
+/**
+ * Rechenkasten: vier Zahlen in einem 2×2-Feld, daneben das Fähnchen mit der
+ * Summe. `null` markiert das gesuchte Feld – es darf immer nur eines fehlen.
+ */
+export function rechenkasten(werte: readonly (number | null)[], summe: number | null): string {
+  const zelle = 72;
+  const hoehe = 54;
+  const oben = 26;
+  const gitterBreite = zelle * 2;
+  const fahneBreite = 62;
+  const breite = gitterBreite + fahneBreite + 6;
+
+  let teile = "";
+  werte.slice(0, 4).forEach((wert, i) => {
+    const x = (i % 2) * zelle;
+    const y = oben + Math.floor(i / 2) * hoehe;
+    const gesucht = wert === null;
+    teile +=
+      `<rect x="${x}" y="${y}" width="${zelle}" height="${hoehe}" class="${gesucht ? "fig-stein-luecke" : "fig-kasten"}"/>` +
+      `<rect x="${x}" y="${y}" width="${zelle}" height="${hoehe}" class="fig-linie" fill="none" stroke-width="2.5"/>` +
+      `<text x="${x + zelle / 2}" y="${y + hoehe / 2 + 8}" class="${gesucht ? "fig-text-marke" : "fig-text"}" text-anchor="middle" font-size="23">${gesucht ? "?" : wert}</text>`;
+  });
+
+  const fahneX = gitterBreite + 6;
+  const gesuchteSumme = summe === null;
+  teile +=
+    `<path d="M${fahneX},0 L${fahneX + fahneBreite},0 L${fahneX + fahneBreite},40 L${fahneX},40 Z" class="${gesuchteSumme ? "fig-stein-luecke" : "fig-fahne"}"/>` +
+    `<path d="M${fahneX},0 L${fahneX + fahneBreite},0 L${fahneX + fahneBreite},40 L${fahneX},40 Z" class="fig-linie" fill="none" stroke-width="2.5"/>` +
+    `<text x="${fahneX + fahneBreite / 2}" y="${27}" class="${gesuchteSumme ? "fig-text-marke" : "fig-text"}" text-anchor="middle" font-size="22">${gesuchteSumme ? "?" : summe}</text>`;
+
+  return huelle(breite, oben + hoehe * 2, teile);
+}
+
+/* --------------------------------------------------------- Zahlenfolgen */
+
+/**
+ * Zahlenfolge mit beschrifteten Pfeilen zwischen den Kästchen, wie im Heft.
+ * `werte` enthält genau ein `null` – das gesuchte Feld.
+ */
+export function pfeilfolge(werte: readonly (number | null)[], schritte: readonly string[]): string {
+  const kasten = 58;
+  const hoehe = 46;
+  const luecke = 34;
+  const obenRaum = 42;
+  const breite = werte.length * kasten + (werte.length - 1) * luecke;
+
+  let teile = "";
+  werte.forEach((wert, i) => {
+    const x = i * (kasten + luecke);
+    const gesucht = wert === null;
+    teile +=
+      `<rect x="${x}" y="${obenRaum}" width="${kasten}" height="${hoehe}" rx="5" class="${gesucht ? "fig-stein-luecke" : "fig-kasten"}"/>` +
+      `<rect x="${x}" y="${obenRaum}" width="${kasten}" height="${hoehe}" rx="5" class="fig-linie" fill="none" stroke-width="2.5"/>` +
+      `<text x="${x + kasten / 2}" y="${obenRaum + hoehe / 2 + 8}" class="${gesucht ? "fig-text-marke" : "fig-text"}" text-anchor="middle" font-size="22">${gesucht ? "?" : wert}</text>`;
+  });
+
+  schritte.forEach((schritt, i) => {
+    const von = i * (kasten + luecke) + kasten;
+    const bis = (i + 1) * (kasten + luecke);
+    const mitte = (von + bis) / 2;
+    teile +=
+      `<path d="M${von + 2},${obenRaum + 6} Q${mitte},${obenRaum - 26} ${bis - 8},${obenRaum + 6}" class="fig-pfeil" fill="none"/>` +
+      `<polygon points="${bis - 2},${obenRaum + 9} ${bis - 12},${obenRaum + 1} ${bis - 11},${obenRaum + 12}" class="fig-pfeil-spitze"/>` +
+      `<text x="${mitte}" y="${obenRaum - 16}" class="fig-pfeil-text" text-anchor="middle" font-size="19">${schritt}</text>`;
+  });
+
+  return huelle(breite, obenRaum + hoehe + 4, teile);
+}
+
+/* ----------------------------------------------------------- Puzzleteile */
+
+/** Breite und Höhe des Puzzlerechtecks. */
+const PUZZLE_BREITE = 180;
+const PUZZLE_HOEHE = 120;
+
+/**
+ * Zerschneidet ein Rechteck mit einer Treppenlinie in zwei Teile. `hoehen`
+ * gibt die Höhe der Schnittlinie je Abschnitt an; `oben` wählt das Teil.
+ */
+export function puzzleteil(hoehen: readonly number[], oben: boolean): string {
+  const abschnitte = hoehen.length;
+  const schritt = PUZZLE_BREITE / abschnitte;
+  const schnitt: [number, number][] = [];
+  hoehen.forEach((h, i) => {
+    schnitt.push([i * schritt, h]);
+    schnitt.push([(i + 1) * schritt, h]);
+  });
+
+  const punkte = oben
+    ? [[0, 0] as [number, number], [PUZZLE_BREITE, 0] as [number, number], ...[...schnitt].reverse()]
+    : [...schnitt, [PUZZLE_BREITE, PUZZLE_HOEHE] as [number, number], [0, PUZZLE_HOEHE] as [number, number]];
+
+  const p = punkte.map(([x, y]) => `${r(x)},${r(y)}`).join(" ");
+  return huelle(
+    PUZZLE_BREITE,
+    PUZZLE_HOEHE,
+    `<polygon points="${p}" class="fig-puzzle"/><polygon points="${p}" class="fig-linie" fill="none" stroke-width="3" stroke-linejoin="round"/>`
+  );
+}
+
+/** Zufällige, gut unterscheidbare Schnittlinie für ein Puzzleteil. */
+export function puzzleHoehen(zieher: () => number, abschnitte = 4): number[] {
+  const stufen = [36, 52, 68, 84];
+  const hoehen: number[] = [];
+  for (let i = 0; i < abschnitte; i++) {
+    let wert = stufen[Math.floor(zieher() * stufen.length)] ?? 60;
+    // Zwei gleiche Stufen hintereinander verschmelzen zu einer geraden Kante.
+    while (hoehen.length > 0 && wert === hoehen[hoehen.length - 1]) {
+      wert = stufen[Math.floor(zieher() * stufen.length)] ?? 60;
+    }
+    hoehen.push(wert);
+  }
+  return hoehen;
+}

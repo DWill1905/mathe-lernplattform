@@ -4,6 +4,31 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.4.0] – 2026-08-21
+
+### Neu
+
+- **Rechenkästen**: Vier Zahlen in einem 2×2-Kasten, auf dem Fähnchen ihre
+  Summe. Mal fehlt das Fähnchen (dann wird addiert), mal ein Feld (dann muss
+  rückwärts gerechnet werden). In allen drei Stufen von „Mauern & Räder“.
+- **Zahlenfolgen mit Pfeilschritten**: Über den Kästchen stehen die Schritte,
+  die sich abwechseln (`0 →+3→ 3 →+0→ 3 →+3→ 6 …`, auch mit Minus). Genau ein
+  Kästchen ist leer. In „Zahlen bis 100“, Stufe 2 und 3.
+- **Puzzleteile** in den Formen: Ein Rechteck ist mit einer Treppenlinie
+  zerschnitten; gesucht ist unter vier Teilen das passende Gegenstück.
+- **Beträge passend legen** beim Geld: „… hat schon 5 € hingelegt, wie viele
+  1-€-Münzen fehlen noch?“ sowie die Auswahl der richtigen Kombination aus
+  Scheinen und Münzen. Münzen (1 €, 2 €) und Scheine (ab 5 €) werden dabei
+  auseinandergehalten.
+
+### Geändert
+
+- Neue Antwortart **Bildauswahl**: Antwortkarten können jetzt Bilder statt
+  Text enthalten. Sie tragen die Buchstaben A bis D, damit die Rückmeldung
+  („Richtig ist: D“) verständlich bleibt.
+- Bilder können sich als `breit` markieren und dann die volle Kartenbreite
+  nutzen – nötig für die Pfeilfolgen, die sonst zu klein gerieten.
+
 ## [1.3.0] – 2026-08-21
 
 ### Neu

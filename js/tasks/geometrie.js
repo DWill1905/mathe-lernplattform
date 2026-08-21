@@ -1,4 +1,4 @@
-import { ALLE_FORMEN, eckenZahl, form, spiegelachse } from "../figures.js";
+import { ALLE_FORMEN, eckenZahl, form, puzzleHoehen, puzzleteil, spiegelachse, } from "../figures.js";
 import { auswahlfeld, zahlfeld } from "./helpers.js";
 /** Körper mit ihren Kennzahlen – für die Fragen der dritten Stufe. */
 const KOERPER = [
@@ -7,9 +7,9 @@ const KOERPER = [
 ];
 export function geometrie(rng, stufe) {
     if (stufe === 1)
-        return rng.pick([formErkennen, formErkennen, formMitEcken])(rng);
+        return rng.pick([formErkennen, formErkennen, formMitEcken, puzzle])(rng);
     if (stufe === 2)
-        return rng.pick([eckenZaehlen, seitenZaehlen, formMitEcken])(rng);
+        return rng.pick([eckenZaehlen, seitenZaehlen, formMitEcken, puzzle])(rng);
     return rng.pick([symmetrie, koerper, umfangQuadrat, umfangRechteck])(rng);
 }
 function formErkennen(rng) {
@@ -118,5 +118,35 @@ function umfangRechteck(rng) {
         loesung: String((laenge + breite) * 2),
         tipp: "Jede Länge und jede Breite kommt zweimal vor.",
         erklaerung: `${laenge} + ${breite} + ${laenge} + ${breite} = ${(laenge + breite) * 2} cm`,
+    };
+}
+/**
+ * Puzzleteile wie auf der Rätselseite: Ein Rechteck ist mit einer
+ * Treppenlinie zerschnitten, gesucht ist das passende Gegenstück.
+ */
+function puzzle(rng) {
+    const richtig = puzzleHoehen(() => rng.next());
+    const varianten = [richtig];
+    for (let versuch = 0; versuch < 60 && varianten.length < 4; versuch++) {
+        const kandidat = puzzleHoehen(() => rng.next());
+        if (!varianten.some((vorhanden) => vorhanden.join() === kandidat.join()))
+            varianten.push(kandidat);
+    }
+    const kennungen = ["A", "B", "C", "D"];
+    const gemischt = rng.shuffle(varianten);
+    const optionen = gemischt.map((hoehen, i) => ({
+        kennung: kennungen[i],
+        svg: puzzleteil(hoehen, false),
+        beschriftung: `Unteres Teil ${kennungen[i]}`,
+    }));
+    const loesung = kennungen[gemischt.findIndex((v) => v.join() === richtig.join())];
+    return {
+        typ: "geometrie/puzzle",
+        frage: "Welches untere Teil passt genau zum oberen Teil?",
+        bild: { svg: puzzleteil(richtig, true), beschriftung: "Oberes Puzzleteil mit gezackter Kante" },
+        antwortfeld: { art: "bildauswahl", optionen },
+        loesung,
+        tipp: "Wo das obere Teil eine Zacke nach unten hat, braucht das untere Teil eine Lücke.",
+        erklaerung: "Zusammen müssen beide Teile wieder ein glattes Rechteck ergeben.",
     };
 }

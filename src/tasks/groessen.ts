@@ -11,8 +11,8 @@ const KLEINGELD = [1, 2, 5, 10, 20, 50] as const;
 
 export function geld(rng: Rng, stufe: Stufe): Aufgabe {
   if (stufe === 1) return rng.pick([muenzenZaehlen, muenzenZaehlen, muenzeGroesser])(rng);
-  if (stufe === 2) return rng.pick([inCent, inEuroUndCent, betraegeAddieren])(rng);
-  return rng.pick([rueckgeld, rueckgeld, reichtDasGeld])(rng);
+  if (stufe === 2) return rng.pick([inCent, inEuroUndCent, betraegeAddieren, restMuenzen])(rng);
+  return rng.pick([rueckgeld, rueckgeld, reichtDasGeld, restMuenzen, betragLegen])(rng);
 }
 
 function muenzenZaehlen(rng: Rng): Aufgabe {
@@ -124,6 +124,68 @@ function reichtDasGeld(rng: Rng): Aufgabe {
       ? `${geldbetrag} ct sind genug für ${preis} ct – es bleiben sogar ${geldbetrag - preis} ct übrig.`
       : `${geldbetrag} ct sind zu wenig für ${preis} ct – es fehlen ${preis - geldbetrag} ct.`,
   };
+}
+
+/**
+ * Betrag passend legen: Ein Teil liegt schon da, der Rest wird mit gleichen
+ * Münzen aufgefüllt. Im Heft trägt das Kind Münzen und Scheine in einen
+ * Kasten ein, bis der Preis auf dem Fähnchen erreicht ist.
+ */
+function restMuenzen(rng: Rng): Aufgabe {
+  const [name] = zweiNamen(rng);
+  // 1 € und 2 € sind Münzen, ab 5 € gibt es nur Scheine – das darf der
+  // Aufgabentext nicht durcheinanderbringen.
+  const stueck = rng.pick([1, 2, 5, 10]);
+  const istSchein = stueck >= 5;
+  const anzahl = rng.int(2, istSchein ? 3 : 5);
+  const rest = stueck * anzahl;
+  const liegt = rng.shuffle([5, 10, 20]).slice(0, istSchein ? 1 : rng.int(1, 2));
+  const bereits = liegt.reduce((a, b) => a + b, 0);
+  const ziel = bereits + rest;
+  const wort = istSchein ? "Scheine" : "Münzen";
+  return {
+    typ: "geld/rest-muenzen",
+    frage: `${name} soll ${ziel} € passend bezahlen und hat schon ${liegt.join(" € und ")} € hingelegt. Wie viele ${stueck}-€-${wort} fehlen noch?`,
+    bild: {
+      svg: geldbild(liegt.map((wert) => wert * 100)),
+      beschriftung: `Bereits hingelegt: ${liegt.join(" € und ")} €`,
+    },
+    antwortfeld: zahlfeld(wort),
+    loesung: String(anzahl),
+    tipp: `Rechne zuerst ${ziel} − ${bereits}.`,
+    erklaerung: `${ziel} € − ${bereits} € = ${rest} €, und ${rest} : ${stueck} = ${anzahl}.`,
+  };
+}
+
+/** Welche Kombination aus Scheinen und Münzen ergibt den Preis? */
+function betragLegen(rng: Rng): Aufgabe {
+  const ziel = rng.int(6, 45);
+  const richtig = zerlegeEuro(ziel);
+  const ablenker = [ziel + 1, ziel - 1, ziel + 5]
+    .filter((wert) => wert > 0)
+    .map((wert) => zerlegeEuro(wert));
+  return {
+    typ: "geld/betrag-legen",
+    frage: `Womit bezahlst du genau ${ziel} €?`,
+    antwortfeld: auswahlfeld(rng, richtig, ablenker),
+    loesung: richtig,
+    tipp: "Zähle die Scheine und Münzen zusammen und vergleiche mit dem Preis.",
+    erklaerung: `${richtig} ergibt zusammen ${ziel} €.`,
+  };
+}
+
+/** Greift zu den größten Scheinen und Münzen zuerst – wie beim Bezahlen. */
+export function zerlegeEuro(betrag: number): string {
+  const werte = [20, 10, 5, 2, 1];
+  const teile: string[] = [];
+  let rest = betrag;
+  for (const wert of werte) {
+    while (rest >= wert) {
+      teile.push(`${wert} €`);
+      rest -= wert;
+    }
+  }
+  return teile.join(" + ");
 }
 
 /* ============================================================== Uhrzeit */

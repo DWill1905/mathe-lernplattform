@@ -73,6 +73,10 @@ Abzeichen) und ein Elternbereich. Feature-Liste: `README.md`.
 - **Eine neue Route braucht einen Eintrag in `ANSICHTEN` (`src/app.ts`).**
   Die Liste wird im Leerlauf komplett vorgeladen; nur dadurch bleibt die App
   nach dem Code-Splitting offline vollständig.
+- **Drei Antwortarten**: `zahl` (Zahlentastatur), `auswahl` (Textknöpfe) und
+  `bildauswahl` (Bildkarten A–D; die Lösung ist die Kennung, nicht das Bild).
+  Wer eine vierte ergänzt, muss `antwortbereich()` in `views/uebung.ts` und
+  die Prüfungen in `test/generatoren.test.js` nachziehen.
 - **Farben in SVGs nur über CSS-Klassen** (`fig-*` in `style.css`), sonst
   bricht der Dunkelmodus. Ein Test erzwingt das.
 - **Keine Inline-Styles.** Die CSP verbietet `style`-Attribute; `el()` setzt

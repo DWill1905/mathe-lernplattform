@@ -9,18 +9,18 @@ des Geräts.
 
 | Thema | Inhalte |
 | --- | --- |
-| 🔢 Zahlen bis 100 | Vorgänger/Nachfolger, Zehner und Einer, Nachbarzehner, Zahlenstrahl, Runden, Zahlenfolgen |
+| 🔢 Zahlen bis 100 | Vorgänger/Nachfolger, Zehner und Einer, Nachbarzehner, Zahlenstrahl, Runden, Zahlenfolgen mit Pfeilschritten |
 | ➕ Plus & Minus | bis 20, mit vollen Zehnern, bis 100 ohne und mit Zehnerübergang, Platzhalter- und Tabellenaufgaben |
 | 💡 Rechentricks | Analogieaufgaben (3 + 4 → 30 + 40, 3 + 2 → 13 + 2), Nachbaraufgaben (7 + 7 → 7 + 8), plus/minus 10, Hunderter |
 | 💖 Hilfsaufgaben | Bei Rechentricks und Umkehraufgaben rechnet das Kind zuerst die Hilfsaufgabe selbst – das gibt ein Herz |
 | 👨‍👩‍👧‍👦 Aufgabenfamilien | „3 Zahlen, 4 Aufgaben“: Tausch- und Umkehraufgaben, Lücken in allen vier Formen |
-| 🧱 Mauern & Räder | Zahlenmauern mit fehlendem Stein, Rechenräder in zwei Formen (auf die Mitte ergänzen und von der Mitte aus weiterrechnen) |
+| 🧱 Mauern & Räder | Zahlenmauern mit fehlendem Stein, Rechenkästen mit Fähnchen, Rechenräder in zwei Formen |
 | ✖️ Einmaleins | alle Reihen von 1 bis 10, Punktefelder, Umkehraufgaben |
 | ➗ Geteilt | Teilen ohne Rest, Aufgaben mit Rest |
-| 💶 Geld | Münzen zählen, Euro und Cent umrechnen, bezahlen und Rückgeld |
+| 💶 Geld | Münzen zählen, Euro und Cent umrechnen, bezahlen, Rückgeld und Beträge passend legen |
 | 🕒 Uhrzeit | analoge Uhr lesen, „halb“ und „Viertel vor/nach“, Zeitspannen |
 | 📏 Längen | m, cm und mm umrechnen, vergleichen, damit rechnen |
-| 🔷 Formen | Figuren erkennen, Ecken und Seiten zählen, Spiegelachsen, Umfang, Körper |
+| 🔷 Formen | Figuren erkennen, Puzzleteile zuordnen, Ecken und Seiten zählen, Spiegelachsen, Umfang, Körper |
 | 📖 Sachaufgaben | Rechengeschichten mit einem und zwei Rechenschritten |
 | 🧩 Knobeln | Verdoppeln/Halbieren, gerade und ungerade, Muster, Zahlenrätsel |
 
@@ -33,6 +33,8 @@ von Hand setzen.
 
 - **Übungsrunden mit zehn Aufgaben**, sofortiger Rückmeldung und – bei einem
   Fehler – dem ausgeschriebenen Rechenweg.
+- **Bildauswahl** dort, wo die Antwort ein Bild ist – etwa beim Zuordnen von
+  Puzzleteilen; die Karten heißen A bis D wie im Heft.
 - **Zahlentastatur** statt Systemtastatur; auf dem Rechner funktionieren auch
   die Zifferntasten, Rücktaste und Enter.
 - **Zweischrittige Aufgaben**: Bei Rechentricks und Umkehraufgaben rechnet das

@@ -179,8 +179,12 @@ function zeichne(ziel, sitzung) {
     if (inVorstufe)
         karte.appendChild(el("span", { class: "aufgabe-thema", text: "Schritt 1 von 2" }));
     karte.appendChild(el("p", { class: "aufgabe-frage", text: schritt.frage }));
-    if (aufgabe.bild && !inVorstufe)
-        karte.appendChild(svgBild(aufgabe.bild.svg, aufgabe.bild.beschriftung));
+    if (aufgabe.bild && !inVorstufe) {
+        const bild = svgBild(aufgabe.bild.svg, aufgabe.bild.beschriftung);
+        if (aufgabe.bild.breit)
+            bild.classList.add("bild-breit");
+        karte.appendChild(bild);
+    }
     if (schritt.rechnung)
         karte.appendChild(el("p", { class: "aufgabe-rechnung", text: schritt.rechnung }));
     karte.appendChild(antwortbereich(ziel, sitzung, schritt));
@@ -250,6 +254,23 @@ function antwortbereich(ziel, sitzung, schritt) {
             }));
         }
         return knoepfe;
+    }
+    if (schritt.antwortfeld.art === "bildauswahl") {
+        const karten = el("div", { class: "bildauswahl" });
+        for (const option of schritt.antwortfeld.optionen) {
+            const gewaehlt = sitzung.beantwortet && sitzung.eingabe === option.kennung;
+            const istLoesung = sitzung.beantwortet && option.kennung === schritt.loesung;
+            const knopf = el("button", {
+                class: `bildkarte${istLoesung ? " bildkarte-richtig" : gewaehlt ? " bildkarte-falsch" : ""}`,
+                type: "button",
+                disabled: sitzung.beantwortet,
+                "aria-label": `${option.kennung}: ${option.beschriftung}`,
+                onclick: () => pruefe(ziel, sitzung, option.kennung),
+            }, el("span", { class: "bildkarte-name", text: option.kennung }));
+            knopf.insertBefore(svgBild(option.svg, option.beschriftung), knopf.firstChild);
+            karten.appendChild(knopf);
+        }
+        return karten;
     }
     const einheit = schritt.antwortfeld.einheit;
     const anzeige = el("div", { class: "eingabe-anzeige", "aria-live": "polite" }, el("span", { class: "eingabe-zahl", text: sitzung.eingabe || "?" }), einheit ? el("span", { class: "eingabe-einheit", text: einheit }) : null);

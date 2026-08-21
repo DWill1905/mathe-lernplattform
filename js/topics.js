@@ -13,8 +13,8 @@ export const THEMEN = [
         farbe: "blau",
         stufen: [
             "Vorgänger/Nachfolger, Zehner und Einer, größer/kleiner",
-            "Nachbarzehner, Zahlenfolgen, Zahl aus Zehnern und Einern",
-            "Zahlen ordnen, auf Zehner runden, Zahl zwischen zwei Zahlen",
+            "Nachbarzehner, Zahlenfolgen mit Pfeilschritten, Zahlenstrahl",
+            "Zahlen ordnen, runden, Mitte finden, Folgen mit wechselnden Schritten",
         ],
     },
     {
@@ -56,13 +56,13 @@ export const THEMEN = [
     {
         id: "mauern",
         titel: "Mauern & Räder",
-        kurz: "Zahlenmauern und Rechenräder",
+        kurz: "Zahlenmauern, Rechenkästen und Rechenräder",
         symbol: "🧱",
         farbe: "orange",
         stufen: [
-            "Zahlenmauer mit zwei Steinen, Rechenrad bis 20",
-            "Lücke unten in der Mauer, größere Räder",
-            "Mauern mit drei Grundsteinen bis 100",
+            "Zahlenmauer mit zwei Steinen, Rechenkasten, Rechenrad bis 20",
+            "Lücke unten in der Mauer, Kasten rückwärts, größere Räder",
+            "Mauern mit drei Grundsteinen und Kästen bis 100",
         ],
     },
     {
@@ -87,7 +87,7 @@ export const THEMEN = [
         kurz: "Euro und Cent, Bezahlen und Rückgeld",
         symbol: "💶",
         farbe: "gruen",
-        stufen: ["Münzen zusammenzählen", "Euro und Cent umrechnen", "Bezahlen und Rückgeld"],
+        stufen: ["Münzen zusammenzählen", "Euro und Cent umrechnen, Beträge passend legen", "Bezahlen, Rückgeld und Beträge zusammenstellen"],
     },
     {
         id: "uhrzeit",
@@ -111,7 +111,7 @@ export const THEMEN = [
         kurz: "Figuren erkennen, Ecken zählen, Symmetrie",
         symbol: "🔷",
         farbe: "lila",
-        stufen: ["Formen erkennen", "Ecken und Seiten zählen", "Spiegelachsen und Körper"],
+        stufen: ["Formen erkennen und Puzzleteile zuordnen", "Ecken und Seiten zählen, schwierigere Puzzleteile", "Spiegelachsen und Körper"],
     },
     {
         id: "sachaufgaben",

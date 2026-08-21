@@ -9,14 +9,62 @@
 
 import type { Rng } from "../random.js";
 import type { Aufgabe, Stufe } from "../types.js";
-import { rechenrad, zahlenmauer, type RadFeld } from "../figures.js";
+import { rechenkasten, rechenrad, zahlenmauer, type RadFeld } from "../figures.js";
 import { zahlfeld } from "./helpers.js";
 
 export function mauern(rng: Rng, stufe: Stufe): Aufgabe {
-  const radAufgabe = (): Aufgabe => (rng.chance(0.5) ? rad(rng, stufe) : radDifferenz(rng, stufe));
-  if (stufe === 1) return rng.chance(0.6) ? kleineMauer(rng, false) : radAufgabe();
-  if (stufe === 2) return rng.chance(0.6) ? kleineMauer(rng, true) : radAufgabe();
-  return rng.chance(0.65) ? grosseMauer(rng) : radAufgabe();
+  const wahl = rng.int(1, 3);
+  if (wahl === 1) return kasten(rng, stufe);
+  if (wahl === 2) return rng.chance(0.5) ? rad(rng, stufe) : radDifferenz(rng, stufe);
+  if (stufe === 1) return kleineMauer(rng, false);
+  if (stufe === 2) return kleineMauer(rng, true);
+  return grosseMauer(rng);
+}
+
+/** Verteilt eine Summe zufällig auf `teile` nicht-negative Summanden. */
+export function verteile(rng: Rng, summe: number, teile: number): number[] {
+  const schnitte = [0, summe];
+  for (let i = 0; i < teile - 1; i++) schnitte.push(rng.int(0, summe));
+  schnitte.sort((a, b) => a - b);
+  const werte: number[] = [];
+  for (let i = 0; i < teile; i++) werte.push(schnitte[i + 1]! - schnitte[i]!);
+  return werte;
+}
+
+/**
+ * Rechenkasten: Vier Zahlen stehen im Kasten, auf dem Fähnchen ihre Summe.
+ * Es fehlt entweder das Fähnchen (dann wird addiert) oder ein Feld (dann muss
+ * rückwärts gerechnet werden).
+ */
+function kasten(rng: Rng, stufe: Stufe): Aufgabe {
+  const summe = stufe === 1 ? rng.int(8, 20) : stufe === 2 ? rng.int(10, 20) : rng.int(20, 100);
+  const werte = verteile(rng, summe, 4);
+  const summeGesucht = stufe === 1 || (stufe === 3 && rng.chance(0.4));
+
+  if (summeGesucht) {
+    return {
+      typ: "mauern/kasten-summe",
+      frage: "Wie viel ist im Kasten zusammen? Die Zahl gehört auf das Fähnchen.",
+      bild: { svg: rechenkasten(werte, null), beschriftung: `Kasten mit den Zahlen ${werte.join(", ")}` },
+      antwortfeld: zahlfeld(),
+      loesung: String(summe),
+      tipp: "Zähle die vier Zahlen der Reihe nach zusammen.",
+      erklaerung: `${werte.join(" + ")} = ${summe}`,
+    };
+  }
+
+  const luecke = rng.int(0, 3);
+  const anzeige = werte.map((wert, i) => (i === luecke ? null : wert));
+  const bekannt = werte.filter((_, i) => i !== luecke);
+  return {
+    typ: "mauern/kasten-feld",
+    frage: "Auf dem Fähnchen steht, wie viel zusammen im Kasten ist. Welche Zahl fehlt?",
+    bild: { svg: rechenkasten(anzeige, summe), beschriftung: `Kasten mit der Gesamtzahl ${summe}` },
+    antwortfeld: zahlfeld(),
+    loesung: String(werte[luecke]),
+    tipp: "Zähle erst die sichtbaren Zahlen zusammen und vergleiche mit dem Fähnchen.",
+    erklaerung: `${bekannt.join(" + ")} = ${bekannt.reduce((a, b) => a + b, 0)}. Bis ${summe} fehlt ${werte[luecke]}.`,
+  };
 }
 
 /** Baut aus den Grundsteinen die komplette Mauer (unten → oben). */
