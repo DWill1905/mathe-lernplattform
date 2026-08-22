@@ -61,3 +61,35 @@ test("die Querformat-Regeln blenden Kopf und Navigation aus, statt Tasten zu sch
     "im Querformat muss die Kopfzeile weichen, nicht das Tastenfeld"
   );
 });
+
+/* -------------------------------------------------------------- Fokus */
+
+/**
+ * Wer die App mit der Tastatur bedient, muss jederzeit SEHEN, wo er steht.
+ *
+ * Der Fokusrahmen trug vorher nur an Knöpfen, Tasten, Eingabefeldern und
+ * Bildkarten die Markenfarbe; Themenkacheln, Navigation, Themenzeilen und die
+ * Steine einer Zahlenmauer bekamen den dünnen Browser-Standard, der auf dem
+ * dunklen Hintergrund kaum zu erkennen ist.
+ */
+test("es gibt einen sichtbaren Fokusrahmen für alles Fokussierbare", () => {
+  const global = CSS.match(/(^|\n)\s*:focus-visible\s*\{([^}]*)\}/);
+  assert.ok(global, "es fehlt eine allgemeine :focus-visible-Regel");
+  assert.match(global[2], /outline:\s*[23]px|outline:\s*[23]px\s+solid/, "der Rahmen ist zu dünn");
+  assert.ok(!/outline:\s*none|outline:\s*0\b/.test(global[2]), "der Rahmen darf nicht abgeschaltet werden");
+});
+
+/**
+ * Ein `outline: none` ohne Ersatz ist das klassische Barrierefreiheits-Loch:
+ * Der Fokus ist dann unsichtbar und die Seite mit der Tastatur unbedienbar.
+ */
+test("nirgends wird der Fokusrahmen ersatzlos abgeschaltet", () => {
+  const regeln = [...CSS.matchAll(/([^{}]+)\{([^{}]*)\}/g)];
+  for (const [, waehler, inhalt] of regeln) {
+    if (!/outline:\s*(none|0)\b/.test(inhalt)) continue;
+    assert.ok(
+      /box-shadow|border/.test(inhalt),
+      `„${waehler.trim()}“ schaltet den Fokusrahmen ab, ohne einen Ersatz zu setzen`
+    );
+  }
+});

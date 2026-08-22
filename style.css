@@ -90,6 +90,23 @@ body {
   text-align: center;
 }
 
+/*
+ * Ein sichtbarer Fokusrahmen für ALLES, was Fokus bekommen kann.
+ *
+ * Vorher trugen ihn nur Knöpfe, Tasten, Eingabefelder und Bildkarten. Die
+ * Themenkacheln, die Navigation, die Themenzeilen im Fortschritt und die
+ * Steine einer Zahlenmauer bekamen den dünnen Browser-Standard — der auf dem
+ * dunklen Hintergrund kaum zu sehen ist. Wer die App mit der Tastatur bedient,
+ * wusste dort schlicht nicht mehr, wo er gerade steht.
+ *
+ * `outline-offset` legt den Rahmen NEBEN das Element, nicht darauf: So bleibt
+ * er auch auf einer eingefärbten Kachel sichtbar.
+ */
+:focus-visible {
+  outline: 3px solid var(--haupt);
+  outline-offset: 2px;
+}
+
 .sprungmarke {
   position: absolute;
   left: -9999px;

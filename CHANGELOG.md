@@ -4,6 +4,20 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.25.2] – 2026-08-22
+
+### Behoben
+
+**Der Fokusrahmen fehlte auf der halben Seite.** Die Markenfarbe umrandete
+bisher nur Knöpfe, Tasten, Eingabefelder und Bildkarten. Themenkacheln,
+Navigation, die Themenzeilen im Fortschritt und die Steine einer Zahlenmauer
+bekamen den dünnen Browser-Standard — auf dem dunklen Hintergrund kaum zu
+erkennen. Wer die App mit der Tastatur bedient, wusste dort nicht mehr, wo er
+steht. Jetzt gilt eine Regel für alles Fokussierbare.
+
+Zwei Tests halten das fest: dass es die allgemeine Regel gibt und dass nirgends
+ein `outline: none` ohne Ersatz steht — das klassische Loch.
+
 ## [1.25.1] – 2026-08-22
 
 ### Behoben
