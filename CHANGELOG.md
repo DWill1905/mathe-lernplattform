@@ -4,6 +4,30 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.22.5] – 2026-08-22
+
+### Behoben
+
+**Bei hängender Verbindung blieb die Seite weiß.** Der Service Worker arbeitete
+strikt „Netz zuerst“ und wartete auf jede Antwort, so lange es dauerte. Ohne
+Netz ist das harmlos — `fetch()` scheitert dann sofort. Der schlimme Fall ist
+die HALB vorhandene Verbindung (Zug, schwaches WLAN, Anmeldeseite im Hotel):
+Da hängt die Anfrage, bis der Browser nach einer halben Minute aufgibt, und ein
+Kind sitzt vor einer weißen Seite, obwohl die ganze App längst auf dem Gerät
+liegt.
+
+Das Netz bekommt jetzt 2,5 Sekunden; danach springt der Vorrat ein und die
+frische Fassung wird im Hintergrund nachgelegt. Ein Serverfehler verdrängt den
+Vorrat ebenfalls nicht mehr.
+
+### Hinzugefügt
+
+**Der Service Worker wird jetzt wirklich ausgeführt.** Bisher prüfte
+`test/offline.test.js` nur seinen Quelltext. `test/sw-lauf.js` lädt ihn mit
+Attrappen für `self`, `caches` und `fetch` in Node; `test/serviceworker.test.js`
+spielt damit sechs Fälle durch — hängendes Netz, kein Netz, Serverfehler,
+tiefer Link ohne Vorrat, fremde Herkunft und Schreibzugriffe.
+
 ## [1.22.4] – 2026-08-22
 
 ### Behoben

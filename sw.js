@@ -94,26 +94,82 @@ function eigeneHerkunft(url) {
   }
 }
 
+/**
+ * So lange darf das Netz höchstens brauchen, bevor der Vorrat einspringt.
+ *
+ * „Network-First" hieß vorher: IMMER auf das Netz warten. Offline ist das kein
+ * Problem – `fetch()` scheitert dann sofort. Der schlimme Fall ist die halb
+ * vorhandene Verbindung (Zug, schwaches WLAN, Anmeldeseite im Hotel): Da hängt
+ * die Anfrage, bis der Browser nach einer halben Minute aufgibt, und ein Kind
+ * sitzt vor einer weißen Seite, obwohl alles längst auf dem Gerät liegt.
+ */
+const GEDULD_MS = 2500;
+
 self.addEventListener("fetch", (ereignis) => {
   const anfrage = ereignis.request;
   if (anfrage.method !== "GET" || !eigeneHerkunft(anfrage.url)) return;
-
-  ereignis.respondWith(
-    fetch(anfrage)
-      .then((antwort) => {
-        // Nur brauchbare Antworten in den Cache: Ein zwischengespeicherter 404
-        // oder 500 würde offline dauerhaft statt der Seite ausgeliefert.
-        if (antwort.ok && antwort.type === "basic") {
-          const kopie = antwort.clone();
-          caches
-            .open(CACHE)
-            .then((cache) => cache.put(anfrage, kopie))
-            .catch(() => undefined);
-        }
-        return antwort;
-      })
-      .catch(() =>
-        caches.match(anfrage).then((treffer) => treffer ?? caches.match("./index.html").then((s) => s ?? Response.error()))
-      )
-  );
+  ereignis.respondWith(antworte(ereignis, anfrage));
 });
+
+/**
+ * Frisch aus dem Netz, sonst aus dem Vorrat – aber nie länger wartend als
+ * `GEDULD_MS`, sofern es überhaupt einen Vorrat gibt.
+ */
+async function antworte(ereignis, anfrage) {
+  const vorrat = await caches.match(anfrage);
+  const ausDemNetz = holeUndLege(anfrage);
+
+  if (!vorrat) {
+    // Nichts auf dem Gerät: Es bleibt nur das Netz – und als letzter Ausweg
+    // die Startseite, damit ein tiefer Link nicht ins Nichts führt.
+    try {
+      return await ausDemNetz;
+    } catch {
+      return (await caches.match("./index.html")) ?? Response.error();
+    }
+  }
+
+  // Der Nachschlag läuft weiter, auch wenn wir gleich aus dem Vorrat
+  // antworten – beim nächsten Mal ist die Datei dann aktuell.
+  ereignis.waitUntil(ausDemNetz.catch(() => undefined));
+  try {
+    const antwort = await mitGeduld(ausDemNetz, GEDULD_MS);
+    // Ein 404 oder 500 ist schlechter als der Vorrat, den wir sicher haben.
+    return antwort.ok ? antwort : vorrat;
+  } catch {
+    return vorrat;
+  }
+}
+
+/** Holt eine Datei und legt eine brauchbare Antwort in den Vorrat. */
+function holeUndLege(anfrage) {
+  return fetch(anfrage).then((antwort) => {
+    // Nur brauchbare Antworten in den Cache: Ein zwischengespeicherter 404
+    // oder 500 würde offline dauerhaft statt der Seite ausgeliefert.
+    if (antwort.ok && antwort.type === "basic") {
+      const kopie = antwort.clone();
+      caches
+        .open(CACHE)
+        .then((cache) => cache.put(anfrage, kopie))
+        .catch(() => undefined);
+    }
+    return antwort;
+  });
+}
+
+/** Dasselbe Versprechen, aber mit Frist. */
+function mitGeduld(versprechen, ms) {
+  return new Promise((erfuellen, ablehnen) => {
+    const uhr = setTimeout(() => ablehnen(new Error("Das Netz braucht zu lange")), ms);
+    versprechen.then(
+      (wert) => {
+        clearTimeout(uhr);
+        erfuellen(wert);
+      },
+      (fehler) => {
+        clearTimeout(uhr);
+        ablehnen(fehler);
+      }
+    );
+  });
+}
