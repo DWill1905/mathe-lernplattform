@@ -4,6 +4,20 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.22.1] – 2026-08-22
+
+### Behoben
+
+**Das Puzzleteil deckte sich beim Bonus zu früh auf.** In der Puzzlerunde gibt
+es zu vielen Aufgaben die freiwillige Hilfsaufgabe. Wer sie antippte und
+beantwortete, sah sofort das Puzzleteil der LAUFENDEN Aufgabe — und zwar blass,
+so als wäre die Aufgabe falsch gerechnet worden. Grund: Die Anzeige fragte nur
+`beantwortet` ab, und das steht während des Bonus ebenfalls auf `true`.
+
+Die Entscheidung steckt jetzt in `puzzleStaende()` in `bilder.ts` — ohne
+DOM-Zugriff und deshalb direkt prüfbar. Zwei Tests halten fest, dass nie mehr
+Teile offen liegen, als Aufgaben wirklich beantwortet sind.
+
 ## [1.22.0] – 2026-08-22
 
 ### Hinzugefügt

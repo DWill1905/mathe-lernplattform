@@ -7,6 +7,7 @@ import {
   PUZZLE_TEILE,
   motivNamen,
   puzzleBild,
+  puzzleStaende,
   themenbild,
   themenbildKennungen,
   waehleMotiv,
@@ -152,5 +153,37 @@ test("das Erklärbild der Übung kann nicht auf null zusammenfallen", () => {
     const treffer = regel.match(/min-height:\s*(\d+)px/);
     assert.ok(treffer, "dem Erklärbild fehlt ein Mindestmaß");
     assert.ok(Number(treffer[1]) >= 40, `Mindestmaß ${treffer[1]}px ist zu klein zum Erkennen`);
+  }
+});
+
+/**
+ * Das Puzzleteil gehört zu SEINER Aufgabe. Die freiwillige Hilfsaufgabe wird
+ * davor gerechnet – deckte sie das Teil schon auf, stünde es blass da, bevor
+ * das Kind die eigentliche Aufgabe überhaupt gesehen hat.
+ */
+test("ein Puzzleteil deckt sich erst mit seiner eigenen Aufgabe auf", () => {
+  const ergebnisse = [true, false];
+  // Zwei Aufgaben beantwortet, die dritte läuft noch.
+  const laufend = puzzleStaende(2, false, ergebnisse);
+  assert.deepEqual(laufend.slice(0, 3), ["auf", "grau", "zu"]);
+  assert.ok(
+    laufend.every((t, i) => i >= 2 === (t === "zu")),
+    "alles ab der laufenden Aufgabe muss zugedeckt bleiben"
+  );
+
+  // Jetzt ist auch die dritte beantwortet – und zwar richtig.
+  const fertig = puzzleStaende(2, true, [...ergebnisse, true]);
+  assert.equal(fertig[2], "auf");
+});
+
+test("puzzleStaende deckt nie mehr Teile auf, als Aufgaben beantwortet sind", () => {
+  for (let index = 0; index <= PUZZLE_TEILE; index++) {
+    const stand = puzzleStaende(index, false, []);
+    assert.equal(
+      stand.filter((t) => t !== "zu").length,
+      index,
+      `bei Aufgabe ${index} sind zu viele oder zu wenige Teile offen`
+    );
+    assert.equal(stand.length, PUZZLE_TEILE);
   }
 });

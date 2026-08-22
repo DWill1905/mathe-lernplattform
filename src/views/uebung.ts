@@ -24,7 +24,13 @@ import {
   type MixEingabe,
 } from "../gamification.js";
 import { mulberry32, zufallsSeed } from "../random.js";
-import { PUZZLE_TEILE, puzzleBild, waehleMotiv, type Puzzle, type Teilstand } from "../bilder.js";
+import {
+  PUZZLE_TEILE,
+  puzzleBild,
+  puzzleStaende,
+  waehleMotiv,
+  type Puzzle,
+} from "../bilder.js";
 import { raeumeJubel, waehleJubel, zeigeJubel } from "../jubel.js";
 import { normalisiere, rechnungPasst } from "../antwort.js";
 import { gleicheAb } from "../sync.js";
@@ -524,11 +530,14 @@ function zeichne(ziel: HTMLElement, sitzung: Sitzung): void {
  * bleibt es blass. Ein fehlerfreies Puzzle ist am Ende also ganz klar.
  */
 function puzzlestreifen(sitzung: Sitzung, puzzle: Puzzle): HTMLElement {
-  const stand: Teilstand[] = [];
-  for (let i = 0; i < PUZZLE_TEILE; i++) {
-    const beantwortet = i < sitzung.index || (i === sitzung.index && sitzung.beantwortet);
-    stand.push(!beantwortet ? "zu" : sitzung.ergebnisse[i] === true ? "auf" : "grau");
-  }
+  // `phase` gehört zwingend dazu: Während der Bonusaufgabe steht `beantwortet`
+  // ebenfalls auf `true`, aber die eigentliche Aufgabe ist offen – das Teil
+  // wäre sonst schon blass, bevor das Kind sie überhaupt beantwortet hat.
+  const stand = puzzleStaende(
+    sitzung.index,
+    sitzung.beantwortet && sitzung.phase === "haupt",
+    sitzung.ergebnisse
+  );
   const offen = stand.filter((t) => t !== "zu").length;
   const rahmen = el(
     "div",
@@ -1079,8 +1088,8 @@ function zeichneErgebnis(ziel: HTMLElement, sitzung: Sitzung): void {
   }
 
   if (sitzung.puzzle) {
-    const stand: Teilstand[] = [];
-    for (let i = 0; i < PUZZLE_TEILE; i++) stand.push(sitzung.ergebnisse[i] ? "auf" : "grau");
+    // Am Ende sind alle Aufgaben durch – deshalb steht hier die volle Anzahl.
+    const stand = puzzleStaende(PUZZLE_TEILE, false, sitzung.ergebnisse);
     const alleRichtig = sitzung.ergebnisse.every((e) => e);
     karte.append(
       el("p", { class: "hinweis", text: `Dein Puzzle: ${sitzung.puzzle.name}` }),

@@ -274,6 +274,27 @@ const MOTIVE = [
 export const PUZZLE_SPALTEN = 4;
 export const PUZZLE_ZEILEN = 3;
 export const PUZZLE_TEILE = PUZZLE_SPALTEN * PUZZLE_ZEILEN;
+/**
+ * Zustand aller Puzzleteile einer Runde.
+ *
+ * Ein Teil gehört genau zu SEINER Aufgabe und deckt sich erst auf, wenn die
+ * beantwortet ist. Die freiwillige Hilfsaufgabe zählt dabei ausdrücklich
+ * NICHT: Sie wird vor der eigentlichen Antwort gerechnet, und ihr Ergebnis
+ * sagt nichts über das Teil aus. Wer das vermischt, gräbt dem Kind das Teil
+ * blass auf, bevor es die Aufgabe überhaupt gesehen hat.
+ *
+ * @param index Nummer der laufenden Aufgabe.
+ * @param aktuelleFertig Ist die LAUFENDE Aufgabe (nicht ihr Bonus) beantwortet?
+ * @param ergebnisse Richtig/falsch je bereits beantworteter Aufgabe.
+ */
+export function puzzleStaende(index, aktuelleFertig, ergebnisse, teile = PUZZLE_TEILE) {
+    const stand = [];
+    for (let i = 0; i < teile; i++) {
+        const beantwortet = i < index || (i === index && aktuelleFertig);
+        stand.push(!beantwortet ? "zu" : ergebnisse[i] === true ? "auf" : "grau");
+    }
+    return stand;
+}
 /** Wählt ein Motiv aus. */
 export function waehleMotiv(zahl) {
     const motiv = MOTIVE[Math.abs(Math.floor(zahl)) % MOTIVE.length];

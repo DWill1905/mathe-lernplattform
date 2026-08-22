@@ -14,7 +14,7 @@ import { el, svgBild } from "../dom.js";
 import { icon } from "../icons.js";
 import { ERFOLGE, lobText, schwerpunkte, merkeMeisterErgebnis, werteMixAus, werteRundeAus, zeitText, } from "../gamification.js";
 import { mulberry32, zufallsSeed } from "../random.js";
-import { PUZZLE_TEILE, puzzleBild, waehleMotiv } from "../bilder.js";
+import { PUZZLE_TEILE, puzzleBild, puzzleStaende, waehleMotiv, } from "../bilder.js";
 import { raeumeJubel, waehleJubel, zeigeJubel } from "../jubel.js";
 import { normalisiere, rechnungPasst } from "../antwort.js";
 import { gleicheAb } from "../sync.js";
@@ -333,11 +333,10 @@ function zeichne(ziel, sitzung) {
  * bleibt es blass. Ein fehlerfreies Puzzle ist am Ende also ganz klar.
  */
 function puzzlestreifen(sitzung, puzzle) {
-    const stand = [];
-    for (let i = 0; i < PUZZLE_TEILE; i++) {
-        const beantwortet = i < sitzung.index || (i === sitzung.index && sitzung.beantwortet);
-        stand.push(!beantwortet ? "zu" : sitzung.ergebnisse[i] === true ? "auf" : "grau");
-    }
+    // `phase` gehört zwingend dazu: Während der Bonusaufgabe steht `beantwortet`
+    // ebenfalls auf `true`, aber die eigentliche Aufgabe ist offen – das Teil
+    // wäre sonst schon blass, bevor das Kind sie überhaupt beantwortet hat.
+    const stand = puzzleStaende(sitzung.index, sitzung.beantwortet && sitzung.phase === "haupt", sitzung.ergebnisse);
     const offen = stand.filter((t) => t !== "zu").length;
     const rahmen = el("div", { class: `puzzle-rahmen${sitzung.beantwortet ? " frisch" : ""}` }, 
     // Kurz halten: „3 von 12 Teilen" brach neben dem Zähler auf zwei Zeilen
@@ -788,9 +787,8 @@ function zeichneErgebnis(ziel, sitzung) {
         karte.appendChild(el("p", { class: "ergebnis-herzen" }, icon("herz", "herz"), ` ${ergebnis.herzen} ${ergebnis.herzen === 1 ? "Hilfsaufgabe" : "Hilfsaufgaben"} selbst gelöst`));
     }
     if (sitzung.puzzle) {
-        const stand = [];
-        for (let i = 0; i < PUZZLE_TEILE; i++)
-            stand.push(sitzung.ergebnisse[i] ? "auf" : "grau");
+        // Am Ende sind alle Aufgaben durch – deshalb steht hier die volle Anzahl.
+        const stand = puzzleStaende(PUZZLE_TEILE, false, sitzung.ergebnisse);
         const alleRichtig = sitzung.ergebnisse.every((e) => e);
         karte.append(el("p", { class: "hinweis", text: `Dein Puzzle: ${sitzung.puzzle.name}` }), el("div", { class: "puzzle-rahmen puzzle-rahmen-gross" }, svgBild(puzzleBild(sitzung.puzzle, stand), `Fertiges Puzzle: ${sitzung.puzzle.name}`)), el("p", {
             class: alleRichtig ? "ergebnis-aufstieg" : "hinweis",
