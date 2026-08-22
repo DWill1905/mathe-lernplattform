@@ -2505,12 +2505,16 @@ body {
 
 /* Im Querformat ist die Höhe am knappsten. */
 @media (orientation: landscape) and (max-height: 520px) {
-  /* Quer bleibt die Karte zweispaltig (Frage links, Tasten rechts). Statt der
-     Flexspalte greift hier eine Höhengrenze – 26vh reichten nicht, gemessen
-     fehlten noch 75 px. */
+  /*
+   * Quer bleibt die Karte zweispaltig (Frage links, Tasten rechts). Die Höhe
+   * der Karte bestimmt dabei die HÖHERE der beiden Spalten – und das ist das
+   * Tastenfeld. Das Bild links darf deshalb deutlich höher sein als die 16vh,
+   * die hier zuerst standen: Damit schrumpfte eine zehnsteinige Zahlenmauer
+   * auf 7 px Ziffernhöhe und war nicht mehr lesbar.
+   */
   .karte-aufgabe .bild,
   .karte-aufgabe .bild svg {
-    max-height: 16vh;
+    max-height: 40vh;
   }
 
   .uebung-kopf-fuss .puzzle-rahmen {

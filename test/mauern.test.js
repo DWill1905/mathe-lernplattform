@@ -205,3 +205,89 @@ test("Ergänzen führt immer nur bis zum nächsten Zehner", () => {
     assert.ok(gefunden > 40, `Stufe ${stufe}: zu wenige Ergänzungsaufgaben gezogen`);
   }
 });
+
+/** Liest die Steine einer Zahlenmauer aus dem SVG, von unten nach oben. */
+function reihenAus(svg) {
+  const felder = [...svg.matchAll(/font-size="22">([\d?]+)</g)].map((t) => t[1]);
+  let unten = 0;
+  while (((unten + 1) * (unten + 2)) / 2 <= felder.length) unten++;
+  const reihen = [];
+  let k = 0;
+  for (let laenge = unten; laenge >= 1; laenge--) {
+    reihen.push(felder.slice(k, k + laenge));
+    k += laenge;
+  }
+  return reihen;
+}
+
+test("die Mauergrößen wachsen mit der Stufe – bis zu zehn Kästchen", () => {
+  const erwartet = { 1: new Set([3]), 2: new Set([6, 10]), 3: new Set([10]) };
+  for (const stufe of [1, 2, 3]) {
+    const rng = mulberry32(1200 + stufe);
+    const gesehen = new Map();
+    for (let i = 0; i < 2000; i++) {
+      const aufgabe = GENERATOREN.mauern(rng, stufe);
+      if (!aufgabe.typ.startsWith("mauern/mauer")) continue;
+      const steine = reihenAus(aufgabe.bild.svg).flat().length;
+      gesehen.set(steine, (gesehen.get(steine) ?? 0) + 1);
+    }
+    assert.deepEqual(
+      new Set(gesehen.keys()),
+      erwartet[stufe],
+      `Stufe ${stufe}: Größen ${[...gesehen.keys()].join(", ")}`
+    );
+    // Keine der vorkommenden Größen darf zur Randerscheinung werden.
+    const gesamt = [...gesehen.values()].reduce((a, b) => a + b, 0);
+    for (const [steine, anzahl] of gesehen) {
+      assert.ok(anzahl / gesamt >= 0.1, `Stufe ${stufe}: ${steine} Kästchen nur ${anzahl}/${gesamt}`);
+    }
+  }
+});
+
+/*
+ * Die tragende Eigenschaft jeder Zahlenmauer: Der fehlende Stein muss sich aus
+ * den SICHTBAREN Nachbarn ausrechnen lassen – entweder aus den beiden darunter
+ * oder aus dem darüber minus dem Nachbarn. Ohne das wäre die Aufgabe geraten.
+ */
+test("der fehlende Stein lässt sich immer eindeutig herleiten", () => {
+  for (const stufe of [1, 2, 3]) {
+    const rng = mulberry32(3300 + stufe);
+    let geprueft = 0;
+    for (let i = 0; i < 1500; i++) {
+      const aufgabe = GENERATOREN.mauern(rng, stufe);
+      if (!aufgabe.typ.startsWith("mauern/mauer")) continue;
+      const reihen = reihenAus(aufgabe.bild.svg);
+      geprueft++;
+
+      let ebene = -1;
+      let spalte = -1;
+      reihen.forEach((reihe, e) =>
+        reihe.forEach((wert, s) => {
+          if (wert === "?") {
+            ebene = e;
+            spalte = s;
+          }
+        })
+      );
+      assert.ok(ebene >= 0, "keine Lücke gefunden");
+
+      const unten = reihen[ebene - 1];
+      const oben = reihen[ebene + 1];
+      let hergeleitet = null;
+      if (unten) {
+        // Aus den beiden Steinen darunter.
+        hergeleitet = Number(unten[spalte]) + Number(unten[spalte + 1]);
+      } else if (oben) {
+        // Aus dem Stein darüber minus dem Nachbarn in derselben Reihe.
+        if (spalte > 0) hergeleitet = Number(oben[spalte - 1]) - Number(reihen[ebene][spalte - 1]);
+        else hergeleitet = Number(oben[spalte]) - Number(reihen[ebene][spalte + 1]);
+      }
+      assert.equal(
+        hergeleitet,
+        Number(aufgabe.loesung),
+        `Stufe ${stufe}: ${reihen.map((r) => r.join(" ")).join(" | ")} – Lösung ${aufgabe.loesung}`
+      );
+    }
+    assert.ok(geprueft > 200, `Stufe ${stufe}: nur ${geprueft} Mauern geprüft`);
+  }
+});

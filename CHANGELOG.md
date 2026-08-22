@@ -4,6 +4,48 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.16.0] – 2026-08-22
+
+### Geändert
+
+**Zahlenmauern gibt es jetzt bis zu zehn Kästchen.**
+Bisher hatte die Mauer auf Stufe 1 UND 2 nur zwei Grundsteine – also drei
+Kästchen. Erst auf Stufe 3 kamen sechs. Jetzt:
+
+| Stufe | Grundsteine | Kästchen |
+| --- | --- | --- |
+| 1 | 2 | 3 |
+| 2 | 3, in 30 % der Fälle 4 | 6 oder **10** |
+| 3 | 4 | **10** |
+
+Die große Mauer taucht auf Stufe 2 also schon auf, dort aber mit kleinen
+Zahlen – die Größe soll der Reiz sein, nicht die Rechnung.
+
+Dafür bauen die Mauern jetzt generisch (`mauerAufgabe()`): Die Stufe legt nur
+noch die Grundsteine fest, Bild, Tipp und Rechenweg entstehen daraus. Der
+Rechenweg zeigt die ganze Mauer von unten nach oben, z. B. „4, 10, 8, 12 →
+14, 18, 20 → 32, 38 → 70“.
+
+Nachgerechnet über je 4000 Ziehungen: Die Größen verteilen sich wie oben, die
+höchste vorkommende Zahl ist 81 – der Zahlenraum bis 100 bleibt also gewahrt.
+Und in 3020 von 3020 Fällen lässt sich der fehlende Stein aus den sichtbaren
+Nachbarn herleiten, egal wo die Lücke sitzt.
+
+Bei vier Grundsteinen ist die Spitze `a + 3b + 3c + d` – die inneren Steine
+zählen dreifach. Ihre Grenzen sind deshalb enger als die der äußeren, sonst
+verließe die Mauer den Zahlenraum.
+
+### Behoben
+
+**Im Querformat war die zehnsteinige Mauer unlesbar.** Die Höhengrenze für
+Erklärbilder lag dort bei 16vh; die Mauer schrumpfte damit auf 7 px
+Ziffernhöhe. Quer ist die Aufgabenkarte aber zweispaltig – ihre Höhe bestimmt
+das Tastenfeld rechts, nicht das Bild links. Die Grenze liegt jetzt bei 40vh,
+gemessen 17 px Ziffernhöhe, und der Platz reicht unverändert (54 px Luft).
+
+Zwei neue Tests: die Größenverteilung je Stufe und die Herleitbarkeit des
+fehlenden Steins. Beide gegen den alten Stand gegengeprüft.
+
 ## [1.15.0] – 2026-08-22
 
 ### Geändert

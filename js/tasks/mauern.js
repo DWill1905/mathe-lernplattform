@@ -14,11 +14,14 @@ export function mauern(rng, stufe) {
         return kasten(rng, stufe);
     if (wahl === 2)
         return rng.chance(0.5) ? rad(rng, stufe) : radDifferenz(rng, stufe);
+    // Stufe 1: 3 Kästchen, Stufe 2: 6, Stufe 3: 10. Auf Stufe 2 kommt die große
+    // Mauer gelegentlich schon mit kleinen Zahlen vor – die Größe soll dort der
+    // Reiz sein, nicht die Rechnung.
     if (stufe === 1)
-        return kleineMauer(rng, false);
+        return kleineMauer(rng, rng.chance(0.5));
     if (stufe === 2)
-        return kleineMauer(rng, true);
-    return grosseMauer(rng);
+        return rng.chance(0.3) ? mauerMitVier(rng, 6, 5) : mauerMitDrei(rng);
+    return mauerMitVier(rng, 12, 10);
 }
 /** Verteilt eine Summe zufällig auf `teile` nicht-negative Summanden. */
 export function verteile(rng, summe, teile) {
@@ -82,7 +85,7 @@ function mitLuecke(reihen, ebene, spalte) {
     const anzeige = reihen.map((reihe, i) => reihe.map((wert, s) => (i === ebene && s === spalte ? null : wert)));
     return { anzeige, loesung };
 }
-/** Mauer mit zwei Grundsteinen – gesucht ist der Deckstein oder ein Grundstein. */
+/** Mauer mit zwei Grundsteinen – drei Kästchen. */
 function kleineMauer(rng, lueckeUnten) {
     const a = rng.int(1, 10);
     const b = rng.int(1, 20 - a);
@@ -93,7 +96,7 @@ function kleineMauer(rng, lueckeUnten) {
     return {
         typ: lueckeUnten ? "mauern/mauer-unten" : "mauern/mauer-oben",
         frage: "Welche Zahl fehlt in der Zahlenmauer?",
-        bild: { svg: zahlenmauer(anzeige), beschriftung: "Zahlenmauer mit einem fehlenden Stein" },
+        bild: { svg: zahlenmauer(anzeige), beschriftung: "Zahlenmauer aus 3 Steinen, einer fehlt" },
         antwortfeld: zahlfeld(),
         loesung: String(loesung),
         tipp: lueckeUnten
@@ -104,25 +107,48 @@ function kleineMauer(rng, lueckeUnten) {
             : `${a} + ${b} = ${a + b}`,
     };
 }
-/** Mauer mit drei Grundsteinen, Lücke an beliebiger Stelle. */
-function grosseMauer(rng) {
-    const a = rng.int(1, 20);
-    const b = rng.int(1, 20);
-    const c = rng.int(1, 20);
-    const reihen = baueMauer([a, b, c]);
-    const ebene = rng.int(0, 2);
+/**
+ * Eine Zahlenmauer beliebiger Größe mit genau einer Lücke.
+ *
+ * Die Lücke darf überall sitzen: Weil nur EIN Stein fehlt, ist er immer
+ * eindeutig bestimmt – entweder aus den beiden Steinen darunter (Deckstein)
+ * oder aus dem Stein darüber minus dem Nachbarn (alle anderen).
+ */
+function mauerAufgabe(rng, grund, typ) {
+    const reihen = baueMauer(grund);
+    const ebene = rng.int(0, reihen.length - 1);
     const spalte = rng.int(0, reihen[ebene].length - 1);
     const { anzeige, loesung } = mitLuecke(reihen, ebene, spalte);
+    const steine = reihen.reduce((summe, reihe) => summe + reihe.length, 0);
     return {
-        typ: "mauern/mauer-gross",
+        typ,
         frage: "Welche Zahl fehlt in der Zahlenmauer?",
-        bild: { svg: zahlenmauer(anzeige), beschriftung: "Zahlenmauer mit einem fehlenden Stein" },
+        bild: {
+            svg: zahlenmauer(anzeige),
+            beschriftung: `Zahlenmauer aus ${steine} Steinen, einer fehlt`,
+        },
         antwortfeld: zahlfeld(),
         loesung: String(loesung),
-        tipp: "Jeder Stein ist die Summe der beiden Steine direkt darunter.",
-        erklaerung: `Von unten gerechnet: ${a} + ${b} = ${a + b} und ${b} + ${c} = ${b + c}, ` +
-            `oben steht ${a + 2 * b + c}. Der fehlende Stein ist ${loesung}.`,
+        tipp: ebene === 0
+            ? "Der Stein darüber ist die Summe der beiden darunter – rechne rückwärts."
+            : "Jeder Stein ist die Summe der beiden Steine direkt darunter.",
+        erklaerung: `Die Mauer von unten nach oben: ${reihen
+            .map((reihe) => reihe.join(", "))
+            .join(" → ")}. Der fehlende Stein ist ${loesung}.`,
     };
+}
+/** Mauer mit drei Grundsteinen – sechs Kästchen. */
+function mauerMitDrei(rng) {
+    return mauerAufgabe(rng, [rng.int(1, 20), rng.int(1, 20), rng.int(1, 20)], "mauern/mauer-gross");
+}
+/**
+ * Mauer mit vier Grundsteinen – zehn Kästchen. Die Spitze ist
+ * `a + 3b + 3c + d`; die inneren Steine zählen also dreifach. Deshalb sind
+ * ihre Grenzen enger, sonst verließe die Spitze den Zahlenraum bis 100.
+ */
+function mauerMitVier(rng, maxAussen, maxInnen) {
+    const grund = [rng.int(1, maxAussen), rng.int(1, maxInnen), rng.int(1, maxInnen), rng.int(1, maxAussen)];
+    return mauerAufgabe(rng, grund, "mauern/mauer-zehn");
 }
 /** Rechenrad: außen und innen ergeben zusammen immer die Zahl in der Mitte. */
 function rad(rng, stufe) {

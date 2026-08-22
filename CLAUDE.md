@@ -128,7 +128,14 @@ verwässern.
   aber streng bei Zahlen und Ergebnis; beim Plus zählt die vertauschte
   Reihenfolge mit.
 - **In einer Zahlenmauer fehlt immer genau ein Stein.** Nur dann ist er
-  eindeutig bestimmt, weil alle Nachbarn sichtbar bleiben. Ein Test prüft das.
+  eindeutig bestimmt: Entweder stehen die beiden Steine darunter da, oder der
+  Stein darüber und der Nachbar in derselben Reihe. Das gilt für JEDE Mauergröße
+  – `mauerAufgabe()` baut deshalb generisch, die Stufe legt nur die Anzahl der
+  Grundsteine fest (2 → 3 Kästchen, 3 → 6, 4 → 10). Zwei Tests prüfen die
+  Größenverteilung und dass sich der fehlende Stein wirklich herleiten lässt.
+- **Die Spitze einer Mauer wächst schnell**: Bei vier Grundsteinen ist sie
+  `a + 3b + 3c + d`, die inneren Steine zählen also dreifach. Deren Grenzen
+  müssen enger sein, sonst verlässt die Mauer den Zahlenraum bis 100.
 - **Rechenmeister und Puzzle sind Betriebsarten der Übungsansicht**, keine
   eigenen Dateien – sie haben aber je einen Eintrag in `ANSICHTEN`, damit die Routen
   `#/rechenmeister` und `#/puzzle` auch offline vorgeladen werden.

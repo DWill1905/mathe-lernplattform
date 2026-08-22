@@ -25,7 +25,7 @@ Dazu kommen zwei eigene Modi: **Puzzle** und **Rechenmeister**.
 | 💡 Rechentricks | Analogieaufgaben (3 + 4 → 30 + 40, 3 + 2 → 13 + 2), Nachbaraufgaben (7 + 7 → 7 + 8), plus/minus 10, Hunderter |
 | 💖 Hilfsaufgaben | Bei Rechentricks und Umkehraufgaben rechnet das Kind zuerst die Hilfsaufgabe selbst – das gibt ein Herz |
 | 👨‍👩‍👧‍👦 Aufgabenfamilien | „3 Zahlen, 4 Aufgaben“: Tausch- und Umkehraufgaben, Lücken in allen vier Formen |
-| 🧱 Mauern & Räder | Zahlenmauern mit fehlendem Stein, Rechenkästen mit Fähnchen, Rechenräder in zwei Formen |
+| 🧱 Mauern & Räder | Zahlenmauern (3, 6 oder 10 Steine) mit fehlendem Stein, Rechenkästen mit Fähnchen, Rechenräder in zwei Formen |
 | **Weitere Themen** | |
 | ✖️ Einmaleins | alle Reihen von 1 bis 10, Punktefelder, Umkehraufgaben |
 | ➗ Geteilt | Teilen ohne Rest, Aufgaben mit Rest |
