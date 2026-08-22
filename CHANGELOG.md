@@ -4,6 +4,22 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.26.4] – 2026-08-22
+
+### Behoben
+
+**Nach einer falschen Antwort war der Fokus weg.** Die Übung zeichnet dann neu,
+und `replaceChildren()` wirft den gerade angeklickten Knopf mitsamt Fokus weg.
+Der landete auf `<body>` — wer die App mit der Tastatur bedient, musste sich
+von ganz oben durch Sprungmarke, Kopfzeile und Navigation zurücktabben, um
+„Weiter“ zu erreichen. Ausgerechnet in dem Moment, in dem der Rechenweg erklärt
+wird.
+
+Der Fokus springt jetzt auf die Rückmeldung; „Weiter“ ist von dort der nächste
+Tabstopp. Bewusst NICHT auf den Knopf selbst: Ein Kind hält eine Taste gern
+länger gedrückt, und ein fokussierter Knopf löste bei der Tastenwiederholung
+sofort aus — die Erklärung wäre weg, bevor sie gelesen ist.
+
 ## [1.26.3] – 2026-08-22
 
 ### Behoben

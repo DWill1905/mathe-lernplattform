@@ -78,3 +78,32 @@ test("ein Bild ohne Beschriftung wird als Schmuck ausgeblendet", async () => {
   assert.equal(schmuck["class"], "bild");
   assert.equal(echt["class"], "bild");
 });
+
+/* ------------------------------------------------------- Fokus in der Übung */
+
+/**
+ * Nach einer falschen Antwort zeichnet die Übung neu — `replaceChildren()`
+ * wirft dabei den gerade angeklickten Knopf weg, und mit ihm den Fokus. Der
+ * landet auf `<body>`, und wer mit der Tastatur bedient, muss sich von ganz
+ * oben durch Sprungmarke, Kopfzeile und Navigation zurücktabben, um „Weiter“
+ * zu erreichen — ausgerechnet in dem Moment, in dem der Rechenweg erklärt wird.
+ *
+ * Ein echter Klicktest bräuchte einen Browser; geprüft wird deshalb, dass die
+ * Rückmeldung fokussierbar bleibt und der Fokus nach dem Neuzeichnen auch
+ * wirklich gesetzt wird.
+ */
+test("nach einer falschen Antwort bekommt die Rückmeldung den Fokus", () => {
+  const uebung = readFileSync(new URL("../js/views/uebung.js", import.meta.url), "utf8");
+
+  assert.match(
+    uebung,
+    /rueckmeldung rueckmeldung-falsch[\s\S]{0,120}tabindex:\s*"-1"/,
+    'die Rückmeldung braucht tabindex="-1", sonst nimmt sie den Fokus nicht an'
+  );
+  assert.match(
+    uebung,
+    /replaceChildren\(kopf, karte\);\s*setzeFokus\(\);/,
+    "der Fokus muss NACH dem Neuzeichnen gesetzt werden – vorher gibt es das Element noch gar nicht"
+  );
+  assert.match(uebung, /fokusZiel\s*=\s*kasten/, "die Rückmeldung meldet sich nicht als Fokusziel an");
+});

@@ -101,6 +101,28 @@ interface Sitzung {
 }
 
 /**
+ * Wohin der Fokus nach dem nächsten Neuzeichnen soll.
+ *
+ * `replaceChildren()` wirft den alten Baum weg – mit ihm den gerade
+ * angeklickten Knopf und damit den Fokus. Der landet dann auf `<body>`, und
+ * wer mit der Tastatur bedient, muss sich von ganz oben durch Sprungmarke,
+ * Kopfzeile und Navigation zurücktabben, um „Weiter" zu erreichen. Nach einer
+ * falschen Antwort ist das der Moment, in dem der Rechenweg erklärt wird.
+ *
+ * Der Fokus geht bewusst auf die RÜCKMELDUNG und nicht auf den Weiter-Knopf:
+ * Ein Kind hält eine Taste gern länger gedrückt, und ein fokussierter Knopf
+ * würde bei der Wiederholung sofort auslösen – die Erklärung wäre weg, bevor
+ * sie gelesen ist.
+ */
+let fokusZiel: HTMLElement | null = null;
+
+function setzeFokus(): void {
+  const ziel = fokusZiel;
+  fokusZiel = null;
+  ziel?.focus();
+}
+
+/**
  * Welche Aufgabe zuletzt vorgelesen wurde. Ohne diesen Merker läse die
  * automatische Vorlesehilfe bei JEDEM Neuzeichnen los – also bei jeder
  * getippten Ziffer.
@@ -543,6 +565,7 @@ function zeichne(ziel: HTMLElement, sitzung: Sitzung): void {
   if (sitzung.beantwortet) karte.appendChild(rueckmeldung(ziel, sitzung, schritt));
 
   ziel.replaceChildren(kopf, karte);
+  setzeFokus();
 }
 
 /**
@@ -1004,9 +1027,9 @@ function rueckmeldung(ziel: HTMLElement, sitzung: Sitzung, schritt: Schritt): HT
         );
   }
 
-  return el(
+  const kasten = el(
     "div",
-    { class: "rueckmeldung rueckmeldung-falsch", role: "status" },
+    { class: "rueckmeldung rueckmeldung-falsch", role: "status", tabindex: "-1" },
     el(
       "p",
       { class: "rueckmeldung-zeile" },
@@ -1028,6 +1051,10 @@ function rueckmeldung(ziel: HTMLElement, sitzung: Sitzung, schritt: Schritt): HT
       onclick: weiter,
     })
   );
+  // Von hier aus ist „Weiter" der nächste Tabstopp – statt einmal quer durch
+  // die ganze Seite.
+  fokusZiel = kasten;
+  return kasten;
 }
 
 function pruefe(ziel: HTMLElement, sitzung: Sitzung, antwort: string): void {

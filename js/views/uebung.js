@@ -25,6 +25,26 @@ import { THEMEN, istThemaId, thema } from "../topics.js";
 import { pfadTeile } from "../router.js";
 import { sterneAnzeige } from "./start.js";
 /**
+ * Wohin der Fokus nach dem nächsten Neuzeichnen soll.
+ *
+ * `replaceChildren()` wirft den alten Baum weg – mit ihm den gerade
+ * angeklickten Knopf und damit den Fokus. Der landet dann auf `<body>`, und
+ * wer mit der Tastatur bedient, muss sich von ganz oben durch Sprungmarke,
+ * Kopfzeile und Navigation zurücktabben, um „Weiter" zu erreichen. Nach einer
+ * falschen Antwort ist das der Moment, in dem der Rechenweg erklärt wird.
+ *
+ * Der Fokus geht bewusst auf die RÜCKMELDUNG und nicht auf den Weiter-Knopf:
+ * Ein Kind hält eine Taste gern länger gedrückt, und ein fokussierter Knopf
+ * würde bei der Wiederholung sofort auslösen – die Erklärung wäre weg, bevor
+ * sie gelesen ist.
+ */
+let fokusZiel = null;
+function setzeFokus() {
+    const ziel = fokusZiel;
+    fokusZiel = null;
+    ziel?.focus();
+}
+/**
  * Welche Aufgabe zuletzt vorgelesen wurde. Ohne diesen Merker läse die
  * automatische Vorlesehilfe bei JEDEM Neuzeichnen los – also bei jeder
  * getippten Ziffer.
@@ -342,6 +362,7 @@ function zeichne(ziel, sitzung) {
     if (sitzung.beantwortet)
         karte.appendChild(rueckmeldung(ziel, sitzung, schritt));
     ziel.replaceChildren(kopf, karte);
+    setzeFokus();
 }
 /**
  * Der Vorleseknopf.
@@ -726,7 +747,7 @@ function rueckmeldung(ziel, sitzung, schritt) {
             ? el("div", { class: "rueckmeldung rueckmeldung-herz", role: "status" }, icon("herz", "herz"), el("span", { text: "Richtig! Ein Herz für dich." }))
             : el("div", { class: "rueckmeldung rueckmeldung-richtig", role: "status" }, icon("haken", "rueckmeldung-symbol"), el("span", { text: "Richtig!" }));
     }
-    return el("div", { class: "rueckmeldung rueckmeldung-falsch", role: "status" }, el("p", { class: "rueckmeldung-zeile" }, icon("gedanke", "rueckmeldung-symbol"), 
+    const kasten = el("div", { class: "rueckmeldung rueckmeldung-falsch", role: "status", tabindex: "-1" }, el("p", { class: "rueckmeldung-zeile" }, icon("gedanke", "rueckmeldung-symbol"), 
     // Bei der Mauer stünde hier eine nackte Zahlenliste. Die richtigen Werte
     // stehen dort schon IN den falsch gefüllten Steinen.
     el("span", {
@@ -739,6 +760,10 @@ function rueckmeldung(ziel, sitzung, schritt) {
         text: inVorstufe ? "Weiter zur Aufgabe" : "Weiter",
         onclick: weiter,
     }));
+    // Von hier aus ist „Weiter" der nächste Tabstopp – statt einmal quer durch
+    // die ganze Seite.
+    fokusZiel = kasten;
+    return kasten;
 }
 function pruefe(ziel, sitzung, antwort) {
     const eintrag = sitzung.eintraege[sitzung.index];
