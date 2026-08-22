@@ -4,6 +4,29 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.23.0] – 2026-08-22
+
+### Hinzugefügt
+
+**Mehr Vielfalt in den kleinsten Stufen.** Ein Nachmessen des Aufgabenvorrats
+brachte zwei Stufen ans Licht, die kleiner waren als das Gedächtnis der App:
+Längen Stufe 1 hatte ganze **18** verschiedene Aufgaben (1–9 m in beide
+Richtungen), Uhrzeit Stufe 1 genau **24** (zwölf Stunden × voll/halb). Die App
+merkt sich aber die letzten 60 gestellten Aufgaben und geht ihnen aus dem Weg —
+bei so kleinen Vorräten stand dort bald alles auf der Merkliste, und ein Kind
+bekam dauerhaft dieselben Aufgaben.
+
+Beide Stufen haben jetzt eine zweite Aufgabenform, die im Rahmen der Stufe
+bleibt:
+
+- **Längen: zum Meter ergänzen.** „Das Band ist 60 cm lang. Wie viele
+  Zentimeter fehlen bis zu 1 m?“ — 18 → 94 Aufgaben.
+- **Uhrzeit: die Gegenrichtung.** „Welche Uhr zeigt 7:30 Uhr?“ mit vier
+  Zifferblättern zur Auswahl, wie im Heft. — 24 → 120 Aufgaben.
+
+Ein neuer Test misst den Vorrat jeder Stufe mit demselben Schlüssel, mit dem
+auch die App entscheidet, und verlangt mindestens drei volle Runden.
+
 ## [1.22.6] – 2026-08-22
 
 ### Behoben

@@ -299,7 +299,7 @@ function preisUnterschied(rng: Rng): Aufgabe {
 /* ============================================================== Uhrzeit */
 
 export function uhrzeit(rng: Rng, stufe: Stufe): Aufgabe {
-  if (stufe === 1) return uhrAblesen(rng, [0, 30]);
+  if (stufe === 1) return rng.chance(0.4) ? welcheUhr(rng, [0, 30]) : uhrAblesen(rng, [0, 30]);
   if (stufe === 2) return rng.chance(0.7) ? uhrAblesen(rng, [0, 15, 30, 45]) : sprechweise(rng);
   const wahl = rng.int(1, 3);
   if (wahl === 1) return zeitspanne(rng);
@@ -325,6 +325,51 @@ function uhrAblesen(rng: Rng, minuten: readonly number[]): Aufgabe {
     loesung: richtig,
     tipp: "Der kurze Zeiger zeigt die Stunde, der lange die Minuten.",
     erklaerung: `Der kleine Zeiger steht bei ${stunde}, der große bei ${minute === 0 ? 12 : minute / 5} – das sind ${minute} Minuten.`,
+  };
+}
+
+/**
+ * Die Gegenrichtung: Die Zeit steht da, gesucht ist die passende Uhr.
+ *
+ * Volle und halbe Stunden ergeben zusammen genau 24 verschiedene Zeiten – das
+ * war der ganze Vorrat der ersten Stufe, kleiner als das Gedächtnis der App
+ * (60 Schlüssel). Ein Kind bekam dort dauerhaft dieselben vierundzwanzig
+ * Aufgaben. Diese Form übt denselben Stoff aus der anderen Richtung, so wie
+ * das Heft es auch tut, und verdoppelt den Vorrat.
+ */
+function welcheUhr(rng: Rng, minuten: readonly number[]): Aufgabe {
+  const stunde = rng.int(1, 12);
+  const minute = rng.pick(minuten);
+
+  // Die Ablenker müssen sich WIRKLICH unterscheiden – zwei gleiche Zifferblätter
+  // wären nicht entscheidbar.
+  const zeiten: { stunde: number; minute: number }[] = [{ stunde, minute }];
+  for (let versuch = 0; versuch < 60 && zeiten.length < 4; versuch++) {
+    const kandidat = { stunde: rng.int(1, 12), minute: rng.pick(minuten) };
+    if (!zeiten.some((z) => z.stunde === kandidat.stunde && z.minute === kandidat.minute)) {
+      zeiten.push(kandidat);
+    }
+  }
+
+  const kennungen = ["A", "B", "C", "D"];
+  const gemischt = rng.shuffle(zeiten);
+  const optionen = gemischt.map((z, i) => ({
+    kennung: kennungen[i]!,
+    svg: uhr(z.stunde, z.minute),
+    beschriftung: `Uhr ${kennungen[i]}, zeigt ${uhrText(z.stunde, z.minute)} Uhr`,
+  }));
+  const loesung = kennungen[gemischt.findIndex((z) => z.stunde === stunde && z.minute === minute)]!;
+
+  return {
+    typ: "uhrzeit/uhr-finden",
+    frage: `Welche Uhr zeigt ${uhrText(stunde, minute)} Uhr?`,
+    antwortfeld: { art: "bildauswahl", optionen },
+    loesung,
+    tipp: "Schau zuerst auf den kurzen Zeiger – er zeigt die Stunde.",
+    erklaerung:
+      minute === 0
+        ? `Bei einer vollen Stunde steht der große Zeiger oben auf der 12.`
+        : `Bei einer halben Stunde steht der große Zeiger unten auf der 6.`,
   };
 }
 
@@ -406,7 +451,7 @@ function spaeter(rng: Rng): Aufgabe {
 /* =============================================================== Längen */
 
 export function laengen(rng: Rng, stufe: Stufe): Aufgabe {
-  if (stufe === 1) return rng.pick([meterInCm, cmInMeter])(rng);
+  if (stufe === 1) return rng.pick([meterInCm, cmInMeter, bisZumMeter, bisZumMeter])(rng);
   if (stufe === 2) return rng.pick([gemischtInCm, cmInMm, laengeVergleichen])(rng);
   return rng.pick([laengeRechnen, restLaenge, cmInMm])(rng);
 }
@@ -432,6 +477,31 @@ function cmInMeter(rng: Rng): Aufgabe {
     loesung: String(meter),
     tipp: "Je 100 cm ergeben 1 m.",
     erklaerung: `${meter * 100} cm : 100 = ${meter} m`,
+  };
+}
+
+/**
+ * Zum Meter ergänzen: „Das Band ist 60 cm lang. Wie viele Zentimeter fehlen
+ * bis zu 1 m?"
+ *
+ * Bleibt genau im Rahmen der Stufe („Meter in Zentimeter"), erweitert aber den
+ * Vorrat deutlich: Aus 1 m und 9 m mal zwei Richtungen ergaben sich vorher
+ * ganze 18 verschiedene Aufgaben. Bei 60 gemerkten Aufgabenschlüsseln hieß
+ * das: Ein Kind sah auf dieser Stufe dauerhaft dieselben achtzehn.
+ */
+const LANGE_DINGE: readonly string[] = ["Das Band", "Das Seil", "Die Schnur", "Die Leiste"];
+
+function bisZumMeter(rng: Rng): Aufgabe {
+  const ding = rng.pick(LANGE_DINGE);
+  const laenge = rng.int(1, 19) * 5;
+  const fehlt = 100 - laenge;
+  return {
+    typ: "laengen/bis-zum-meter",
+    frage: `${ding} ist ${laenge} cm lang. Wie viele Zentimeter fehlen bis zu 1 m?`,
+    antwortfeld: zahlfeld("cm"),
+    loesung: String(fehlt),
+    tipp: "1 m sind 100 cm – rechne von der Länge bis 100 hinauf.",
+    erklaerung: `100 cm − ${laenge} cm = ${fehlt} cm`,
   };
 }
 

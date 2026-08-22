@@ -28,3 +28,8 @@ Offene Ideen, grob nach Nutzen sortiert. Maßgeblich bleibt das Übungsheft der
 - Übungsrunden mit einstellbarer Länge (5 / 10 / 20 Aufgaben).
 - Export des Lernstands als JSON, damit ein Gerätewechsel möglich wird.
 - Mehr Vielfalt innerhalb der Heft-Themen (weitere Aufgabenvarianten je Stufe).
+  Gemessen mit `aufgabenSchluessel` ist der Vorrat dort am dünnsten:
+  Einmaleins (92 / 84 / 261), Geteilt (30 / 50), Knobeln Stufe 1 und 2
+  (97 / 124), Analogie Stufe 1 (105). Alles unter etwa 60 macht das
+  Aufgabengedächtnis wirkungslos, weil dann bald der ganze Vorrat auf der
+  Merkliste steht.

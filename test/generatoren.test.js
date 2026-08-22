@@ -3,7 +3,14 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { mulberry32 } from "../js/random.js";
-import { GENERATOREN, MIX_TOPF, RUNDENLAENGE, gemischteRunde, runde } from "../js/tasks/index.js";
+import {
+  GENERATOREN,
+  MIX_TOPF,
+  RUNDENLAENGE,
+  aufgabenSchluessel,
+  gemischteRunde,
+  runde,
+} from "../js/tasks/index.js";
 import { HEFT_THEMEN, THEMEN, WEITERE_THEMEN } from "../js/topics.js";
 import { NAMEN, wesfall } from "../js/tasks/helpers.js";
 
@@ -683,4 +690,42 @@ test("die Zahl der Auswahlmöglichkeiten schwankt innerhalb eines Typs nicht", (
         "da fällt ein Ablenker mit der Lösung zusammen"
     );
   }
+});
+
+/**
+ * Jede Stufe braucht deutlich mehr verschiedene Aufgaben als eine Runde lang
+ * ist – sonst nützt das Gedächtnis nichts.
+ *
+ * Die App merkt sich die Schlüssel der letzten 60 gestellten Aufgaben und geht
+ * ihnen bei der nächsten Ziehung aus dem Weg. Ist der Vorrat einer Stufe
+ * kleiner als dieses Gedächtnis, steht dort irgendwann ALLES auf der Merkliste
+ * und der Wunsch läuft dauerhaft ins Leere: Ein Kind bekommt immer wieder
+ * genau dieselben Aufgaben.
+ *
+ * Gemessen wird mit demselben Schlüssel, mit dem auch die App entscheidet
+ * (`aufgabenSchluessel`) – ein Test mit eigener Kennung misst sonst etwas
+ * anderes als die Anwendung.
+ */
+test("jede Stufe hat mehr verschiedene Aufgaben als eine Runde lang ist", () => {
+  // Untergrenze: drei volle Runden. Mehr wäre wünschenswert (siehe ROADMAP),
+  // weniger macht die Stufe nachweislich eintönig.
+  const MINDESTENS = 3 * RUNDENLAENGE;
+  const knapp = [];
+
+  for (const eintrag of THEMEN) {
+    for (const stufe of STUFEN) {
+      const rng = mulberry32(20260822 + stufe);
+      const menge = new Set();
+      for (let i = 0; i < 4000; i++) {
+        menge.add(aufgabenSchluessel(GENERATOREN[eintrag.id](rng, stufe)));
+      }
+      if (menge.size < MINDESTENS) knapp.push(`${eintrag.id} Stufe ${stufe}: nur ${menge.size}`);
+    }
+  }
+
+  assert.deepEqual(
+    knapp,
+    [],
+    `zu wenig verschiedene Aufgaben (mindestens ${MINDESTENS} nötig):\n  ${knapp.join("\n  ")}`
+  );
 });
