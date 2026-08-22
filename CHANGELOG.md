@@ -4,6 +4,48 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.13.0] – 2026-08-22
+
+### Geändert
+
+**Die Hilfsaufgabe kommt jetzt NACH der eigentlichen Aufgabe – und nur, wer
+will.**
+Bisher lief eine Aufgabe mit Hilfsaufgabe zwangsweise in zwei Schritten: erst
+die Hilfsaufgabe, dann die große. Das half nicht, denn wer „7 + 3“ rechnen
+soll, ohne „70 + 30“ gesehen zu haben, weiß gar nicht, wobei das helfen soll.
+
+Neuer Ablauf:
+
+1. Die **eigentliche Aufgabe** steht da, mit Tastenfeld – man kann sofort
+   antworten und fertig.
+2. Darunter, neben „Tipp anzeigen“, steht das Angebot **„Hilfsaufgabe selbst
+   rechnen“** mit einem Herz.
+3. Wer es antippt, sieht die kleine Hilfsaufgabe – und darüber weiterhin die
+   große Aufgabe („Dafür: 70 + 30 =“), damit der Zusammenhang sichtbar bleibt.
+4. Richtig gerechnet gibt es ein Herz und Extrapunkte; danach geht es zurück
+   zur Hauptaufgabe, mit dem Ergebnis der Hilfsaufgabe als Zeile darüber.
+5. Falsch gerechnet gibt es kein Herz, aber die richtige Hilfsaufgabe wird
+   trotzdem angezeigt – sie hilft ja weiter.
+
+Der Bonus zählt nie in die Trefferbilanz: Er ist freiwillig, also darf er die
+Runde weder retten noch verderben. Eine angefangene Eingabe der Hauptaufgabe
+wird geparkt und kommt zurück, wenn der Bonus vorbei ist.
+
+Weil die große Aufgabe jetzt vorne steht, sind die Fragetexte angepasst:
+„Und jetzt die große Aufgabe“, „Und jetzt die Nachbaraufgabe“ und „Und jetzt
+die Umkehraufgabe“ setzten alle einen Schritt davor voraus. Sie heißen jetzt
+schlicht „Wie lautet das Ergebnis?“.
+
+Ein neuer Test hält die Regel fest, die daraus folgt: **Eine Aufgabe mit
+Hilfsaufgabe muss auch ohne sie verständlich sein** – kein Rückbezug im Text,
+und die Rechnung selbst muss sichtbar sein. Gegengeprüft gegen die alten
+Texte, dort schlägt er an.
+
+Im Browser nachgespielt: mit Bonus (Herz kommt, Hilfsaufgabe steht danach als
+Zeile über der Aufgabe, Hauptaufgabe weiterhin normal wertbar), mit falschem
+Bonus (kein Herz, richtige Hilfsaufgabe wird gezeigt) und ganz ohne Bonus
+(direkt antworten, wird normal gewertet).
+
 ## [1.12.0] – 2026-08-22
 
 ### Geändert

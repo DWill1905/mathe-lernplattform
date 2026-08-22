@@ -2966,3 +2966,75 @@ body {
   hyphens: auto;
   hyphenate-limit-chars: 8 4 4;
 }
+
+/* ================================ Bonus: Hilfsaufgabe freiwillig rechnen */
+
+/*
+ * Die Hilfsaufgabe ist ein Angebot, keine Pflicht. Der Knopf steht deshalb
+ * unter dem Antwortbereich neben dem Tipp – nicht davor, wo er wie ein
+ * Pflichtschritt aussähe.
+ */
+.knopf-bonus {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.7rem;
+  border-color: color-mix(in srgb, var(--rot) 45%, var(--rand));
+  background: color-mix(in srgb, var(--rot) 10%, var(--karte));
+  color: var(--text);
+  font-weight: 700;
+}
+
+.knopf-bonus:hover {
+  background: color-mix(in srgb, var(--rot) 18%, var(--karte));
+}
+
+.knopf-bonus .herz-klein {
+  color: var(--rot);
+}
+
+.marke-bonus {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+  background: color-mix(in srgb, var(--rot) 16%, transparent);
+  color: var(--text);
+}
+
+.marke-bonus .herz-klein {
+  color: var(--rot);
+}
+
+/* Im Bonus steht die eigentliche Aufgabe blasser darüber – als Ziel, nicht
+   als Frage. */
+.hilfszeile-ziel {
+  background: color-mix(in srgb, var(--haupt) 10%, transparent);
+  color: var(--text-leise);
+  font-weight: 600;
+}
+
+/* Selbst gerechnet: die Zeile trägt ein Herz. */
+.hilfszeile-geschafft {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: color-mix(in srgb, var(--richtig) 16%, transparent);
+}
+
+.hilfszeile-geschafft .herz-klein {
+  color: var(--rot);
+}
+
+/*
+ * Die Aufgabenkarte ist seit 1.11.0 eine Flexspalte – darin werden
+ * `inline-block`-Elemente auf die volle Breite gezogen. Die Pillen sollen
+ * sich aber auf ihren Inhalt zusammenziehen.
+ */
+body.uebung-laeuft .karte-aufgabe > .hilfszeile,
+body.uebung-laeuft .karte-aufgabe > .marke,
+body.uebung-laeuft .karte-aufgabe > .aufgabe-thema,
+body.uebung-laeuft .karte-aufgabe > .knopf-bonus,
+body.uebung-laeuft .karte-aufgabe > .knopf-tipp {
+  align-self: center;
+}

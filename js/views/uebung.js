@@ -149,18 +149,35 @@ function neueSitzung(themaId, stufe, eintraege, meister = false, puzzle = null) 
         warRichtig: false,
         tippOffen: false,
         phase: "haupt",
+        bonusVersucht: false,
+        bonusRichtig: false,
+        hauptEingabe: "",
         herzen: 0,
     };
-    phaseSetzen(sitzung);
     return sitzung;
 }
 /**
- * Setzt den Schritt für die aktuelle Aufgabe. Im Rechenmeister wird die
- * Hilfsaufgabe übersprungen – dort läuft die Uhr.
+ * Setzt die nächste Aufgabe auf Anfang. Sie beginnt IMMER bei der eigentlichen
+ * Frage: Wer die Hilfsaufgabe rechnen soll, ohne die große Aufgabe gesehen zu
+ * haben, weiß gar nicht, wobei sie helfen soll.
  */
-function phaseSetzen(sitzung) {
+function aufgabeZuruecksetzen(sitzung) {
+    sitzung.phase = "haupt";
+    sitzung.bonusVersucht = false;
+    sitzung.bonusRichtig = false;
+    sitzung.hauptEingabe = "";
+    sitzung.tippOffen = false;
+}
+/** Darf für die aktuelle Aufgabe ein Bonus gerechnet werden? */
+function bonusMoeglich(sitzung) {
     const aufgabe = sitzung.eintraege[sitzung.index]?.aufgabe;
-    sitzung.phase = aufgabe?.vorstufe && !sitzung.meister ? "vorstufe" : "haupt";
+    // Im Rechenmeister nicht – dort läuft die Uhr. Und nicht, während der Bonus
+    // selbst gerade dran ist.
+    return (!!aufgabe?.vorstufe &&
+        !sitzung.meister &&
+        sitzung.phase === "haupt" &&
+        !sitzung.bonusVersucht &&
+        !sitzung.beantwortet);
 }
 function aktuellerSchritt(aufgabe, sitzung) {
     if (sitzung.phase === "vorstufe" && aufgabe.vorstufe) {
@@ -235,15 +252,18 @@ function zeichne(ziel, sitzung) {
     if (!sitzung.themaId && !inVorstufe) {
         karte.appendChild(el("span", { class: "aufgabe-thema" }, icon(thema(eintrag.thema).symbol, "aufgabe-thema-symbol"), thema(eintrag.thema).titel));
     }
-    // In der Hauptphase steht die selbst gerechnete Hilfsaufgabe als Hinweis darüber.
-    if (!inVorstufe && aufgabe.vorstufe) {
-        karte.appendChild(el("p", {
-            class: "hilfszeile",
-            text: `Hilfsaufgabe: ${aufgabe.vorstufe.rechnung} ${aufgabe.vorstufe.loesung}`,
-        }));
+    /*
+     * Im Bonus bleibt die EIGENTLICHE Aufgabe oben stehen. Vorher war sie
+     * verdeckt, solange die Hilfsaufgabe dran war – dann half sie aber nichts,
+     * weil niemand wusste, wobei sie helfen sollte.
+     */
+    if (inVorstufe) {
+        karte.append(el("span", { class: "marke marke-bonus" }, icon("herz", "herz-klein"), "Bonusaufgabe"), el("p", { class: "hilfszeile hilfszeile-ziel", text: `Dafür: ${aufgabe.rechnung ?? aufgabe.frage}` }));
     }
-    if (inVorstufe)
-        karte.appendChild(el("span", { class: "aufgabe-thema", text: "Schritt 1 von 2" }));
+    // Ist der Bonus gerechnet, steht sein Ergebnis über der Hauptaufgabe.
+    if (!inVorstufe && aufgabe.vorstufe && sitzung.bonusVersucht) {
+        karte.appendChild(el("p", { class: `hilfszeile${sitzung.bonusRichtig ? " hilfszeile-geschafft" : ""}` }, sitzung.bonusRichtig ? icon("herz", "herz-klein") : icon("gluehbirne", "tipp-symbol"), `Hilfsaufgabe: ${aufgabe.vorstufe.rechnung} ${aufgabe.vorstufe.loesung}`));
+    }
     karte.appendChild(el("p", { class: "aufgabe-frage", text: schritt.frage }));
     if (aufgabe.bild && !inVorstufe) {
         const bild = svgBild(aufgabe.bild.svg, aufgabe.bild.beschriftung);
@@ -254,6 +274,23 @@ function zeichne(ziel, sitzung) {
     if (schritt.rechnung)
         karte.appendChild(el("p", { class: "aufgabe-rechnung", text: schritt.rechnung }));
     karte.appendChild(antwortbereich(ziel, sitzung, schritt));
+    /*
+     * Der Bonus ist ein Angebot, keine Pflicht: Wer mag, rechnet die
+     * Hilfsaufgabe selbst und bekommt ein Herz dafür. Wer nicht mag, beantwortet
+     * einfach die eigentliche Aufgabe.
+     */
+    if (bonusMoeglich(sitzung) && aufgabe.vorstufe) {
+        karte.appendChild(el("button", {
+            class: "knopf knopf-klein knopf-bonus",
+            onclick: () => {
+                // Angefangene Eingabe der Hauptaufgabe parken, nicht wegwerfen.
+                sitzung.hauptEingabe = sitzung.eingabe;
+                sitzung.eingabe = "";
+                sitzung.phase = "vorstufe";
+                zeichne(ziel, sitzung);
+            },
+        }, icon("herz", "herz-klein"), "Hilfsaufgabe selbst rechnen"));
+    }
     if (aufgabe.tipp && !sitzung.beantwortet && !sitzung.meister && !inVorstufe) {
         karte.appendChild(sitzung.tippOffen
             ? el("p", { class: "tipp tipp-offen" }, icon("gluehbirne", "tipp-symbol"), aufgabe.tipp)
@@ -415,17 +452,18 @@ function antwortbereich(ziel, sitzung, schritt) {
 /* ---------------------------------------------------------- Rückmeldung */
 function rueckmeldung(ziel, sitzung, schritt) {
     const inVorstufe = sitzung.phase === "vorstufe";
-    /** Zum nächsten Schritt – entweder zur Hauptaufgabe oder zur nächsten Aufgabe. */
+    /** Zurück zur Hauptaufgabe (nach dem Bonus) oder weiter zur nächsten Aufgabe. */
     const weiter = () => {
-        sitzung.eingabe = "";
         sitzung.beantwortet = false;
         if (inVorstufe) {
+            // Die angefangene Eingabe der Hauptaufgabe kommt zurück.
             sitzung.phase = "haupt";
+            sitzung.eingabe = sitzung.hauptEingabe;
         }
         else {
+            sitzung.eingabe = "";
             sitzung.index++;
-            sitzung.tippOffen = false;
-            phaseSetzen(sitzung);
+            aufgabeZuruecksetzen(sitzung);
         }
         zeichne(ziel, sitzung);
     };
@@ -450,7 +488,10 @@ function pruefe(ziel, sitzung, antwort) {
     sitzung.beantwortet = true;
     sitzung.warRichtig = richtig;
     if (sitzung.phase === "vorstufe") {
-        // Die Hilfsaufgabe bringt ein Herz, zählt aber nicht in die Trefferbilanz.
+        // Der Bonus bringt ein Herz, zählt aber nicht in die Trefferbilanz – er
+        // ist freiwillig, also darf er die Runde weder retten noch verderben.
+        sitzung.bonusVersucht = true;
+        sitzung.bonusRichtig = richtig;
         if (richtig) {
             sitzung.herzen++;
             jubele(sitzung);

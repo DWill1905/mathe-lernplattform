@@ -7,7 +7,7 @@ import { zahlfeld } from "./helpers.js";
 /** Die Hilfsaufgabe, die das Kind zuerst selbst rechnet. */
 function hilfsaufgabe(a, zeichen, b, ergebnis) {
     return {
-        frage: "Rechne zuerst die Hilfsaufgabe.",
+        frage: "Rechne die kleine Hilfsaufgabe:",
         rechnung: `${a} ${zeichen} ${b} =`,
         loesung: String(ergebnis),
     };
@@ -56,7 +56,7 @@ function einerZuZehnern(rng, zeichen) {
     const gross = klein * 10;
     return {
         typ: "analogie/einer-zehner",
-        frage: "Und jetzt die große Aufgabe:",
+        frage: "Wie lautet das Ergebnis?",
         vorstufe: hilfsaufgabe(a, zeichen, b, klein),
         rechnung: `${a * 10} ${zeichen} ${b * 10} =`,
         antwortfeld: zahlfeld(),
@@ -83,7 +83,7 @@ function zehnerDavor(rng) {
     const zeichen = plus ? "+" : "−";
     return {
         typ: "analogie/zehner-davor",
-        frage: "Und jetzt die große Aufgabe:",
+        frage: "Wie lautet das Ergebnis?",
         vorstufe: hilfsaufgabe(a, zeichen, b, klein),
         rechnung: `${zehner + a} ${zeichen} ${b} =`,
         antwortfeld: zahlfeld(),
@@ -125,7 +125,7 @@ function hunderter(rng) {
         const b = 10 - a;
         return {
             typ: "analogie/hunderter",
-            frage: "Und jetzt die große Aufgabe:",
+            frage: "Wie lautet das Ergebnis?",
             vorstufe: hilfsaufgabe(a, "+", b, 10),
             rechnung: `${a * 10} + ${b * 10} =`,
             antwortfeld: zahlfeld(),
@@ -137,7 +137,7 @@ function hunderter(rng) {
     const b = rng.int(1, 9);
     return {
         typ: "analogie/hunderter",
-        frage: "Und jetzt die große Aufgabe:",
+        frage: "Wie lautet das Ergebnis?",
         vorstufe: hilfsaufgabe(10, "−", b, 10 - b),
         rechnung: `100 − ${b * 10} =`,
         antwortfeld: zahlfeld(),
@@ -202,7 +202,7 @@ function nachbarPlus(rng) {
     const loesung = a + partner;
     return {
         typ: "analogie/nachbar-plus",
-        frage: "Und jetzt die Nachbaraufgabe:",
+        frage: "Wie lautet das Ergebnis?",
         vorstufe: hilfsaufgabe(a, "+", a, doppelt),
         rechnung: `${a} + ${partner} =`,
         antwortfeld: zahlfeld(),
@@ -220,7 +220,7 @@ function nachbarMinus(rng) {
     const loesung = zahl - partner;
     return {
         typ: "analogie/nachbar-minus",
-        frage: "Und jetzt die Nachbaraufgabe:",
+        frage: "Wie lautet das Ergebnis?",
         vorstufe: hilfsaufgabe(zahl, "−", a, a),
         rechnung: `${zahl} − ${partner} =`,
         antwortfeld: zahlfeld(),
@@ -243,7 +243,7 @@ function mitUebergangDavor(rng) {
         const b = rng.int(11 - a, 9);
         return {
             typ: "analogie/uebergang-davor",
-            frage: "Und jetzt die große Aufgabe:",
+            frage: "Wie lautet das Ergebnis?",
             vorstufe: hilfsaufgabe(a, "+", b, a + b),
             rechnung: `${zehner + a} + ${b} =`,
             antwortfeld: zahlfeld(),
@@ -256,7 +256,7 @@ function mitUebergangDavor(rng) {
     const b = rng.int(a - 9, 9);
     return {
         typ: "analogie/uebergang-davor",
-        frage: "Und jetzt die große Aufgabe:",
+        frage: "Wie lautet das Ergebnis?",
         vorstufe: hilfsaufgabe(a, "−", b, a - b),
         rechnung: `${zehner + a} − ${b} =`,
         antwortfeld: zahlfeld(),

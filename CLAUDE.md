@@ -109,11 +109,15 @@ verwässern.
   und das Tastenfeld rutschte aus dem Bild. Im schmalen Querformat gilt das
   nicht – dort ist die Karte zweispaltig.
 
-- **Aufgaben mit `vorstufe` laufen in zwei Schritten.** `views/uebung.ts`
-  hält dafür `sitzung.phase`; `aktuellerSchritt()` entscheidet, was gerade
-  gefragt wird. Die Hilfsaufgabe zählt NICHT in die Trefferbilanz – sie bringt
-  ein Herz. Wer eine neue `vorstufe` ergänzt: Ihr Ergebnis muss im Zahlenraum
-  bleiben und darf nie negativ werden (Test in `test/mauern.test.js`).
+- **Die `vorstufe` ist ein freiwilliger Bonus, kein Pflichtschritt.** Eine
+  Aufgabe startet IMMER bei der eigentlichen Frage; erst wer „Hilfsaufgabe
+  selbst rechnen“ antippt, wechselt `sitzung.phase` auf `"vorstufe"`. Vorher
+  kam die Hilfsaufgabe zuerst – und half nicht, weil niemand wusste, wobei.
+  Daraus folgt: **Die Hauptfrage muss für sich allein verständlich sein**,
+  also kein „Und jetzt die große Aufgabe“ (Test in `generatoren.test.js`), und
+  sie braucht eine sichtbare Rechnung oder ein Bild. Die Hilfsaufgabe zählt
+  NICHT in die Trefferbilanz – sie bringt ein Herz. Ihr Ergebnis muss im
+  Zahlenraum bleiben und darf nie negativ werden (`test/mauern.test.js`).
 - **In einer Zahlenmauer fehlt immer genau ein Stein.** Nur dann ist er
   eindeutig bestimmt, weil alle Nachbarn sichtbar bleiben. Ein Test prüft das.
 - **Rechenmeister und Puzzle sind Betriebsarten der Übungsansicht**, keine

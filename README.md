@@ -57,6 +57,9 @@ von Hand setzen.
   kommen häufiger dran – und verschwinden wieder aus der Wiederholung, sobald
   sie sitzen.
 - **Tipps** zu jeder Aufgabe, die das Kind selbst aufklappen kann.
+- **Hilfsaufgabe als Bonus**: Bei Rechentricks und Umkehraufgaben steht die
+  eigentliche Aufgabe da – wer mag, rechnet die kleine Hilfsaufgabe selbst und
+  bekommt ein Herz dafür. Wer nicht mag, antwortet einfach direkt.
 - **Gemischtes Training** über alle Themen hinweg.
 - **Puzzle**: Hinter zwölf Teilen versteckt sich ein Bild. Jede richtig
   gerechnete Aufgabe deckt ein Teil auf – am Ende ist das ganze Bild zu sehen.

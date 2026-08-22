@@ -356,3 +356,36 @@ test("der Wesfall eines Namens ist deutsch richtig", () => {
     }
   }
 });
+
+/*
+ * Die Hilfsaufgabe ist seit 1.13.0 freiwillig: Die eigentliche Aufgabe steht
+ * VORNE, der Bonus ist ein Angebot. Damit das aufgeht, muss die Hauptfrage
+ * für sich allein verständlich sein – Formulierungen wie „Und jetzt die große
+ * Aufgabe“ setzten voraus, dass vorher schon etwas dran war.
+ */
+test("Aufgaben mit Hilfsaufgabe sind auch ohne sie verständlich", () => {
+  const rueckbezug = /^(und |dann |danach |jetzt )|und jetzt|wie eben|von eben/i;
+  for (const t of THEMEN) {
+    for (const stufe of [1, 2, 3]) {
+      const rng = mulberry32(600 + stufe);
+      for (let i = 0; i < 400; i++) {
+        const aufgabe = GENERATOREN[t.id](rng, stufe);
+        if (!aufgabe.vorstufe) continue;
+        assert.ok(
+          !rueckbezug.test(aufgabe.frage.trim()),
+          `${t.id} Stufe ${stufe}: „${aufgabe.frage}“ bezieht sich auf einen Schritt davor`
+        );
+        // Ohne sichtbare Rechnung stünde da nur eine Frage ohne Zahlen.
+        assert.ok(
+          aufgabe.rechnung || aufgabe.bild,
+          `${t.id} Stufe ${stufe}: „${aufgabe.frage}“ zeigt die Aufgabe selbst nicht`
+        );
+        // Und die Hilfsaufgabe muss eine eigene, sichtbare Rechnung haben.
+        assert.ok(
+          aufgabe.vorstufe.rechnung && /\d/.test(aufgabe.vorstufe.rechnung),
+          `${t.id} Stufe ${stufe}: Hilfsaufgabe ohne Rechnung`
+        );
+      }
+    }
+  }
+});
