@@ -4,6 +4,23 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.22.6] – 2026-08-22
+
+### Behoben
+
+**„Wie spät ist es in 20 Minuten?“ bot meist nur drei Antworten statt vier.**
+Einer der Ablenker bildete den klassischen Fehler ab, die Stunde beim Übertrag
+zu vergessen. Läuft die Zeit aber gar nicht über die volle Stunde, IST das die
+richtige Antwort — der Ablenker fiel dann still weg. Gemessen betraf das gut
+drei Viertel aller Ziehungen; ein Kind riet dort gegen drei statt gegen vier
+Möglichkeiten.
+
+Ein vierter Ablenker steht jetzt bereit, und was mit der Lösung zusammenfällt,
+fliegt ausdrücklich vorher heraus. Ein neuer Test hält die ganze Fehlerklasse
+fest: Die Zahl der Auswahlmöglichkeiten darf innerhalb eines Aufgabentyps auf
+einer Stufe nicht schwanken — sie tut es nur, wenn ein Ablenker mit der Lösung
+kollidiert.
+
 ## [1.22.5] – 2026-08-22
 
 ### Behoben

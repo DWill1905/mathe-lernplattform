@@ -639,3 +639,48 @@ test("die Geld-Beziehungskette lässt sich aus ihrem eigenen Text lösen", () =>
   assert.ok(geprueft > 80, `zu wenige Beziehungsketten geprüft: ${geprueft}`);
   assert.ok(gemischt > 20, `die Sätze stehen fast immer schon in Rechenreihenfolge (${gemischt}) – die Aufgabe hat dann keine Hürde`);
 });
+
+/**
+ * Die Zahl der Auswahlmöglichkeiten darf innerhalb eines Aufgabentyps nicht
+ * schwanken.
+ *
+ * Schwankt sie, ist ein Ablenker mit der Lösung zusammengefallen und still
+ * weggefallen – das Kind rät dann mal gegen drei, mal gegen vier
+ * Möglichkeiten. Genau das war bei „Wie spät ist es in 20 Minuten?“ der Fall:
+ * Ohne Stundenübertrag WAR der Ablenker „Stunde vergessen“ die richtige
+ * Antwort, und in gut drei Vierteln aller Ziehungen blieben nur drei
+ * Möglichkeiten übrig.
+ */
+test("die Zahl der Auswahlmöglichkeiten schwankt innerhalb eines Typs nicht", () => {
+  const gesehen = new Map();
+  for (const eintrag of THEMEN) {
+    for (const stufe of STUFEN) {
+      const rng = mulberry32(4242 + stufe);
+      for (let i = 0; i < 400; i++) {
+        const aufgabe = GENERATOREN[eintrag.id](rng, stufe);
+        if (aufgabe.antwortfeld.art !== "auswahl") continue;
+        // Der Schlüssel enthält die Stufe: Ein Typ DARF auf Stufe 3 mehr
+        // Möglichkeiten anbieten als auf Stufe 1.
+        const schluessel = `${aufgabe.typ} (Stufe ${stufe})`;
+        if (!gesehen.has(schluessel)) gesehen.set(schluessel, new Map());
+        const zaehler = gesehen.get(schluessel);
+        const anzahl = aufgabe.antwortfeld.optionen.length;
+        zaehler.set(anzahl, (zaehler.get(anzahl) ?? 0) + 1);
+      }
+    }
+  }
+
+  assert.ok(gesehen.size > 0, "keine einzige Auswahlaufgabe gezogen – der Test misst nichts");
+  for (const [schluessel, zaehler] of gesehen) {
+    const verteilung = [...zaehler]
+      .sort((a, b) => a[0] - b[0])
+      .map(([anzahl, wie_oft]) => `${anzahl} Möglichkeiten: ${wie_oft}×`)
+      .join(", ");
+    assert.equal(
+      zaehler.size,
+      1,
+      `${schluessel} bietet mal so, mal so viele Möglichkeiten (${verteilung}) – ` +
+        "da fällt ein Ablenker mit der Lösung zusammen"
+    );
+  }
+});

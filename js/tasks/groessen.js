@@ -356,11 +356,20 @@ function spaeter(rng) {
     const endStunde = Math.floor(gesamt / 60);
     const endMinute = gesamt % 60;
     const richtig = uhrText(endStunde, endMinute);
+    /*
+     * Der erste Ablenker bildet den klassischen Fehler ab: die Stunde vergessen,
+     * obwohl die Zeit über die volle Stunde hinausläuft. Ohne diesen Übertrag
+     * IST er aber die richtige Antwort — dann fiel er weg und die Aufgabe hatte
+     * nur noch drei Möglichkeiten (in gut drei Vierteln aller Ziehungen). Deshalb
+     * steht ein vierter bereit, und was mit der Lösung zusammenfällt, fliegt
+     * ausdrücklich vorher heraus.
+     */
     const ablenker = [
-        uhrText(endStunde, (endMinute + 10) % 60),
         uhrText(stunde, (startMinute + dauer) % 60),
+        uhrText(endStunde, (endMinute + 10) % 60),
+        uhrText(endStunde, (endMinute + 50) % 60),
         uhrText(endStunde + 1 > 12 ? 1 : endStunde + 1, endMinute),
-    ];
+    ].filter((zeit) => zeit !== richtig);
     return {
         typ: "uhrzeit/spaeter",
         frage: `Es ist ${uhrText(stunde, startMinute)} Uhr. Wie spät ist es in ${dauer} Minuten?`,
