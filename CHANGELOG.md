@@ -4,6 +4,26 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.25.3] – 2026-08-22
+
+### Entfernt
+
+**Fünf Exporte ohne einen einzigen Benutzer.** `tsc` merkt eine ungenutzte
+lokale Variable an, einen ungenutzten EXPORT aber nie — er könnte ja von außen
+gebraucht werden. Dieses „außen“ gibt es hier nicht, und so hatte sich stiller
+Ballast angesammelt:
+
+- `Muenze` (`figures.ts`) — eine Schnittstelle, die nirgends vorkam und
+  obendrein falsch beschrieb, was `geldbild()` entgegennimmt (nämlich eine
+  Liste von Cent-Beträgen).
+- `geheZu()` (`router.ts`), `themaFortschritt()` (`state.ts`),
+  `themaTitel()` (`gamification.ts`) — alle drei nie aufgerufen.
+- `anhaengen()` (`dom.ts`) ist jetzt modulintern statt exportiert.
+
+Ballast ist nicht nur Gewicht: Er wird mitgepflegt, mitgelesen und mitgeprüft,
+und beim Lesen sieht er aus wie eine benutzte Schnittstelle.
+`test/totercode.test.js` hält das ab jetzt fest.
+
 ## [1.25.2] – 2026-08-22
 
 ### Behoben

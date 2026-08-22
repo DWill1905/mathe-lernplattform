@@ -45,6 +45,7 @@ function zeiger(mitte, winkel, laenge, breite, klasse) {
     const y = mitte + Math.sin(winkel) * laenge;
     return `<line x1="${mitte}" y1="${mitte}" x2="${r(x)}" y2="${r(y)}" class="${klasse}" stroke-width="${breite}" stroke-linecap="round"/>`;
 }
+/* ---------------------------------------------------------------- Geld */
 /** Reihe aus Münzen und Scheinen. Werte in Cent. */
 export function geldbild(werte) {
     const proReihe = 5;

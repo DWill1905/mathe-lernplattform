@@ -32,7 +32,8 @@ export function el(tag, props = {}, ...kinder) {
     anhaengen(node, kinder);
     return node;
 }
-export function anhaengen(ziel, kinder) {
+/** Kinder anhängen – nur innerhalb dieses Moduls gebraucht. */
+function anhaengen(ziel, kinder) {
     for (const kind of kinder) {
         if (kind === null || kind === undefined || kind === false)
             continue;

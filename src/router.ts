@@ -11,10 +11,6 @@ export function pfadTeile(): string[] {
   return roh.split("/").filter((teil) => teil.length > 0);
 }
 
-export function geheZu(pfad: string): void {
-  location.hash = pfad.startsWith("#") ? pfad : `#/${pfad}`;
-}
-
 export function starteRouter(ziel: HTMLElement, aufloesen: (teile: string[]) => RouteHandler): void {
   let laufendeNummer = 0;
 

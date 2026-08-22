@@ -47,7 +47,8 @@ export function el<K extends keyof HTMLElementTagNameMap>(
   return node;
 }
 
-export function anhaengen(ziel: Node, kinder: Kind[]): void {
+/** Kinder anhängen – nur innerhalb dieses Moduls gebraucht. */
+function anhaengen(ziel: Node, kinder: Kind[]): void {
   for (const kind of kinder) {
     if (kind === null || kind === undefined || kind === false) continue;
     ziel.appendChild(typeof kind === "object" ? kind : document.createTextNode(String(kind)));

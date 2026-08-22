@@ -1,6 +1,6 @@
 {
   "name": "mathe-lernplattform",
-  "version": "1.25.2",
+  "version": "1.25.3",
   "description": "Interaktive Lernplattform für Mathematik in der 2. Klasse",
   "private": true,
   "type": "module",

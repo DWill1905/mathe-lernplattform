@@ -7,9 +7,6 @@ export function pfadTeile() {
     const roh = location.hash.replace(/^#\/?/, "");
     return roh.split("/").filter((teil) => teil.length > 0);
 }
-export function geheZu(pfad) {
-    location.hash = pfad.startsWith("#") ? pfad : `#/${pfad}`;
-}
 export function starteRouter(ziel, aufloesen) {
     let laufendeNummer = 0;
     const anzeigen = () => {

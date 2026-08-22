@@ -196,8 +196,4 @@ export function setzeZurueck() {
         // nichts zu tun
     }
 }
-/** Bequemer Zugriff, wenn nur ein einzelnes Thema gebraucht wird. */
-export function themaFortschritt(fortschritt, id) {
-    return fortschritt.themen[id] ?? leererThemaFortschritt();
-}
 export { istThemaId };

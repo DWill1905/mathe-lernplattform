@@ -3,7 +3,7 @@
  * gespeicherten Fortschritt berechnet – es gibt keinen zweiten Zustand.
  */
 import { heute, speichereFortschritt, tagesSchluessel } from "./state.js";
-import { HEFT_THEMEN, THEMEN, thema } from "./topics.js";
+import { HEFT_THEMEN, THEMEN } from "./topics.js";
 /* ================================================================ Level */
 const LEVEL_TITEL = [
     "Zahlen-Entdecker",
@@ -313,10 +313,6 @@ export function empfehlung(f) {
         }
     }
     return schwaechstes;
-}
-/** Titel eines Themas – kleine Bequemlichkeit für die Ansichten. */
-export function themaTitel(id) {
-    return thema(id).titel;
 }
 /**
  * Wertet eine gemischte Runde aus. Anders als eine Themenrunde verändert sie

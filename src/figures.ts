@@ -57,11 +57,6 @@ function zeiger(mitte: number, winkel: number, laenge: number, breite: number, k
 
 /* ---------------------------------------------------------------- Geld */
 
-export interface Muenze {
-  /** Wert in Cent. */
-  wert: number;
-}
-
 /** Reihe aus Münzen und Scheinen. Werte in Cent. */
 export function geldbild(werte: readonly number[]): string {
   const proReihe = 5;

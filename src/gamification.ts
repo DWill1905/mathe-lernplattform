@@ -4,7 +4,7 @@
  */
 
 import { heute, speichereFortschritt, tagesSchluessel } from "./state.js";
-import { HEFT_THEMEN, THEMEN, thema } from "./topics.js";
+import { HEFT_THEMEN, THEMEN } from "./topics.js";
 import type { Fortschritt, RundenErgebnis, Stufe, ThemaId } from "./types.js";
 
 /* ================================================================ Level */
@@ -363,11 +363,6 @@ export function empfehlung(f: Fortschritt): ThemaId {
     }
   }
   return schwaechstes;
-}
-
-/** Titel eines Themas – kleine Bequemlichkeit für die Ansichten. */
-export function themaTitel(id: ThemaId): string {
-  return thema(id).titel;
 }
 
 /* ==================================================== Gemischtes Training */
