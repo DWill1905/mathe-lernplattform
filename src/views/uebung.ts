@@ -27,6 +27,7 @@ import { mulberry32, zufallsSeed } from "../random.js";
 import { PUZZLE_TEILE, puzzleBild, waehleMotiv, type Puzzle, type Teilstand } from "../bilder.js";
 import { raeumeJubel, waehleJubel, zeigeJubel } from "../jubel.js";
 import { normalisiere, rechnungPasst } from "../antwort.js";
+import { gleicheAb } from "../sync.js";
 import { ladeFortschritt, merkeGestellteAufgaben } from "../state.js";
 import {
   MEISTERLAENGE,
@@ -1034,6 +1035,10 @@ function zeichneErgebnis(ziel: HTMLElement, sitzung: Sitzung): void {
     }
     ergebnis = werteMixAus(fortschritt, eingabe);
   }
+
+  // Nach jeder Runde mit den anderen Geräten abgleichen – im Hintergrund, das
+  // Ergebnis der Runde steht davon unabhängig schon auf dem Schirm.
+  void gleicheAb();
 
   const nochmal = (): void => {
     const wunsch = sitzung.puzzle ? "puzzle" : sitzung.meister ? "meister" : (sitzung.themaId ?? "mix");

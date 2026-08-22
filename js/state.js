@@ -88,17 +88,25 @@ function themaFortschrittAus(wert) {
     };
 }
 export function ladeFortschritt() {
-    const standard = standardFortschritt();
-    let roh;
     try {
         const text = localStorage.getItem(SCHLUESSEL);
         if (!text)
-            return standard;
-        roh = JSON.parse(text);
+            return standardFortschritt();
+        return pruefeFortschritt(JSON.parse(text));
     }
     catch {
-        return standard;
+        return standardFortschritt();
     }
+}
+/**
+ * Prüft einen Spielstand aus beliebiger Quelle und füllt fehlende Felder auf.
+ *
+ * Das gilt für den Browserspeicher genauso wie für Daten, die von einem
+ * anderen Gerät kommen (`sync.ts`): Beides ist von Hand veränderbar und
+ * deshalb ungeprüfte Eingabe.
+ */
+export function pruefeFortschritt(roh) {
+    const standard = standardFortschritt();
     if (typeof roh !== "object" || roh === null)
         return standard;
     const daten = roh;

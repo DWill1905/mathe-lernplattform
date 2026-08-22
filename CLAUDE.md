@@ -55,6 +55,12 @@ verwässern.
   deshalb direkt testbar.
 - `src/gamification.ts` – Punkte, Level, Sterne, Herzen, Streak, Abzeichen,
   Stufenanpassung.
+- `src/sync.ts` – die EINZIGE Stelle, die mit dem Netz spricht: optionale
+  Synchronisierung über einen Familien-Code, per reinem `fetch()` gegen zwei
+  Supabase-Datenbankfunktionen. Ohne eingetragene Zugangsdaten passiert nichts.
+  Die reinen Teile (Code, `verschmelze`) sind ohne Netz testbar; alle Netzaufrufe
+  nehmen ihr `fetch` als Parameter, damit Tests eine Gegenstelle im Speicher
+  unterschieben können. Einrichtung samt SQL: `README.md`.
 - `src/antwort.ts` – Vergleich von Antwort und Lösung, auch für selbst getippte
   Rechnungen. Ohne DOM-Zugriff, deshalb direkt testbar.
 - `src/bilder.ts` – farbige Illustrationen: ein Bild je Thema (die Navigation
@@ -74,6 +80,16 @@ verwässern.
   ausgelieferten Dateien; läuft als Teil von `npm run build`.
 
 ## Wichtigste Fallstricke
+
+- **Wer eine fremde Adresse anspricht, muss die CSP mitziehen.** `connect-src`
+  stand auf `'self'`; der Abgleich lief fehlerfrei durch, der Browser verwarf
+  die Anfrage aber still. Ein Test in `sicherheit.test.js` hält das fest.
+- **Beim Zusammenführen ist die Stufe KEIN Höchststand.** Sie sinkt absichtlich
+  (siehe `gamification.ts`) und kommt deshalb vom zuletzt benutzten Gerät –
+  genau wie Name, Streak und Fehlerbilanz. Nur Gesammeltes wird maximiert.
+- **Fremde Daten sind ungeprüfte Eingabe.** Alles, was von einem anderen Gerät
+  kommt, läuft durch `pruefeFortschritt()` – dieselbe Prüfung wie beim
+  Browserspeicher.
 
 - **Rechengeschichten: Rechenart in der Funktion, Geschichte im Pool daneben.**
   Eine neue Vorlage muss für JEDE Zahl aus dem Bereich ihrer Rechenart sinnvoll

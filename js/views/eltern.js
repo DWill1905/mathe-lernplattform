@@ -5,6 +5,7 @@
 import { el } from "../dom.js";
 import { SCHWERPUNKT_AB } from "../gamification.js";
 import { ladeFortschritt, setzeZurueck, speichereFortschritt } from "../state.js";
+import { eingerichtet, familienCode, gleicheAb, neuerFamilienCode, normalisiereCode, setzeFamilienCode, zuletztAbgeglichen, } from "../sync.js";
 import { THEMEN, istThemaId } from "../topics.js";
 /**
  * Kennungen, deren Präfix nicht wörtlich einer Themen-Id entspricht. Ohne
@@ -53,7 +54,7 @@ export const zeige = (ziel) => {
     }
     tabelle.appendChild(koerper);
     const uebersicht = el("section", { class: "karte" }, el("h2", { class: "abschnitt-titel", text: "Lernstand je Thema" }), el("div", { class: "tabelle-huelle" }, tabelle), el("details", {}, el("summary", { text: "Was wird in den Stufen geübt?" }), stufenErklaerung()));
-    ziel.replaceChildren(einleitung, uebersicht, fehlerkarte(fortschritt.fehler), einstellungen(fortschritt.name));
+    ziel.replaceChildren(einleitung, uebersicht, fehlerkarte(fortschritt.fehler), abgleichKarte(ziel), einstellungen(fortschritt.name));
 };
 function stufenWahl(id, aktuell) {
     const auswahl = el("select", { class: "auswahlfeld", "aria-label": "Stufe einstellen" });
@@ -141,6 +142,100 @@ function einstellungen(name) {
         class: "hinweis",
         text: "Beim Zurücksetzen werden Punkte, Sterne, Abzeichen und alle Statistiken gelöscht.",
     }), loeschen);
+    return karte;
+}
+/**
+ * Die Synchronisierung zwischen Geräten. Sie steht bewusst im Elternbereich:
+ * Einen Code erzeugen und übertragen ist Sache der Eltern, nicht des Kindes.
+ */
+function abgleichKarte(ziel) {
+    const karte = el("section", { class: "karte" }, el("h2", { class: "abschnitt-titel", text: "Auf mehreren Geräten" }));
+    const neu = () => {
+        void zeige(ziel, []);
+    };
+    if (!eingerichtet()) {
+        karte.appendChild(el("p", {
+            class: "fliesstext",
+            text: "Noch nicht eingerichtet. Damit der Lernstand zwischen Tablet und Handy wandern kann, " +
+                "muss einmalig eine Gegenstelle eingetragen werden – wie das geht, steht in der " +
+                "README des Projekts unter „Auf mehreren Geräten“.",
+        }));
+        return karte;
+    }
+    const code = familienCode();
+    if (!code) {
+        const feld = el("input", {
+            class: "eingabe",
+            type: "text",
+            maxlength: "12",
+            autocapitalize: "characters",
+            placeholder: "Code vom anderen Gerät",
+            "aria-label": "Familiencode vom anderen Gerät",
+        });
+        const meldung = el("p", { class: "hinweis" });
+        karte.append(el("p", {
+            class: "fliesstext",
+            text: "Auf dem ERSTEN Gerät einen Code erzeugen, auf allen weiteren denselben Code eintippen. " +
+                "Danach gleichen sich die Geräte beim Start und nach jeder Runde ab.",
+        }), el("button", {
+            class: "knopf knopf-haupt",
+            type: "button",
+            text: "Code für dieses Gerät erzeugen",
+            onclick: () => {
+                setzeFamilienCode(neuerFamilienCode());
+                void gleicheAb();
+                neu();
+            },
+        }), el("p", { class: "hinweis", text: "oder einen vorhandenen Code eintippen:" }), el("form", {
+            class: "namensfeld-zeile",
+            onsubmit: (ereignis) => {
+                ereignis.preventDefault();
+                const geprueft = normalisiereCode(feld.value);
+                if (!geprueft) {
+                    meldung.textContent = "Das sind nicht acht gültige Zeichen.";
+                    return;
+                }
+                setzeFamilienCode(geprueft);
+                void gleicheAb().then(() => neu());
+                neu();
+            },
+        }, feld, el("button", { class: "knopf", type: "submit", text: "Verbinden" })), meldung);
+        return karte;
+    }
+    const zuletzt = zuletztAbgeglichen();
+    const meldung = el("p", { class: "hinweis" });
+    karte.append(el("p", { class: "fliesstext", text: "Dieses Gerät gehört zum Code:" }), el("p", { class: "familiencode", text: code.replace(/(.{4})(.{4})/, "$1-$2") }), el("p", {
+        class: "hinweis",
+        text: zuletzt
+            ? `Zuletzt abgeglichen: ${new Date(zuletzt).toLocaleString("de-DE")}`
+            : "Noch nicht abgeglichen.",
+    }), el("div", { class: "knopfzeile" }, el("button", {
+        class: "knopf",
+        type: "button",
+        text: "Jetzt abgleichen",
+        onclick: () => {
+            meldung.textContent = "Wird abgeglichen …";
+            void gleicheAb().then((ergebnis) => {
+                if (ergebnis.art === "fehler")
+                    meldung.textContent = `Das hat nicht geklappt: ${ergebnis.meldung}`;
+                else
+                    neu();
+            });
+        },
+    }), el("button", {
+        class: "knopf knopf-still",
+        type: "button",
+        text: "Dieses Gerät lösen",
+        onclick: () => {
+            setzeFamilienCode(null);
+            neu();
+        },
+    })), meldung, el("p", {
+        class: "fliesstext hinweis",
+        text: "Beim Abgleich werden gesammelte Punkte, Herzen, Sterne und Erfolge beider Geräte " +
+            "zusammengeführt – dabei geht nichts verloren. Stufe, Streak und Fehlerbilanz kommen von " +
+            "dem Gerät, auf dem zuletzt geübt wurde.",
+    }));
     return karte;
 }
 function hinweisZeigen(karte, text) {

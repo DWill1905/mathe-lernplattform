@@ -38,6 +38,7 @@ const KERN = [
   "./js/router.js",
   "./js/shell.js",
   "./js/state.js",
+  "./js/sync.js",
   "./js/tasks/analogie.js",
   "./js/tasks/familien.js",
   "./js/tasks/geometrie.js",

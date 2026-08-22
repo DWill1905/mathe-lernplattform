@@ -152,3 +152,97 @@ Vollständigkeit der Liste und die Installierbarkeit ab.
 Es gibt keinen Server und keine Netzwerkaufrufe. Alles, was gespeichert wird,
 steht unter dem Schlüssel `mathe2:fortschritt` im Browserspeicher des Geräts
 und lässt sich im Elternbereich vollständig löschen.
+
+## Auf mehreren Geräten
+
+Der Lernstand liegt normalerweise nur im Browser des jeweiligen Geräts. Wer auf
+Tablet **und** Handy üben möchte, kann eine Synchronisierung über einen
+**Familien-Code** einrichten: acht Zeichen, auf dem ersten Gerät erzeugt, auf
+allen weiteren eingetippt. Kein Konto, kein Passwort.
+
+Ohne Einrichtung ändert sich nichts — der Bereich im Elternteil sagt dann nur,
+dass es noch nicht eingerichtet ist.
+
+### 1. Supabase-Projekt anlegen
+
+Ein kostenloses Projekt auf [supabase.com](https://supabase.com) genügt. Im
+SQL-Editor einmal das hier ausführen:
+
+```sql
+create table stand (
+  code       text primary key,
+  daten      jsonb not null,
+  geaendert  timestamptz not null default now()
+);
+
+-- Kein direkter Tabellenzugriff: Ohne Code kommt niemand an eine Zeile.
+alter table stand enable row level security;
+
+create function hole_stand(p_code text)
+returns table (daten jsonb, geaendert timestamptz)
+language sql security definer set search_path = public as $$
+  select s.daten, s.geaendert from stand s where s.code = p_code;
+$$;
+
+create function speichere_stand(p_code text, p_daten jsonb)
+returns timestamptz
+language plpgsql security definer set search_path = public as $$
+declare zeitpunkt timestamptz := now();
+begin
+  insert into stand (code, daten, geaendert) values (p_code, p_daten, zeitpunkt)
+  on conflict (code) do update set daten = excluded.daten, geaendert = zeitpunkt;
+  return zeitpunkt;
+end;
+$$;
+
+grant execute on function hole_stand(text)            to anon;
+grant execute on function speichere_stand(text, jsonb) to anon;
+```
+
+Wichtig ist die Zeile `enable row level security` **ohne** weitere Regeln: Damit
+ist die Tabelle über die normale Schnittstelle gesperrt. Nur die beiden
+Funktionen kommen durch, und die verlangen beide den Code.
+
+### 2. Zugangsdaten eintragen
+
+In `src/sync.ts` die beiden Konstanten setzen (zu finden im Supabase-Projekt
+unter *Project Settings → API*), dann `npm run build`:
+
+```ts
+export const SUPABASE_URL = "https://xxxxxxxx.supabase.co";
+export const SUPABASE_ANON_KEY = "eyJ...";
+```
+
+Der `anon`-Schlüssel ist zur Veröffentlichung gedacht und schützt nichts — der
+Schutz liegt darin, dass es ohne Familien-Code keine Zeile gibt.
+
+Die Content-Security-Policy in `index.html` erlaubt `https://*.supabase.co`.
+Wer es enger mag, trägt dort statt des Platzhalters die eigene Projektadresse
+ein.
+
+### 3. Geräte verbinden
+
+Im Elternbereich auf dem ersten Gerät **„Code für dieses Gerät erzeugen"**, auf
+den weiteren denselben Code eintippen. Abgeglichen wird danach beim Start und
+nach jeder Runde.
+
+### Was beim Abgleich passiert
+
+Gesammeltes wird zusammengeführt und geht nie verloren: Punkte, Herzen, gelöste
+Puzzles, Erfolge, Sterne, beste Serien. Der aktuelle Stand — Name, Stufe,
+Streak, Fehlerbilanz — kommt von dem Gerät, auf dem zuletzt geübt wurde. Die
+Stufe gehört bewusst dazu und wird **nicht** als Höchststand geführt: Sie sinkt
+nach einer schwachen Runde absichtlich, damit ein alter Höchststand ein Kind
+nicht dauerhaft überfordert.
+
+Was das Verfahren nicht kann: Haben **beide** Geräte offline geübt, gehen ein
+paar gezählte Aufgaben verloren, weil sich ohne gemeinsamen Ausgangspunkt nicht
+mehr rekonstruieren lässt, wie viel jedes beigesteuert hat. Level und Erfolge
+bleiben dabei immer erhalten.
+
+### Datenschutz
+
+Mit eingerichteter Synchronisierung verlassen der eingetippte Vorname und die
+Lernzahlen das Gerät und liegen beim gewählten Anbieter. Ohne Einrichtung
+passiert das nicht. Wer die Verbindung löst, entfernt den Code vom Gerät — die
+Zeile beim Anbieter bleibt bestehen und muss dort gelöscht werden.

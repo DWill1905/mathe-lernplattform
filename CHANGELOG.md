@@ -4,6 +4,63 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.18.0] – 2026-08-22
+
+### Hinzugefügt
+
+**Geräteübergreifende Synchronisierung über einen Familien-Code.**
+Acht Zeichen, auf dem ersten Gerät erzeugt, auf allen weiteren eingetippt –
+kein Konto, kein Passwort. Für eine Kinder-App ist das die einzige Anmeldung,
+die ein Kind ohne Hilfe schafft. Abgeglichen wird beim Start und nach jeder
+Runde.
+
+**Ohne Einrichtung ändert sich nichts.** Die Zugangsdaten stehen als
+Platzhalter in `src/sync.ts`; solange sie nicht gesetzt sind, findet kein
+einziger Netzaufruf statt und der Elternbereich sagt nur, dass es noch nicht
+eingerichtet ist. Die Anleitung samt SQL steht in `README.md`.
+
+Zur Gegenstelle: Supabase, angesprochen über reines `fetch()` – keine neue
+Laufzeit-Abhängigkeit. Es gibt bewusst **keinen direkten Tabellenzugriff**,
+sondern zwei Datenbankfunktionen. Damit kann der öffentliche Schlüssel allein
+niemanden auflisten: Ohne Code gibt es keine Zeile. Der Code selbst benutzt
+`crypto.getRandomValues` – die einzige Stelle im Projekt mit echtem Zufall,
+denn `mulberry32` ist absichtlich vorhersagbar.
+
+**Wie zusammengeführt wird.** Gesammeltes wächst nur und wird maximiert:
+Punkte, Herzen, gelöste Puzzles, Erfolge, Sterne, beste Serien, gezählte
+Aufgaben. Der aktuelle Stand kommt vom zuletzt benutzten Gerät: Name, Streak,
+Fehlerbilanz – **und die Stufe**. Letzteres ist wichtig: Die Stufe sinkt nach
+einer schwachen Runde absichtlich, damit ein alter Höchststand ein Kind nicht
+dauerhaft überfordert. Mit dem Maximum zu verschmelzen hätte diese Entscheidung
+still ausgehebelt.
+
+Ehrlich zur Grenze des Verfahrens: Haben beide Geräte **offline** geübt, gehen
+ein paar gezählte Aufgaben verloren – ohne gemeinsamen Ausgangspunkt lässt sich
+nicht rekonstruieren, wie viel jedes beigesteuert hat. Level und Erfolge bleiben
+immer erhalten.
+
+### Behoben
+
+**Die eigene CSP hätte den Abgleich still scheitern lassen.** `connect-src`
+stand auf `'self'`; der Code lief fehlerfrei durch, der Browser verwarf die
+Anfrage aber. Aufgefallen ist das erst beim Durchspielen mit zwei echten
+Browser-Kontexten. `connect-src` erlaubt jetzt zusätzlich
+`https://*.supabase.co`, und ein Test hält fest, dass diese Erlaubnis da ist –
+und dass nicht versehentlich `*` oder eine unverschlüsselte Quelle
+dazukommt.
+
+### Geändert
+
+`ladeFortschritt()` benutzt jetzt eine ausgelagerte Prüfung
+`pruefeFortschritt()`. Daten von einem anderen Gerät laufen durch dieselbe
+Prüfung wie der Browserspeicher – beides ist von Hand veränderbar.
+
+18 neue Tests: Familiencode, alle Regeln der Zusammenführung einzeln, Reihenfolge-
+unabhängigkeit, Stabilität bei mehrfachem Abgleich, geprüfte Fremddaten,
+Serverfehler, und ein vollständiger Zwei-Geräte-Durchlauf gegen eine
+Gegenstelle im Speicher. Zusätzlich im Browser mit zwei getrennten Kontexten
+nachgespielt: Beide Geräte hatten danach denselben Stand.
+
 ## [1.17.0] – 2026-08-22
 
 ### Hinzugefügt

@@ -119,3 +119,33 @@ test("die Seite lädt keine fremden Ressourcen und spricht nicht mit dem Netz", 
   const paket = JSON.parse(readFileSync("package.json", "utf8"));
   assert.deepEqual(paket.dependencies ?? {}, {}, "eine Laufzeit-Abhängigkeit ist dazugekommen");
 });
+
+/*
+ * Die Synchronisierung spricht mit einer fremden Adresse – die CSP muss das
+ * erlauben, sonst scheitert sie STILL. Genau das ist beim Bauen passiert:
+ * Der Abgleich lief fehlerfrei durch, der Browser verwarf die Anfrage aber
+ * wegen `connect-src 'self'`, und nichts wurde übertragen.
+ */
+test("die CSP erlaubt genau die Gegenstelle der Synchronisierung – und nichts sonst", () => {
+  const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  const regel = html.match(/connect-src ([^;"]+)/);
+  assert.ok(regel, "es gibt keine connect-src-Regel");
+  const quellen = regel[1].trim().split(/\s+/);
+
+  assert.ok(quellen.includes("'self'"), "die eigene Herkunft muss erlaubt bleiben");
+  assert.ok(
+    quellen.some((q) => q === "https://*.supabase.co"),
+    "die Gegenstelle der Synchronisierung fehlt – der Abgleich scheiterte sonst still"
+  );
+  // Kein Platzhalter für alles und keine unverschlüsselte Verbindung.
+  for (const quelle of quellen) {
+    assert.notEqual(quelle, "*", "die CSP darf nicht alles erlauben");
+    assert.ok(!quelle.startsWith("http://"), `unverschlüsselte Quelle in der CSP: ${quelle}`);
+  }
+});
+
+test("der Familiencode taucht nirgends fest verdrahtet auf", () => {
+  const sync = readFileSync(new URL("../src/sync.ts", import.meta.url), "utf8");
+  // Ein versehentlich eingecheckter echter Schlüssel wäre sonst öffentlich.
+  assert.ok(sync.includes("HIER-EINTRAGEN"), "die Zugangsdaten gehören nicht ins Repository");
+});

@@ -8,6 +8,7 @@
  */
 import { el } from "./dom.js";
 import { starteRouter } from "./router.js";
+import { gleicheAb } from "./sync.js";
 import { baueShell, frischeShellAuf } from "./shell.js";
 const ANSICHTEN = {
     start: () => import("./views/start.js"),
@@ -62,6 +63,9 @@ function starte() {
         throw new Error("Kein Wurzelelement #app gefunden");
     const inhalt = baueShell(wurzel);
     starteRouter(inhalt, aufloesen);
+    // Beim Start einmal mit den anderen Geräten abgleichen. Ohne Familiencode
+    // oder ohne eingetragene Gegenstelle passiert dabei gar nichts.
+    void gleicheAb();
     alleVorladen();
     if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
         window.addEventListener("load", () => {

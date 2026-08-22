@@ -3217,3 +3217,24 @@ body.uebung-laeuft .karte-aufgabe > .knopf-tipp {
     display: none;
   }
 }
+
+/* ============================== Abgleich zwischen Geräten ============= */
+
+/* Der Familiencode wird abgetippt – also groß, mit gleichen Ziffernbreiten. */
+.familiencode {
+  margin: 0.4rem 0;
+  font-size: clamp(1.5rem, 7vw, 2rem);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  font-variant-numeric: tabular-nums;
+  color: var(--haupt-text);
+  text-align: center;
+  user-select: all;
+}
+
+.knopfzeile {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0.6rem 0;
+}
