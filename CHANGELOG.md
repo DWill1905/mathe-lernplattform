@@ -4,6 +4,33 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.26.1] – 2026-08-22
+
+### Behoben
+
+**„Womit bezahlst du genau 27 €?“ ließ sich an der Zeilenlänge erraten.** Die
+Ablenker waren die Zerlegungen von `ziel ± 1` und `ziel + 5`. Ein Euro mehr
+oder weniger braucht aber fast immer zusätzliche Münzen — in 371 gemessenen
+Ziehungen war die richtige Zeile deshalb kein einziges Mal die längste. „Nimm
+nie die längste“ schließt damit sicher eine von vier Möglichkeiten aus, ganz
+ohne zu rechnen.
+
+Ein Ablenker entsteht jetzt, indem in der richtigen Zerlegung genau EIN Stück
+gegen ein anderes getauscht wird — bevorzugt in derselben Stellenklasse (1/2/5
+unter sich, 10/20 unter sich). Alle vier Möglichkeiten haben damit gleich viele
+Scheine und Münzen, und in 90 % der Aufgaben sind sogar die Zeilen exakt gleich
+lang. Es hilft nur noch Zusammenzählen.
+
+### Hinzugefügt
+
+Zwei Tests gegen diese Fehlerklasse — die Darstellung darf die Antwort nie
+verraten:
+
+- Beim Geldlegen haben alle Möglichkeiten gleich viele Stücke, und genau eine
+  ergibt den gesuchten Betrag.
+- Über alle Themen: Die richtige Antwort steht gleichmäßig auf alle Plätze
+  verteilt (nachgemessen, Abweichung unter 6 Prozentpunkten).
+
 ## [1.26.0] – 2026-08-22
 
 ### Behoben

@@ -768,3 +768,84 @@ test("bei der Rechentabelle verrät die Auswahl nicht schon die Antwort", () => 
     `„Das geht nicht“ ist in ${Math.round(anteil * 100)} % der Fälle richtig – das ist erratbar`
   );
 });
+
+/**
+ * Bei „Womit bezahlst du genau 27 €?“ darf die ZEILE nichts verraten.
+ *
+ * Vorher waren die Ablenker die Zerlegungen von `ziel ± 1` und `ziel + 5`. Ein
+ * Euro mehr oder weniger braucht aber fast immer zusätzliche Münzen – in 371
+ * gemessenen Ziehungen war die richtige Zeile deshalb KEIN EINZIGES MAL die
+ * längste. „Nimm nie die längste“ schließt damit sicher eine von vier
+ * Möglichkeiten aus, ganz ohne zu rechnen.
+ */
+test("beim Geldlegen haben alle Möglichkeiten gleich viele Scheine und Münzen", () => {
+  let geprueft = 0;
+
+  for (let i = 0; i < 4000; i++) {
+    const rng = mulberry32(4242 + i);
+    const aufgabe = GENERATOREN.geld(rng, 3);
+    if (aufgabe.typ !== "geld/betrag-legen") continue;
+    geprueft++;
+    const optionen = aufgabe.antwortfeld.optionen;
+    const ziel = Number(aufgabe.frage.match(/(\d+) €/)[1]);
+
+    const stueckzahlen = new Set(optionen.map((o) => o.split("+").length));
+    assert.equal(
+      stueckzahlen.size,
+      1,
+      `${aufgabe.frage}: unterschiedlich viele Stücke (${[...stueckzahlen]}) – das ist ohne Rechnen sichtbar`
+    );
+
+    // Und es darf genau EINE richtige Antwort geben.
+    const summen = optionen.map((o) =>
+      o.split("+").reduce((summe, teil) => summe + Number(teil.replace("€", "").trim()), 0)
+    );
+    assert.equal(
+      summen.filter((s) => s === ziel).length,
+      1,
+      `${aufgabe.frage}: ${summen.filter((s) => s === ziel).length} der Möglichkeiten ergeben ${ziel} €`
+    );
+  }
+
+  assert.ok(geprueft > 50, `nur ${geprueft} Geldlege-Aufgaben gezogen – der Test misst zu wenig`);
+});
+
+/**
+ * Die richtige Antwort darf nicht bevorzugt an einer Stelle stehen. Wer merkt,
+ * dass sie meistens die zweite ist, rät statt zu rechnen.
+ */
+test("die richtige Antwort steht gleichmäßig verteilt", () => {
+  const stellen = new Map();
+
+  for (const eintrag of THEMEN) {
+    for (const stufe of STUFEN) {
+      const rng = mulberry32(20260822 + stufe * 7);
+      for (let i = 0; i < 1200; i++) {
+        const aufgabe = GENERATOREN[eintrag.id](rng, stufe);
+        const feld = aufgabe.antwortfeld;
+        const werte =
+          feld.art === "auswahl" ? feld.optionen
+          : feld.art === "bildauswahl" ? feld.optionen.map((o) => o.kennung)
+          : null;
+        if (!werte) continue;
+        const schluessel = `${werte.length} Möglichkeiten`;
+        if (!stellen.has(schluessel)) stellen.set(schluessel, new Array(werte.length).fill(0));
+        stellen.get(schluessel)[werte.indexOf(aufgabe.loesung)]++;
+      }
+    }
+  }
+
+  for (const [schluessel, zaehler] of stellen) {
+    const gesamt = zaehler.reduce((a, b) => a + b, 0);
+    if (gesamt < 500) continue;
+    const erwartet = 1 / zaehler.length;
+    zaehler.forEach((wie_oft, stelle) => {
+      const anteil = wie_oft / gesamt;
+      assert.ok(
+        Math.abs(anteil - erwartet) < 0.06,
+        `${schluessel}: die Lösung steht in ${Math.round(anteil * 100)} % der Fälle an Stelle ${stelle + 1} ` +
+          `(erwartet ${Math.round(erwartet * 100)} %) – wer das merkt, rät statt zu rechnen`
+      );
+    });
+  }
+});

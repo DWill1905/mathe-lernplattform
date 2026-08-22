@@ -233,13 +233,52 @@ function restMuenzen(rng) {
         erklaerung: `${ziel} € − ${bereits} € = ${rest} €, und ${rest} : ${stueck} = ${anzahl}.`,
     };
 }
-/** Welche Kombination aus Scheinen und Münzen ergibt den Preis? */
+/**
+ * Welche Kombination aus Scheinen und Münzen ergibt den Preis?
+ *
+ * ACHTUNG, hier steckte ein Verrat: Die Ablenker waren vorher die Zerlegungen
+ * von `ziel ± 1` und `ziel + 5`. Ein Euro mehr oder weniger braucht aber fast
+ * immer ZUSÄTZLICHE Münzen — gemessen war die richtige Zeile deshalb in 371
+ * Ziehungen KEIN EINZIGES MAL die längste. „Nimm nie die längste Zeile"
+ * schließt eine von vier Möglichkeiten sicher aus, ganz ohne zu rechnen.
+ *
+ * Jetzt haben alle vier Zeilen gleich viele Scheine und Münzen: Im Ablenker
+ * wird genau ein Stück gegen ein anderes getauscht. Damit hilft nur noch
+ * Zusammenzählen.
+ */
 function betragLegen(rng) {
     const ziel = rng.int(6, 45);
-    const richtig = zerlegeEuro(ziel);
-    const ablenker = [ziel + 1, ziel - 1, ziel + 5]
-        .filter((wert) => wert > 0)
-        .map((wert) => zerlegeEuro(wert));
+    const stuecke = euroStuecke(ziel);
+    const gesehen = new Set([stuecke.join(",")]);
+    const ablenker = [];
+    /*
+     * Getauscht wird bevorzugt innerhalb derselben Stellenklasse (1/2/5 unter
+     * sich, 10/20 unter sich). Dann sind auch die ZEILEN gleich lang und selbst
+     * die Länge verrät nichts mehr. Nur wo das keine drei verschiedenen Ablenker
+     * hergibt – etwa bei glatten 20 € oder 30 €, die aus ein bis zwei Scheinen
+     * bestehen – wird auch über die Klassen hinweg getauscht.
+     */
+    for (let versuch = 0; versuch < 120 && ablenker.length < 3; versuch++) {
+        const geaendert = stuecke.slice();
+        const stelle = rng.int(0, geaendert.length - 1);
+        const bisher = geaendert[stelle];
+        const gleicheKlasse = EURO_STUECKE.filter((wert) => wert !== bisher && wert >= 10 === bisher >= 10);
+        // Erst die Hälfte der Versuche streng, danach notfalls auch quer.
+        const vorrat = gleicheKlasse.length > 0 && versuch < 60
+            ? gleicheKlasse
+            : EURO_STUECKE.filter((wert) => wert !== bisher);
+        geaendert[stelle] = rng.pick(vorrat);
+        geaendert.sort((a, b) => b - a);
+        const summe = geaendert.reduce((a, b) => a + b, 0);
+        const schluessel = geaendert.join(",");
+        // Ein Ablenker, der zufällig auch `ziel` ergibt, wäre eine zweite richtige
+        // Antwort – und eine Dublette macht aus vier Möglichkeiten still drei.
+        if (summe === ziel || gesehen.has(schluessel))
+            continue;
+        gesehen.add(schluessel);
+        ablenker.push(alsZeile(geaendert));
+    }
+    const richtig = alsZeile(stuecke);
     return {
         typ: "geld/betrag-legen",
         frage: `Womit bezahlst du genau ${ziel} €?`,
@@ -249,18 +288,26 @@ function betragLegen(rng) {
         erklaerung: `${richtig} ergibt zusammen ${ziel} €.`,
     };
 }
+/** Die Werte, die es als Schein oder Münze gibt (bis 20 €). */
+const EURO_STUECKE = [1, 2, 5, 10, 20];
 /** Greift zu den größten Scheinen und Münzen zuerst – wie beim Bezahlen. */
-export function zerlegeEuro(betrag) {
-    const werte = [20, 10, 5, 2, 1];
+function euroStuecke(betrag) {
     const teile = [];
     let rest = betrag;
-    for (const wert of werte) {
+    for (const wert of [...EURO_STUECKE].sort((a, b) => b - a)) {
         while (rest >= wert) {
-            teile.push(`${wert} €`);
+            teile.push(wert);
             rest -= wert;
         }
     }
-    return teile.join(" + ");
+    return teile;
+}
+function alsZeile(stuecke) {
+    return stuecke.map((wert) => `${wert} €`).join(" + ");
+}
+/** Greift zu den größten Scheinen und Münzen zuerst – wie beim Bezahlen. */
+export function zerlegeEuro(betrag) {
+    return alsZeile(euroStuecke(betrag));
 }
 /** Wie viel teurer ist das eine als das andere? */
 function preisUnterschied(rng) {
