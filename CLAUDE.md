@@ -35,8 +35,9 @@ verwässern.
   sind immer nicht-negative ganze Zahlen – alles andere läuft über
   Auswahlknöpfe, damit die Zahlentastatur genügt.
 - **State** liegt vollständig im `localStorage` unter `mathe2:fortschritt`.
-  Kein Backend, keine Netzwerkaufrufe – die CSP in `index.html` erlaubt nur
-  eigene Dateien.
+  Die App läuft ohne Netz komplett. Die EINZIGE Ausnahme ist die optionale
+  Synchronisierung (`src/sync.ts`, siehe unten); die CSP in `index.html`
+  erlaubt deshalb `'self'` **plus** `https://*.workers.dev` – sonst nichts.
 - **Deutsche Anführungszeichen**: Das schließende `"` beendet in einem doppelt
   gequoteten TypeScript-String die Zeichenkette. In Texten mit `„…"` deshalb
   Template-Literale (Backticks) verwenden.
@@ -55,17 +56,31 @@ verwässern.
   deshalb direkt testbar.
 - `src/gamification.ts` – Punkte, Level, Sterne, Herzen, Streak, Abzeichen,
   Stufenanpassung.
-- `cloudflare/worker.js` – die Gegenstelle, läuft bei Cloudflare (KV-Bindung
-  `STAND`). Gehört NICHT in den Offline-Vorrat der App – `tools/sw-liste.mjs`
-  und `test/offline.test.js` nehmen das Verzeichnis deshalb aus.
+- `cloudflare/worker.js` – die Gegenstelle, läuft bei Cloudflare. Die
+  KV-Bindung darf `STAND` **oder** `KV` heißen (Cloudflares Beispiel nennt sie
+  `KV`); fehlt sie ganz, antwortet der Worker mit einer Anleitung statt eines
+  nichtssagenden 500ers. `cloudflare/wrangler.jsonc` liegt für
+  `npx wrangler deploy` daneben und wird beim Weg über das Dashboard nicht
+  gebraucht. Das Verzeichnis gehört NICHT in den Offline-Vorrat der App –
+  `tools/sw-liste.mjs` und `test/offline.test.js` nehmen es deshalb aus.
 - `src/sync.ts` – die EINZIGE Stelle, die mit dem Netz spricht: optionale
   Synchronisierung über einen Familien-Code, per reinem `fetch()` gegen den
-  Worker in `cloudflare/worker.js`. Ohne eingetragene Adresse passiert nichts.
-  In der App steht **kein Zugangsschlüssel** – der Code ist das einzige
-  Geheimnis; ein Test wacht darüber, dass keiner dazukommt.
+  Worker in `cloudflare/worker.js`. Ohne Familien-Code passiert
+  nichts – kein Senden, kein Holen, kein Netzaufruf.
+  In der App steht **kein Zugangsschlüssel**: Der Code ist das einzige
+  Geheimnis, und die Adresse des Workers darf offen im Repository stehen (die
+  Seite ist statisch, es gibt keinen Bauschritt, der sie nachträglich einsetzen
+  könnte). Tests wachen darüber, dass kein Schlüssel dazukommt und dass die
+  eingetragene Adresse `https` benutzt, KEINEN Schrägstrich am Ende hat und von
+  der CSP gedeckt ist – jeder dieser drei Fehler ließe den Abgleich STILL
+  scheitern.
   Die reinen Teile (Code, `verschmelze`) sind ohne Netz testbar; alle Netzaufrufe
   nehmen ihr `fetch` als Parameter, damit Tests eine Gegenstelle im Speicher
-  unterschieben können. Einrichtung samt SQL: `README.md`.
+  unterschieben können. Einrichtung Schritt für Schritt: `README.md`.
+  **Fehler der Gegenstelle werden durchgereicht**, nicht verworfen: Der Worker
+  legt seinen Grund in `{ fehler: … }`, `grund()` holt ihn heraus. Sonst stünde
+  beim häufigsten Einrichtungsfehler nur `Server meldet 500` da – und wer kein
+  Terminal zur Hand hat, käme nicht weiter.
 - `src/antwort.ts` – Vergleich von Antwort und Lösung, auch für selbst getippte
   Rechnungen. Ohne DOM-Zugriff, deshalb direkt testbar.
 - `src/bilder.ts` – farbige Illustrationen: ein Bild je Thema (die Navigation
@@ -148,6 +163,29 @@ verwässern.
   (`rechnungPasst`) und ist großzügig bei Leerzeichen und Minusschreibweise,
   aber streng bei Zahlen und Ergebnis; beim Plus zählt die vertauschte
   Reihenfolge mit.
+- **Eine Umkehraufgabe braucht eine LÜCKE in der Rechnung.** `13 − 5 =`
+  rechnet ein Kind einfach aus, ohne je ans Umkehren zu denken; erst
+  `5 + ? = 13` erzwingt den Kniff. Beim Einmaleins war das von Anfang an so
+  (`? · 5 = 30`), bei Plus und Minus nicht – siehe Changelog 1.20.2. Die
+  Hilfsaufgabe ist dabei die Umkehrung SELBST und muss genau die Lücke
+  ausrechnen, sonst führt der Bonus in die Irre. Ein Test hält beides fest.
+- **Beim Rechendreieck ist „leer" nicht dasselbe wie „gesucht".** Drei Zahlen
+  innen, außen an jeder Seite die Summe der beiden, die dort liegen. Wie im
+  Heft dürfen MEHRERE Felder leer sein – aber nur das gefragte trägt ein
+  Fragezeichen und ist hervorgehoben. Ohne diese Trennung standen zwei
+  Fragezeichen im Bild und ein Kind wusste nicht, welches gemeint ist.
+  Die Figur gibt für jedes der sechs Felder ein Textelement aus, auch ein
+  leeres – nur dadurch lässt sich das Dreieck aus dem Bild eindeutig auslesen.
+- **Mehrzeilige Fragen** (bisher nur die Geld-Beziehungsketten) tragen echte
+  `\n` im `frage`-Text. `.aufgabe-frage` steht deshalb auf
+  `white-space: pre-line`, und `views/uebung.ts` hängt bei Umbrüchen die Klasse
+  `aufgabe-frage-mehrzeilig` an: linksbündig, leichter, Lesegröße statt
+  Überschriftgröße. Vier fette Sätze am Stück sind für ein Kind eine Wand.
+- **Bei Beziehungsketten ist die Reihenfolge die Aufgabe, nicht das Rechnen.**
+  Die Kette ist echt – jeder Satz bezieht sich auf den Vorgänger, keiner ist
+  überflüssig –, und nur die ANZEIGE wird gemischt. Auf Stufe 1 bleibt sie
+  stehen, damit der Einstieg nicht zusätzlich am Sortieren scheitert. Kein Kind
+  darf dabei unter 1 € rutschen.
 - **In einer Zahlenmauer fehlt immer genau ein Stein.** Nur dann ist er
   eindeutig bestimmt: Entweder stehen die beiden Steine darunter da, oder der
   Stein darüber und der Nachbar in derselben Reihe. Das gilt für JEDE Mauergröße
@@ -221,8 +259,10 @@ verwässern.
 
 ## Sicherheit
 
-Es gibt keinen Server, kein Konto und keine fremden Ressourcen – der gesamte
-Angriffsweg führt über den **gespeicherten Zustand**. Deshalb gilt:
+Es gibt kein Konto, keine fremden Skripte und keine fremden Schriften. Der
+Angriffsweg führt fast vollständig über den **gespeicherten Zustand** – seit
+der Synchronisierung zusätzlich über die Daten, die vom Worker zurückkommen.
+Beides ist ungeprüfte Eingabe. Deshalb gilt:
 
 - **Jeder `load…()` prüft, was er liest** – Typ, Wertebereich und Verweise.
   Vorbild ist `ladeFortschritt()` in `state.ts`; `test/sicherheit.test.js`
@@ -244,8 +284,22 @@ Angriffsweg führt über den **gespeicherten Zustand**. Deshalb gilt:
 kompilierten `js/`-Module direkt mit `node:test` importierbar sind. Neue
 Aufgabentypen ohne Test gelten als unvollständig.
 
+Zwei Regeln, die sich beide teuer eingekauft haben:
+
+- **Ein Test muss gegen die kaputte Fassung geprüft werden.** Ein grüner Test
+  beweist gar nichts, solange niemand gesehen hat, dass er auch anschlägt.
+  Mehrfach war ein Test grün, WEIL das Geprüfte fehlte (verschwundene
+  Erklärbilder, siehe 1.11.1) oder weil er die falsche Eigenschaft maß. Also:
+  Änderung zurückbauen, Test laufen lassen, Fehlschlag sehen, wieder vorbauen.
+- **Aus dem Ergebnis prüfen, nicht aus den Zwischenwerten des Generators.**
+  Sonst prüft der Test nur, ob der Generator mit sich selbst einig ist. Das
+  Rechendreieck wird aus dem BILD nachgerechnet, die Beziehungskette aus ihrem
+  eigenen Aufgabentext gelöst – so, wie ein Kind es täte. Wo eine Position
+  zählt (Zahlenmauer), muss der Test die POSITION vergleichen, nicht nur
+  richtig/falsch.
+
 ## CI
 
 `.github/workflows/ci.yml` läuft bei jedem Push/PR auf `main`: `npm ci` →
 `npm run build` → **js/-Sync-Check** (`git diff --exit-code -- js/`) →
-`npm test`.
+`npm run sw:check` → `npm test`.
