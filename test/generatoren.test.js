@@ -730,3 +730,41 @@ test("jede Stufe hat mehr verschiedene Aufgaben als eine Runde lang ist", () => 
     `zu wenig verschiedene Aufgaben (mindestens ${MINDESTENS} nötig):\n  ${knapp.join("\n  ")}`
   );
 });
+
+/**
+ * Die Eingabeart darf die Antwort nicht verraten.
+ *
+ * Bei der Rechentabelle war genau das der Fall: Ein unlösbares Feld
+ * („20 − 3“ geht, „3 − 20“ nicht) wurde IMMER über Auswahlknöpfe beantwortet,
+ * ein lösbares IMMER über die Zahlentastatur. Wer Knöpfe sah, wusste ohne zu
+ * rechnen, dass „Das geht nicht“ richtig ist – und der Kniff, den diese
+ * Heftseite übt, wurde nie geübt.
+ */
+test("bei der Rechentabelle verrät die Auswahl nicht schon die Antwort", () => {
+  let gehtNicht = 0;
+  let gehtDoch = 0;
+
+  for (let i = 0; i < 20000; i++) {
+    const rng = mulberry32(31337 + i);
+    const aufgabe = GENERATOREN.plusminus(rng, 3);
+    if (!aufgabe.typ.startsWith("plusminus/tabelle")) continue;
+    if (aufgabe.antwortfeld.art !== "auswahl") continue;
+    if (aufgabe.loesung === "Das geht nicht") gehtNicht++;
+    else gehtDoch++;
+  }
+
+  assert.ok(gehtNicht + gehtDoch > 50, "zu wenige Auswahl-Tabellen gezogen – der Test misst nichts");
+  assert.ok(
+    gehtDoch > 0,
+    "jede Auswahl-Tabelle ist unlösbar – dann sagt schon die Eingabeart die Antwort"
+  );
+  assert.ok(
+    gehtNicht > 0,
+    "„Das geht nicht“ kommt nie vor – der Kniff dieser Heftseite wird nie geübt"
+  );
+  const anteil = gehtNicht / (gehtNicht + gehtDoch);
+  assert.ok(
+    anteil > 0.1 && anteil < 0.9,
+    `„Das geht nicht“ ist in ${Math.round(anteil * 100)} % der Fälle richtig – das ist erratbar`
+  );
+});

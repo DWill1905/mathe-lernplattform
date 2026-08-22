@@ -4,6 +4,27 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.26.0] – 2026-08-22
+
+### Behoben
+
+**Die Rechentabelle verriet ihre Antwort über die Eingabeart.** Ein Feld, das
+nicht aufgeht („3 − 20“), wurde IMMER über Auswahlknöpfe beantwortet, ein
+lösbares IMMER über die Zahlentastatur. Wer Knöpfe sah, wusste ohne zu rechnen,
+dass „Das geht nicht“ die richtige Antwort ist.
+
+Sobald „Das geht nicht“ überhaupt möglich ist, wird jetzt immer ausgewählt —
+und die Möglichkeit steht jedes Mal mit zur Wahl, egal ob die Aufgabe aufgeht.
+
+**Und der Kniff kam praktisch nie dran.** Die Zeilen- und Spaltenköpfe werden
+gemischt gezogen; dass dabei die kleinere Zahl links landet, ergab sich
+gemessen in etwa einer von 150 Aufgaben. Die Heftseite, um die es hier geht,
+wurde damit nie geübt. Ist „geht nicht“ erlaubt, wird ein solches Feld jetzt
+gezielt in etwa der Hälfte der Fälle ausgewählt.
+
+Ein Test hält beides fest: dass unter den Auswahl-Tabellen beide Antwortarten
+vorkommen und keine über 90 % hinaus dominiert.
+
 ## [1.25.3] – 2026-08-22
 
 ### Entfernt

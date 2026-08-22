@@ -481,16 +481,34 @@ function tabelle(rng: Rng, mitUnloesbar: boolean): Aufgabe {
   const spalten = rng.shuffle([1, 2, 3, 4, 5, 8, 10]).slice(0, 3);
   const zeilen = rng.shuffle([3, 4, 5, 7, 8, 10, 11, 12, 13, 15, 16, 17, 19, 20]).slice(0, 4);
 
-  // Aus welchen Feldern darf gefragt werden? Beim Minusrechnen nur aus den
-  // lösbaren – es sei denn, die Stufe lässt „Das geht nicht“ ausdrücklich zu.
-  const kandidaten: [number, number][] = [];
+  const alleFelder: [number, number][] = [];
   for (let z = 0; z < zeilen.length; z++) {
-    for (let sp = 0; sp < spalten.length; sp++) {
-      if (plus || mitUnloesbar || zeilen[z]! >= spalten[sp]!) kandidaten.push([z, sp]);
-    }
+    for (let sp = 0; sp < spalten.length; sp++) alleFelder.push([z, sp]);
   }
-  if (kandidaten.length === 0) plus = true;
-  const [z, sp] = kandidaten.length > 0 ? rng.pick(kandidaten) : [0, 0];
+  const geht = ([z, sp]: [number, number]): boolean => zeilen[z]! >= spalten[sp]!;
+
+  // Aus welchen Feldern darf gefragt werden? Beim Minusrechnen nur aus den
+  // lösbaren – es sei denn, die Stufe lässt „Das geht nicht" ausdrücklich zu.
+  let kandidaten = plus ? alleFelder : alleFelder.filter((feld) => mitUnloesbar || geht(feld));
+  if (kandidaten.length === 0) {
+    plus = true;
+    kandidaten = alleFelder;
+  }
+
+  /*
+   * Ist „Das geht nicht" erlaubt, soll es auch drankommen: Sonst treffen die
+   * gemischten Zeilen- und Spaltenköpfe nur selten ein Feld, in dem die
+   * kleinere Zahl oben steht — gemessen etwa eine von hundertfünfzig Aufgaben.
+   * Der Kniff, den diese Heftseite übt, käme damit nie vor.
+   */
+  if (!plus && mitUnloesbar) {
+    const nichtLoesbar = kandidaten.filter((feld) => !geht(feld));
+    const loesbar = kandidaten.filter(geht);
+    const topf = nichtLoesbar.length > 0 && rng.chance(0.5) ? nichtLoesbar : loesbar;
+    if (topf.length > 0) kandidaten = topf;
+  }
+
+  const [z, sp] = rng.pick(kandidaten);
   const zeile = zeilen[z]!;
   const spalte = spalten[sp]!;
   const zeichen = plus ? "+" : "−";
@@ -499,19 +517,33 @@ function tabelle(rng: Rng, mitUnloesbar: boolean): Aufgabe {
     beschriftung: `Rechentabelle: Das markierte Feld steht für ${zeile} ${zeichen} ${spalte}`,
   };
 
-  if (!plus && zeile < spalte) {
+  /*
+   * ACHTUNG, das war ein Verrat: Vorher wurde ein unlösbares Feld IMMER über
+   * Auswahlknöpfe beantwortet und ein lösbares IMMER über die Zahlentastatur.
+   * Damit sagte die Eingabeart schon die Antwort — wer Knöpfe sah, wusste ohne
+   * zu rechnen, dass „Das geht nicht" richtig ist.
+   *
+   * Sobald „geht nicht" überhaupt möglich ist, wird deshalb IMMER ausgewählt,
+   * und „Das geht nicht" steht jedes Mal mit zur Wahl.
+   */
+  if (!plus && mitUnloesbar) {
+    const moeglich = zeile >= spalte;
+    const richtig = moeglich ? String(zeile - spalte) : "Das geht nicht";
+    // Keiner der Ablenker darf mit der Lösung zusammenfallen, sonst schrumpft
+    // die Auswahl still von vier auf drei Möglichkeiten.
+    const ablenker = moeglich
+      ? ["Das geht nicht", String(zeile + spalte), String(zeile)]
+      : [String(spalte - zeile), String(zeile + spalte), String(spalte)];
     return {
-      typ: "plusminus/tabelle-unloesbar",
+      typ: moeglich ? "plusminus/tabelle-minus" : "plusminus/tabelle-unloesbar",
       frage: "Welche Zahl gehört in das markierte Feld?",
       bild,
-      antwortfeld: auswahlfeld(rng, "Das geht nicht", [
-        String(spalte - zeile),
-        String(zeile + spalte),
-        String(zeile),
-      ]),
-      loesung: "Das geht nicht",
-      tipp: "Von einer kleinen Zahl kann man keine größere wegnehmen.",
-      erklaerung: `${zeile} ist kleiner als ${spalte} – diese Aufgabe geht nicht auf.`,
+      antwortfeld: auswahlfeld(rng, richtig, ablenker),
+      loesung: richtig,
+      tipp: "Von einer kleinen Zahl kann man keine größere wegnehmen – dann geht es nicht.",
+      erklaerung: moeglich
+        ? `${zeile} − ${spalte} = ${zeile - spalte}`
+        : `${zeile} ist kleiner als ${spalte} – diese Aufgabe geht nicht auf.`,
     };
   }
 
