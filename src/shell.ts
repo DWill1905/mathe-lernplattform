@@ -36,8 +36,29 @@ export function baueShell(wurzel: HTMLElement): HTMLElement {
     window.addEventListener("offline", frischeShellAuf);
   }
 
+  verdrahteSprungmarke(inhalt);
   frischeShellAuf();
   return inhalt;
+}
+
+/**
+ * Die Sprungmarke setzt den Fokus SELBST, statt über einen Anker zu springen.
+ *
+ * Über `href="#inhalt"` liefe sie in den Hash-Router: Der bekäme `#inhalt` als
+ * Route vorgesetzt, fände dazu keine Ansicht und zeigte „Diese Seite gibt es
+ * nicht“ – ausgerechnet dem, der die Sprungmarke braucht. Ein Inline-`onclick`
+ * verbietet die CSP, also hängt der Haken hier.
+ */
+function verdrahteSprungmarke(inhalt: HTMLElement): void {
+  const marke = document.getElementById("sprungmarke");
+  if (!marke || marke.dataset["verdrahtet"] === "ja") return;
+  marke.dataset["verdrahtet"] = "ja";
+  marke.addEventListener("click", () => {
+    // `tabindex="-1"` am `<main>` macht es fokussierbar, ohne es in die
+    // Tab-Reihenfolge zu hängen.
+    inhalt.focus();
+    inhalt.scrollIntoView({ block: "start" });
+  });
 }
 
 let netzBeobachtet = false;

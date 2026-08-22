@@ -30,7 +30,14 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   </head>
   <body>
-    <a class="sprungmarke" href="#inhalt">Zum Inhalt springen</a>
+    <!--
+      Bewusst ein Knopf und KEIN `href="#inhalt"`: Diese Seite wird über den
+      Hash geroutet. Ein Sprunganker würde den Hash auf `#inhalt` setzen, und
+      der Router fände dazu keine Ansicht – ausgerechnet wer die Sprungmarke
+      braucht, landete auf „Diese Seite gibt es nicht“. Den Fokus setzt
+      `shell.ts`; ein Inline-Skript verbietet die CSP.
+    -->
+    <button type="button" class="sprungmarke" id="sprungmarke">Zum Inhalt springen</button>
     <div id="app"></div>
     <noscript>
       <p class="noscript-hinweis">Für die Zahleneule muss JavaScript eingeschaltet sein.</p>

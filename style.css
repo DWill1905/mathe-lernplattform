@@ -93,6 +93,11 @@ body {
 .sprungmarke {
   position: absolute;
   left: -9999px;
+  /* Als Knopf bringt sie Browser-Grundmaße mit, die hier nur stören. */
+  border: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
 }
 .sprungmarke:focus {
   left: 1rem;

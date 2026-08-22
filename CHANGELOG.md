@@ -4,6 +4,21 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.22.3] – 2026-08-22
+
+### Behoben
+
+**Die Sprungmarke warf Tastaturnutzer auf die Fehlerseite.** „Zum Inhalt
+springen“ stand als `<a href="#inhalt">` im Dokument. Diese Seite wird aber
+vollständig über den Hash geroutet: Der Router bekam `#inhalt` als Route
+vorgesetzt, fand dazu keine Ansicht und zeigte „Diese Seite gibt es nicht“ —
+ausgerechnet dem, der die Sprungmarke überhaupt benutzt.
+
+Sie ist jetzt ein Knopf, der den Fokus selbst auf das `<main>` setzt
+(verdrahtet in `shell.ts`, weil die CSP kein Inline-Skript erlaubt). Ein neuer
+Test `test/navigation.test.js` hält fest, dass in `index.html` kein Hash-Link
+am Router vorbeiführt.
+
 ## [1.22.2] – 2026-08-22
 
 ### Behoben
