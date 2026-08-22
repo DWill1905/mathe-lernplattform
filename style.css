@@ -562,6 +562,25 @@ body {
   font-size: clamp(1.15rem, 4.5vw, 1.45rem);
   font-weight: 600;
   text-wrap: balance;
+  /*
+   * Fast alle Fragen sind einzeilig. Die Beziehungsketten („Jannik hat 3 €
+   * weniger als Anna.") bringen aber mehrere Sätze mit, die untereinander
+   * stehen müssen wie im Heft – sonst laufen sie zu einem fetten Block
+   * zusammen. `pre-line` behält die Umbrüche und fasst Leerraum sonst
+   * genauso zusammen wie vorher; für alle anderen Aufgaben ändert sich nichts.
+   */
+  white-space: pre-line;
+}
+
+/*
+ * Mehrzeilige Fragen (Beziehungsketten): Die Sätze sind Text zum Lesen, keine
+ * Überschrift. Linksbündig, leichter und etwas kleiner – so wie im Heft.
+ */
+.aufgabe-frage-mehrzeilig {
+  text-align: left;
+  font-weight: 500;
+  font-size: clamp(1rem, 3.9vw, 1.2rem);
+  line-height: 1.55;
 }
 
 .aufgabe-rechnung {

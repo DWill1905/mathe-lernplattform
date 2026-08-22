@@ -4,6 +4,51 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.22.0] – 2026-08-22
+
+### Hinzugefügt
+
+**Beziehungsketten beim Geld** — die zweite Aufgabenart von Heftseite 14:
+
+> Emma hat 17 €.
+> Jonas hat 9 € mehr als Lina.
+> Lina hat 10 € weniger als Ben.
+> Ben hat 3 € mehr als Emma.
+> Wie viel Geld hat Jonas?
+
+Der Witz ist nicht das Rechnen, sondern die **Reihenfolge**: Die Sätze stehen
+absichtlich durcheinander, und nur einer lässt sich sofort ausrechnen. Wer stur
+von oben nach unten rechnet, kommt nicht weiter. Die Kette ist echt — jeder
+Satz bezieht sich auf den Vorgänger, also ist keiner überflüssig; gemischt wird
+nur für die Anzeige.
+
+Auf Stufe 1 (drei Kinder) bleibt die Reihenfolge stehen, damit der Einstieg
+nicht zusätzlich am Sortieren scheitert. Ab Stufe 2 sind es vier Kinder und die
+Sätze werden gemischt.
+
+Kein Kind bekommt Schulden: Jeder Betrag bleibt zwischen 1 € und 100 €. Ein
+Schritt, der den vorigen exakt zurücknimmt (erst 15 € dazu, dann 15 € weg),
+wird umgangen — er sieht wie ein Druckfehler aus.
+
+### Geändert
+
+**Mehrzeilige Fragen stehen jetzt untereinander.** Bisher hätte der Text zu
+einem Block zusammengeschoben ausgesehen. Fragen mit Zeilenumbrüchen bekommen
+linksbündige, leichtere Schrift in Lesegröße — so wie im Heft; die einzeiligen
+Fragen aller anderen Aufgaben sehen unverändert aus.
+
+### Prüfung
+
+Der Test **liest die Aufgabe und löst sie selbst**, so wie ein Kind es täte:
+beim einzigen genannten Betrag anfangen und sich weiterhangeln. Damit prüft er
+die Aufgabe, nicht die Buchführung des Generators. Zusätzlich: Die Kette darf
+nicht abreißen, kein Name doppelt vorkommen, jeder Betrag muss zwischen 1 € und
+100 € liegen, und die Sätze dürfen nicht immer schon in Rechenreihenfolge
+stehen — sonst hätte die Aufgabe gar keine Hürde.
+
+Gegen vier absichtlich kaputte Fassungen gegengeprüft (Richtung vertauscht,
+Bezug falsch, Untergrenze entfernt, nie gemischt) — jede fällt durch.
+
 ## [1.21.0] – 2026-08-22
 
 ### Hinzugefügt

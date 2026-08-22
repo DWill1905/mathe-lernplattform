@@ -571,3 +571,71 @@ test("im Rechendreieck ist jede Außenzahl die Summe ihrer beiden Innenzahlen", 
   );
   assert.ok(geprueft > 100, `zu wenige Dreiecke geprüft: ${geprueft}`);
 });
+
+/*
+ * Beziehungsketten („Jannik hat 3 € weniger als Anna.") – aus dem Arbeitsheft.
+ *
+ * Der Test LIEST die Aufgabe und löst sie selbst, so wie ein Kind es täte:
+ * beim einzigen genannten Betrag anfangen und sich weiterhangeln. Damit prüft
+ * er die Aufgabe, nicht die Buchführung des Generators.
+ */
+test("die Geld-Beziehungskette lässt sich aus ihrem eigenen Text lösen", () => {
+  let geprueft = 0;
+  let gemischt = 0;
+
+  for (const stufe of STUFEN) {
+    for (let i = 0; i < 600; i++) {
+      const aufgabe = GENERATOREN.geld(mulberry32(i * 41 + stufe), stufe);
+      if (aufgabe.typ !== "geld/beziehungskette") continue;
+      const kontext = `Stufe ${stufe}: ${JSON.stringify(aufgabe.frage)}`;
+
+      const zeilen = aufgabe.frage.split("\n");
+      const anker = zeilen[0].match(/^(\w+) hat (\d+) €\.$/);
+      assert.ok(anker, `${kontext}: kein Startbetrag in der ersten Zeile`);
+      const ziel = zeilen[zeilen.length - 1].match(/^Wie viel Geld hat (\w+)\?$/);
+      assert.ok(ziel, `${kontext}: keine Frage in der letzten Zeile`);
+
+      const aussagen = zeilen.slice(1, -1).map((z) => {
+        const t = z.match(/^(\w+) hat (\d+) € (mehr|weniger) als (\w+)\.$/);
+        assert.ok(t, `${kontext}: unverständlicher Satz „${z}“`);
+        return { wer: t[1], betrag: Number(t[2]), richtung: t[3], bezug: t[4] };
+      });
+      assert.ok(aussagen.length >= 2, `${kontext}: zu wenige Sätze`);
+
+      // Auflösen: immer den Satz nehmen, dessen Bezugsperson schon bekannt ist.
+      const bekannt = new Map([[anker[1], Number(anker[2])]]);
+      const offen = [...aussagen];
+      let runden = 0;
+      while (offen.length > 0 && runden++ < 20) {
+        const k = offen.findIndex((a) => bekannt.has(a.bezug));
+        if (k === -1) break;
+        const a = offen.splice(k, 1)[0];
+        assert.ok(!bekannt.has(a.wer), `${kontext}: ${a.wer} kommt doppelt vor`);
+        const von = bekannt.get(a.bezug);
+        bekannt.set(a.wer, a.richtung === "mehr" ? von + a.betrag : von - a.betrag);
+      }
+      assert.equal(offen.length, 0, `${kontext}: die Kette reißt ab, Aufgabe unlösbar`);
+
+      // Selbst ausgerechnet – stimmt es mit der hinterlegten Lösung überein?
+      assert.equal(
+        String(bekannt.get(ziel[1])),
+        aufgabe.loesung,
+        `${kontext}: selbst gerechnet ${bekannt.get(ziel[1])}, hinterlegt ${aufgabe.loesung}`
+      );
+
+      // Kein Kind hat Schulden, und der Zahlenraum der 2. Klasse hält.
+      for (const [wer, wert] of bekannt) {
+        assert.ok(wert >= 1 && wert <= 100, `${kontext}: ${wer} hat ${wert} €`);
+      }
+
+      // Standen die Sätze nicht in Rechenreihenfolge? Genau das ist die Hürde.
+      const inReihenfolge = aussagen.every((a, k) => (k === 0 ? a.bezug === anker[1] : a.bezug === aussagen[k - 1].wer));
+      if (!inReihenfolge) gemischt++;
+
+      geprueft++;
+    }
+  }
+
+  assert.ok(geprueft > 80, `zu wenige Beziehungsketten geprüft: ${geprueft}`);
+  assert.ok(gemischt > 20, `die Sätze stehen fast immer schon in Rechenreihenfolge (${gemischt}) – die Aufgabe hat dann keine Hürde`);
+});

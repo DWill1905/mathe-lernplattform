@@ -443,7 +443,18 @@ function zeichne(ziel: HTMLElement, sitzung: Sitzung): void {
     );
   }
 
-  karte.appendChild(el("p", { class: "aufgabe-frage", text: schritt.frage }));
+  /*
+   * Mehrzeilige Fragen sind die Ausnahme (bisher nur die Beziehungsketten).
+   * In Fragegröße und fett wären vier Sätze am Stück eine Wand – im Heft
+   * stehen sie in normaler Schrift. Deshalb bekommen sie eine eigene Klasse.
+   */
+  const mehrzeilig = schritt.frage.includes("\n");
+  karte.appendChild(
+    el("p", {
+      class: `aufgabe-frage${mehrzeilig ? " aufgabe-frage-mehrzeilig" : ""}`,
+      text: schritt.frage,
+    })
+  );
   // Die ganze Rechnung wird getippt – ohne Beispiel wüsste ein Kind nicht,
   // dass Gleichheitszeichen und Ergebnis dazugehören.
   if (inVorstufe && schritt.antwortfeld.art === "rechnung") {

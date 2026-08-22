@@ -1,7 +1,7 @@
 import type { Rng } from "../random.js";
 import type { Aufgabe, Stufe } from "../types.js";
 import { geldbild, uhr } from "../figures.js";
-import { auswahlfeld, geldText, uhrText, zahlfeld, zweiNamen } from "./helpers.js";
+import { NAMEN, auswahlfeld, geldText, uhrText, zahlfeld, zweiNamen } from "./helpers.js";
 
 /* ================================================================= Geld */
 
@@ -10,9 +10,103 @@ const MUENZEN = [1, 2, 5, 10, 20, 50, 100, 200] as const;
 const KLEINGELD = [1, 2, 5, 10, 20, 50] as const;
 
 export function geld(rng: Rng, stufe: Stufe): Aufgabe {
-  if (stufe === 1) return rng.pick([muenzenZaehlen, muenzenZaehlen, muenzeGroesser])(rng);
-  if (stufe === 2) return rng.pick([inCent, inEuroUndCent, betraegeAddieren, restMuenzen, preisUnterschied])(rng);
+  if (stufe === 1) {
+    if (rng.chance(0.25)) return beziehungsKette(rng, stufe);
+    return rng.pick([muenzenZaehlen, muenzenZaehlen, muenzeGroesser])(rng);
+  }
+  if (stufe === 2) {
+    if (rng.chance(0.25)) return beziehungsKette(rng, stufe);
+    return rng.pick([inCent, inEuroUndCent, betraegeAddieren, restMuenzen, preisUnterschied])(rng);
+  }
+  if (rng.chance(0.25)) return beziehungsKette(rng, stufe);
   return rng.pick([rueckgeld, rueckgeld, reichtDasGeld, restMuenzen, betragLegen, preisUnterschied])(rng);
+}
+
+/* ------------------------------------------------------ Beziehungsketten */
+
+/**
+ * „Jannik hat 3 € weniger als Anna. Clara hat 3 € mehr als Leon. Leon hat
+ * 10 € mehr als Jannik." – aus dem Arbeitsheft.
+ *
+ * Der Witz dieser Aufgabe ist NICHT das Rechnen, sondern die Reihenfolge: Die
+ * Sätze stehen absichtlich durcheinander, und nur einer lässt sich sofort
+ * ausrechnen. Wer stur von oben nach unten rechnet, kommt nicht weiter.
+ *
+ * Deshalb ist die Kette echt (jeder bezieht sich auf den Vorgänger) und wird
+ * nur für die Anzeige gemischt – so ist jeder Satz nötig und keiner überflüssig.
+ */
+function beziehungsKette(rng: Rng, stufe: Stufe): Aufgabe {
+  const anzahl = stufe === 1 ? 3 : 4;
+  const start = stufe === 1 ? rng.int(5, 15) : stufe === 2 ? rng.int(10, 30) : rng.int(15, 45);
+  const maxSchritt = stufe === 1 ? 5 : stufe === 2 ? 10 : 15;
+  const OBERGRENZE = 100;
+
+  const namen = rng.shuffle(NAMEN).slice(0, anzahl);
+  const betrag: number[] = [start];
+  const saetze: string[] = [];
+  const schritte: string[] = [`${namen[0]}: ${start} €`];
+
+  let letzter: { d: number; richtung: string } | null = null;
+
+  for (let i = 1; i < anzahl; i++) {
+    const vorher = betrag[i - 1]!;
+    let d = rng.int(1, maxSchritt);
+
+    // Der Betrag muss zwischen 1 € und 100 € bleiben – sonst stünde in der
+    // Aufgabe ein Kind mit Schulden oder einer Summe außerhalb des Zahlenraums.
+    const moeglich: ("mehr" | "weniger")[] = [];
+    if (vorher + d <= OBERGRENZE) moeglich.push("mehr");
+    if (vorher - d >= 1) moeglich.push("weniger");
+    if (moeglich.length === 0) {
+      d = 1;
+      moeglich.push(vorher > 1 ? "weniger" : "mehr");
+    }
+
+    let richtung = rng.pick(moeglich);
+
+    /*
+     * Ein Schritt, der den vorigen exakt zurücknimmt (erst 15 dazu, dann 15
+     * weg), lässt zwei Kinder auf denselben Betrag kommen – das sieht wie ein
+     * Druckfehler aus. Deshalb wird er umgangen, aber nur, solange das
+     * Ergebnis im erlaubten Bereich bleibt: Sonst stünde am Ende ein Kind mit
+     * 0 € oder Schulden da, und das wäre schlimmer als die Wiederholung.
+     */
+    const wertZu = (r: string, schritt: number): number => (r === "mehr" ? vorher + schritt : vorher - schritt);
+    const erlaubt = (wert: number): boolean => wert >= 1 && wert <= OBERGRENZE;
+
+    if (letzter && letzter.d === d && letzter.richtung !== richtung) {
+      const andere = moeglich.find((r) => r !== richtung);
+      if (andere) richtung = andere;
+      else {
+        const ausweich = d > 1 ? d - 1 : d + 1;
+        if (erlaubt(wertZu(richtung, ausweich))) d = ausweich;
+      }
+    }
+
+    const wert = wertZu(richtung, d);
+    letzter = { d, richtung };
+    betrag.push(wert);
+    saetze.push(`${namen[i]} hat ${d} € ${richtung} als ${namen[i - 1]}.`);
+    schritte.push(`${namen[i]}: ${vorher} ${richtung === "mehr" ? "+" : "−"} ${d} = ${wert} €`);
+  }
+
+  // Auf Stufe 1 bleibt die Reihenfolge, damit der Einstieg nicht zusätzlich
+  // am Sortieren scheitert. Ab Stufe 2 werden die Sätze gemischt – das ist die
+  // eigentliche Hürde.
+  const gezeigt = stufe === 1 ? saetze : rng.shuffle(saetze);
+  const gesucht = anzahl - 1;
+
+  return {
+    typ: "geld/beziehungskette",
+    frage:
+      `${namen[0]} hat ${start} €.\n` +
+      `${gezeigt.join("\n")}\n` +
+      `Wie viel Geld hat ${namen[gesucht]}?`,
+    antwortfeld: zahlfeld("€"),
+    loesung: String(betrag[gesucht]),
+    tipp: `Fang bei ${namen[0]} an – nur dieser Betrag steht schon da. Dann hangle dich weiter.`,
+    erklaerung: schritte.join("  →  "),
+  };
 }
 
 function muenzenZaehlen(rng: Rng): Aufgabe {
