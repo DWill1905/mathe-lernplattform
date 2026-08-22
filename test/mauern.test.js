@@ -29,7 +29,11 @@ test("in jeder Zahlenmauer fehlt genau ein Stein", () => {
       const luecken = aufgabe.bild.svg.match(/>\?<\/text>/g) ?? [];
       assert.equal(luecken.length, 1, `Stufe ${stufe}: ${luecken.length} Lücken statt einer`);
     }
-    assert.ok(mauern > 50, `Stufe ${stufe}: zu wenige Mauern gezogen`);
+    // Seit die Rechendreiecke dazugekommen sind, ist die Mauer eine von vier
+    // Varianten (vorher eine von drei) – und auf den höheren Stufen zieht die
+    // ausfüllbare Mauer ohne Bild noch einen Teil ab. Die Schranke sichert nur
+    // ab, dass überhaupt genug Mauern in die Stichprobe geraten.
+    assert.ok(mauern > 30, `Stufe ${stufe}: zu wenige Mauern gezogen (${mauern})`);
   }
 });
 
@@ -293,7 +297,7 @@ test("der fehlende Stein lässt sich immer eindeutig herleiten", () => {
         `Stufe ${stufe}: ${reihen.map((r) => r.join(" ")).join(" | ")} – Lösung ${aufgabe.loesung}`
       );
     }
-    assert.ok(geprueft > 200, `Stufe ${stufe}: nur ${geprueft} Mauern geprüft`);
+    assert.ok(geprueft > 120, `Stufe ${stufe}: nur ${geprueft} Mauern geprüft`);
   }
 });
 

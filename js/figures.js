@@ -340,6 +340,80 @@ export function rechenkasten(werte, summe) {
             `<text x="${fahneX + fahneBreite / 2}" y="${27}" class="${gesuchteSumme ? "fig-text-marke" : "fig-text"}" text-anchor="middle" font-size="22">${gesuchteSumme ? "?" : summe}</text>`;
     return huelle(breite, oben + hoehe * 2, teile);
 }
+/* ------------------------------------------------------- Rechendreiecke */
+/**
+ * Rechendreieck: drei Zahlen INNEN, drei Kästchen AUSSEN an den Seiten. Jedes
+ * Außenkästchen ist die Summe der beiden Innenzahlen, die an seiner Seite
+ * liegen.
+ *
+ * Die Reihenfolge ist überall dieselbe: innen [oben, links, rechts], außen
+ * [links (oben+links), rechts (oben+rechts), unten (links+rechts)].
+ *
+ * `null` heißt „steht nicht da“ – wie im Heft dürfen mehrere Felder leer sein.
+ * Das GESUCHTE Feld ist ein anderes: Nur es trägt ein Fragezeichen und ist
+ * hervorgehoben. Ohne diese Unterscheidung stünden bei mehreren leeren Feldern
+ * mehrere Fragezeichen da, und das Kind wüsste nicht, welches gemeint ist.
+ */
+export function rechendreieck(innen, aussen, gesucht) {
+    const A = [165, 40]; // Spitze
+    const B = [50, 235]; // unten links
+    const C = [280, 235]; // unten rechts
+    const mitte = [165, 170];
+    // Die drei Innenfelder liegen zwischen Mitte und je einer Ecke …
+    const innenOrte = [
+        [165, 112],
+        [118, 198],
+        [212, 198],
+    ];
+    // … die Außenkästchen jeweils vor „ihrer“ Seite.
+    const aussenOrte = [
+        [52, 108],
+        [278, 108],
+        [165, 285],
+    ];
+    const dreieck = `<path d="M${A[0]},${A[1]} L${C[0]},${C[1]} L${B[0]},${B[1]} Z" class="fig-flaeche"/>` +
+        `<path d="M${A[0]},${A[1]} L${C[0]},${C[1]} L${B[0]},${B[1]} Z" class="fig-linie" fill="none" stroke-width="2.5"/>`;
+    // Das Ypsilon von der Mitte zu den Seitenmitten teilt die drei Bereiche.
+    const seitenMitten = [
+        [(A[0] + B[0]) / 2, (A[1] + B[1]) / 2],
+        [(A[0] + C[0]) / 2, (A[1] + C[1]) / 2],
+        [(B[0] + C[0]) / 2, (B[1] + C[1]) / 2],
+    ];
+    const teilung = seitenMitten
+        .map(([x, y]) => `<line x1="${mitte[0]}" y1="${mitte[1]}" x2="${x}" y2="${y}" class="fig-linie" stroke-width="2"/>`)
+        .join("");
+    /*
+     * Beschriftung eines Feldes: Zahl, Fragezeichen oder gar nichts. Das
+     * Textelement wird IMMER ausgegeben, auch leer – so hat jedes der sechs
+     * Felder seinen festen Platz in der Zeichenkette und die Figur lässt sich
+     * eindeutig auslesen (der Test rechnet das Dreieck aus dem Bild nach).
+     */
+    const inhalt = (wert, istGesucht) => istGesucht ? "?" : wert === null ? "" : String(wert);
+    const kreise = innen
+        .slice(0, 3)
+        .map((wert, i) => {
+        const [x, y] = innenOrte[i];
+        const istGesucht = gesucht.bereich === "innen" && gesucht.feld === i;
+        const text = inhalt(wert, istGesucht);
+        return (`<circle cx="${x}" cy="${y}" r="25" class="${istGesucht ? "fig-stein-luecke" : "fig-rad-innen"}"/>` +
+            `<circle cx="${x}" cy="${y}" r="25" class="fig-linie" fill="none" stroke-width="2.5"/>` +
+            `<text x="${x}" y="${y + 8}" class="${istGesucht ? "fig-text-marke" : "fig-text"}" text-anchor="middle" font-size="23">${text}</text>`);
+    })
+        .join("");
+    const kaesten = aussen
+        .slice(0, 3)
+        .map((wert, i) => {
+        const [x, y] = aussenOrte[i];
+        const istGesucht = gesucht.bereich === "aussen" && gesucht.feld === i;
+        const text = inhalt(wert, istGesucht);
+        const [bx, by] = [x - 27, y - 19];
+        return (`<rect x="${bx}" y="${by}" width="54" height="38" rx="6" class="${istGesucht ? "fig-stein-luecke" : "fig-fahne"}"/>` +
+            `<rect x="${bx}" y="${by}" width="54" height="38" rx="6" class="fig-linie" fill="none" stroke-width="2.5"/>` +
+            `<text x="${x}" y="${y + 8}" class="${istGesucht ? "fig-text-marke" : "fig-text"}" text-anchor="middle" font-size="22">${text}</text>`);
+    })
+        .join("");
+    return huelle(330, 320, dreieck + teilung + kaesten + kreise);
+}
 /* --------------------------------------------------------- Zahlenfolgen */
 /**
  * Zahlenfolge mit beschrifteten Pfeilen zwischen den Kästchen, wie im Heft.

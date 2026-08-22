@@ -6,14 +6,16 @@
  * Es fehlt immer genau ein Stein; weil alle Nachbarn sichtbar sind, ist er
  * eindeutig bestimmt – egal, ob er oben, in der Mitte oder unten steht.
  */
-import { rechenkasten, rechenrad, zahlenmauer } from "../figures.js";
+import { rechendreieck, rechenkasten, rechenrad, zahlenmauer } from "../figures.js";
 import { zahlfeld } from "./helpers.js";
 export function mauern(rng, stufe) {
-    const wahl = rng.int(1, 3);
+    const wahl = rng.int(1, 4);
     if (wahl === 1)
         return kasten(rng, stufe);
     if (wahl === 2)
         return rng.chance(0.5) ? rad(rng, stufe) : radDifferenz(rng, stufe);
+    if (wahl === 3)
+        return dreieck(rng, stufe);
     // Stufe 1: 3 Kästchen, Stufe 2: 6, Stufe 3: 10. Auf Stufe 2 kommt die große
     // Mauer gelegentlich schon mit kleinen Zahlen vor – die Größe soll dort der
     // Reiz sein, nicht die Rechnung.
@@ -22,6 +24,76 @@ export function mauern(rng, stufe) {
     if (stufe === 2)
         return rng.chance(0.3) ? mauerMitVier(rng, 6, 5) : mauerMitDrei(rng);
     return mauerMitVier(rng, 12, 10);
+}
+/* ------------------------------------------------------- Rechendreiecke */
+/**
+ * Rechendreieck: Drei Zahlen stehen innen, an jeder Seite steht außen ihre
+ * Summe mit der Nachbarzahl. Aus dem Arbeitsheft („Rund um die Mathematik“).
+ *
+ * Es fehlt immer genau ein Feld, und die Schwierigkeit hängt daran, WELCHES:
+ *
+ * - Außen fehlt  → reines Zusammenzählen (Stufe 1).
+ * - Innen fehlt  → man muss von einer Außenzahl die bekannte Innenzahl
+ *   abziehen; die Umkehrung ist nötig (Stufe 2).
+ * - Innen fehlt, aber alle drei Außenzahlen sind bekannt → derselbe Weg, nur
+ *   ohne Hilfe durch eine zweite Innenzahl (Stufe 3).
+ */
+function dreieck(rng, stufe) {
+    const max = stufe === 1 ? 9 : stufe === 2 ? 15 : 25;
+    const innen = [rng.int(1, max), rng.int(1, max), rng.int(1, max)];
+    // Außen in fester Reihenfolge: links = oben+links, rechts = oben+rechts,
+    // unten = links+rechts. Genau so liest die Figur die Felder.
+    const aussen = [innen[0] + innen[1], innen[0] + innen[2], innen[1] + innen[2]];
+    const aussenFehlt = stufe === 1 ? true : stufe === 2 ? rng.chance(0.4) : rng.chance(0.2);
+    if (aussenFehlt) {
+        const i = rng.int(0, 2);
+        // Welche zwei Innenzahlen liegen an dieser Seite?
+        const [x, y] = i === 0 ? [innen[0], innen[1]] : i === 1 ? [innen[0], innen[2]] : [innen[1], innen[2]];
+        const gezeigt = aussen.map((wert, k) => (k === i ? null : wert));
+        return {
+            typ: "mauern/dreieck-aussen",
+            frage: "Welche Zahl gehört in das leere Kästchen?",
+            bild: {
+                svg: rechendreieck(innen, gezeigt, { bereich: "aussen", feld: i }),
+                beschriftung: `Rechendreieck: innen ${innen.join(", ")}; an der leeren Seite liegen ${x} und ${y}`,
+            },
+            antwortfeld: zahlfeld(),
+            loesung: String(x + y),
+            tipp: "Zähle die beiden Zahlen zusammen, die an dieser Seite liegen.",
+            erklaerung: `${x} + ${y} = ${x + y}`,
+        };
+    }
+    // Eine Innenzahl fehlt. Die beiden Seiten, die sie berührt, verraten sie –
+    // zusammen mit der jeweiligen Nachbarzahl.
+    const i = rng.int(0, 2);
+    const gesucht = innen[i];
+    const gezeigtInnen = innen.map((wert, k) => (k === i ? null : wert));
+    // Welche Außenseite nehmen wir zum Erklären? Eine, an der die Lücke liegt.
+    const [seite, nachbar] = i === 0 ? [0, innen[1]] : i === 1 ? [0, innen[0]] : [1, innen[0]];
+    const summe = aussen[seite];
+    /*
+     * Zwei der drei Außenzahlen berühren die Lücke – jede von ihnen führt zum
+     * Ziel. Die dritte liegt der Lücke gegenüber und hilft gar nicht.
+     *
+     * Auf Stufe 3 lassen wir genau diese überflüssige weg: Die Aufgabe bleibt
+     * eindeutig lösbar, aber das Dreieck sieht leerer aus und man muss sich
+     * überlegen, welche Seite überhaupt weiterhilft.
+     */
+    const gegenueber = i === 0 ? 2 : i === 1 ? 1 : 0;
+    const gezeigtAussen = stufe === 3 ? aussen.map((wert, k) => (k === gegenueber ? null : wert)) : aussen;
+    return {
+        typ: "mauern/dreieck-innen",
+        frage: "Welche Zahl gehört in den leeren Kreis?",
+        bild: {
+            svg: rechendreieck(gezeigtInnen, gezeigtAussen, { bereich: "innen", feld: i }),
+            // Die Beschriftung darf nur beschreiben, was auch im Bild steht.
+            beschriftung: `Rechendreieck: außen ${gezeigtAussen.map((w) => (w === null ? "leer" : w)).join(", ")}; innen fehlt eine Zahl`,
+        },
+        antwortfeld: zahlfeld(),
+        loesung: String(gesucht),
+        tipp: "Nimm eine Außenzahl und ziehe die Innenzahl ab, die daneben steht.",
+        erklaerung: `${summe} − ${nachbar} = ${gesucht}`,
+    };
 }
 /** Verteilt eine Summe zufällig auf `teile` nicht-negative Summanden. */
 export function verteile(rng, summe, teile) {

@@ -487,3 +487,87 @@ test("die Hilfsaufgabe der Umkehraufgabe rechnet genau die Lücke aus", () => {
 
   assert.ok(geprueft > 50, `zu wenige Umkehraufgaben geprüft: ${geprueft}`);
 });
+
+/*
+ * Rechendreieck: drei Zahlen innen, an jeder Seite außen die Summe der beiden
+ * Innenzahlen, die dort liegen. Aus dem Arbeitsheft übernommen.
+ *
+ * Nachgerechnet wird aus dem BILD heraus, nicht aus den Zwischenwerten des
+ * Generators – sonst prüfte der Test nur, dass der Generator mit sich selbst
+ * einig ist. Die Figur gibt für jedes der sechs Felder ein Textelement aus,
+ * in fester Reihenfolge: außen links, außen rechts, außen unten, dann innen
+ * oben, innen links, innen rechts.
+ */
+test("im Rechendreieck ist jede Außenzahl die Summe ihrer beiden Innenzahlen", () => {
+  const arten = new Set();
+  let geprueft = 0;
+
+  for (const stufe of STUFEN) {
+    for (let i = 0; i < 500; i++) {
+      const aufgabe = GENERATOREN.mauern(mulberry32(i * 23 + stufe), stufe);
+      if (!aufgabe.typ.includes("dreieck")) continue;
+      arten.add(aufgabe.typ);
+      const kontext = `${aufgabe.typ} (Stufe ${stufe})`;
+
+      const felder = [...aufgabe.bild.svg.matchAll(/<text[^>]*>([^<]*)<\/text>/g)].map((t) => t[1]);
+      assert.equal(felder.length, 6, `${kontext}: das Bild hat nicht sechs Felder`);
+      assert.equal(
+        felder.filter((t) => t === "?").length,
+        1,
+        `${kontext}: nicht genau ein Fragezeichen`
+      );
+
+      // Die Lücke mit der Lösung füllen, leere Felder bleiben unbekannt.
+      const wert = felder.map((t) =>
+        t === "?" ? Number(aufgabe.loesung) : t === "" ? null : Number(t)
+      );
+      assert.ok(
+        wert.every((z) => z === null || Number.isInteger(z)),
+        `${kontext}: unlesbares Feld in ${JSON.stringify(felder)}`
+      );
+
+      // Feldnummern: 0 außen links, 1 außen rechts, 2 außen unten,
+      // 3 innen oben, 4 innen links, 5 innen rechts.
+      const seiten = [
+        { name: "links", felder: [0, 3, 4] },
+        { name: "rechts", felder: [1, 3, 5] },
+        { name: "unten", felder: [2, 4, 5] },
+      ];
+      const luecke = felder.indexOf("?");
+
+      /*
+       * Zwei Dinge auf einmal: Jede vollständige Seite muss aufgehen, UND
+       * mindestens eine vollständige Seite muss die Lücke selbst enthalten.
+       * Ohne die zweite Bedingung ginge eine unlösbare Aufgabe durch – etwa
+       * wenn beide Außenzahlen neben der Lücke fehlen und nur die
+       * gegenüberliegende Seite dasteht, die von der Lücke gar nichts weiß.
+       */
+      let erreichbar = 0;
+      for (const { name, felder: [a, x, y] } of seiten) {
+        if (wert[a] === null || wert[x] === null || wert[y] === null) continue;
+        assert.equal(
+          wert[a],
+          wert[x] + wert[y],
+          `${kontext}: Seite ${name} stimmt nicht (${wert[x]} + ${wert[y]} ≠ ${wert[a]})`
+        );
+        if ([a, x, y].includes(luecke)) erreichbar++;
+      }
+      assert.ok(erreichbar >= 1, `${kontext}: keine vollständige Seite führt zur Lücke – unlösbar`);
+
+      // Innen darf nie eine 0 oder negative Zahl herauskommen.
+      for (const feld of [3, 4, 5]) {
+        const z = wert[feld];
+        if (z !== null) assert.ok(z >= 1, `${kontext}: Innenzahl ${z} ist für Klasse 2 unbrauchbar`);
+      }
+
+      geprueft++;
+    }
+  }
+
+  assert.deepEqual(
+    [...arten].sort(),
+    ["mauern/dreieck-aussen", "mauern/dreieck-innen"],
+    "nicht beide Dreiecks-Arten wurden erzeugt"
+  );
+  assert.ok(geprueft > 100, `zu wenige Dreiecke geprüft: ${geprueft}`);
+});

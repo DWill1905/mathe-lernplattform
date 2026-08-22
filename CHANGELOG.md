@@ -4,6 +4,44 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.21.0] – 2026-08-22
+
+### Hinzugefügt
+
+**Rechendreiecke** — aus dem Arbeitsheft („Rund um die Mathematik"). Drei
+Zahlen stehen innen, an jeder Seite steht außen die Summe der beiden
+Innenzahlen, die dort liegen. Es fehlt immer genau ein Feld, und die
+Schwierigkeit hängt daran, welches:
+
+- **Stufe 1** — außen fehlt: reines Zusammenzählen.
+- **Stufe 2** — innen fehlt: man muss von einer Außenzahl die bekannte
+  Innenzahl abziehen, also umkehren.
+- **Stufe 3** — innen fehlt, und die Außenzahl gegenüber der Lücke ist
+  weggelassen. Die hilft ohnehin nicht; ohne sie muss man aber erst überlegen,
+  welche Seite überhaupt weiterführt.
+
+Die Figur unterscheidet **leer** von **gesucht**: Nur das gefragte Feld trägt
+ein Fragezeichen. Ohne diese Trennung stünden auf Stufe 3 zwei Fragezeichen im
+Bild, und ein Kind wüsste nicht, welches gemeint ist.
+
+Der Test rechnet das Dreieck aus dem **Bild** nach, nicht aus den
+Zwischenwerten des Generators — sonst prüfte er nur, ob der Generator mit sich
+selbst einig ist. Er verlangt außerdem, dass mindestens eine vollständige Seite
+die Lücke berührt; sonst ginge eine unlösbare Aufgabe durch. Gegen drei
+absichtlich kaputte Fassungen gegengeprüft (vertauschte Seiten, Lösung um eins
+daneben, unlösbar gemacht) — jede fällt durch.
+
+### Geändert
+
+Die Zahlenmauer ist jetzt eine von vier Varianten des Bereichs statt einer von
+drei. Zwei Mauer-Tests hatten Stichprobenschranken, die von der alten
+Aufteilung stammten; sie sind nachgezogen, ohne dass sich ändert, was sie
+prüfen.
+
+Die anderen vier Heftseiten deckt die App bereits ab: Analogieaufgaben
+(Einer/Zehner und im Zwanzigerraum), Rechentabellen, Zahlenmauern,
+Pfeilketten und Zahlenfolgen mit wechselnden Schritten.
+
 ## [1.20.2] – 2026-08-22
 
 ### Behoben

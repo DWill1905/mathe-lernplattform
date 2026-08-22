@@ -61,13 +61,13 @@ export const THEMEN = [
     {
         id: "mauern",
         titel: "Mauern & Räder",
-        kurz: "Zahlenmauern, Rechenkästen und Rechenräder",
+        kurz: "Zahlenmauern, Rechendreiecke, Kästen und Räder",
         symbol: "mauer",
         farbe: "orange",
         stufen: [
-            "Zahlenmauer mit zwei Steinen, Rechenkasten, Rechenrad bis 20",
-            "Lücke unten in der Mauer, Kasten rückwärts, größere Räder",
-            "Mauern mit drei Grundsteinen und Kästen bis 100",
+            "Zahlenmauer mit zwei Steinen, Rechenkasten, Rechenrad, Rechendreieck bis 20",
+            "Lücke unten in der Mauer, Kasten rückwärts, größere Räder, Innenzahl im Dreieck",
+            "Mauern mit drei Grundsteinen, Kästen bis 100, Dreiecke ohne Hilfsseite",
         ],
         ausHeft: true,
     },
