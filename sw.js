@@ -26,6 +26,7 @@ const KERN = [
   "./icons/icon-maskable.svg",
   "./icons/icon.svg",
   "./index.html",
+  "./js/antwort.js",
   "./js/app.js",
   "./js/bilder.js",
   "./js/dom.js",

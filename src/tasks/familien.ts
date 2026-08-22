@@ -38,7 +38,7 @@ function umkehrZuPlus(rng: Rng, max: number): Aufgabe {
   return {
     typ: "familien/umkehr-plus",
     frage: "Wie lautet das Ergebnis?",
-    vorstufe: { frage: "Rechne die kleine Hilfsaufgabe:", rechnung: `${a} + ${b} =`, loesung: String(summe) },
+    vorstufe: { frage: "Schreibe die passende Umkehraufgabe ganz auf:", rechnung: `${a} + ${b} =`, loesung: String(summe) },
     rechnung: `${summe} − ${b} =`,
     antwortfeld: zahlfeld(),
     loesung: String(a),
@@ -53,7 +53,7 @@ function umkehrZuMinus(rng: Rng, max: number): Aufgabe {
   return {
     typ: "familien/umkehr-minus",
     frage: "Wie lautet das Ergebnis?",
-    vorstufe: { frage: "Rechne die kleine Hilfsaufgabe:", rechnung: `${summe} − ${a} =`, loesung: String(b) },
+    vorstufe: { frage: "Schreibe die passende Umkehraufgabe ganz auf:", rechnung: `${summe} − ${a} =`, loesung: String(b) },
     rechnung: `${b} + ${a} =`,
     antwortfeld: zahlfeld(),
     loesung: String(summe),

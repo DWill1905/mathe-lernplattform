@@ -3038,3 +3038,56 @@ body.uebung-laeuft .karte-aufgabe > .knopf-bonus,
 body.uebung-laeuft .karte-aufgabe > .knopf-tipp {
   align-self: center;
 }
+
+/* Beispielzeile beim Eintippen einer ganzen Rechnung. */
+.hinweis-format {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+/* Die getippte Rechnung ist länger als eine Zahl – etwas kleiner setzen. */
+.eingabe-anzeige-rechnung .eingabe-zahl {
+  font-size: clamp(1.6rem, 8vw, 2.4rem);
+  letter-spacing: 0.03em;
+}
+
+/* Die Rechenzeichen heben sich vom Zifferblock ab. */
+.taste-zeichen {
+  background: color-mix(in srgb, var(--haupt) 12%, var(--karte));
+  border-color: color-mix(in srgb, var(--haupt) 32%, var(--rand));
+  color: var(--haupt-text);
+}
+
+/*
+ * Das Rechnungs-Tastenfeld hat eine Reihe mehr als das Zahlenfeld (+, −, =).
+ * Im Querformat auf dem Telefon reicht die Höhe dadurch um wenige Pixel nicht
+ * mehr – dort werden die Tasten und Abstände etwas kleiner. 40 px Höhe je
+ * Taste bleiben die Untergrenze, sonst trifft ein Kinderfinger sie nicht mehr.
+ */
+@media (orientation: landscape) and (max-height: 560px) {
+  .tastenfeld {
+    gap: 0.35rem;
+  }
+
+  .taste {
+    min-height: 40px;
+    padding: 0.3rem;
+  }
+
+  .hinweis-format {
+    margin: 0.2rem 0;
+    font-size: 0.8rem;
+  }
+
+  /* Quer steht die Eingabe in der schmalen zweiten Spalte, zusammen mit dem
+     Tastenfeld – gemessen war genau diese Spalte 6 px zu hoch. */
+  .eingabe-anzeige {
+    min-height: 0;
+    padding: 0.4rem 0.6rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .eingabe-anzeige-rechnung .eingabe-zahl {
+    font-size: 1.25rem;
+  }
+}

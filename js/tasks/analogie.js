@@ -7,7 +7,7 @@ import { zahlfeld } from "./helpers.js";
 /** Die Hilfsaufgabe, die das Kind zuerst selbst rechnet. */
 function hilfsaufgabe(a, zeichen, b, ergebnis) {
     return {
-        frage: "Rechne die kleine Hilfsaufgabe:",
+        frage: "Schreibe die kleine Hilfsaufgabe ganz auf:",
         rechnung: `${a} ${zeichen} ${b} =`,
         loesung: String(ergebnis),
     };

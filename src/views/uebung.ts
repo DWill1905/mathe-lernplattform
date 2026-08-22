@@ -26,6 +26,7 @@ import {
 import { mulberry32, zufallsSeed } from "../random.js";
 import { PUZZLE_TEILE, puzzleBild, waehleMotiv, type Puzzle, type Teilstand } from "../bilder.js";
 import { raeumeJubel, waehleJubel, zeigeJubel } from "../jubel.js";
+import { normalisiere, rechnungPasst } from "../antwort.js";
 import { ladeFortschritt, merkeGestellteAufgaben } from "../state.js";
 import {
   MEISTERLAENGE,
@@ -301,9 +302,10 @@ function aktuellerSchritt(aufgabe: Aufgabe, sitzung: Sitzung): Schritt {
   if (sitzung.phase === "vorstufe" && aufgabe.vorstufe) {
     return {
       frage: aufgabe.vorstufe.frage,
-      rechnung: aufgabe.vorstufe.rechnung,
-      antwortfeld: { art: "zahl" },
-      loesung: aufgabe.vorstufe.loesung,
+      // Die Rechnung wird BEWUSST nicht angezeigt – das Kind soll sie selbst
+      // finden und ganz aufschreiben. Sonst bliebe nur das Ergebnis zu tippen.
+      antwortfeld: { art: "rechnung" },
+      loesung: `${aufgabe.vorstufe.rechnung} ${aufgabe.vorstufe.loesung}`,
     };
   }
   return {
@@ -433,6 +435,11 @@ function zeichne(ziel: HTMLElement, sitzung: Sitzung): void {
   }
 
   karte.appendChild(el("p", { class: "aufgabe-frage", text: schritt.frage }));
+  // Die ganze Rechnung wird getippt – ohne Beispiel wüsste ein Kind nicht,
+  // dass Gleichheitszeichen und Ergebnis dazugehören.
+  if (inVorstufe && schritt.antwortfeld.art === "rechnung") {
+    karte.appendChild(el("p", { class: "hinweis hinweis-format", text: "zum Beispiel so:  3 − 2 = 1" }));
+  }
   if (aufgabe.bild && !inVorstufe) {
     const bild = svgBild(aufgabe.bild.svg, aufgabe.bild.beschriftung);
     if (aufgabe.bild.breit) bild.classList.add("bild-breit");
@@ -583,11 +590,18 @@ function antwortbereich(ziel: HTMLElement, sitzung: Sitzung, schritt: Schritt): 
     return karten;
   }
 
-  const einheit = schritt.antwortfeld.einheit;
+  const istRechnung = schritt.antwortfeld.art === "rechnung";
+  const einheit = schritt.antwortfeld.art === "zahl" ? schritt.antwortfeld.einheit : undefined;
+  // Eine ganze Rechnung ist länger als eine Zahl – „100 − 40 = 60“ sind zwölf
+  // Zeichen ohne Leerzeichen, mit Puffer nach oben.
+  const maxZeichen = istRechnung ? 14 : 4;
   const anzeige = el(
     "div",
-    { class: "eingabe-anzeige", "aria-live": "polite" },
-    el("span", { class: "eingabe-zahl", text: sitzung.eingabe || "?" }),
+    { class: `eingabe-anzeige${istRechnung ? " eingabe-anzeige-rechnung" : ""}`, "aria-live": "polite" },
+    el("span", {
+      class: "eingabe-zahl",
+      text: sitzung.eingabe || (istRechnung ? "…" : "?"),
+    }),
     einheit ? el("span", { class: "eingabe-einheit", text: einheit }) : null
   );
 
@@ -595,10 +609,12 @@ function antwortbereich(ziel: HTMLElement, sitzung: Sitzung, schritt: Schritt): 
     if (sitzung.beantwortet || sitzung.eingabe === "") return;
     pruefe(ziel, sitzung, sitzung.eingabe);
   };
-  const tippe = (ziffer: string): void => {
-    if (sitzung.beantwortet || sitzung.eingabe.length >= 4) return;
-    if (sitzung.eingabe === "0") sitzung.eingabe = "";
-    sitzung.eingabe += ziffer;
+  const tippe = (zeichen: string): void => {
+    if (sitzung.beantwortet || sitzung.eingabe.length >= maxZeichen) return;
+    // Führende Null nur beim reinen Zahlenfeld ersetzen – in einer Rechnung
+    // wäre „0“ ein gültiger Anfang („10 − 10 = 0“ endet damit).
+    if (!istRechnung && sitzung.eingabe === "0") sitzung.eingabe = "";
+    sitzung.eingabe += zeichen;
     zeichne(ziel, sitzung);
   };
   const loesche = (): void => {
@@ -613,6 +629,9 @@ function antwortbereich(ziel: HTMLElement, sitzung: Sitzung, schritt: Schritt): 
       if (/^\d$/.test(ereignis.key)) {
         ereignis.preventDefault();
         tippe(ereignis.key);
+      } else if (istRechnung && ["+", "-", "−", "="].includes(ereignis.key)) {
+        ereignis.preventDefault();
+        tippe(ereignis.key === "-" ? "−" : ereignis.key);
       } else if (ereignis.key === "Backspace") {
         ereignis.preventDefault();
         loesche();
@@ -636,11 +655,26 @@ function antwortbereich(ziel: HTMLElement, sitzung: Sitzung, schritt: Schritt): 
       })
     );
   }
+  if (istRechnung) {
+    for (const zeichen of ["+", "−", "="]) {
+      feld.appendChild(
+        el("button", {
+          class: "taste taste-zeichen",
+          type: "button",
+          disabled: sitzung.beantwortet,
+          text: zeichen,
+          "aria-label": zeichen === "+" ? "Plus" : zeichen === "−" ? "Minus" : "Gleich",
+          onclick: () => tippe(zeichen),
+        })
+      );
+    }
+  }
+
   feld.append(
     el("button", {
       class: "taste taste-hilfe",
       type: "button",
-      "aria-label": "Letzte Ziffer löschen",
+      "aria-label": istRechnung ? "Letztes Zeichen löschen" : "Letzte Ziffer löschen",
       disabled: sitzung.beantwortet,
       text: "←",
       onclick: loesche,
@@ -723,7 +757,10 @@ function rueckmeldung(ziel: HTMLElement, sitzung: Sitzung, schritt: Schritt): HT
 function pruefe(ziel: HTMLElement, sitzung: Sitzung, antwort: string): void {
   const eintrag = sitzung.eintraege[sitzung.index]!;
   const schritt = aktuellerSchritt(eintrag.aufgabe, sitzung);
-  const richtig = normalisiere(antwort) === normalisiere(schritt.loesung);
+  const richtig =
+    schritt.antwortfeld.art === "rechnung"
+      ? rechnungPasst(antwort, schritt.loesung)
+      : normalisiere(antwort) === normalisiere(schritt.loesung);
   sitzung.eingabe = antwort;
   sitzung.beantwortet = true;
   sitzung.warRichtig = richtig;
@@ -766,11 +803,6 @@ function pruefe(ziel: HTMLElement, sitzung: Sitzung, antwort: string): void {
 function jubele(sitzung: Sitzung): void {
   zeigeJubel(waehleJubel(sitzung.jubelZaehler + sitzung.jubelStart));
   sitzung.jubelZaehler++;
-}
-
-/** Groß-/Kleinschreibung und Leerzeichen sollen nie über richtig/falsch entscheiden. */
-function normalisiere(wert: string): string {
-  return wert.trim().replace(/\s+/g, " ").toLowerCase();
 }
 
 /* -------------------------------------------------------------- Ergebnis */

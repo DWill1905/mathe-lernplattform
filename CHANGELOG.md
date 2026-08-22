@@ -4,6 +4,44 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.14.0] – 2026-08-22
+
+### Geändert
+
+**Die Hilfsaufgabe wird jetzt ganz eingetippt, nicht nur ihr Ergebnis.**
+Bisher stand im Bonus die fertige Rechnung da („4 − 1 =“) und es war nur noch
+die 3 zu tippen. Das ist keine eigene Leistung. Jetzt steht dort nur die große
+Aufgabe („Dafür: 40 − 10 =“) – die passende Hilfsaufgabe muss das Kind selbst
+finden UND vollständig aufschreiben: `4 − 1 = 3`.
+
+- Neue Antwortart `"rechnung"`: Das Tastenfeld bekommt zusätzlich **+, − und =**
+  (eine Reihe mehr), die Eingabe darf 14 Zeichen lang sein. Auch über die
+  Tastatur, wo der Bindestrich als Minus zählt.
+- Eine Beispielzeile („zum Beispiel so: 3 − 2 = 1“) zeigt, dass
+  Gleichheitszeichen und Ergebnis dazugehören.
+- Der Vergleich ist **großzügig in der Schreibweise, streng in der Sache**:
+  Leerzeichen egal, Bindestrich und Gedankenstrich zählen als Minus, und beim
+  Plus ist die Reihenfolge vertauschbar (`3 + 4 = 7` gilt für `4 + 3 = 7`).
+  Falsche Zahlen, falsches Ergebnis, vertauschtes Minus oder nur das Ergebnis
+  gelten nicht.
+- Die Fragetexte heißen jetzt „Schreibe die kleine Hilfsaufgabe ganz auf“ bzw.
+  „Schreibe die passende Umkehraufgabe ganz auf“.
+
+Der Vergleich ist dabei aus der Ansicht in ein eigenes Modul `src/antwort.ts`
+gewandert – vorher war er eine private Funktion in `views/uebung.ts` und ließ
+sich gar nicht prüfen. Elf neue Tests decken ihn ab.
+
+Im Browser nachgespielt: ganze Rechnung richtig (Herz kommt), nur das Ergebnis
+getippt (wird abgelehnt) und beim Minus vertauscht (wird abgelehnt).
+
+### Behoben
+
+Die zusätzliche Tastenreihe machte die Bonusansicht im Querformat auf dem
+Telefon 6 px zu hoch. Gemessen und nachgebessert: Eingabefeld und Tastenabstände
+sind dort kleiner, 40 px Tastenhöhe bleiben die Untergrenze. Alle sechs
+geprüften Geräte kommen jetzt ohne Scrollen aus, und der Bonusknopf selbst ist
+auf allen ohne Scrollen sichtbar (engste Luft 88 px auf dem iPhone SE).
+
 ## [1.13.0] – 2026-08-22
 
 ### Geändert

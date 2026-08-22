@@ -55,6 +55,8 @@ verwässern.
   deshalb direkt testbar.
 - `src/gamification.ts` – Punkte, Level, Sterne, Herzen, Streak, Abzeichen,
   Stufenanpassung.
+- `src/antwort.ts` – Vergleich von Antwort und Lösung, auch für selbst getippte
+  Rechnungen. Ohne DOM-Zugriff, deshalb direkt testbar.
 - `src/bilder.ts` – farbige Illustrationen: ein Bild je Thema (die Navigation
   läuft über Bilder, nicht über Fließtext) und die Puzzlemotive. Ohne
   DOM-Zugriff, deshalb direkt testbar.
@@ -118,6 +120,13 @@ verwässern.
   sie braucht eine sichtbare Rechnung oder ein Bild. Die Hilfsaufgabe zählt
   NICHT in die Trefferbilanz – sie bringt ein Herz. Ihr Ergebnis muss im
   Zahlenraum bleiben und darf nie negativ werden (`test/mauern.test.js`).
+- **Im Bonus wird die GANZE Rechnung getippt** (`3 − 2 = 1`), nicht nur das
+  Ergebnis – dafür gibt es die Antwortart `"rechnung"` mit +, − und = auf dem
+  Tastenfeld. Die Hilfsaufgabe wird dabei bewusst NICHT angezeigt; sie selbst
+  zu finden ist der Bonus. Der Vergleich steht in `src/antwort.ts`
+  (`rechnungPasst`) und ist großzügig bei Leerzeichen und Minusschreibweise,
+  aber streng bei Zahlen und Ergebnis; beim Plus zählt die vertauschte
+  Reihenfolge mit.
 - **In einer Zahlenmauer fehlt immer genau ein Stein.** Nur dann ist er
   eindeutig bestimmt, weil alle Nachbarn sichtbar bleiben. Ein Test prüft das.
 - **Rechenmeister und Puzzle sind Betriebsarten der Übungsansicht**, keine

@@ -26,6 +26,11 @@ export type Stufe = 1 | 2 | 3;
  */
 export type Antwortfeld =
   | { art: "zahl"; einheit?: string }
+  /**
+   * Eine ganze Rechnung wird eingetippt, nicht nur das Ergebnis – z. B.
+   * `3 − 2 = 1`. Das Tastenfeld hat dafür zusätzlich +, − und =.
+   */
+  | { art: "rechnung" }
   | { art: "auswahl"; optionen: string[] }
   /**
    * Auswahl aus Bildern. Die Lösung ist die `kennung` der richtigen Karte –
@@ -35,9 +40,9 @@ export type Antwortfeld =
   | { art: "bildauswahl"; optionen: { kennung: string; svg: string; beschriftung: string }[] };
 
 /**
- * Vorgeschalteter Rechenschritt („Rechne zuerst die Hilfsaufgabe“). Wer ihn
- * selbst löst, bekommt ein Herz – die Hilfsaufgabe steht danach als Hinweis
- * über der eigentlichen Aufgabe.
+ * Die Hilfsaufgabe als freiwilliger Bonus. Wer sie GANZ selbst aufschreibt
+ * („3 − 2 = 1“, nicht nur die 1), bekommt ein Herz – danach steht sie als
+ * Hinweis über der eigentlichen Aufgabe.
  */
 export interface Vorstufe {
   frage: string;
