@@ -90,6 +90,18 @@ export function eckenZahl(form) {
     return FORM_ECKEN[form];
 }
 export const ALLE_FORMEN = Object.keys(FORM_ECKEN);
+/**
+ * Formen, die im Deutschen weiblich sind. Die Raute ist die einzige in dieser
+ * Liste – und genau solche Einzelfälle rutschen durch: In der Aufgabe stand
+ * „Ein Raute hat 4 Ecken". Dasselbe Muster wie beim Wesfall der Vornamen
+ * (`wesfall()` in `tasks/helpers.ts`), wo „Jonass" herauskam.
+ */
+const WEIBLICHE_FORMEN = new Set(["Raute"]);
+/** Formname mit richtigem unbestimmten Artikel: „Ein Dreieck", „Eine Raute". */
+export function mitArtikel(name, gross = true) {
+    const artikel = WEIBLICHE_FORMEN.has(name) ? "eine" : "ein";
+    return `${gross ? artikel[0].toUpperCase() + artikel.slice(1) : artikel} ${name}`;
+}
 /** Zeichnet eine ebene Figur mittig in ein 200×200-Feld. */
 export function form(name) {
     const inhalt = (() => {

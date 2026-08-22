@@ -4,6 +4,7 @@ import {
   ALLE_FORMEN,
   eckenZahl,
   form,
+  mitArtikel,
   puzzleHoehen,
   puzzleteil,
   spiegelachse,
@@ -29,7 +30,7 @@ function formErkennen(rng: Rng): Aufgabe {
   return {
     typ: "geometrie/form-erkennen",
     frage: "Welche Form ist das?",
-    bild: { svg: form(gewaehlt), beschriftung: `Ein ${gewaehlt}` },
+    bild: { svg: form(gewaehlt), beschriftung: mitArtikel(gewaehlt) },
     antwortfeld: auswahlfeld(rng, gewaehlt, ablenker),
     loesung: gewaehlt,
     tipp: "Zähle die Ecken – das verrät oft schon den Namen.",
@@ -56,11 +57,11 @@ function eckenZaehlen(rng: Rng): Aufgabe {
   return {
     typ: "geometrie/ecken-zaehlen",
     frage: "Wie viele Ecken hat diese Form?",
-    bild: { svg: form(gewaehlt), beschriftung: `Ein ${gewaehlt}` },
+    bild: { svg: form(gewaehlt), beschriftung: mitArtikel(gewaehlt) },
     antwortfeld: zahlfeld(),
     loesung: String(anzahl),
     tipp: "Tippe die Ecken der Reihe nach ab.",
-    erklaerung: `Ein ${gewaehlt} hat ${anzahl} Ecken.`,
+    erklaerung: `${mitArtikel(gewaehlt)} hat ${anzahl} Ecken.`,
   };
 }
 
@@ -70,11 +71,11 @@ function seitenZaehlen(rng: Rng): Aufgabe {
   return {
     typ: "geometrie/seiten-zaehlen",
     frage: "Wie viele Seiten hat diese Form?",
-    bild: { svg: form(gewaehlt), beschriftung: `Ein ${gewaehlt}` },
+    bild: { svg: form(gewaehlt), beschriftung: mitArtikel(gewaehlt) },
     antwortfeld: zahlfeld(),
     loesung: String(anzahl),
     tipp: "Eine Form hat immer so viele Seiten wie Ecken.",
-    erklaerung: `Ein ${gewaehlt} hat ${anzahl} Seiten – genauso viele wie Ecken.`,
+    erklaerung: `${mitArtikel(gewaehlt)} hat ${anzahl} Seiten – genauso viele wie Ecken.`,
   };
 }
 
@@ -86,7 +87,7 @@ function symmetrie(rng: Rng): Aufgabe {
     frage: "Ist die eingezeichnete Linie eine Spiegelachse?",
     bild: {
       svg: spiegelachse(gewaehlt, istAchse),
-      beschriftung: `Ein ${gewaehlt} mit einer eingezeichneten Linie`,
+      beschriftung: `${mitArtikel(gewaehlt)} mit einer eingezeichneten Linie`,
     },
     antwortfeld: { art: "auswahl", optionen: ["Ja", "Nein"] },
     loesung: istAchse ? "Ja" : "Nein",

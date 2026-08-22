@@ -849,3 +849,54 @@ test("die richtige Antwort steht gleichmäßig verteilt", () => {
     });
   }
 });
+
+/**
+ * Kein falscher Artikel in einem Aufgabentext.
+ *
+ * „Ein Raute hat 4 Ecken“ stand in der Übung – die Raute ist die einzige
+ * weibliche Form der Liste, und genau solche Einzelfälle rutschen durch.
+ * Es ist dieselbe Fehlerklasse wie beim Wesfall der Vornamen, wo „Jonass“
+ * herauskam. Für ein Kind, das gerade erst lesen lernt, ist falsches Deutsch
+ * kein Schönheitsfehler.
+ */
+const WEIBLICH = ["Raute", "Uhr", "Form", "Linie", "Reihe", "Zahl", "Summe", "Seite", "Mauer"];
+const SAECHLICH_ODER_MAENNLICH = [
+  "Quadrat",
+  "Rechteck",
+  "Dreieck",
+  "Kreis",
+  "Fünfeck",
+  "Sechseck",
+  "Trapez",
+  "Würfel",
+  "Quader",
+  "Stein",
+  "Zehner",
+  "Einer",
+];
+
+test("kein Aufgabentext trägt einen falschen Artikel", () => {
+  const falsch = new Set();
+
+  for (const eintrag of THEMEN) {
+    for (const stufe of STUFEN) {
+      const rng = mulberry32(1234 + stufe);
+      for (let i = 0; i < 400; i++) {
+        const aufgabe = GENERATOREN[eintrag.id](rng, stufe);
+        const texte = [aufgabe.frage, aufgabe.tipp, aufgabe.erklaerung, aufgabe.bild?.beschriftung];
+        for (const text of texte) {
+          if (!text) continue;
+          for (const wort of WEIBLICH) {
+            // „ein Raute“ / „Ein Raute“ – aber „eine Raute“ ist richtig.
+            if (new RegExp(`\\b[Ee]in\\s+${wort}\\b`).test(text)) falsch.add(`„ein ${wort}“ in: ${text}`);
+          }
+          for (const wort of SAECHLICH_ODER_MAENNLICH) {
+            if (new RegExp(`\\b[Ee]ine\\s+${wort}\\b`).test(text)) falsch.add(`„eine ${wort}“ in: ${text}`);
+          }
+        }
+      }
+    }
+  }
+
+  assert.deepEqual([...falsch], [], `falsche Artikel:\n  ${[...falsch].join("\n  ")}`);
+});

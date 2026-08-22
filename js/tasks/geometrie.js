@@ -1,4 +1,4 @@
-import { ALLE_FORMEN, eckenZahl, form, puzzleHoehen, puzzleteil, spiegelachse, } from "../figures.js";
+import { ALLE_FORMEN, eckenZahl, form, mitArtikel, puzzleHoehen, puzzleteil, spiegelachse, } from "../figures.js";
 import { auswahlfeld, zahlfeld } from "./helpers.js";
 /** Körper mit ihren Kennzahlen – für die Fragen der dritten Stufe. */
 const KOERPER = [
@@ -18,7 +18,7 @@ function formErkennen(rng) {
     return {
         typ: "geometrie/form-erkennen",
         frage: "Welche Form ist das?",
-        bild: { svg: form(gewaehlt), beschriftung: `Ein ${gewaehlt}` },
+        bild: { svg: form(gewaehlt), beschriftung: mitArtikel(gewaehlt) },
         antwortfeld: auswahlfeld(rng, gewaehlt, ablenker),
         loesung: gewaehlt,
         tipp: "Zähle die Ecken – das verrät oft schon den Namen.",
@@ -43,11 +43,11 @@ function eckenZaehlen(rng) {
     return {
         typ: "geometrie/ecken-zaehlen",
         frage: "Wie viele Ecken hat diese Form?",
-        bild: { svg: form(gewaehlt), beschriftung: `Ein ${gewaehlt}` },
+        bild: { svg: form(gewaehlt), beschriftung: mitArtikel(gewaehlt) },
         antwortfeld: zahlfeld(),
         loesung: String(anzahl),
         tipp: "Tippe die Ecken der Reihe nach ab.",
-        erklaerung: `Ein ${gewaehlt} hat ${anzahl} Ecken.`,
+        erklaerung: `${mitArtikel(gewaehlt)} hat ${anzahl} Ecken.`,
     };
 }
 function seitenZaehlen(rng) {
@@ -56,11 +56,11 @@ function seitenZaehlen(rng) {
     return {
         typ: "geometrie/seiten-zaehlen",
         frage: "Wie viele Seiten hat diese Form?",
-        bild: { svg: form(gewaehlt), beschriftung: `Ein ${gewaehlt}` },
+        bild: { svg: form(gewaehlt), beschriftung: mitArtikel(gewaehlt) },
         antwortfeld: zahlfeld(),
         loesung: String(anzahl),
         tipp: "Eine Form hat immer so viele Seiten wie Ecken.",
-        erklaerung: `Ein ${gewaehlt} hat ${anzahl} Seiten – genauso viele wie Ecken.`,
+        erklaerung: `${mitArtikel(gewaehlt)} hat ${anzahl} Seiten – genauso viele wie Ecken.`,
     };
 }
 function symmetrie(rng) {
@@ -71,7 +71,7 @@ function symmetrie(rng) {
         frage: "Ist die eingezeichnete Linie eine Spiegelachse?",
         bild: {
             svg: spiegelachse(gewaehlt, istAchse),
-            beschriftung: `Ein ${gewaehlt} mit einer eingezeichneten Linie`,
+            beschriftung: `${mitArtikel(gewaehlt)} mit einer eingezeichneten Linie`,
         },
         antwortfeld: { art: "auswahl", optionen: ["Ja", "Nein"] },
         loesung: istAchse ? "Ja" : "Nein",

@@ -4,6 +4,21 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.26.2] – 2026-08-22
+
+### Behoben
+
+**„Ein Raute hat 4 Ecken.“** Die Raute ist die einzige weibliche Form der
+Liste, und genau solche Einzelfälle rutschen durch — dieselbe Fehlerklasse wie
+beim Wesfall der Vornamen, wo einmal „Jonass“ herauskam. Betroffen waren die
+Bildbeschreibung beim Formenerkennen, beide Erklärtexte zu Ecken und Seiten und
+die Spiegelachsen-Aufgabe. Für ein Kind, das gerade erst lesen lernt, ist
+falsches Deutsch kein Schönheitsfehler.
+
+Der Artikel kommt jetzt aus `mitArtikel()` in `figures.ts`, direkt neben der
+Formenliste. Ein Test durchsucht 15 600 erzeugte Aufgabentexte nach falschen
+Artikeln — in Fragen, Tipps, Erklärungen und Bildbeschreibungen.
+
 ## [1.26.1] – 2026-08-22
 
 ### Behoben
