@@ -214,6 +214,39 @@ test("ein Serverfehler wird gemeldet und wirft nicht", async () => {
 });
 
 /*
+ * Der Fall beim Einrichten: Der Worker läuft, aber die KV-Bindung fehlt. Er
+ * schickt dann die Anleitung im Rumpf mit. Reichte die App sie nicht durch,
+ * bliebe auf dem Bildschirm nur „500" stehen – und wer kein Terminal zur Hand
+ * hat, wüsste nicht, was zu tun ist.
+ */
+test("die Erklärung der Gegenstelle kommt beim Benutzer an", async () => {
+  const hole = async () =>
+    new Response(JSON.stringify({ fehler: "Die KV-Bindung fehlt. Im Worker unter Settings …" }), {
+      status: 500,
+      headers: { "content-type": "application/json" },
+    });
+  const ergebnis = await abgleichMit("ABCD2345", hole);
+  assert.equal(ergebnis.art, "fehler");
+  assert.match(ergebnis.meldung, /KV-Bindung fehlt/, "die Erklärung wurde unterwegs verworfen");
+});
+
+test("ohne verwertbaren Rumpf bleibt es bei der nackten Nummer", async () => {
+  const hole = async () => new Response("<html>Bad Gateway</html>", { status: 502 });
+  const ergebnis = await abgleichMit("ABCD2345", hole);
+  assert.match(ergebnis.meldung, /502/);
+});
+
+test("eine geschwätzige Gegenstelle sprengt die Meldung nicht", async () => {
+  const hole = async () =>
+    new Response(JSON.stringify({ fehler: "x".repeat(5000) }), {
+      status: 500,
+      headers: { "content-type": "application/json" },
+    });
+  const ergebnis = await abgleichMit("ABCD2345", hole);
+  assert.ok(ergebnis.meldung.length < 400, `Meldung zu lang: ${ergebnis.meldung.length} Zeichen`);
+});
+
+/*
  * Die Gegenstelle IST eingetragen – seit der Worker läuft. Fiele die Adresse
  * je auf den Platzhalter zurück, schaltete sich der Abgleich wortlos ab: kein
  * Fehler, keine Meldung, nur nichts. Deshalb wird beides festgehalten.

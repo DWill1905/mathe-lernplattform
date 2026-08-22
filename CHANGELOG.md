@@ -4,6 +4,21 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.20.1] – 2026-08-22
+
+### Behoben
+
+**Die Erklärung der Gegenstelle kommt jetzt beim Benutzer an.** Der Worker legt
+seinen Grund in den Antwortrumpf — bei fehlender KV-Bindung steht dort die
+komplette Anleitung, was zu tun ist. Die App warf ihn weg und zeigte nur
+„Server meldet 500". Wer beim Einrichten kein Terminal zur Hand hat (iPhone,
+iPad), stand damit ohne jeden Hinweis da — ausgerechnet an der Stelle, an der
+sich der häufigste Einrichtungsfehler versteckt.
+
+Die Meldung wird auf 300 Zeichen gekürzt, damit eine kaputte Gegenstelle die
+Karte nicht sprengt; ohne verwertbaren Rumpf bleibt es wie bisher bei der
+nackten Statusnummer. Gegen die alte Fassung gegengeprüft: Sie fällt durch.
+
 ## [1.20.0] – 2026-08-22
 
 ### Hinzugefügt

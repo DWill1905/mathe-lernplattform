@@ -182,6 +182,28 @@ function verschmelzeVerlauf(a, b) {
     return [...proTag.values()].sort((x, y) => x.tag.localeCompare(y.tag)).slice(-90);
 }
 const KOPFZEILEN = { "Content-Type": "application/json" };
+/**
+ * Aus einer abgelehnten Antwort eine Meldung machen, die weiterhilft.
+ *
+ * Der Worker legt seinen Grund in `{ fehler: "…" }` — bei fehlender
+ * KV-Bindung steht dort die komplette Anleitung. Ohne das hier bliebe davon
+ * nur „Server meldet 500", und wer kein Terminal zur Hand hat (Tablet,
+ * Telefon), stünde ohne Hinweis da. Länge begrenzt, damit eine kaputte
+ * Gegenstelle die Karte nicht sprengt.
+ */
+async function grund(antwort) {
+    try {
+        const rumpf = await antwort.json();
+        const text = rumpf?.fehler;
+        if (typeof text === "string" && text.trim()) {
+            return new Error(`${antwort.status} – ${text.trim().slice(0, 300)}`);
+        }
+    }
+    catch {
+        // Kein JSON im Rumpf – dann bleibt es bei der nackten Nummer.
+    }
+    return new Error(`Server meldet ${antwort.status}`);
+}
 /** Holt den Stand zum Code. `null` heißt: zu diesem Code gibt es noch nichts. */
 export async function holeStand(code, hole = fetch) {
     const antwort = await hole(`${WORKER_URL}/hole`, {
@@ -190,7 +212,7 @@ export async function holeStand(code, hole = fetch) {
         body: JSON.stringify({ code }),
     });
     if (!antwort.ok)
-        throw new Error(`Server meldet ${antwort.status}`);
+        throw await grund(antwort);
     const roh = await antwort.json();
     if (roh === null || typeof roh !== "object")
         return null;
@@ -205,7 +227,7 @@ export async function sendeStand(code, stand, hole = fetch) {
         body: JSON.stringify({ code, daten: stand }),
     });
     if (!antwort.ok)
-        throw new Error(`Server meldet ${antwort.status}`);
+        throw await grund(antwort);
 }
 /**
  * Ein vollständiger Abgleich: holen, zusammenführen, zurückschreiben.
