@@ -4,6 +4,30 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.26.3] – 2026-08-22
+
+### Behoben
+
+**Die Prüfung fremder Daten sah jeden Wert für sich an, aber nie sein
+Verhältnis zu den anderen.** Vier Lücken derselben Art — sie treffen den
+Browserspeicher wie die Daten vom anderen Gerät:
+
+- **Beim Kappen der Fehlerbilanz überlebten die ERSTEN 300 Einträge**, nicht
+  die größten. Wer über die Zeit mehr Aufgabenarten gesammelt hat, verlor damit
+  ausgerechnet die Schwerpunkte — also genau die Zahlen, auf denen das gezielte
+  Wiederholen aufbaut und die im Elternbereich unter „Wo es gerade hakt“
+  stehen. Nachgestellt: von 400 Typen überlebten 300 Einser, alle fünfzig
+  echten Schwerpunkte fielen heraus.
+- **Die Tagesbilanz durfte mehr Richtige als Aufgaben behaupten.** Die
+  Themenbilanz klemmt das ausdrücklich, der Verlauf ließ `{ gesamt: 1,
+  richtig: 9999 }` durch.
+- **Zwei Einträge für denselben Tag blieben stehen.** Fortgeschrieben wurde nur
+  der erste; der zweite belegte stumm einen Platz im Vorrat.
+- **Der Verlauf war unsortiert.** `slice(-90)` behielt damit die letzten
+  neunzig der Array-Reihenfolge statt der neunzig jüngsten Tage.
+
+Vier Tests in `test/sicherheit.test.js` halten das fest.
+
 ## [1.26.2] – 2026-08-22
 
 ### Behoben

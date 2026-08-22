@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 
-import { ladeFortschritt } from "../js/state.js";
+import { ladeFortschritt, pruefeFortschritt } from "../js/state.js";
 import { schwerpunkte, werteRundeAus } from "../js/gamification.js";
 import { fehlerText } from "../js/views/eltern.js";
 import { THEMEN } from "../js/topics.js";
@@ -193,4 +193,73 @@ test("der Worker prüft Code, Größe und Bindung", () => {
   assert.ok(worker.includes("access-control-allow-origin"), "ohne CORS-Kopf antwortet der Worker dem Browser nicht");
   // Nicht auf alle Herkünfte öffnen.
   assert.ok(!/allow-origin[^,]*"\*"/.test(worker), "der Worker antwortet jeder Herkunft");
+});
+
+/* ------------------------------------------ Verhältnisse, nicht nur Werte */
+
+/**
+ * Geprüft wurde bisher jeder Wert für sich – aber nicht sein Verhältnis zu den
+ * anderen. Drei Lücken derselben Art:
+ */
+test("die Tagesbilanz kann nicht mehr Richtige als Aufgaben behaupten", () => {
+  const f = pruefeFortschritt({ verlauf: [{ tag: "2026-08-22", gesamt: 1, richtig: 9999 }] });
+  assert.equal(f.verlauf.length, 1);
+  assert.ok(
+    f.verlauf[0].richtig <= f.verlauf[0].gesamt,
+    `richtig=${f.verlauf[0].richtig} bei gesamt=${f.verlauf[0].gesamt}`
+  );
+});
+
+test("je Tag bleibt genau ein Eintrag übrig", () => {
+  const f = pruefeFortschritt({
+    verlauf: [
+      { tag: "2026-08-22", gesamt: 5, richtig: 5 },
+      { tag: "2026-08-22", gesamt: 3, richtig: 1 },
+      { tag: "2026-08-21", gesamt: 2, richtig: 2 },
+    ],
+  });
+  const tage = f.verlauf.map((e) => e.tag);
+  assert.equal(new Set(tage).size, tage.length, `doppelte Tage: ${tage}`);
+  // Beim Zusammenlegen gewinnt je Feld der größere Wert – wie beim Abgleich
+  // zwischen zwei Geräten.
+  assert.equal(f.verlauf.find((e) => e.tag === "2026-08-22").gesamt, 5);
+});
+
+/**
+ * Ohne Sortierung behält `slice(-90)` die letzten neunzig der ARRAY-Reihenfolge
+ * – bei einem verdrehten Spielstand also die ÄLTESTEN Tage, und die
+ * Aktivitätsübersicht bliebe leer.
+ */
+test("beim Kappen überleben die jüngsten Tage", () => {
+  const verlauf = [];
+  for (let i = 0; i < 120; i++) {
+    // Absichtlich in falscher Reihenfolge: neu zuerst.
+    verlauf.push({ tag: `2026-${String(Math.floor(i / 28) + 1).padStart(2, "0")}-${String((i % 28) + 1).padStart(2, "0")}`, gesamt: 1, richtig: 1 });
+  }
+  const f = pruefeFortschritt({ verlauf: verlauf.reverse() });
+  assert.equal(f.verlauf.length, 90);
+  const sortiert = [...f.verlauf].sort((a, b) => a.tag.localeCompare(b.tag));
+  assert.deepEqual(f.verlauf, sortiert, "der Verlauf ist nicht nach Datum sortiert");
+  assert.equal(f.verlauf.at(-1).tag, verlauf[0].tag, "der jüngste Tag fehlt");
+});
+
+/**
+ * Beim Kappen der Fehlerbilanz überlebten vorher die ERSTEN 300 Einträge nach
+ * Einfügereihenfolge. Wer über die Zeit mehr Aufgabenarten gesammelt hat,
+ * verlor damit ausgerechnet die Schwerpunkte – also genau die Zahlen, auf
+ * denen das gezielte Wiederholen aufbaut.
+ */
+test("beim Kappen der Fehlerbilanz überleben die größten Einträge", () => {
+  const fehler = {};
+  for (let i = 0; i < 400; i++) fehler[`typ${i}`] = i < 350 ? 1 : 99;
+  const f = pruefeFortschritt({ fehler });
+
+  const werte = Object.values(f.fehler);
+  assert.ok(werte.length <= 300, `${werte.length} Fehlertypen behalten`);
+  assert.equal(Math.max(...werte), 99, "die Schwerpunkte sind beim Kappen verloren gegangen");
+  assert.equal(
+    werte.filter((w) => w === 99).length,
+    50,
+    "nicht alle Schwerpunkte haben das Kappen überlebt"
+  );
 });

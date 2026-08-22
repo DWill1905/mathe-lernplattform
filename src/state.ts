@@ -128,25 +128,26 @@ export function pruefeFortschritt(roh: unknown): Fortschritt {
     ? [...new Set(daten["erfolge"].filter((e): e is string => typeof e === "string").slice(0, 100))]
     : [];
 
-  const verlauf = Array.isArray(daten["verlauf"])
-    ? daten["verlauf"]
-        .filter((e): e is Record<string, unknown> => typeof e === "object" && e !== null)
-        .filter((e) => istDatum(e["tag"]))
-        .map((e) => ({
-          tag: e["tag"] as string,
-          gesamt: ganzeZahl(e["gesamt"], 0, MAX_PUNKTE, 0),
-          richtig: ganzeZahl(e["richtig"], 0, MAX_PUNKTE, 0),
-        }))
-        .slice(-MAX_VERLAUF)
-    : [];
+  const verlauf = tagesVerlauf(daten["verlauf"]);
 
+  /*
+   * Beim Kappen überleben die GRÖSSTEN Einträge, nicht die ersten.
+   *
+   * Vorher schnitt ein `slice(0, MAX_FEHLERTYPEN)` einfach nach Einfügereihen-
+   * folge ab. Wer über die Zeit mehr als 300 Aufgabenarten gesammelt hat,
+   * verlor damit ausgerechnet die Schwerpunkte – also genau die Zahlen, auf
+   * denen `schwerpunkte()` das gezielte Wiederholen aufbaut, und die im
+   * Elternbereich unter „Wo es gerade hakt" stehen.
+   */
   const fehler: Record<string, number> = {};
   const rohFehler = daten["fehler"];
   if (typeof rohFehler === "object" && rohFehler !== null) {
-    for (const [typ, anzahl] of Object.entries(rohFehler).slice(0, MAX_FEHLERTYPEN)) {
-      const geprueft = ganzeZahl(anzahl, 1, MAX_PUNKTE, 0);
-      if (geprueft > 0) fehler[typ.slice(0, 60)] = geprueft;
-    }
+    const geprueft = Object.entries(rohFehler)
+      .map(([typ, anzahl]) => [typ.slice(0, 60), ganzeZahl(anzahl, 1, MAX_PUNKTE, 0)] as const)
+      .filter(([, anzahl]) => anzahl > 0)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, MAX_FEHLERTYPEN);
+    for (const [typ, anzahl] of geprueft) fehler[typ] = anzahl;
   }
 
   const rohMeister = (daten["meister"] ?? {}) as Record<string, unknown>;
@@ -170,6 +171,43 @@ export function pruefeFortschritt(roh: unknown): Fortschritt {
     puzzleGeloest: ganzeZahl(daten["puzzleGeloest"], 0, MAX_PUNKTE, 0),
     letzteAufgaben: schluesselListe(daten["letzteAufgaben"]),
   };
+}
+
+/**
+ * Prüft die Tagesbilanzen.
+ *
+ * Drei Dinge, die vorher fehlten und alle dasselbe Muster haben – geprüft
+ * wurde jeder Wert für sich, aber nicht sein Verhältnis zu den anderen:
+ *
+ * - **Richtige nie mehr als gestellte.** Die Themenbilanz klemmt das
+ *   ausdrücklich; der Verlauf ließ `{ gesamt: 1, richtig: 9999 }` durch.
+ * - **Ein Eintrag je Tag.** Standen zwei für denselben Tag da, schrieb
+ *   `verlaufFortschreiben()` nur den ersten fort, und der zweite belegte
+ *   stumm einen Platz im Vorrat.
+ * - **Nach Datum sortiert.** `slice(-90)` behält sonst die letzten neunzig
+ *   der ARRAY-Reihenfolge, nicht die neunzig jüngsten Tage.
+ */
+function tagesVerlauf(wert: unknown): Fortschritt["verlauf"] {
+  if (!Array.isArray(wert)) return [];
+  const proTag = new Map<string, { tag: string; richtig: number; gesamt: number }>();
+
+  for (const eintrag of wert) {
+    if (typeof eintrag !== "object" || eintrag === null) continue;
+    const roh = eintrag as Record<string, unknown>;
+    if (!istDatum(roh["tag"])) continue;
+    const tag = roh["tag"];
+    const gesamt = ganzeZahl(roh["gesamt"], 0, MAX_PUNKTE, 0);
+    const richtig = Math.min(gesamt, ganzeZahl(roh["richtig"], 0, MAX_PUNKTE, 0));
+    const bisher = proTag.get(tag);
+    // Dieselbe Regel wie beim Zusammenführen zweier Geräte: je Tag das Größere.
+    proTag.set(tag, {
+      tag,
+      gesamt: Math.max(bisher?.gesamt ?? 0, gesamt),
+      richtig: Math.max(bisher?.richtig ?? 0, richtig),
+    });
+  }
+
+  return [...proTag.values()].sort((a, b) => a.tag.localeCompare(b.tag)).slice(-MAX_VERLAUF);
 }
 
 /**
