@@ -4,6 +4,29 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.15.0] – 2026-08-22
+
+### Geändert
+
+**Die App heißt jetzt „Zahleneule“.**
+Der Name greift die Eule auf, die als Maskottchen ohnehin in Kopfzeile und
+App-Symbol sitzt, und passt zum ganzen Umfang – nicht nur zum Rechnen, sondern
+auch zu Formen, Uhrzeit und Längen.
+
+Umbenannt an allen elf Stellen: Kopfzeile, Seitentitel, Offline-Hinweis,
+Elternbereich, `manifest.webmanifest` (Name und Kurzname für den
+Startbildschirm), der iOS-Titel `apple-mobile-web-app-title`, der
+noscript-Hinweis, README und CLAUDE.md.
+
+Der Cache des Service Workers heißt jetzt `zahleneule-v1` statt
+`mathe-schule-v2`. Bestehende Installationen behalten den alten Cache nicht:
+Der `activate`-Haken löscht alles, was nicht der aktuelle Name ist.
+Nachgestellt und geprüft – nach dem Update ist nur noch `zahleneule-v1` da, und
+die Seite läuft danach weiterhin offline.
+
+Der Repository-Name bleibt `mathe-lernplattform`, die Adresse der Seite ändert
+sich also nicht.
+
 ## [1.14.0] – 2026-08-22
 
 ### Geändert

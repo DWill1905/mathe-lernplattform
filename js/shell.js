@@ -38,7 +38,7 @@ export function frischeShellAuf() {
     const fortschritt = ladeFortschritt();
     const level = levelInfo(fortschritt.punkte);
     leeren(kopf);
-    kopf.append(el("a", { class: "kopf-titel", href: "#/" }, icon("eule", "kopf-symbol"), el("span", { text: "Mathe-Schule" })), el("div", { class: "kopf-status" }, el("div", { class: "chip chip-level", title: `${fortschritt.punkte} Punkte` }, el("span", { class: "chip-zahl", text: level.stufe }), el("span", { class: "chip-text", text: level.titel })), fortschritt.streakTage > 0 &&
+    kopf.append(el("a", { class: "kopf-titel", href: "#/" }, icon("eule", "kopf-symbol"), el("span", { text: "Zahleneule" })), el("div", { class: "kopf-status" }, el("div", { class: "chip chip-level", title: `${fortschritt.punkte} Punkte` }, el("span", { class: "chip-zahl", text: level.stufe }), el("span", { class: "chip-text", text: level.titel })), fortschritt.streakTage > 0 &&
         el("div", { class: "chip chip-streak", title: "Tage hintereinander geübt" }, icon("flamme", "chip-symbol"), el("span", { class: "chip-zahl", text: fortschritt.streakTage })), 
     // `navigator.onLine` ist bewusst nur ein Hinweis, keine Sperre: Die App
     // arbeitet online wie offline gleich weiter.
@@ -46,7 +46,7 @@ export function frischeShellAuf() {
         el("div", {
             class: "chip chip-offline",
             role: "status",
-            title: "Kein Internet – die Mathe-Schule funktioniert trotzdem",
+            title: "Kein Internet – die Zahleneule funktioniert trotzdem",
         }, icon("offline", "chip-symbol"), el("span", { class: "chip-text", text: "Offline" }))));
     const aktuell = location.hash === "" ? "#/" : location.hash;
     leeren(fuss);

@@ -57,7 +57,7 @@ export function frischeShellAuf(): void {
       "a",
       { class: "kopf-titel", href: "#/" },
       icon("eule", "kopf-symbol"),
-      el("span", { text: "Mathe-Schule" })
+      el("span", { text: "Zahleneule" })
     ),
     el(
       "div",
@@ -83,7 +83,7 @@ export function frischeShellAuf(): void {
           {
             class: "chip chip-offline",
             role: "status",
-            title: "Kein Internet – die Mathe-Schule funktioniert trotzdem",
+            title: "Kein Internet – die Zahleneule funktioniert trotzdem",
           },
           icon("offline", "chip-symbol"),
           el("span", { class: "chip-text", text: "Offline" })

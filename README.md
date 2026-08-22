@@ -1,4 +1,4 @@
-# Mathe-Schule – Lernplattform für die 2. Klasse
+# Zahleneule – Mathe-Lernplattform für die 2. Klasse
 
 Eine interaktive, komplett kostenlose Lernplattform für Mathematik in der
 2. Klasse. Sie läuft als statische Seite im Browser: kein Konto, kein Server,

@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Kontext für jede Session, die an der Mathe-Schule weiterarbeitet. Offene
+Kontext für jede Session, die an der Zahleneule weiterarbeitet. Offene
 Punkte stehen in `ROADMAP.md`, die Historie in `CHANGELOG.md`.
 
 ## Was ist das Projekt?

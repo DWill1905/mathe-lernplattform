@@ -6,7 +6,7 @@
  * Wurzelverzeichnis liegen und darf nicht aus `src/` kompiliert werden.
  */
 
-const CACHE = "mathe-schule-v2";
+const CACHE = "zahleneule-v1";
 
 /*
  * Vollständige Liste der ausgelieferten Dateien. Sie wird beim `install`

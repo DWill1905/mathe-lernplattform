@@ -1,5 +1,5 @@
 /**
- * Das Symbolset der Mathe-Schule.
+ * Das Symbolset der Zahleneule.
  *
  * Statt Emojis (die auf jedem Gerät anders aussehen, sich nicht einfärben
  * lassen und in Screenreadern seltsam vorgelesen werden) zeichnet die App ihre
