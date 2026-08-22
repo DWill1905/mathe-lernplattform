@@ -4,6 +4,26 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.24.0] – 2026-08-22
+
+### Hinzugefügt
+
+**Teilen wird jetzt auf drei Arten gefragt.** Auf Stufe 1 („:2, :5 und :10“)
+stand vorher dreißigmal derselbe Satz — „Wie lautet das Ergebnis?“ über einer
+Rechnung. Der ZAHLENvorrat der Stufe ist mit dreißig Aufgaben fest und soll es
+auch sein: Diese dreißig Fakten soll ein Kind wiederholt sehen. Was fehlte, war
+eine zweite Art zu fragen.
+
+- **Enthaltensein**: „Wie oft passt die 5 in die 30?“ Für ein Kind ist das ein
+  anderer Gedanke als „gerecht aufteilen“ — und genau der, den es beim Rechnen
+  mit Rest später braucht.
+- **Umkehraufgabe mit Lücke** (Stufe 2 und 3): `30 : ? = 6` bzw. `? : 5 = 6`.
+  `30 : 5 =` rechnet ein Kind einfach aus; erst die Lücke erzwingt den Kniff —
+  dieselbe Regel, die beim Einmaleins seit jeher gilt.
+
+Der Test „jede Umkehraufgabe hat eine Lücke“ deckt die neue Art mit ab.
+Der Vorrat wächst von 30 / 50 / 666 auf 60 / 190 / 828 Aufgaben.
+
 ## [1.23.0] – 2026-08-22
 
 ### Hinzugefügt

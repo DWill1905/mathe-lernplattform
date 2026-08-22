@@ -426,7 +426,7 @@ test("jede Umkehraufgabe hat eine Lücke, die nur durch Umkehren zu füllen ist"
   for (const stufe of STUFEN) {
     for (let i = 0; i < 400; i++) {
       const rng = mulberry32(i * 31 + stufe);
-      for (const thema of ["familien", "einmaleins"]) {
+      for (const thema of ["familien", "einmaleins", "geteilt"]) {
         const aufgabe = GENERATOREN[thema](rng, stufe);
         if (!aufgabe.typ.includes("umkehr")) continue;
         gefunden.add(aufgabe.typ);
@@ -438,12 +438,13 @@ test("jede Umkehraufgabe hat eine Lücke, die nur durch Umkehren zu füllen ist"
 
         // Die Lösung eingesetzt muss die Rechnung wahr machen.
         const gefuellt = aufgabe.rechnung.replace("?", aufgabe.loesung);
-        const teile = gefuellt.match(/^(\d+)\s*([+−·])\s*(\d+)\s*=\s*(\d+)$/);
+        const teile = gefuellt.match(/^(\d+)\s*([+−·:])\s*(\d+)\s*=\s*(\d+)$/);
         assert.ok(teile, `${kontext}: unerwartete Form ${gefuellt}`);
         const [, x, zeichen, y, ergebnis] = teile;
         const gerechnet =
           zeichen === "+" ? Number(x) + Number(y)
           : zeichen === "−" ? Number(x) - Number(y)
+          : zeichen === ":" ? Number(x) / Number(y)
           : Number(x) * Number(y);
         assert.equal(gerechnet, Number(ergebnis), `${kontext}: Lösung passt nicht in die Lücke`);
       }
@@ -453,7 +454,7 @@ test("jede Umkehraufgabe hat eine Lücke, die nur durch Umkehren zu füllen ist"
   // Alle drei Umkehr-Arten müssen dabei gewesen sein, sonst prüft der Test zu wenig.
   assert.deepEqual(
     [...gefunden].sort(),
-    ["einmaleins/umkehr", "familien/umkehr-minus", "familien/umkehr-plus"],
+    ["einmaleins/umkehr", "familien/umkehr-minus", "familien/umkehr-plus", "geteilt/umkehr"],
     "nicht jede Umkehr-Art wurde erzeugt"
   );
 });

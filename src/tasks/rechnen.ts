@@ -70,13 +70,74 @@ function umkehraufgabe(rng: Rng): Aufgabe {
 
 /* =============================================================== Geteilt */
 
+/**
+ * Teilen hat drei Lesarten, und im Unterricht kommen alle drei vor:
+ * das Ergebnis ausrechnen (`30 : 5 =`), das Enthaltensein („Wie oft passt die
+ * 5 in die 30?") und die Umkehrung mit Lücke (`30 : ? = 6`).
+ *
+ * Der Zahlenvorrat einer Stufe ist dabei fest — „:2, :5 und :10" mit
+ * Ergebnissen bis 10 sind genau dreißig Aufgaben, und die SOLL ein Kind
+ * wiederholt sehen. Was fehlte, war nicht mehr Rechenstoff, sondern eine
+ * zweite Art zu fragen: Vorher stand auf Stufe 1 dreißigmal derselbe Satz.
+ */
 export function geteilt(rng: Rng, stufe: Stufe): Aufgabe {
-  if (stufe === 3 && rng.chance(0.6)) return mitRest(rng);
-  return ohneRest(rng, stufe);
+  if (stufe === 3) {
+    if (rng.chance(0.5)) return mitRest(rng);
+    return rng.chance(0.4) ? teilerLuecke(rng, stufe) : ohneRest(rng, stufe);
+  }
+  if (stufe === 2 && rng.chance(0.3)) return teilerLuecke(rng, stufe);
+  return rng.chance(0.4) ? wieOftPasst(rng, stufe) : ohneRest(rng, stufe);
+}
+
+/** Die Teiler, die auf dieser Stufe vorkommen dürfen. */
+function teilerFuer(stufe: Stufe): readonly number[] {
+  return stufe === 1 ? [2, 5, 10] : REIHEN[stufe].filter((z) => z > 1);
+}
+
+/**
+ * Dieselbe Rechnung als Frage nach dem Enthaltensein. Für ein Kind ist das
+ * ein anderer Gedanke als „teile auf" – und es ist genau der, der beim
+ * Rechnen mit Rest später gebraucht wird.
+ */
+function wieOftPasst(rng: Rng, stufe: Stufe): Aufgabe {
+  const teiler = rng.pick(teilerFuer(stufe));
+  const ergebnis = rng.int(1, 10);
+  const zahl = teiler * ergebnis;
+  return {
+    typ: `geteilt/durch-${teiler}`,
+    frage: `Wie oft passt die ${teiler} in die ${zahl}?`,
+    antwortfeld: zahlfeld("mal"),
+    loesung: String(ergebnis),
+    tipp: `Zähle in ${teiler}er-Schritten bis ${zahl}.`,
+    erklaerung: `${ergebnis} · ${teiler} = ${zahl}, die ${teiler} passt also ${ergebnis}-mal hinein.`,
+  };
+}
+
+/**
+ * Umkehraufgabe mit LÜCKE. `30 : 5 =` rechnet ein Kind einfach aus; erst
+ * `30 : ? = 6` erzwingt den Kniff — genau wie beim Einmaleins (`? · 5 = 30`).
+ */
+function teilerLuecke(rng: Rng, stufe: Stufe): Aufgabe {
+  const teiler = rng.pick(teilerFuer(stufe));
+  const ergebnis = rng.int(2, 10);
+  const zahl = teiler * ergebnis;
+  const suchtTeiler = rng.chance(0.5);
+  const loesung = suchtTeiler ? teiler : zahl;
+  return {
+    typ: "geteilt/umkehr",
+    frage: "Welche Zahl gehört in die Lücke?",
+    rechnung: suchtTeiler ? `${zahl} : ? = ${ergebnis}` : `? : ${teiler} = ${ergebnis}`,
+    antwortfeld: zahlfeld(),
+    loesung: String(loesung),
+    tipp: suchtTeiler
+      ? `Frage dich: ${ergebnis} mal wie viel ergibt ${zahl}?`
+      : `Frage dich: Was ergibt ${ergebnis} mal ${teiler}?`,
+    erklaerung: `${ergebnis} · ${teiler} = ${zahl}, also ist ${zahl} : ${teiler} = ${ergebnis}.`,
+  };
 }
 
 function ohneRest(rng: Rng, stufe: Stufe): Aufgabe {
-  const teiler = rng.pick(stufe === 1 ? [2, 5, 10] : REIHEN[stufe].filter((z) => z > 1));
+  const teiler = rng.pick(teilerFuer(stufe));
   const ergebnis = rng.int(1, 10);
   const zahl = teiler * ergebnis;
   return {
