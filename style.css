@@ -251,6 +251,15 @@ body {
   font-size: 0.92rem;
 }
 
+/*
+ * Ein misslungener Abgleich muss sich vom normalen Hinweis abheben – sonst
+ * liest ihn niemand, und die Einrichtung scheitert still.
+ */
+.hinweis-fehler {
+  color: var(--falsch);
+  font-weight: 600;
+}
+
 /* ----------------------------------------------------------- Begrüßung */
 
 .begruessung-titel {

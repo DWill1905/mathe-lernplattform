@@ -333,3 +333,29 @@ test("der Code liegt nicht im Spielstand-Bereich", () => {
   assert.ok(!spielstand.includes("ABCD2345"), "der Code gehört nicht in den Spielstand");
   setzeFamilienCode(null);
 });
+
+/* ------------------------------------------------- Meldung im Elternbereich */
+
+/**
+ * Der häufigste Einrichtungsfehler (fehlende KV-Bindung) beantwortet der
+ * Worker mit einer kompletten Anleitung im Rumpf. Verschluckt der
+ * Elternbereich sie, sieht ein misslungener Abgleich aus wie ein geglückter –
+ * und niemand erfährt, woran es liegt.
+ */
+test("ein Fehlschlag beim Abgleich wird im Elternbereich benannt", async () => {
+  const { abgleichMeldung } = await import("../js/views/eltern.js");
+
+  assert.equal(abgleichMeldung({ art: "geholt" }), null);
+  assert.equal(abgleichMeldung({ art: "gesendet" }), null);
+  assert.equal(abgleichMeldung({ art: "verschmolzen" }), null);
+
+  const aus = abgleichMeldung({ art: "aus" });
+  assert.ok(aus && aus.length > 0, "„nicht verbunden“ darf nicht stillschweigend durchgehen");
+
+  const meldung = abgleichMeldung({ art: "fehler", meldung: "500 – KV-Bindung fehlt" });
+  assert.ok(meldung, "ein Fehler braucht eine Meldung");
+  assert.ok(
+    meldung.includes("KV-Bindung fehlt"),
+    `der Grund der Gegenstelle muss durchgereicht werden, stattdessen: ${meldung}`
+  );
+});

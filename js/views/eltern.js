@@ -15,6 +15,31 @@ const BEREICHS_ALIAS = {
     sach: "sachaufgaben",
     puzzle: "plusminus",
 };
+/**
+ * Was nach einem Abgleich in der Karte stehen soll – `null` heißt „alles gut,
+ * kein Wort nötig“. Bewusst ohne DOM-Zugriff und deshalb direkt testbar.
+ *
+ * Der Grund der Gegenstelle wird DURCHGEREICHT: Bei fehlender KV-Bindung steht
+ * dort die ganze Anleitung. Ohne sie sähe ein Elternteil nur eine Karte, die
+ * aussieht, als hätte alles geklappt.
+ */
+export function abgleichMeldung(ergebnis) {
+    if (ergebnis.art === "fehler")
+        return `Das hat nicht geklappt: ${ergebnis.meldung}`;
+    if (ergebnis.art === "aus")
+        return "Dieses Gerät ist nicht verbunden.";
+    return null;
+}
+/**
+ * Meldung, die ein Neuzeichnen überleben muss.
+ *
+ * Ein geglückter Abgleich zeichnet die Karte neu (Code und Zeitpunkt ändern
+ * sich). Stünde die Fehlermeldung nur im alten Absatz, wäre sie im selben
+ * Moment weg – ein misslungener Abgleich sähe dann aus wie ein geglückter.
+ * Genau das ist beim „Verbinden“ und beim „Code erzeugen“ passiert: Dort lief
+ * `gleicheAb()` ganz ohne Auswertung ins Leere.
+ */
+let uebertrag = null;
 /** Aufgabentyp („einmaleins/reihe-7“) in eine lesbare Beschreibung übersetzen. */
 export function fehlerText(typ) {
     const [bereich = "", rest = ""] = typ.split("/");
@@ -150,8 +175,21 @@ function einstellungen(name) {
  */
 function abgleichKarte(ziel) {
     const karte = el("section", { class: "karte" }, el("h2", { class: "abschnitt-titel", text: "Auf mehreren Geräten" }));
+    // Eine Meldung aus dem letzten Abgleich – sie hat das Neuzeichnen überdauert
+    // und wird jetzt einmal gezeigt, danach ist sie verbraucht.
+    if (uebertrag) {
+        karte.appendChild(el("p", { class: "hinweis hinweis-fehler", role: "status", text: uebertrag }));
+        uebertrag = null;
+    }
     const neu = () => {
         void zeige(ziel, []);
+    };
+    /** Abgleich anstoßen und das Ergebnis IMMER anzeigen, auch den Fehlschlag. */
+    const abgleichen = () => {
+        void gleicheAb().then((ergebnis) => {
+            uebertrag = abgleichMeldung(ergebnis);
+            neu();
+        });
     };
     if (!eingerichtet()) {
         karte.appendChild(el("p", {
@@ -183,8 +221,10 @@ function abgleichKarte(ziel) {
             text: "Code für dieses Gerät erzeugen",
             onclick: () => {
                 setzeFamilienCode(neuerFamilienCode());
-                void gleicheAb();
+                // Erst den frischen Code zeigen, dann abgleichen – eine lahmende
+                // Gegenstelle darf die Karte nicht minutenlang leer stehen lassen.
                 neu();
+                abgleichen();
             },
         }), el("p", { class: "hinweis", text: "oder einen vorhandenen Code eintippen:" }), el("form", {
             class: "namensfeld-zeile",
@@ -196,8 +236,8 @@ function abgleichKarte(ziel) {
                     return;
                 }
                 setzeFamilienCode(geprueft);
-                void gleicheAb().then(() => neu());
                 neu();
+                abgleichen();
             },
         }, feld, el("button", { class: "knopf", type: "submit", text: "Verbinden" })), meldung);
         return karte;
@@ -215,12 +255,7 @@ function abgleichKarte(ziel) {
         text: "Jetzt abgleichen",
         onclick: () => {
             meldung.textContent = "Wird abgeglichen …";
-            void gleicheAb().then((ergebnis) => {
-                if (ergebnis.art === "fehler")
-                    meldung.textContent = `Das hat nicht geklappt: ${ergebnis.meldung}`;
-                else
-                    neu();
-            });
+            abgleichen();
         },
     }), el("button", {
         class: "knopf knopf-still",

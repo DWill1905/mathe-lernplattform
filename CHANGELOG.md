@@ -4,6 +4,21 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.22.2] – 2026-08-22
+
+### Behoben
+
+**Der Abgleich scheiterte im Elternbereich still.** Beim „Code für dieses Gerät
+erzeugen“ und beim „Verbinden“ lief `gleicheAb()` ganz ohne Auswertung — ein
+Fehler der Gegenstelle wurde weggeworfen, und die Karte sah danach genauso aus
+wie nach einem geglückten Abgleich. Ausgerechnet der häufigste
+Einrichtungsfehler (fehlende KV-Bindung) blieb damit unsichtbar, obwohl der
+Worker die komplette Anleitung mitschickt.
+
+Alle drei Wege gehen jetzt durch dieselbe Stelle, und ihr Ergebnis überlebt das
+Neuzeichnen der Karte. Die Entscheidung, was zu melden ist, steckt in
+`abgleichMeldung()` — ohne DOM-Zugriff und deshalb direkt geprüft.
+
 ## [1.22.1] – 2026-08-22
 
 ### Behoben
