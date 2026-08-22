@@ -4,6 +4,42 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.19.0] – 2026-08-22
+
+### Geändert
+
+**Die Synchronisierung läuft jetzt über einen Cloudflare Worker statt über
+Supabase.**
+Der Grund ist vor allem einer: Bei Supabase hätte der öffentliche Schlüssel im
+Repository stehen müssen. Beim Worker gibt es **gar keinen Schlüssel** — der
+Familien-Code ist das einzige Geheimnis, und die Adresse des Workers allein
+nützt niemandem. Ein Test wacht darüber, dass sich später keiner einschleicht.
+
+Neu: `cloudflare/worker.js`, 80 Zeilen, kein Build und keine Abhängigkeiten.
+Zwei Endpunkte (`hole`, `speichere`), dazu Prüfung des Code-Formats, eine
+Größengrenze von 64 KB gegen Vollschreiben, CORS nur für die eigene Adresse —
+und eine verständliche Meldung, falls die KV-Bindung fehlt. Das ist der Fehler,
+den man beim Einrichten am ehesten macht; ohne die Prüfung käme nur ein
+nichtssagender 500er.
+
+Die Zusammenführung — der schwierige Teil — ist unverändert geblieben; sie
+hängt nicht an der Gegenstelle.
+
+Geprüft gegen den **echten** Worker-Code, lokal ausgeführt mit einem
+KV-Ersatz: unbekannter Code liefert `null`, ungültiger Code und verbotene
+Zeichen werden abgewiesen, GET und unbekannte Pfade ebenso, fehlende Bindung
+meldet sich verständlich. Danach zwei Browser-Kontexte gegeneinander: Beide
+Geräte hatten am Ende denselben Stand.
+
+### Behoben
+
+**Der Worker wäre in den Offline-Vorrat der App gerutscht.** `cloudflare/`
+landete in der Precache-Liste des Service Workers — aufgefallen an der
+Zahl 40 statt 39. Er läuft bei Cloudflare, nicht im Browser, und ist jetzt in
+`tools/sw-liste.mjs` und `test/offline.test.js` ausgenommen.
+
+Die CSP erlaubt jetzt `https://*.workers.dev` statt `*.supabase.co`.
+
 ## [1.18.0] – 2026-08-22
 
 ### Hinzugefügt

@@ -161,64 +161,49 @@ Tablet **und** Handy üben möchte, kann eine Synchronisierung über einen
 allen weiteren eingetippt. Kein Konto, kein Passwort.
 
 Ohne Einrichtung ändert sich nichts — der Bereich im Elternteil sagt dann nur,
-dass es noch nicht eingerichtet ist.
+dass es noch nicht eingerichtet ist, und es findet kein einziger Netzaufruf
+statt.
 
-### 1. Supabase-Projekt anlegen
+### 1. Cloudflare einrichten
 
-Ein kostenloses Projekt auf [supabase.com](https://supabase.com) genügt. Im
-SQL-Editor einmal das hier ausführen:
+Ein kostenloses Konto genügt (100.000 Lesevorgänge und 1.000 Schreibvorgänge
+pro Tag; ein Kind kommt auf vielleicht 50 Schreibvorgänge).
 
-```sql
-create table stand (
-  code       text primary key,
-  daten      jsonb not null,
-  geaendert  timestamptz not null default now()
-);
+1. **KV-Namespace anlegen**, z. B. `zahleneule`. Unter *KV Pairs* ist **nichts
+   zu tun** — die Einträge schreibt der Worker selbst, einen je Familien-Code.
+2. **Worker anlegen** und den Inhalt von `cloudflare/worker.js` einfügen. Kein
+   Build, keine Abhängigkeiten.
+3. **Bindung setzen**: *Worker → Settings → Bindings → KV Namespace*, als
+   Variablenname exakt **`STAND`**. Der Weg über „Connect" beim Namespace führt
+   zum selben Ziel — einer von beiden genügt.
+4. Im Worker die Konstante `HERKUNFT` auf die eigene Adresse setzen, falls die
+   Seite nicht unter `https://dwill1905.github.io` liegt.
 
--- Kein direkter Tabellenzugriff: Ohne Code kommt niemand an eine Zeile.
-alter table stand enable row level security;
+**Prüfen, ob es steht** — die Adresse des Workers mit einem Testcode aufrufen:
 
-create function hole_stand(p_code text)
-returns table (daten jsonb, geaendert timestamptz)
-language sql security definer set search_path = public as $$
-  select s.daten, s.geaendert from stand s where s.code = p_code;
-$$;
-
-create function speichere_stand(p_code text, p_daten jsonb)
-returns timestamptz
-language plpgsql security definer set search_path = public as $$
-declare zeitpunkt timestamptz := now();
-begin
-  insert into stand (code, daten, geaendert) values (p_code, p_daten, zeitpunkt)
-  on conflict (code) do update set daten = excluded.daten, geaendert = zeitpunkt;
-  return zeitpunkt;
-end;
-$$;
-
-grant execute on function hole_stand(text)            to anon;
-grant execute on function speichere_stand(text, jsonb) to anon;
+```
+curl -X POST -H 'content-type: application/json' \
+     -d '{"code":"ABCD2345"}' https://DEIN-WORKER.workers.dev/hole
 ```
 
-Wichtig ist die Zeile `enable row level security` **ohne** weitere Regeln: Damit
-ist die Tabelle über die normale Schnittstelle gesperrt. Nur die beiden
-Funktionen kommen durch, und die verlangen beide den Code.
+- `null` → alles richtig.
+- `{"fehler":"Die KV-Bindung fehlt…"}` → Schritt 3 fehlt oder die Variable
+  heißt anders.
 
-### 2. Zugangsdaten eintragen
+### 2. Adresse eintragen
 
-In `src/sync.ts` die beiden Konstanten setzen (zu finden im Supabase-Projekt
-unter *Project Settings → API*), dann `npm run build`:
+In `src/sync.ts` die Adresse setzen, dann `npm run build`:
 
 ```ts
-export const SUPABASE_URL = "https://xxxxxxxx.supabase.co";
-export const SUPABASE_ANON_KEY = "eyJ...";
+export const WORKER_URL = "https://zahleneule.dein-name.workers.dev";
 ```
 
-Der `anon`-Schlüssel ist zur Veröffentlichung gedacht und schützt nichts — der
-Schutz liegt darin, dass es ohne Familien-Code keine Zeile gibt.
+Ein Zugangsschlüssel wird **nicht** gebraucht — der Familien-Code ist das
+einzige Geheimnis, und die Adresse des Workers allein nützt niemandem.
 
-Die Content-Security-Policy in `index.html` erlaubt `https://*.supabase.co`.
-Wer es enger mag, trägt dort statt des Platzhalters die eigene Projektadresse
-ein.
+Die Content-Security-Policy in `index.html` erlaubt `https://*.workers.dev`.
+Bei einer eigenen Domain muss dort dieselbe Adresse eingetragen werden, sonst
+verwirft der Browser jede Anfrage **still**.
 
 ### 3. Geräte verbinden
 
@@ -243,6 +228,7 @@ bleiben dabei immer erhalten.
 ### Datenschutz
 
 Mit eingerichteter Synchronisierung verlassen der eingetippte Vorname und die
-Lernzahlen das Gerät und liegen beim gewählten Anbieter. Ohne Einrichtung
-passiert das nicht. Wer die Verbindung löst, entfernt den Code vom Gerät — die
-Zeile beim Anbieter bleibt bestehen und muss dort gelöscht werden.
+Lernzahlen das Gerät und liegen bei Cloudflare. Ohne Einrichtung passiert das
+nicht. Wer die Verbindung löst, entfernt den Code vom Gerät — der Eintrag im
+KV-Speicher bleibt bestehen und lässt sich im Dashboard unter *KV Pairs* von
+Hand löschen.

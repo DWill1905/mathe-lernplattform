@@ -134,7 +134,7 @@ test("die CSP erlaubt genau die Gegenstelle der Synchronisierung – und nichts 
 
   assert.ok(quellen.includes("'self'"), "die eigene Herkunft muss erlaubt bleiben");
   assert.ok(
-    quellen.some((q) => q === "https://*.supabase.co"),
+    quellen.some((q) => q === "https://*.workers.dev"),
     "die Gegenstelle der Synchronisierung fehlt – der Abgleich scheiterte sonst still"
   );
   // Kein Platzhalter für alles und keine unverschlüsselte Verbindung.
@@ -144,8 +144,21 @@ test("die CSP erlaubt genau die Gegenstelle der Synchronisierung – und nichts 
   }
 });
 
-test("der Familiencode taucht nirgends fest verdrahtet auf", () => {
+test("in der App steht kein Zugangsschlüssel", () => {
   const sync = readFileSync(new URL("../src/sync.ts", import.meta.url), "utf8");
-  // Ein versehentlich eingecheckter echter Schlüssel wäre sonst öffentlich.
-  assert.ok(sync.includes("HIER-EINTRAGEN"), "die Zugangsdaten gehören nicht ins Repository");
+  // Die Adresse ist noch ein Platzhalter …
+  assert.ok(sync.includes("HIER-EINTRAGEN"), "eine echte Adresse gehört nicht ins Repository");
+  // … und einen Schlüssel gibt es beim Worker gar nicht. Käme je einer dazu,
+  // läge er öffentlich im Repository – deshalb dieser Wächter.
+  assert.ok(!/apikey|anon_key|Bearer|secret|token/i.test(sync), "hier steht ein Zugangsschlüssel");
+});
+
+test("der Worker prüft Code, Größe und Bindung", () => {
+  const worker = readFileSync(new URL("../cloudflare/worker.js", import.meta.url), "utf8");
+  assert.match(worker, /CODE_MUSTER\s*=\s*\/\^\[A-Z0-9\]\{8\}\$\/|CODE_MUSTER/, "keine Codeprüfung");
+  assert.ok(worker.includes("MAX_BYTES"), "keine Größengrenze – der Speicher ließe sich vollschreiben");
+  assert.ok(worker.includes("umgebung.STAND"), "die KV-Bindung heißt nicht STAND");
+  assert.ok(worker.includes("access-control-allow-origin"), "ohne CORS-Kopf antwortet der Worker dem Browser nicht");
+  // Nicht auf alle Herkünfte öffnen.
+  assert.ok(!/allow-origin[^,]*"\*"/.test(worker), "der Worker antwortet jeder Herkunft");
 });

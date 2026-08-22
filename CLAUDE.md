@@ -55,9 +55,14 @@ verwässern.
   deshalb direkt testbar.
 - `src/gamification.ts` – Punkte, Level, Sterne, Herzen, Streak, Abzeichen,
   Stufenanpassung.
+- `cloudflare/worker.js` – die Gegenstelle, läuft bei Cloudflare (KV-Bindung
+  `STAND`). Gehört NICHT in den Offline-Vorrat der App – `tools/sw-liste.mjs`
+  und `test/offline.test.js` nehmen das Verzeichnis deshalb aus.
 - `src/sync.ts` – die EINZIGE Stelle, die mit dem Netz spricht: optionale
-  Synchronisierung über einen Familien-Code, per reinem `fetch()` gegen zwei
-  Supabase-Datenbankfunktionen. Ohne eingetragene Zugangsdaten passiert nichts.
+  Synchronisierung über einen Familien-Code, per reinem `fetch()` gegen den
+  Worker in `cloudflare/worker.js`. Ohne eingetragene Adresse passiert nichts.
+  In der App steht **kein Zugangsschlüssel** – der Code ist das einzige
+  Geheimnis; ein Test wacht darüber, dass keiner dazukommt.
   Die reinen Teile (Code, `verschmelze`) sind ohne Netz testbar; alle Netzaufrufe
   nehmen ihr `fetch` als Parameter, damit Tests eine Gegenstelle im Speicher
   unterschieben können. Einrichtung samt SQL: `README.md`.

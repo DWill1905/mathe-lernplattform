@@ -18,8 +18,12 @@ import { join } from "node:path";
 const ANFANG = "/* LISTE-ANFANG (erzeugt von tools/sw-liste.mjs) */";
 const ENDE = "/* LISTE-ENDE */";
 
-/** Verzeichnisse, die nicht ausgeliefert werden. */
-const AUSSEN = new Set(["node_modules", ".git", ".github", "src", "test", "tools"]);
+/**
+ * Verzeichnisse, die nicht ausgeliefert werden. `cloudflare/` gehört dazu: Der
+ * Worker läuft bei Cloudflare, nicht im Browser – er hat im Offline-Vorrat der
+ * App nichts verloren.
+ */
+const AUSSEN = new Set(["node_modules", ".git", ".github", "src", "test", "tools", "cloudflare"]);
 const ENDUNGEN = [".js", ".css", ".html", ".svg", ".png", ".webmanifest"];
 
 function sammeln(verzeichnis = ".", gesammelt = []) {

@@ -18,7 +18,9 @@ const swCode = sw.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
 
 /** Alle Dateien, die der Server ausliefert (ohne Quellcode und Werkzeuge). */
 function ausgelieferteDateien() {
-  const aussen = new Set(["node_modules", ".git", ".github", "src", "test", "tools"]);
+  // Dieselbe Liste wie in tools/sw-liste.mjs. `cloudflare/` läuft bei
+  // Cloudflare, nicht im Browser – es gehört nicht in den Offline-Vorrat.
+  const aussen = new Set(["node_modules", ".git", ".github", "src", "test", "tools", "cloudflare"]);
   const endungen = [".js", ".css", ".html", ".svg", ".png", ".webmanifest"];
   const gefunden = [];
   const sammeln = (verzeichnis) => {

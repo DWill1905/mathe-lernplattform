@@ -6,11 +6,13 @@
  * im Speicher an. Für eine Kinder-App ist das die einzige Anmeldung, die ein
  * Kind ohne Hilfe schafft.
  *
- * Gegenstelle ist Supabase, angesprochen über reines `fetch()` – keine neue
- * Laufzeit-Abhängigkeit. Es gibt bewusst KEINEN direkten Tabellenzugriff,
- * sondern zwei Datenbankfunktionen (`hole_stand`, `speichere_stand`). Damit
- * kann der öffentliche Schlüssel allein niemanden auflisten: Ohne Code kommt
- * man an keine Zeile. Das SQL dazu steht in `README.md`.
+ * Gegenstelle ist ein Cloudflare Worker (`cloudflare/worker.js`), angesprochen
+ * über reines `fetch()` – keine neue Laufzeit-Abhängigkeit. Er kennt genau zwei
+ * Endpunkte, `hole` und `speichere`, und beide verlangen den Code.
+ *
+ * Hier steht bewusst KEIN Zugangsschlüssel: Der Familien-Code ist das einzige
+ * Geheimnis. Die Adresse des Workers allein nützt niemandem – ohne Code gibt
+ * es keinen Eintrag. Die Einrichtung steht in `README.md`.
  *
  * Die reinen Teile (Code, Zusammenführung, Prüfung) sind ohne Netz und ohne
  * DOM testbar; alle Netzaufrufe nehmen ihr `fetch` als Parameter entgegen.
@@ -22,13 +24,17 @@ import type { Fortschritt, ThemaFortschritt, ThemaId } from "./types.js";
 
 /* ------------------------------------------------------------ Einrichtung */
 
-/** Beide Werte stehen im Supabase-Projekt unter „Project Settings → API“. */
-export const SUPABASE_URL = "https://HIER-EINTRAGEN.supabase.co";
-export const SUPABASE_ANON_KEY = "HIER-EINTRAGEN";
+/**
+ * Die Adresse des eigenen Workers, ohne Schrägstrich am Ende – etwa
+ * `https://zahleneule.mein-name.workers.dev`. Nach dem Eintragen muss auch die
+ * CSP in `index.html` dieselbe Adresse erlauben, sonst verwirft der Browser
+ * jede Anfrage STILL.
+ */
+export const WORKER_URL = "https://HIER-EINTRAGEN.workers.dev";
 
 /** Ist die Gegenstelle überhaupt eingetragen? Sonst bleibt der Bereich aus. */
 export function eingerichtet(): boolean {
-  return !SUPABASE_URL.includes("HIER-EINTRAGEN") && !SUPABASE_ANON_KEY.includes("HIER-EINTRAGEN");
+  return !WORKER_URL.includes("HIER-EINTRAGEN");
 }
 
 /*
@@ -199,32 +205,20 @@ export type AbgleichErgebnis =
   | { art: "verschmolzen" }
   | { art: "fehler"; meldung: string };
 
-interface Antwort {
-  daten: unknown;
-  geaendert: string;
-}
-
-function kopfzeilen(): Record<string, string> {
-  return {
-    apikey: SUPABASE_ANON_KEY,
-    Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-    "Content-Type": "application/json",
-  };
-}
+const KOPFZEILEN = { "Content-Type": "application/json" };
 
 /** Holt den Stand zum Code. `null` heißt: zu diesem Code gibt es noch nichts. */
 export async function holeStand(code: string, hole: FetchLike = fetch): Promise<Fortschritt | null> {
-  const antwort = await hole(`${SUPABASE_URL}/rest/v1/rpc/hole_stand`, {
+  const antwort = await hole(`${WORKER_URL}/hole`, {
     method: "POST",
-    headers: kopfzeilen(),
-    body: JSON.stringify({ p_code: code }),
+    headers: KOPFZEILEN,
+    body: JSON.stringify({ code }),
   });
   if (!antwort.ok) throw new Error(`Server meldet ${antwort.status}`);
   const roh: unknown = await antwort.json();
-  const zeilen = Array.isArray(roh) ? (roh as Antwort[]) : [];
-  if (zeilen.length === 0) return null;
+  if (roh === null || typeof roh !== "object") return null;
   // Fremde Daten werden genauso streng geprüft wie der eigene Browserspeicher.
-  return pruefeFortschritt(zeilen[0]!.daten);
+  return pruefeFortschritt((roh as { daten?: unknown }).daten);
 }
 
 /** Schreibt den Stand zum Code. */
@@ -233,10 +227,10 @@ export async function sendeStand(
   stand: Fortschritt,
   hole: FetchLike = fetch
 ): Promise<void> {
-  const antwort = await hole(`${SUPABASE_URL}/rest/v1/rpc/speichere_stand`, {
+  const antwort = await hole(`${WORKER_URL}/speichere`, {
     method: "POST",
-    headers: kopfzeilen(),
-    body: JSON.stringify({ p_code: code, p_daten: stand }),
+    headers: KOPFZEILEN,
+    body: JSON.stringify({ code, daten: stand }),
   });
   if (!antwort.ok) throw new Error(`Server meldet ${antwort.status}`);
 }

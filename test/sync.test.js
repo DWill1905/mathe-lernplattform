@@ -161,20 +161,21 @@ function gefaelschterServer() {
   const hole = async (adresse, optionen) => {
     aufrufe.push(adresse);
     const rumpf = JSON.parse(optionen.body);
-    if (adresse.endsWith("/hole_stand")) {
-      const zeile = zeilen.get(rumpf.p_code);
-      return new Response(JSON.stringify(zeile ? [zeile] : []), { status: 200 });
+    if (adresse.endsWith("/hole")) {
+      const zeile = zeilen.get(rumpf.code);
+      return new Response(JSON.stringify(zeile ?? null), { status: 200 });
     }
-    if (adresse.endsWith("/speichere_stand")) {
-      zeilen.set(rumpf.p_code, { daten: rumpf.p_daten, geaendert: new Date().toISOString() });
-      return new Response("null", { status: 200 });
+    if (adresse.endsWith("/speichere")) {
+      const geaendert = new Date().toISOString();
+      zeilen.set(rumpf.code, { daten: rumpf.daten, geaendert });
+      return new Response(JSON.stringify({ geaendert }), { status: 200 });
     }
     return new Response("nicht gefunden", { status: 404 });
   };
   return { hole, zeilen, aufrufe };
 }
 
-test("holen und senden sprechen die richtigen Funktionen an", async () => {
+test("holen und senden sprechen die richtigen Endpunkte an", async () => {
   const server = gefaelschterServer();
   assert.equal(await holeStand("ABCD2345", server.hole), null, "unbekannter Code liefert nichts");
 
@@ -185,12 +186,18 @@ test("holen und senden sprechen die richtigen Funktionen an", async () => {
   assert.equal(zurueck.name, "Emma");
   // Ein anderer Code sieht davon nichts.
   assert.equal(await holeStand("WXYZ9876", server.hole), null);
+
+  // Und es werden wirklich die beiden Worker-Endpunkte angesprochen.
+  assert.ok(server.aufrufe.some((a) => a.endsWith("/hole")), "kein Aufruf von /hole");
+  assert.ok(server.aufrufe.some((a) => a.endsWith("/speichere")), "kein Aufruf von /speichere");
+  // Kein Zugangsschlüssel im Spiel – der Code ist das einzige Geheimnis.
+  assert.ok(!server.aufrufe.join(" ").includes("apikey"));
 });
 
 test("kaputte Antworten der Gegenstelle werden geprüft, nicht übernommen", async () => {
   const hole = async (adresse) =>
-    adresse.endsWith("/hole_stand")
-      ? new Response(JSON.stringify([{ daten: { punkte: "ganz viel", themen: 42, erfolge: "nein" }, geaendert: "x" }]), { status: 200 })
+    adresse.endsWith("/hole")
+      ? new Response(JSON.stringify({ daten: { punkte: "ganz viel", themen: 42, erfolge: "nein" }, geaendert: "x" }), { status: 200 })
       : new Response("null", { status: 200 });
   const geprueft = await holeStand("ABCD2345", hole);
   assert.equal(geprueft.punkte, 0, "eine Zeichenkette ist keine Punktzahl");
