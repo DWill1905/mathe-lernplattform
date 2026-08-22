@@ -31,6 +31,13 @@ export type Antwortfeld =
    * `3 − 2 = 1`. Das Tastenfeld hat dafür zusätzlich +, − und =.
    */
   | { art: "rechnung" }
+  /**
+   * Eine Zahlenmauer, in der MEHRERE Steine fehlen. `reihen` steht von unten
+   * nach oben, `null` markiert einen Stein zum Ausfüllen. Die Lösung ist die
+   * Folge der fehlenden Werte, mit Komma getrennt und in derselben Reihenfolge
+   * (unten nach oben, links nach rechts).
+   */
+  | { art: "mauer"; reihen: (number | null)[][] }
   | { art: "auswahl"; optionen: string[] }
   /**
    * Auswahl aus Bildern. Die Lösung ist die `kennung` der richtigen Karte –

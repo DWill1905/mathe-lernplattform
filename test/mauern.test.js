@@ -22,7 +22,9 @@ test("in jeder Zahlenmauer fehlt genau ein Stein", () => {
     let mauern = 0;
     for (let i = 0; i < 400; i++) {
       const aufgabe = GENERATOREN.mauern(rng, stufe);
-      if (!aufgabe.typ.startsWith("mauern/mauer")) continue;
+      // Nur die gezeichneten Mauern – die ausfüllbaren haben absichtlich
+      // mehrere Lücken und gar kein Bild.
+      if (!aufgabe.typ.startsWith("mauern/mauer") || !aufgabe.bild) continue;
       mauern++;
       const luecken = aufgabe.bild.svg.match(/>\?<\/text>/g) ?? [];
       assert.equal(luecken.length, 1, `Stufe ${stufe}: ${luecken.length} Lücken statt einer`);
@@ -36,7 +38,7 @@ test("die Zahlenmauer bleibt im Zahlenraum bis 100", () => {
     const rng = mulberry32(31 + stufe);
     for (let i = 0; i < 400; i++) {
       const aufgabe = GENERATOREN.mauern(rng, stufe);
-      if (!aufgabe.typ.startsWith("mauern/mauer")) continue;
+      if (!aufgabe.typ.startsWith("mauern/mauer") || !aufgabe.bild) continue;
       const zahlen = [...aufgabe.bild.svg.matchAll(/font-size="22">(\d+)</g)].map((t) => Number(t[1]));
       for (const zahl of zahlen) {
         assert.ok(zahl <= 100, `Stufe ${stufe}: Stein ${zahl} liegt über 100`);
@@ -228,7 +230,10 @@ test("die Mauergrößen wachsen mit der Stufe – bis zu zehn Kästchen", () => 
     for (let i = 0; i < 2000; i++) {
       const aufgabe = GENERATOREN.mauern(rng, stufe);
       if (!aufgabe.typ.startsWith("mauern/mauer")) continue;
-      const steine = reihenAus(aufgabe.bild.svg).flat().length;
+      // Gezeichnete Mauer oder ausfüllbare – beide zählen für die Größe.
+      const steine = aufgabe.bild
+        ? reihenAus(aufgabe.bild.svg).flat().length
+        : aufgabe.antwortfeld.reihen.flat().length;
       gesehen.set(steine, (gesehen.get(steine) ?? 0) + 1);
     }
     assert.deepEqual(
@@ -255,7 +260,7 @@ test("der fehlende Stein lässt sich immer eindeutig herleiten", () => {
     let geprueft = 0;
     for (let i = 0; i < 1500; i++) {
       const aufgabe = GENERATOREN.mauern(rng, stufe);
-      if (!aufgabe.typ.startsWith("mauern/mauer")) continue;
+      if (!aufgabe.typ.startsWith("mauern/mauer") || !aufgabe.bild) continue;
       const reihen = reihenAus(aufgabe.bild.svg);
       geprueft++;
 
@@ -289,5 +294,62 @@ test("der fehlende Stein lässt sich immer eindeutig herleiten", () => {
       );
     }
     assert.ok(geprueft > 200, `Stufe ${stufe}: nur ${geprueft} Mauern geprüft`);
+  }
+});
+
+/*
+ * Die ausfüllbare Mauer: Die Grundreihe steht da, alles darüber ist leer.
+ * Damit ein Kind sie überhaupt lösen kann, muss sich jede Reihe aus der
+ * darunter ergeben – und die Lösungen müssen in genau dieser Reihenfolge
+ * stehen (unten nach oben, links nach rechts).
+ */
+test("die ausfüllbare Mauer lässt sich Reihe für Reihe ausrechnen", () => {
+  let geprueft = 0;
+  for (const stufe of [1, 2, 3]) {
+    const rng = mulberry32(5100 + stufe);
+    for (let i = 0; i < 2000; i++) {
+      const aufgabe = GENERATOREN.mauern(rng, stufe);
+      if (aufgabe.antwortfeld.art !== "mauer") continue;
+      geprueft++;
+      const reihen = aufgabe.antwortfeld.reihen;
+
+      // Die Grundreihe ist vollständig, alles darüber leer.
+      assert.ok(
+        reihen[0].every((wert) => typeof wert === "number"),
+        "die Grundreihe muss vollständig sein"
+      );
+      for (let e = 1; e < reihen.length; e++) {
+        assert.ok(reihen[e].every((wert) => wert === null), `Reihe ${e} ist nicht leer`);
+      }
+
+      // Selbst hochrechnen und mit der Lösung vergleichen.
+      const erwartet = [];
+      let unten = reihen[0];
+      while (unten.length > 1) {
+        const oben = [];
+        for (let s = 0; s < unten.length - 1; s++) oben.push(unten[s] + unten[s + 1]);
+        erwartet.push(...oben);
+        unten = oben;
+      }
+      assert.equal(aufgabe.loesung, erwartet.join(","), `falsche Lösungsfolge: ${aufgabe.loesung}`);
+      assert.ok(erwartet.length >= 3, "eine ausfüllbare Mauer soll mehr als eine Zahl verlangen");
+    }
+  }
+  assert.ok(geprueft > 300, `nur ${geprueft} ausfüllbare Mauern geprüft`);
+});
+
+test("ausfüllbare Mauern kommen auf den größeren Stufen wirklich vor", () => {
+  for (const stufe of [2, 3]) {
+    const rng = mulberry32(6100 + stufe);
+    let mauern = 0;
+    let ausfuellbar = 0;
+    for (let i = 0; i < 2000; i++) {
+      const aufgabe = GENERATOREN.mauern(rng, stufe);
+      if (!aufgabe.typ.startsWith("mauern/mauer")) continue;
+      mauern++;
+      if (aufgabe.antwortfeld.art === "mauer") ausfuellbar++;
+    }
+    const anteil = ausfuellbar / mauern;
+    assert.ok(anteil > 0.3 && anteil < 0.7, `Stufe ${stufe}: ${(100 * anteil).toFixed(0)} % ausfüllbar`);
   }
 });

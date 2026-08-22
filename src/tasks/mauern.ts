@@ -151,9 +151,39 @@ function mauerAufgabe(rng: Rng, grund: readonly number[], typ: string): Aufgabe 
   };
 }
 
+/**
+ * Mauer zum AUSFÜLLEN: Die Grundreihe steht da, alles darüber ist leer. So
+ * steht es auch im Übungsheft – und bei zehn Kästchen ist eine einzige Lücke
+ * schlicht zu wenig zu tun.
+ *
+ * Diese Form ist immer lösbar, weil sich jede Reihe aus der darunter ergibt.
+ */
+function mauerAusfuellen(grund: readonly number[], typ: string): Aufgabe {
+  const reihen = baueMauer(grund);
+  const anzeige = reihen.map((reihe, ebene) => reihe.map((wert) => (ebene === 0 ? wert : null)));
+  const fehlend = reihen.slice(1).flat();
+
+  return {
+    typ,
+    frage:
+      fehlend.length === 1
+        ? "Fülle den obersten Stein aus."
+        : `Fülle die Mauer aus – ${fehlend.length} Steine fehlen.`,
+    antwortfeld: { art: "mauer", reihen: anzeige },
+    loesung: fehlend.join(","),
+    tipp: "Fang unten an: Jeder Stein ist die Summe der beiden Steine direkt darunter.",
+    erklaerung: `Von unten nach oben: ${reihen.map((reihe) => reihe.join(", ")).join(" → ")}.`,
+  };
+}
+
 /** Mauer mit drei Grundsteinen – sechs Kästchen. */
 function mauerMitDrei(rng: Rng): Aufgabe {
-  return mauerAufgabe(rng, [rng.int(1, 20), rng.int(1, 20), rng.int(1, 20)], "mauern/mauer-gross");
+  const grund = [rng.int(1, 20), rng.int(1, 20), rng.int(1, 20)];
+  // Mal eine einzelne Lücke (das trainiert das Rückwärtsrechnen), mal die
+  // ganze Mauer ausfüllen.
+  return rng.chance(0.5)
+    ? mauerAufgabe(rng, grund, "mauern/mauer-gross")
+    : mauerAusfuellen(grund, "mauern/mauer-fuellen");
 }
 
 /**
@@ -163,7 +193,9 @@ function mauerMitDrei(rng: Rng): Aufgabe {
  */
 function mauerMitVier(rng: Rng, maxAussen: number, maxInnen: number): Aufgabe {
   const grund = [rng.int(1, maxAussen), rng.int(1, maxInnen), rng.int(1, maxInnen), rng.int(1, maxAussen)];
-  return mauerAufgabe(rng, grund, "mauern/mauer-zehn");
+  return rng.chance(0.5)
+    ? mauerAufgabe(rng, grund, "mauern/mauer-zehn")
+    : mauerAusfuellen(grund, "mauern/mauer-zehn-fuellen");
 }
 
 /** Rechenrad: außen und innen ergeben zusammen immer die Zahl in der Mitte. */

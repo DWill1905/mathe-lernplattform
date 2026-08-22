@@ -84,6 +84,10 @@ interface Sitzung {
   bonusRichtig: boolean;
   /** Zwischengeparkte Eingabe der Hauptaufgabe, während der Bonus läuft. */
   hauptEingabe: string;
+  /** Bei einer Mauer zum Ausfüllen: ein Eintrag je fehlendem Stein. */
+  felder: string[];
+  /** Welcher der fehlenden Steine gerade getippt wird. */
+  feldIndex: number;
   /** Selbst gelöste Hilfsaufgaben in dieser Runde. */
   herzen: number;
 }
@@ -257,6 +261,8 @@ function neueSitzung(
     bonusVersucht: false,
     bonusRichtig: false,
     hauptEingabe: "",
+    felder: [],
+    feldIndex: 0,
     herzen: 0,
   };
   return sitzung;
@@ -273,6 +279,8 @@ function aufgabeZuruecksetzen(sitzung: Sitzung): void {
   sitzung.bonusRichtig = false;
   sitzung.hauptEingabe = "";
   sitzung.tippOffen = false;
+  sitzung.felder = [];
+  sitzung.feldIndex = 0;
 }
 
 /** Darf für die aktuelle Aufgabe ein Bonus gerechnet werden? */
@@ -590,6 +598,10 @@ function antwortbereich(ziel: HTMLElement, sitzung: Sitzung, schritt: Schritt): 
     return karten;
   }
 
+  if (schritt.antwortfeld.art === "mauer") {
+    return mauerBereich(ziel, sitzung, schritt, schritt.antwortfeld.reihen);
+  }
+
   const istRechnung = schritt.antwortfeld.art === "rechnung";
   const einheit = schritt.antwortfeld.art === "zahl" ? schritt.antwortfeld.einheit : undefined;
   // Eine ganze Rechnung ist länger als eine Zahl – „100 − 40 = 60“ sind zwölf
@@ -698,6 +710,171 @@ function antwortbereich(ziel: HTMLElement, sitzung: Sitzung, schritt: Schritt): 
   return el("div", { class: "eingabe-bereich" }, anzeige, feld);
 }
 
+/* ------------------------------------------------- Mauer zum Ausfüllen */
+
+/**
+ * Eine Zahlenmauer, in die MEHRERE Zahlen getippt werden. Die Steine sind
+ * hier echte DOM-Knöpfe, kein SVG: Nur so lässt sich einer davon auswählen.
+ *
+ * Die Reihen kommen von unten nach oben, gezeichnet wird von oben nach unten.
+ * Jede Reihe ist mittig gesetzt – dadurch entsteht die Pyramidenform von
+ * allein, ohne gerechnete Versätze.
+ */
+function mauerBereich(
+  ziel: HTMLElement,
+  sitzung: Sitzung,
+  schritt: Schritt,
+  reihen: readonly (readonly (number | null)[])[]
+): HTMLElement {
+  const erwartet = schritt.loesung.split(",");
+  if (sitzung.felder.length !== erwartet.length) {
+    sitzung.felder = new Array<string>(erwartet.length).fill("");
+    sitzung.feldIndex = 0;
+  }
+
+  /*
+   * ACHTUNG: Gezeichnet wird von OBEN nach unten, gezählt aber von UNTEN nach
+   * oben – denn genau so steht die Lösungsfolge, und genau so füllt ein Kind
+   * eine Mauer. Beides zu vermischen war ein Fehler: Die Zahlen landeten in
+   * den falschen Steinen, und weil Eingabe und Vergleich dieselbe verdrehte
+   * Reihenfolge benutzten, galt die Aufgabe trotzdem als richtig.
+   */
+  const nummern = new Map<string, number>();
+  let gezaehlt = 0;
+  reihen.forEach((reihe, ebene) =>
+    reihe.forEach((wert, spalte) => {
+      if (wert === null) nummern.set(`${ebene}/${spalte}`, gezaehlt++);
+    })
+  );
+
+  const mauer = el("div", { class: "mauer" });
+  for (let ebene = reihen.length - 1; ebene >= 0; ebene--) {
+    const zeile = el("div", { class: "mauer-reihe" });
+    reihen[ebene]!.forEach((wert, spalte) => {
+      if (wert !== null) {
+        zeile.appendChild(el("span", { class: "mauer-stein", text: String(wert) }));
+        return;
+      }
+      const nummer = nummern.get(`${ebene}/${spalte}`)!;
+      const eingabe = sitzung.felder[nummer] ?? "";
+      const stimmt = sitzung.beantwortet && eingabe === erwartet[nummer];
+      zeile.appendChild(
+        el("button", {
+          class:
+            `mauer-stein mauer-stein-luecke` +
+            (sitzung.beantwortet ? (stimmt ? " mauer-stein-richtig" : " mauer-stein-falsch") : "") +
+            (!sitzung.beantwortet && nummer === sitzung.feldIndex ? " mauer-stein-aktiv" : ""),
+          type: "button",
+          disabled: sitzung.beantwortet,
+          "aria-label": `Stein ${nummer + 1} von ${erwartet.length}${eingabe ? `, ${eingabe}` : ", leer"}`,
+          text: sitzung.beantwortet && !stimmt ? erwartet[nummer]! : eingabe || "?",
+          onclick: () => {
+            sitzung.feldIndex = nummer;
+            zeichne(ziel, sitzung);
+          },
+        })
+      );
+    });
+    mauer.appendChild(zeile);
+  }
+
+  const offen = sitzung.felder.filter((wert) => wert === "").length;
+  const tippe = (ziffer: string): void => {
+    if (sitzung.beantwortet) return;
+    const jetzt = sitzung.felder[sitzung.feldIndex] ?? "";
+    if (jetzt.length >= 3) return;
+    sitzung.felder[sitzung.feldIndex] = (jetzt === "0" ? "" : jetzt) + ziffer;
+    zeichne(ziel, sitzung);
+  };
+  const loesche = (): void => {
+    if (sitzung.beantwortet) return;
+    sitzung.felder[sitzung.feldIndex] = (sitzung.felder[sitzung.feldIndex] ?? "").slice(0, -1);
+    zeichne(ziel, sitzung);
+  };
+  /**
+   * Ein Druck auf OK schaltet zum nächsten leeren Stein weiter – und erst wenn
+   * alle gefüllt sind, wird abgegeben. So kommt ein Kind mit einer einzigen
+   * Taste durch die ganze Mauer.
+   */
+  const weiter = (): void => {
+    if (sitzung.beantwortet) return;
+    if (offen === 0) {
+      pruefe(ziel, sitzung, sitzung.felder.join(","));
+      return;
+    }
+    const naechster = sitzung.felder.findIndex((wert, i) => wert === "" && i > sitzung.feldIndex);
+    sitzung.feldIndex = naechster >= 0 ? naechster : sitzung.felder.findIndex((wert) => wert === "");
+    zeichne(ziel, sitzung);
+  };
+
+  if (!sitzung.beantwortet) {
+    tastatur = (ereignis: KeyboardEvent): void => {
+      if (ereignis.ctrlKey || ereignis.metaKey || ereignis.altKey) return;
+      if (/^\d$/.test(ereignis.key)) {
+        ereignis.preventDefault();
+        tippe(ereignis.key);
+      } else if (ereignis.key === "Backspace") {
+        ereignis.preventDefault();
+        loesche();
+      } else if (ereignis.key === "Enter" || ereignis.key === "Tab") {
+        ereignis.preventDefault();
+        weiter();
+      }
+    };
+    document.addEventListener("keydown", tastatur);
+  }
+
+  const feld = el("div", { class: "tastenfeld" });
+  for (const ziffer of ["1", "2", "3", "4", "5", "6", "7", "8", "9"]) {
+    feld.appendChild(
+      el("button", {
+        class: "taste",
+        type: "button",
+        disabled: sitzung.beantwortet,
+        text: ziffer,
+        onclick: () => tippe(ziffer),
+      })
+    );
+  }
+  feld.append(
+    el("button", {
+      class: "taste taste-hilfe",
+      type: "button",
+      "aria-label": "Letzte Ziffer löschen",
+      disabled: sitzung.beantwortet,
+      text: "←",
+      onclick: loesche,
+    }),
+    el("button", {
+      class: "taste",
+      type: "button",
+      disabled: sitzung.beantwortet,
+      text: "0",
+      onclick: () => tippe("0"),
+    }),
+    el("button", {
+      class: "taste taste-ok",
+      type: "button",
+      disabled: sitzung.beantwortet || (sitzung.felder[sitzung.feldIndex] === "" && offen > 0),
+      text: offen === 0 ? "Fertig" : "Weiter",
+      onclick: weiter,
+    })
+  );
+
+  return el(
+    "div",
+    { class: "eingabe-bereich eingabe-bereich-mauer" },
+    mauer,
+    offen > 0 && !sitzung.beantwortet
+      ? el("p", {
+          class: "hinweis mauer-stand",
+          text: offen === 1 ? "Noch ein Stein fehlt." : `Noch ${offen} Steine fehlen.`,
+        })
+      : null,
+    feld
+  );
+}
+
 /* ---------------------------------------------------------- Rückmeldung */
 
 function rueckmeldung(ziel: HTMLElement, sitzung: Sitzung, schritt: Schritt): HTMLElement {
@@ -742,7 +919,14 @@ function rueckmeldung(ziel: HTMLElement, sitzung: Sitzung, schritt: Schritt): HT
       "p",
       { class: "rueckmeldung-zeile" },
       icon("gedanke", "rueckmeldung-symbol"),
-      el("span", { text: `Richtig ist: ${schritt.loesung}` })
+      // Bei der Mauer stünde hier eine nackte Zahlenliste. Die richtigen Werte
+      // stehen dort schon IN den falsch gefüllten Steinen.
+      el("span", {
+        text:
+          schritt.antwortfeld.art === "mauer"
+            ? "Schau dir die roten Steine an – dort steht die richtige Zahl."
+            : `Richtig ist: ${schritt.loesung}`,
+      })
     ),
     schritt.erklaerung ? el("p", { class: "rueckmeldung-weg", text: schritt.erklaerung }) : null,
     el("button", {

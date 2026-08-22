@@ -3095,3 +3095,125 @@ body.uebung-laeuft .karte-aufgabe > .knopf-tipp {
     font-size: 1.25rem;
   }
 }
+
+/* ================================== Zahlenmauer zum Ausfüllen ========= */
+
+/*
+ * Die Steine sind hier echte Knöpfe, kein SVG – nur so lässt sich einer
+ * auswählen und beschriften. Jede Reihe steht mittig; dadurch entsteht die
+ * Pyramidenform von allein, ohne gerechnete Versätze.
+ */
+.mauer {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 0 auto 0.8rem;
+}
+
+.mauer-reihe {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
+.mauer-stein {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 62px;
+  min-height: 46px;
+  border-radius: 8px;
+  border: 2px solid var(--rand);
+  background: color-mix(in srgb, var(--gold) 22%, var(--karte));
+  color: var(--text);
+  font-size: 1.25rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Ein leerer Stein ist anfassbar. */
+.mauer-stein-luecke {
+  background: var(--karte);
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--haupt) 45%, var(--rand));
+  color: var(--haupt-text);
+  cursor: pointer;
+}
+
+/* Der Stein, in den gerade getippt wird. */
+.mauer-stein-aktiv {
+  border-style: solid;
+  border-color: var(--haupt);
+  background: var(--haupt-hell);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--haupt) 28%, transparent);
+}
+
+.mauer-stein-richtig {
+  border-style: solid;
+  border-color: var(--richtig);
+  background: var(--richtig-hell);
+  color: var(--richtig);
+}
+
+.mauer-stein-falsch {
+  border-style: solid;
+  border-color: var(--falsch);
+  background: var(--falsch-hell);
+  color: var(--falsch);
+}
+
+.mauer-stand {
+  margin: 0 0 0.6rem;
+  text-align: center;
+}
+
+/* Auf schmalen Geräten und im Querformat werden die Steine kleiner. */
+@media (max-width: 400px) {
+  .mauer-stein {
+    width: 52px;
+    min-height: 40px;
+    font-size: 1.05rem;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 560px) {
+  .mauer-stein {
+    width: 48px;
+    min-height: 36px;
+    font-size: 1rem;
+  }
+
+  .mauer,
+  .mauer-reihe {
+    gap: 4px;
+  }
+}
+
+/*
+ * Quer steht die Mauer NEBEN dem Tastenfeld, nicht darüber. Sonst landet sie
+ * in der schmalen rechten Spalte, in die sie nicht passt – gemessen 73 px zu
+ * viel Höhe.
+ */
+@media (orientation: landscape) and (max-height: 560px) {
+  .karte-aufgabe > .eingabe-bereich-mauer {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .eingabe-bereich-mauer .mauer {
+    margin: 0;
+  }
+
+  .eingabe-bereich-mauer .tastenfeld {
+    flex: none;
+    width: 160px;
+  }
+
+  /* Die leeren Steine zeigen selbst, wie viel noch fehlt. */
+  .eingabe-bereich-mauer .mauer-stand {
+    display: none;
+  }
+}

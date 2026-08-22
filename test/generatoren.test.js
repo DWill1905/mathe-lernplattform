@@ -19,6 +19,23 @@ function pruefeAufgabe(aufgabe, kontext) {
   if (aufgabe.antwortfeld.art === "zahl") {
     assert.match(aufgabe.loesung, /^\d+$/, `${kontext}: Zahlenantwort ist keine natürliche Zahl`);
     assert.ok(Number(aufgabe.loesung) <= 1000, `${kontext}: Lösung ${aufgabe.loesung} zu groß für Klasse 2`);
+  } else if (aufgabe.antwortfeld.art === "rechnung") {
+    // Eine ganze Rechnung, z. B. „4 − 1 = 3“.
+    assert.match(aufgabe.loesung, /^\d+\s*[+−·:]\s*\d+\s*=\s*\d+$/, `${kontext}: keine ganze Rechnung`);
+  } else if (aufgabe.antwortfeld.art === "mauer") {
+    const reihen = aufgabe.antwortfeld.reihen;
+    const luecken = reihen.flat().filter((wert) => wert === null).length;
+    const werte = aufgabe.loesung.split(",");
+    assert.ok(luecken >= 1, `${kontext}: Mauer ohne Lücke`);
+    assert.equal(werte.length, luecken, `${kontext}: ${werte.length} Lösungen für ${luecken} Lücken`);
+    for (const wert of werte) {
+      assert.match(wert, /^\d+$/, `${kontext}: „${wert}“ ist keine natürliche Zahl`);
+      assert.ok(Number(wert) <= 100, `${kontext}: Stein ${wert} liegt über 100`);
+    }
+    // Jede Reihe muss einen Stein kürzer sein als die darunter.
+    for (let i = 1; i < reihen.length; i++) {
+      assert.equal(reihen[i].length, reihen[i - 1].length - 1, `${kontext}: Mauer ist schief`);
+    }
   } else if (aufgabe.antwortfeld.art === "bildauswahl") {
     const optionen = aufgabe.antwortfeld.optionen;
     const kennungen = optionen.map((o) => o.kennung);

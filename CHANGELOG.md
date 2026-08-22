@@ -4,6 +4,45 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.17.0] – 2026-08-22
+
+### Hinzugefügt
+
+**Zahlenmauern zum Ausfüllen – mehrere Zahlen statt nur einer.**
+Bei zehn Kästchen war eine einzige Lücke zu wenig zu tun. Jetzt gibt es die
+Mauer in zwei Formen, etwa je zur Hälfte:
+
+- **Eine Lücke** wie bisher: irgendwo im Bild fehlt ein Stein, das trainiert
+  das Rückwärtsrechnen.
+- **Ganz ausfüllen**: Die Grundreihe steht da, alles darüber ist leer – bei
+  vier Grundsteinen sind das sechs Steine zum Ausrechnen. So steht es auch im
+  Übungsheft.
+
+Die ausfüllbare Mauer ist keine Zeichnung mehr, sondern besteht aus
+antippbaren Steinen (neue Antwortart `"mauer"`). Der aktive Stein ist
+hervorgehoben; die Zifferntasten tippen hinein, „Weiter“ springt zum nächsten
+leeren Stein und wird zu „Fertig“, sobald alle gefüllt sind. Ein Stein lässt
+sich auch direkt antippen. Am Ende stehen die richtigen Steine grün, die
+falschen rot – und in den roten steht die richtige Zahl.
+
+### Behoben
+
+**Die Zahlen landeten in den falschen Steinen.** Gezeichnet wird von oben nach
+unten, die Lösungsfolge läuft aber von unten nach oben. Weil Eingabe und
+Vergleich dieselbe verdrehte Reihenfolge benutzten, galt die Aufgabe trotzdem
+als richtig – aufgefallen ist es erst am Bildschirmfoto, wo an der Spitze 14
+statt 42 stand. Die Prüfung vergleicht jetzt die POSITION jeder Zahl, nicht
+nur richtig/falsch: fünf Mauern, alle Steine an der richtigen Stelle.
+
+**Im Querformat rutschte die Mauer in die schmale Tastenfeldspalte** und war
+73 px zu hoch. Sie steht dort jetzt neben dem Tastenfeld. Gemessen auf sechs
+Geräten: überall ohne Scrollen, kleinster Stein 36 px.
+
+Drei neue Tests: dass sich die ausfüllbare Mauer Reihe für Reihe ausrechnen
+lässt und die Lösungsfolge stimmt, dass die Grundreihe vollständig und alles
+darüber leer ist, und dass beide Mauerformen auf den größeren Stufen wirklich
+vorkommen.
+
 ## [1.16.0] – 2026-08-22
 
 ### Geändert

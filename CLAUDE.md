@@ -133,6 +133,16 @@ verwässern.
   – `mauerAufgabe()` baut deshalb generisch, die Stufe legt nur die Anzahl der
   Grundsteine fest (2 → 3 Kästchen, 3 → 6, 4 → 10). Zwei Tests prüfen die
   Größenverteilung und dass sich der fehlende Stein wirklich herleiten lässt.
+- **Zwei Sorten Zahlenmauer**: die gezeichnete mit EINER Lücke (SVG in `bild`,
+  Rückwärtsrechnen) und die ausfüllbare (Antwortart `"mauer"`, Grundreihe steht
+  da, alles darüber leer). Bei der ausfüllbaren sind die Steine echte
+  DOM-Knöpfe, kein SVG – nur so lässt sich einer auswählen.
+- **Gezeichnet wird von oben nach unten, GEZÄHLT von unten nach oben.** Die
+  Lösungsfolge läuft unten → oben, links → rechts, und genau so füllt ein Kind
+  eine Mauer. Beides zu vermischen war ein Fehler: Die Zahlen landeten in den
+  falschen Steinen, und weil Eingabe und Vergleich dieselbe verdrehte
+  Reihenfolge benutzten, galt die Aufgabe trotzdem als richtig. Wer das prüft,
+  muss die POSITION der Zahlen vergleichen, nicht nur richtig/falsch.
 - **Die Spitze einer Mauer wächst schnell**: Bei vier Grundsteinen ist sie
   `a + 3b + 3c + d`, die inneren Steine zählen also dreifach. Deren Grenzen
   müssen enger sein, sonst verlässt die Mauer den Zahlenraum bis 100.
