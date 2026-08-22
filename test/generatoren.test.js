@@ -406,3 +406,84 @@ test("Aufgaben mit Hilfsaufgabe sind auch ohne sie verständlich", () => {
     }
   }
 });
+
+/*
+ * Eine Umkehraufgabe ist erst dann eine, wenn in der Rechnung eine LÜCKE
+ * steht. Vorher zeigten die Familien-Umkehraufgaben ein glattes `13 − 5 =` –
+ * das rechnet ein Kind direkt aus, ohne je umzukehren. Beim Einmaleins war es
+ * von Anfang an richtig (`? · 5 = 30`); diese Prüfung hält beides zusammen.
+ */
+test("jede Umkehraufgabe hat eine Lücke, die nur durch Umkehren zu füllen ist", () => {
+  const gefunden = new Set();
+
+  for (const stufe of STUFEN) {
+    for (let i = 0; i < 400; i++) {
+      const rng = mulberry32(i * 31 + stufe);
+      for (const thema of ["familien", "einmaleins"]) {
+        const aufgabe = GENERATOREN[thema](rng, stufe);
+        if (!aufgabe.typ.includes("umkehr")) continue;
+        gefunden.add(aufgabe.typ);
+
+        const kontext = `${aufgabe.typ} (Stufe ${stufe}): ${aufgabe.rechnung}`;
+        assert.ok(aufgabe.rechnung?.includes("?"), `${kontext}: keine Lücke`);
+        // Ohne rechte Seite wäre die Lücke gar nicht bestimmt.
+        assert.match(aufgabe.rechnung, /=\s*\d+$/, `${kontext}: das Ergebnis fehlt`);
+
+        // Die Lösung eingesetzt muss die Rechnung wahr machen.
+        const gefuellt = aufgabe.rechnung.replace("?", aufgabe.loesung);
+        const teile = gefuellt.match(/^(\d+)\s*([+−·])\s*(\d+)\s*=\s*(\d+)$/);
+        assert.ok(teile, `${kontext}: unerwartete Form ${gefuellt}`);
+        const [, x, zeichen, y, ergebnis] = teile;
+        const gerechnet =
+          zeichen === "+" ? Number(x) + Number(y)
+          : zeichen === "−" ? Number(x) - Number(y)
+          : Number(x) * Number(y);
+        assert.equal(gerechnet, Number(ergebnis), `${kontext}: Lösung passt nicht in die Lücke`);
+      }
+    }
+  }
+
+  // Alle drei Umkehr-Arten müssen dabei gewesen sein, sonst prüft der Test zu wenig.
+  assert.deepEqual(
+    [...gefunden].sort(),
+    ["einmaleins/umkehr", "familien/umkehr-minus", "familien/umkehr-plus"],
+    "nicht jede Umkehr-Art wurde erzeugt"
+  );
+});
+
+/*
+ * Die Hilfsaufgabe einer Umkehraufgabe ist die Umkehrung selbst – und sie muss
+ * die Lücke tatsächlich ausrechnen. Stimmte sie nicht mit der Lösung überein,
+ * führte der Bonus das Kind in die Irre.
+ */
+test("die Hilfsaufgabe der Umkehraufgabe rechnet genau die Lücke aus", () => {
+  let geprueft = 0;
+
+  for (const stufe of STUFEN) {
+    for (let i = 0; i < 400; i++) {
+      const aufgabe = GENERATOREN.familien(mulberry32(i * 17 + stufe), stufe);
+      if (!aufgabe.typ.includes("umkehr")) continue;
+      const kontext = `${aufgabe.typ}: ${aufgabe.rechnung}`;
+      assert.ok(aufgabe.vorstufe, `${kontext}: keine Hilfsaufgabe`);
+
+      // Die Hilfsaufgabe muss stimmen …
+      const teile = `${aufgabe.vorstufe.rechnung} ${aufgabe.vorstufe.loesung}`.match(
+        /^(\d+)\s*([+−])\s*(\d+)\s*=\s*(\d+)$/
+      );
+      assert.ok(teile, `${kontext}: Hilfsaufgabe hat keine ganze Form`);
+      const [, x, zeichen, y, ergebnis] = teile;
+      const gerechnet = zeichen === "+" ? Number(x) + Number(y) : Number(x) - Number(y);
+      assert.equal(gerechnet, Number(ergebnis), `${kontext}: Hilfsaufgabe rechnet falsch`);
+
+      // … und sie muss die Gegenrechnung sein, nicht dieselbe Rechenart.
+      const hauptZeichen = aufgabe.rechnung.includes("+") ? "+" : "−";
+      assert.notEqual(zeichen, hauptZeichen, `${kontext}: Hilfsaufgabe kehrt nichts um`);
+
+      // Ihr Ergebnis ist die gesuchte Zahl.
+      assert.equal(aufgabe.vorstufe.loesung, aufgabe.loesung, `${kontext}: Hilfsaufgabe füllt die Lücke nicht`);
+      geprueft++;
+    }
+  }
+
+  assert.ok(geprueft > 50, `zu wenige Umkehraufgaben geprüft: ${geprueft}`);
+});

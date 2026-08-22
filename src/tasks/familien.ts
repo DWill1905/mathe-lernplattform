@@ -32,33 +32,57 @@ export function familien(rng: Rng, stufe: Stufe): Aufgabe {
   return tauschaufgabe(rng, 100);
 }
 
-/** 8 + 5 = 13 ist bekannt – gesucht ist 13 − 5. */
+/*
+ * Umkehraufgaben brauchen eine LÜCKE in der Rechnung – sonst sind sie keine.
+ *
+ * Vorher stand hier `13 − 5 =`; das rechnet ein Kind einfach aus, ohne je ans
+ * Umkehren zu denken. Erst die Lücke macht den Kniff nötig: Bei `8 + ? = 13`
+ * kommt man nur weiter, indem man die Aufgabe umdreht und rechnet 13 − 8.
+ * Genau so ist die Umkehraufgabe beim Einmaleins schon immer gebaut
+ * (`? · 5 = 30`).
+ *
+ * Die Umkehrung selbst ist die Hilfsaufgabe: Wer sie freiwillig ganz auftippt,
+ * bekommt ein Herz.
+ */
+
+/** Lücke in einer Plusaufgabe – auflösen lässt sie sich nur durch Minus. */
 function umkehrZuPlus(rng: Rng, max: number): Aufgabe {
   const { a, b, summe } = trio(rng, max);
+  // Welcher der beiden Teile fehlt? Der jeweils andere ist der bekannte.
+  const hintenFehlt = rng.chance(0.5);
+  const [bekannt, gesucht] = hintenFehlt ? [a, b] : [b, a];
   return {
     typ: "familien/umkehr-plus",
-    frage: "Wie lautet das Ergebnis?",
-    vorstufe: { frage: "Schreibe die passende Umkehraufgabe ganz auf:", rechnung: `${a} + ${b} =`, loesung: String(summe) },
-    rechnung: `${summe} − ${b} =`,
+    frage: "Welche Zahl gehört in die Lücke?",
+    vorstufe: {
+      frage: "Schreibe die Umkehraufgabe ganz auf – sie verrät dir die Lücke:",
+      rechnung: `${summe} − ${bekannt} =`,
+      loesung: String(gesucht),
+    },
+    rechnung: hintenFehlt ? `${a} + ? = ${summe}` : `? + ${b} = ${summe}`,
     antwortfeld: zahlfeld(),
-    loesung: String(a),
-    tipp: "Beim Umkehren nimmst du von der Summe einen der beiden Teile wieder weg.",
-    erklaerung: `${a} + ${b} = ${summe}, also ${summe} − ${b} = ${a}.`,
+    loesung: String(gesucht),
+    tipp: "Dreh die Aufgabe um: Nimm vom Ganzen den Teil weg, den du schon kennst.",
+    erklaerung: `${summe} − ${bekannt} = ${gesucht}, also ${a} + ${b} = ${summe}.`,
   };
 }
 
-/** 17 − 3 = 14 ist bekannt – gesucht ist 14 + 3. */
+/** Lücke am Anfang einer Minusaufgabe – auflösen lässt sie sich nur durch Plus. */
 function umkehrZuMinus(rng: Rng, max: number): Aufgabe {
   const { a, b, summe } = trio(rng, max);
   return {
     typ: "familien/umkehr-minus",
-    frage: "Wie lautet das Ergebnis?",
-    vorstufe: { frage: "Schreibe die passende Umkehraufgabe ganz auf:", rechnung: `${summe} − ${a} =`, loesung: String(b) },
-    rechnung: `${b} + ${a} =`,
+    frage: "Welche Zahl gehört in die Lücke?",
+    vorstufe: {
+      frage: "Schreibe die Umkehraufgabe ganz auf – sie verrät dir die Lücke:",
+      rechnung: `${a} + ${b} =`,
+      loesung: String(summe),
+    },
+    rechnung: `? − ${b} = ${a}`,
     antwortfeld: zahlfeld(),
     loesung: String(summe),
-    tipp: "Was du abgezogen hast, zählst du wieder dazu.",
-    erklaerung: `${summe} − ${a} = ${b}, also ${b} + ${a} = ${summe}.`,
+    tipp: "Was weggenommen wurde, zählst du wieder dazu.",
+    erklaerung: `${a} + ${b} = ${summe}, also ${summe} − ${b} = ${a}.`,
   };
 }
 

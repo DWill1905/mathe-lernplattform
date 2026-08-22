@@ -4,6 +4,31 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.20.2] – 2026-08-22
+
+### Behoben
+
+**Umkehraufgaben haben jetzt eine Lücke — sonst sind es keine.** Bei Plus und
+Minus stand bisher eine glatte Rechnung da, etwa `13 − 5 =`. Die rechnet ein
+Kind einfach aus; vom Umkehren merkt es nichts. Erst die Lücke macht den Kniff
+nötig: Bei `5 + ? = 13` kommt man nur weiter, indem man die Aufgabe umdreht und
+`13 − 5` rechnet.
+
+- **Umkehr zu Plus**: Lücke in einer Plusaufgabe (`5 + ? = 13`, `? + 11 = 16`),
+  auflösbar nur durch Minus.
+- **Umkehr zu Minus**: Lücke am Anfang einer Minusaufgabe (`? − 4 = 8`),
+  auflösbar nur durch Plus.
+
+Die Hilfsaufgabe für das Bonusherz ist jetzt die Umkehrung selbst und rechnet
+genau die Lücke aus — vorher zeigte sie eine Rechnung, die mit der gesuchten
+Zahl nichts zu tun hatte.
+
+Beim Einmaleins war es von Anfang an richtig gebaut (`? · 5 = 30`); dort ändert
+sich nichts. Zwei neue Tests halten die Regel für alle drei Umkehr-Arten
+zusammen fest: Es muss eine Lücke geben, die eingesetzte Lösung muss die
+Rechnung wahr machen, und die Hilfsaufgabe muss die Gegenrechenart benutzen und
+dieselbe Zahl liefern. Gegen die alte Fassung gegengeprüft: Sie fällt durch.
+
 ## [1.20.1] – 2026-08-22
 
 ### Behoben
