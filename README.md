@@ -181,6 +181,11 @@ pro Tag; ein Kind kommt auf vielleicht 50 Schreibvorgänge).
 4. Im Worker die Konstante `HERKUNFT` auf die eigene Adresse setzen, falls die
    Seite nicht unter `https://dwill1905.github.io` liegt.
 
+Wer den Worker lieber vom eigenen Rechner aus veröffentlicht, findet in
+`cloudflare/wrangler.jsonc` eine fertige Konfiguration: `name` und die `id` des
+KV-Namespace eintragen, dann `npx wrangler deploy` im Ordner `cloudflare/`. Über
+das Dashboard wird diese Datei nicht gebraucht.
+
 **Prüfen, ob es steht** — die Adresse des Workers mit einem Testcode aufrufen:
 
 ```

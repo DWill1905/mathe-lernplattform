@@ -1,0 +1,31 @@
+/*
+ * Nur nötig, wenn der Worker mit `wrangler` vom eigenen Rechner aus
+ * veröffentlicht wird. Wer ihn im Cloudflare-Dashboard einfügt, braucht diese
+ * Datei GAR NICHT – die Bindung wird dort über die Oberfläche gesetzt.
+ *
+ * Veröffentlichen aus diesem Verzeichnis heraus:
+ *
+ *     npx wrangler deploy
+ *
+ * Vorher zwei Werte eintragen: `name` (frei wählbar) und die `id` des
+ * KV-Namespace. Die steht im Dashboard beim Namespace bzw. liefert
+ * `npx wrangler kv namespace list`.
+ *
+ * Die Namespace-Kennung ist kein Geheimnis – ohne Kontozugang nützt sie
+ * niemandem. Sie darf also auch committet werden.
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "zahleneule-sync",
+  "main": "worker.js",
+  "compatibility_date": "2025-02-04",
+  "observability": { "enabled": true },
+
+  "kv_namespaces": [
+    {
+      // Der Worker akzeptiert "KV" ebenso wie "STAND".
+      "binding": "KV",
+      "id": "HIER-DIE-NAMESPACE-ID-EINTRAGEN"
+    }
+  ]
+}

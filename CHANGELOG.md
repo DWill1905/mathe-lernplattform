@@ -4,6 +4,21 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.19.2] – 2026-08-22
+
+### Hinzugefügt
+
+**`cloudflare/wrangler.jsonc` für die Veröffentlichung vom eigenen Rechner.**
+Wer den Worker nicht ins Dashboard einfügen, sondern mit `npx wrangler deploy`
+hochladen möchte, braucht eine Konfigurationsdatei. Sie liegt jetzt fertig
+daneben; einzutragen sind nur `name` und die `id` des KV-Namespace. Die Bindung
+steht als `KV` drin, weil Cloudflare sie so voreinstellt — der Worker nimmt
+beide Namen.
+
+Über das Dashboard ändert sich nichts: Dort wird die Datei nicht gebraucht.
+Die Namespace-Kennung ist kein Geheimnis, deshalb steht der Platzhalter im
+Repository und nicht der echte Wert.
+
 ## [1.19.1] – 2026-08-22
 
 ### Behoben
