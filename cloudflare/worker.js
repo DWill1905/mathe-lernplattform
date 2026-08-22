@@ -13,7 +13,7 @@
  * Einrichtung im Cloudflare-Dashboard:
  *   1. KV-Namespace anlegen (Inhalt bleibt leer – den füllt der Worker).
  *   2. Diesen Code in einen Worker einfügen.
- *   3. Settings → Bindings → KV Namespace Binding: Name **STAND**.
+ *   3. Settings → Bindings → KV Namespace einhängen (Name STAND oder KV).
  *   4. Unten HERKUNFT auf die eigene Adresse setzen.
  */
 
@@ -32,14 +32,23 @@ export default {
     if (anfrage.method !== "POST") return antwort({ fehler: "nur POST" }, 405);
 
     /*
-     * Fehlt die Bindung, wäre `umgebung.STAND` schlicht `undefined` und der
+     * Der Name der KV-Bindung ist frei wählbar. Cloudflares eigenes Beispiel
+     * nennt sie `KV`, deshalb werden beide Namen akzeptiert – so muss beim
+     * Einrichten nichts umbenannt werden.
+     *
+     * Fehlt die Bindung ganz, wäre der Speicher schlicht `undefined` und der
      * Worker liefe in einen nichtssagenden 500er. Diese Prüfung sagt statt
-     * dessen, was zu tun ist – das ist der Fehler, den man beim Einrichten
-     * am ehesten macht.
+     * dessen, was zu tun ist – das ist der Fehler, den man beim Einrichten am
+     * ehesten macht.
      */
-    if (!umgebung.STAND) {
+    const speicher = umgebung.STAND ?? umgebung.KV;
+    if (!speicher) {
       return antwort(
-        { fehler: "Die KV-Bindung fehlt. Im Worker unter Settings → Bindings einen KV Namespace mit dem Namen STAND anlegen." },
+        {
+          fehler:
+            "Die KV-Bindung fehlt. Im Worker unter Settings → Bindings einen KV Namespace " +
+            "einhängen; als Variablenname geht STAND oder KV.",
+        },
         500
       );
     }
@@ -62,7 +71,7 @@ export default {
     if (!CODE_MUSTER.test(code)) return antwort({ fehler: "ungültiger Code" }, 400);
 
     if (pfad === "/hole") {
-      const eintrag = await umgebung.STAND.get(code, { type: "json" });
+      const eintrag = await speicher.get(code, { type: "json" });
       return antwort(eintrag ?? null, 200);
     }
 
@@ -73,7 +82,7 @@ export default {
     if (nutzlast.length > MAX_BYTES) return antwort({ fehler: "zu groß" }, 413);
 
     const geaendert = new Date().toISOString();
-    await umgebung.STAND.put(code, JSON.stringify({ daten: rumpf.daten, geaendert }));
+    await speicher.put(code, JSON.stringify({ daten: rumpf.daten, geaendert }));
     return antwort({ geaendert }, 200);
   },
 };

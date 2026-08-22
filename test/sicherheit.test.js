@@ -157,7 +157,11 @@ test("der Worker prüft Code, Größe und Bindung", () => {
   const worker = readFileSync(new URL("../cloudflare/worker.js", import.meta.url), "utf8");
   assert.match(worker, /CODE_MUSTER\s*=\s*\/\^\[A-Z0-9\]\{8\}\$\/|CODE_MUSTER/, "keine Codeprüfung");
   assert.ok(worker.includes("MAX_BYTES"), "keine Größengrenze – der Speicher ließe sich vollschreiben");
-  assert.ok(worker.includes("umgebung.STAND"), "die KV-Bindung heißt nicht STAND");
+  // Beide Bindungsnamen müssen gehen – Cloudflares Beispiel nennt sie `KV`.
+  assert.ok(
+    /umgebung\.STAND\s*\?\?\s*umgebung\.KV/.test(worker),
+    "der Worker akzeptiert nicht beide Bindungsnamen"
+  );
   assert.ok(worker.includes("access-control-allow-origin"), "ohne CORS-Kopf antwortet der Worker dem Browser nicht");
   // Nicht auf alle Herkünfte öffnen.
   assert.ok(!/allow-origin[^,]*"\*"/.test(worker), "der Worker antwortet jeder Herkunft");

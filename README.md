@@ -171,11 +171,13 @@ pro Tag; ein Kind kommt auf vielleicht 50 Schreibvorgänge).
 
 1. **KV-Namespace anlegen**, z. B. `zahleneule`. Unter *KV Pairs* ist **nichts
    zu tun** — die Einträge schreibt der Worker selbst, einen je Familien-Code.
-2. **Worker anlegen** und den Inhalt von `cloudflare/worker.js` einfügen. Kein
-   Build, keine Abhängigkeiten.
-3. **Bindung setzen**: *Worker → Settings → Bindings → KV Namespace*, als
-   Variablenname exakt **`STAND`**. Der Weg über „Connect" beim Namespace führt
-   zum selben Ziel — einer von beiden genügt.
+2. **Worker anlegen** und den Beispielcode, den Cloudflare hineinschreibt,
+   **vollständig durch** den Inhalt von `cloudflare/worker.js` **ersetzen** —
+   nicht ergänzen. Kein Build, keine Abhängigkeiten.
+3. **Bindung setzen**: *Worker → Settings → Bindings → KV Namespace*. Als
+   Variablenname geht **`STAND`** oder **`KV`** — der Worker akzeptiert beide,
+   damit Cloudflares Voreinstellung nicht umbenannt werden muss. Der Weg über
+   „Connect" beim Namespace führt zum selben Ziel; einer von beiden genügt.
 4. Im Worker die Konstante `HERKUNFT` auf die eigene Adresse setzen, falls die
    Seite nicht unter `https://dwill1905.github.io` liegt.
 

@@ -4,6 +4,23 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.19.1] – 2026-08-22
+
+### Behoben
+
+**Der Worker akzeptiert jetzt beide Namen der KV-Bindung.**
+Cloudflares eigenes Beispiel nennt sie `KV`, die Anleitung hier verlangte
+`STAND` — wer das Beispiel einfach ersetzte, ohne die Bindung umzubenennen,
+bekam eine Fehlermeldung. Der Worker nimmt jetzt `STAND` oder `KV`, damit beim
+Einrichten nichts umzubenennen ist.
+
+Gegen den echten Worker geprüft, alle drei Fälle: Bindung heißt `STAND` →
+funktioniert, heißt `KV` → funktioniert, fehlt ganz → verständliche Meldung
+statt eines nichtssagenden 500ers.
+
+Die README sagt außerdem jetzt ausdrücklich, dass Cloudflares Beispielcode
+**ersetzt** und nicht ergänzt wird.
+
 ## [1.19.0] – 2026-08-22
 
 ### Geändert
