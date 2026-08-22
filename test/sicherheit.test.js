@@ -146,11 +146,39 @@ test("die CSP erlaubt genau die Gegenstelle der Synchronisierung – und nichts 
 
 test("in der App steht kein Zugangsschlüssel", () => {
   const sync = readFileSync(new URL("../src/sync.ts", import.meta.url), "utf8");
-  // Die Adresse ist noch ein Platzhalter …
-  assert.ok(sync.includes("HIER-EINTRAGEN"), "eine echte Adresse gehört nicht ins Repository");
-  // … und einen Schlüssel gibt es beim Worker gar nicht. Käme je einer dazu,
-  // läge er öffentlich im Repository – deshalb dieser Wächter.
+  // Die Adresse des Workers steht offen im Repository, und das ist richtig so:
+  // Die Seite ist statisch, es gibt keinen Bauschritt, der sie nachträglich
+  // einsetzen könnte. Ein Geheimnis ist sie auch nicht – ohne Familien-Code
+  // gibt der Worker nichts heraus. Einen Schlüssel gibt es dort gar nicht;
+  // käme je einer dazu, läge er öffentlich hier – deshalb dieser Wächter.
   assert.ok(!/apikey|anon_key|Bearer|secret|token/i.test(sync), "hier steht ein Zugangsschlüssel");
+});
+
+/*
+ * Zwei Fehler, die den Abgleich STILL scheitern lassen: eine Adresse, die die
+ * CSP nicht abdeckt (der Browser verwirft die Anfrage wortlos), und ein
+ * Schrägstrich am Ende (aus `…dev/` + `/hole` wird `…dev//hole`, der Worker
+ * antwortet mit 404 „unbekannt").
+ */
+test("die eingetragene Worker-Adresse ist brauchbar und von der CSP gedeckt", () => {
+  const sync = readFileSync(new URL("../src/sync.ts", import.meta.url), "utf8");
+  const treffer = sync.match(/WORKER_URL = "([^"]+)"/);
+  assert.ok(treffer, "WORKER_URL fehlt");
+  const adresse = treffer[1];
+
+  assert.ok(adresse.startsWith("https://"), "die Gegenstelle muss verschlüsselt angesprochen werden");
+  assert.ok(!adresse.endsWith("/"), "der Schrägstrich am Ende ergibt doppelte Pfade");
+
+  const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  const quellen = html.match(/connect-src ([^;"]+)/)[1].trim().split(/\s+/);
+  const rechner = new URL(adresse).hostname;
+  const gedeckt = quellen.some((quelle) => {
+    if (!quelle.startsWith("https://")) return false;
+    const muster = quelle.slice("https://".length);
+    if (!muster.startsWith("*.")) return muster === rechner;
+    return rechner.endsWith(muster.slice(1)) && rechner !== muster.slice(2);
+  });
+  assert.ok(gedeckt, `die CSP deckt ${rechner} nicht ab – der Abgleich scheiterte still`);
 });
 
 test("der Worker prüft Code, Größe und Bindung", () => {

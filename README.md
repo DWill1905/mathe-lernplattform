@@ -199,10 +199,11 @@ curl -X POST -H 'content-type: application/json' \
 
 ### 2. Adresse eintragen
 
-In `src/sync.ts` die Adresse setzen, dann `npm run build`:
+In `src/sync.ts` die Adresse setzen — **ohne Schrägstrich am Ende** —, dann
+`npm run build`:
 
 ```ts
-export const WORKER_URL = "https://zahleneule.dein-name.workers.dev";
+export const WORKER_URL = "https://zahleneule-sync.f6bng884k2.workers.dev";
 ```
 
 Ein Zugangsschlüssel wird **nicht** gebraucht — der Familien-Code ist das

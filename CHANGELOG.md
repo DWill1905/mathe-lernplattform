@@ -4,6 +4,39 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.20.0] – 2026-08-22
+
+### Hinzugefügt
+
+**Die Synchronisierung ist scharf.** Der Cloudflare Worker läuft, seine Adresse
+steht in `src/sync.ts`. Wer im Elternbereich einen Familien-Code anlegt und ihn
+auf einem zweiten Gerät eingibt, hat auf beiden denselben Stand.
+
+Der Worker-Code im Konto wurde gegen `cloudflare/worker.js` geprüft — gleicher
+SHA-256, kein Zeichen Unterschied.
+
+Ohne Familien-Code ändert sich weiterhin nichts: Es wird nichts gesendet, nichts
+geholt, kein Netzaufruf gemacht.
+
+### Geändert
+
+**Zwei neue Wächter gegen stilles Scheitern.** Beim Bauen war schon einmal die
+CSP im Weg — der Abgleich lief fehlerfrei durch, der Browser verwarf jede
+Anfrage wortlos. Deshalb prüfen die Tests jetzt, dass die eingetragene Adresse
+`https://` benutzt, **keinen Schrägstrich am Ende** hat (sonst entstünde
+`…dev//hole`, und der Worker antwortete mit 404) und vom `connect-src` der CSP
+tatsächlich gedeckt ist. Alle drei Fälle wurden gegen absichtlich kaputte
+Adressen gegengeprüft.
+
+Der Test, der bisher festhielt, dass ohne eingetragene Adresse nichts passiert,
+prüft jetzt das Gegenstück: dass die Adresse eingetragen IST. Fiele sie je auf
+den Platzhalter zurück, schaltete sich der Abgleich lautlos ab.
+
+Die Adresse des Workers steht offen im Repository, und das ist richtig so: Die
+Seite ist statisch, es gibt keinen Bauschritt, der sie nachträglich einsetzen
+könnte. Ein Geheimnis ist sie auch nicht — ohne Familien-Code gibt der Worker
+nichts heraus.
+
 ## [1.19.2] – 2026-08-22
 
 ### Hinzugefügt

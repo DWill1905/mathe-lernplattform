@@ -26,7 +26,7 @@ import { THEMEN } from "./topics.js";
  * CSP in `index.html` dieselbe Adresse erlauben, sonst verwirft der Browser
  * jede Anfrage STILL.
  */
-export const WORKER_URL = "https://HIER-EINTRAGEN.workers.dev";
+export const WORKER_URL = "https://zahleneule-sync.f6bng884k2.workers.dev";
 /** Ist die Gegenstelle überhaupt eingetragen? Sonst bleibt der Bereich aus. */
 export function eingerichtet() {
     return !WORKER_URL.includes("HIER-EINTRAGEN");
@@ -221,8 +221,8 @@ export async function gleicheAb(hole = fetch) {
 }
 /**
  * Der eigentliche Ablauf, ohne die Prüfung auf Einrichtung – so lässt er sich
- * gegen eine Gegenstelle im Speicher vollständig durchspielen, auch bevor ein
- * echtes Supabase-Projekt eingetragen ist.
+ * gegen eine Gegenstelle im Speicher vollständig durchspielen, ganz ohne
+ * echten Worker.
  */
 export async function abgleichMit(code, hole = fetch) {
     try {

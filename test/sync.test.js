@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 
 import {
   abgleichMit,
+  eingerichtet,
   familienCode,
   gleicheAb,
   holeStand,
@@ -212,15 +213,22 @@ test("ein Serverfehler wird gemeldet und wirft nicht", async () => {
   assert.match(ergebnis.meldung, /500/);
 });
 
-test("solange die Gegenstelle nicht eingetragen ist, bleibt der Abgleich aus", async () => {
+/*
+ * Die Gegenstelle IST eingetragen – seit der Worker läuft. Fiele die Adresse
+ * je auf den Platzhalter zurück, schaltete sich der Abgleich wortlos ab: kein
+ * Fehler, keine Meldung, nur nichts. Deshalb wird beides festgehalten.
+ */
+test("die Gegenstelle ist eingetragen, mit Code läuft der Abgleich", async () => {
+  assert.equal(eingerichtet(), true, "die Worker-Adresse steht wieder auf dem Platzhalter");
+
   setzeFamilienCode("ABCD2345");
   let gerufen = false;
   const ergebnis = await gleicheAb(async () => {
     gerufen = true;
-    return new Response("[]", { status: 200 });
+    return new Response("null", { status: 200 });
   });
-  assert.equal(ergebnis.art, "aus");
-  assert.equal(gerufen, false, "ohne eingetragene Adresse darf kein Netzaufruf passieren");
+  assert.equal(gerufen, true, "mit Adresse und Code muss der Abgleich die Gegenstelle ansprechen");
+  assert.equal(ergebnis.art, "gesendet");
   setzeFamilienCode(null);
 });
 
