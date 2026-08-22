@@ -5,13 +5,10 @@ Offene Ideen, grob nach Nutzen sortiert. Maßgeblich bleibt das Übungsheft der
 
 ## Empfohlene Reihenfolge für die nächste Runde
 
-1. **Vorlesefunktion** für Aufgabentexte (`speechSynthesis`, deutsche Stimme).
-   Zweitklässler, die noch langsam lesen, scheitern sonst an der Sprache statt
-   an der Mathematik.
-2. **Urkunde zum Ausdrucken** nach einem Rechenmeister-Lauf, wie im Lernheft.
-3. **Halbschriftliche Rechenwege anzeigen**: Bei Plus/Minus mit Zehnerübergang
+1. **Urkunde zum Ausdrucken** nach einem Rechenmeister-Lauf, wie im Lernheft.
+2. **Halbschriftliche Rechenwege anzeigen**: Bei Plus/Minus mit Zehnerübergang
    die Zwischenschritte als Bild statt nur als Satz.
-4. **Mehrere Profile** auf einem Gerät (Geschwister), Umschalter im
+3. **Mehrere Profile** auf einem Gerät (Geschwister), Umschalter im
    Elternbereich.
 
 ## Bewusst nicht geplant

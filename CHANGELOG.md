@@ -4,6 +4,42 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.25.0] – 2026-08-22
+
+### Hinzugefügt
+
+**Vorlesefunktion** — der oberste Punkt der Roadmap. Zweitklässler lesen noch
+langsam. Wer an „Auf dem Dach sitzen 14 Tauben“ scheitert, scheitert an der
+SPRACHE und nicht an der Mathematik — und übt dann genau das Falsche.
+
+- In der Übung steht neben „Abbrechen“ ein **Lautsprecherknopf**, der die
+  Aufgabe vorliest.
+- Im Elternbereich lässt sich **automatisches Vorlesen** einschalten. Standard
+  ist aus: Ein Gerät, das im Klassenzimmer plötzlich losredet, überrascht
+  unangenehm.
+
+Benutzt wird `speechSynthesis`, die eingebaute Sprachausgabe des Geräts: keine
+neue Abhängigkeit, kein Netzaufruf, keine Daten, die das Gerät verlassen. Fehlt
+sie, fällt der Knopf ersatzlos weg.
+
+Der Kern ist die Übersetzung in einen sprechbaren Text (`src/vorlesen.ts`,
+ohne DOM und deshalb direkt geprüft):
+
+- Rechenzeichen werden Wörter: `37 + 48 =` → „37 plus 48“, `? · 5 = 30` →
+  „wie viel mal 5 ist gleich 30“. Das echte Minus (U+2212) und den Malpunkt
+  kennt sonst fast keine Stimme.
+- Auch im Fragetext und in den **Auswahlmöglichkeiten** — bei den
+  Tauschaufgaben stehen dort ganze Rechnungen. Dabei bleiben `7:30` eine
+  Uhrzeit (kein „geteilt durch“) und `10-€-Scheine` ein Bindestrich (kein
+  „minus“).
+- Einheiten werden ausgeschrieben: `3 m` → „3 Meter“, `20 ct` → „20 Cent“.
+- Die **Bildbeschreibung wird bewusst NICHT vorgelesen**: Sie ist für
+  jemanden gedacht, der das Bild nicht sieht — „Uhr, die 7:30 Uhr zeigt“
+  verriete einem Kind, das nur langsam liest, die Lösung.
+
+Ein Test liest 5850 erzeugte Aufgaben durch und lässt kein ungesprochenes
+Rechenzeichen durch.
+
 ## [1.24.0] – 2026-08-22
 
 ### Hinzugefügt

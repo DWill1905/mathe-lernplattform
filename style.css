@@ -1038,6 +1038,51 @@ body {
   margin-bottom: 0.75rem;
 }
 
+/* ------------------------------------------------------------- Vorlesen */
+
+.einstellung-schalter {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: 0.6rem;
+  margin-bottom: 0.75rem;
+}
+
+.einstellung-schalter .hinweis {
+  grid-column: 2;
+  margin-top: 0.25rem;
+}
+
+.schalter {
+  /* Groß genug zum sicheren Treffen – auch mit Kinderhänden. */
+  width: 1.5rem;
+  height: 1.5rem;
+  accent-color: var(--haupt);
+}
+
+.einstellung-text {
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/*
+ * Der Lautsprecher in der Übung. Er steht neben „Abbrechen“ und muss dort auch
+ * im Querformat noch sicher zu treffen sein (siehe die 40-px-Regel).
+ */
+.knopf-vorlesen {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.6rem;
+  min-height: 2.6rem;
+  padding: 0.35rem;
+}
+
+.vorlese-symbol {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
 .gespeichert {
   margin: 0.75rem 0 0;
   color: var(--richtig);

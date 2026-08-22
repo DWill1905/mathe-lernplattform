@@ -81,6 +81,13 @@ verwässern.
   legt seinen Grund in `{ fehler: … }`, `grund()` holt ihn heraus. Sonst stünde
   beim häufigsten Einrichtungsfehler nur `Server meldet 500` da – und wer kein
   Terminal zur Hand hat, käme nicht weiter.
+- `src/vorlesen.ts` – Vorlesefunktion über `speechSynthesis`. Kein Netz, keine
+  Abhängigkeit. Der Teil, der aus einer Aufgabe SPRECHBAREN Text macht, ist rein
+  und deshalb testbar. Zwei Fallen: Im Fließtext darf `:` NICHT zu „geteilt
+  durch“ werden (`7:30` ist eine Uhrzeit) und der Bindestrich nicht zu „minus“
+  (`10-€-Scheine`) – deshalb zwei getrennte Zeichenlisten, eine für Rechnungen
+  und eine für Fließtext. Die Bildbeschreibung wird NIE vorgelesen: Sie
+  verriete bei Uhr- und Formaufgaben die Lösung.
 - `src/antwort.ts` – Vergleich von Antwort und Lösung, auch für selbst getippte
   Rechnungen. Ohne DOM-Zugriff, deshalb direkt testbar.
 - `src/bilder.ts` – farbige Illustrationen: ein Bild je Thema (die Navigation
