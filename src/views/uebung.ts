@@ -374,8 +374,15 @@ function zeichne(ziel: HTMLElement, sitzung: Sitzung): void {
     el(
       "div",
       { class: "uebung-kopf-zeile" },
-      el("a", { class: "knopf knopf-klein knopf-still", href: "#/", text: "← Abbrechen" }),
-      vorleseKnopf(schritt),
+      // Abbrechen und Vorlesen bleiben zusammen links; die Marke (oder die
+      // Stoppuhr) gehört nach rechts. Als drei gleichrangige Kinder einer
+      // `space-between`-Zeile landete der Lautsprecher sonst in der Mitte.
+      el(
+        "div",
+        { class: "uebung-kopf-links" },
+        el("a", { class: "knopf knopf-klein knopf-still", href: "#/", text: "← Abbrechen" }),
+        vorleseKnopf(schritt)
+      ),
       sitzung.meister
         ? stoppuhr(sitzung)
         : el("span", {

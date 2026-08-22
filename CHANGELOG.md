@@ -4,6 +4,27 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.25.1] – 2026-08-22
+
+### Behoben
+
+**Die Steine einer Zahlenmauer waren im Querformat zu klein.** Sie fielen dort
+auf 36 px Höhe — unter die Grenze von 40 px, die für jedes Touch-Ziel gilt. Und
+diese Steine sind keine Deko: Ein Kind tippt sie an, um auszuwählen, welche
+Lücke es gerade füllt. Wer daneben tippt, füllt den falschen Stein. Gespart
+wird im Querformat an der Kopfzeile, nicht am Touch-Ziel.
+
+Der Lautsprecherknopf steht jetzt fest neben „Abbrechen“ statt in der Mitte der
+Kopfzeile: Als drittes gleichrangiges Kind einer `space-between`-Zeile landete
+er sonst zwischen Abbrechen und Stufenmarke.
+
+### Hinzugefügt
+
+**Ein Test für die 40-px-Regel.** Sie stand bisher nur in `CLAUDE.md`.
+`test/touchziele.test.js` prüft jetzt jede `min-height` von Tasten,
+Auswahlknöpfen, kleinen Knöpfen und Mauersteinen — auch in den Media-Queries,
+wo die Versuchung am größten ist, „nur ein paar Pixel“ zu opfern.
+
 ## [1.25.0] – 2026-08-22
 
 ### Hinzugefügt

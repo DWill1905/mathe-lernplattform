@@ -546,6 +546,14 @@ body {
   margin-bottom: 0.6rem;
 }
 
+/* Abbrechen und Vorlesen gehören zusammen – sonst rutscht der Lautsprecher
+   in die Mitte der Zeile. */
+.uebung-kopf-links {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
 .uebung-zaehler {
   display: flex;
   justify-content: space-between;
@@ -3257,7 +3265,10 @@ body.uebung-laeuft .karte-aufgabe > .knopf-tipp {
 @media (orientation: landscape) and (max-height: 560px) {
   .mauer-stein {
     width: 48px;
-    min-height: 36px;
+    /* Nicht unter 40 px: Diese Steine sind Knöpfe, die ein Kind antippt, um
+       auszuwählen, welche Lücke es gerade füllt. Hier standen 36 px – gespart
+       wird im Querformat an der Kopfzeile, nicht am Touch-Ziel. */
+    min-height: 40px;
     font-size: 1rem;
   }
 

@@ -235,7 +235,11 @@ function zeichne(ziel, sitzung) {
             : sitzung.themaId
                 ? thema(sitzung.themaId).titel
                 : "Gemischtes Training";
-    const kopf = el("section", { class: "uebung-kopf" }, el("div", { class: "uebung-kopf-zeile" }, el("a", { class: "knopf knopf-klein knopf-still", href: "#/", text: "← Abbrechen" }), vorleseKnopf(schritt), sitzung.meister
+    const kopf = el("section", { class: "uebung-kopf" }, el("div", { class: "uebung-kopf-zeile" }, 
+    // Abbrechen und Vorlesen bleiben zusammen links; die Marke (oder die
+    // Stoppuhr) gehört nach rechts. Als drei gleichrangige Kinder einer
+    // `space-between`-Zeile landete der Lautsprecher sonst in der Mitte.
+    el("div", { class: "uebung-kopf-links" }, el("a", { class: "knopf knopf-klein knopf-still", href: "#/", text: "← Abbrechen" }), vorleseKnopf(schritt)), sitzung.meister
         ? stoppuhr(sitzung)
         : el("span", {
             class: "marke",
