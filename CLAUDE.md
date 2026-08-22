@@ -6,7 +6,8 @@ Punkte stehen in `ROADMAP.md`, die Historie in `CHANGELOG.md`.
 ## Was ist das Projekt?
 
 Interaktive Lernplattform für Mathematik in der 2. Klasse (Deutsch), statische
-Seite für GitHub Pages: zehn Themen mit je drei Stufen, Übungsrunden mit
+Seite für GitHub Pages: dreizehn Themen mit je drei Stufen (sechs davon aus
+dem Übungsheft), Übungsrunden mit
 sofortiger Rückmeldung, Gamification (Punkte, Level, Sterne, Streak,
 Abzeichen) und ein Elternbereich. Feature-Liste: `README.md`.
 
@@ -45,7 +46,7 @@ verwässern.
 ## Architekturüberblick
 
 - `src/types.ts` – Domänen-Typen (`Aufgabe`, `Fortschritt`, `ThemaId`, …).
-- `src/topics.ts` – die zehn Themen samt Beschreibung ihrer drei Stufen.
+- `src/topics.ts` – die dreizehn Themen samt Beschreibung ihrer drei Stufen.
 - `src/state.ts` – **einziger** Ort, der `localStorage` liest und schreibt.
 - `src/random.ts` – `mulberry32`. Niemals `Math.random()` verwenden, sonst
   sind die Aufgaben-Generatoren nicht mehr testbar.

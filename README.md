@@ -69,7 +69,7 @@ von Hand setzen.
 - **Rechenmeister**: 20 Aufgaben gegen die Uhr aus Plus/Minus, Rechentricks,
   Aufgabenfamilien und Zahlenmauern – mit Stoppuhr und gespeicherter
   Bestleistung.
-- **Punkte, Level, Sterne, Tagesserie und zwölf Abzeichen** als Motivation.
+- **Punkte, Level, Sterne, Tagesserie und fünfzehn Abzeichen** als Motivation.
 - **Fortschrittsseite** mit Trefferquoten je Thema und einer Übersicht der
   letzten zwei Wochen.
 - **Elternbereich** mit Lernstandstabelle und den häufigsten Fehlerarten.

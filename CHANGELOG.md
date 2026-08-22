@@ -4,6 +4,22 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.26.5] – 2026-08-22
+
+### Behoben
+
+**Die Doku war der App davongelaufen.** `CLAUDE.md` sprach von „zehn Themen“,
+während `topics.ts` dreizehn führt; die README von „zwölf Abzeichen“ bei
+fünfzehn. Das ist nicht bloß unordentlich: `CLAUDE.md` ist die Datei, die jede
+weitere Sitzung als Wahrheit liest, und eine falsche Zahl darin führt aktiv in
+die Irre.
+
+`test/dokumentation.test.js` bindet die Zahlen jetzt an den Code — Themen,
+Abzeichen, Icons, Puzzleteile, Rundenlänge und Rechenmeister-Länge. Beim
+nächsten neuen Thema fällt sofort auf, dass die Beschreibung nachgezogen werden
+muss. Geprüft wird auch, dass jedes Heft-Thema in der README überhaupt
+vorkommt.
+
 ## [1.26.4] – 2026-08-22
 
 ### Behoben
