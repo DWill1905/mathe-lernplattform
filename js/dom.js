@@ -54,12 +54,31 @@ export function svgSymbol(quelle, klasse = "symbol") {
     return huelle;
 }
 /**
+ * Die barrierefreien Attribute eines eingesetzten Bildes.
+ *
+ * Ohne Beschriftung ist das Bild SCHMUCK und muss vor der Vorlesehilfe
+ * verschwinden: `role="img"` mit leerem `aria-label` meldet stattdessen ein
+ * namenloses Bild, und auf der Startseite steht neben jedem Motiv ohnehin
+ * schon der Titel – ein Kind hörte dort dreizehnmal „Grafik“ vor dem Namen.
+ *
+ * Rein und ohne DOM-Zugriff, damit die Entscheidung prüfbar bleibt.
+ */
+export function bildAttribute(beschriftung) {
+    const beschriftet = beschriftung.trim().length > 0;
+    return beschriftet
+        ? { class: "bild", role: "img", "aria-label": beschriftung }
+        : { class: "bild", "aria-hidden": "true" };
+}
+/**
  * Setzt eine SVG-Zeichenkette als Bild ein. Die Zeichenketten stammen
  * ausschließlich aus `figures.ts` (eigener, konstanter Code) – niemals aus
  * gespeicherten oder eingegebenen Daten.
+ *
+ * Eine leere `beschriftung` heißt ausdrücklich „nur Schmuck“ (siehe
+ * `bildAttribute`), nicht „Beschriftung vergessen“.
  */
 export function svgBild(quelle, beschriftung) {
-    const huelle = el("figure", { class: "bild", role: "img", "aria-label": beschriftung });
+    const huelle = el("figure", bildAttribute(beschriftung));
     huelle.innerHTML = quelle;
     return huelle;
 }

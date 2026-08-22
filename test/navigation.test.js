@@ -49,3 +49,32 @@ test("das Sprungziel ist fokussierbar", () => {
     "das <main> braucht tabindex=\"-1\", sonst nimmt es den Fokus nicht an"
   );
 });
+
+/* ---------------------------------------------------- Bilder und Vorlesen */
+
+/**
+ * `role="img"` mit LEEREM `aria-label` ist der schlimmste aller Fälle: Der
+ * Screenreader meldet ein Bild, kann es aber nicht benennen. Auf der
+ * Startseite steht neben jedem Motiv ohnehin sein Titel – dort ist das Bild
+ * Schmuck und muss ganz verschwinden.
+ */
+test("ein Bild ohne Beschriftung wird als Schmuck ausgeblendet", async () => {
+  const { bildAttribute } = await import("../js/dom.js");
+
+  const schmuck = bildAttribute("");
+  assert.equal(schmuck["aria-hidden"], "true");
+  assert.equal(schmuck["role"], undefined, "Schmuck darf keine Bildrolle behaupten");
+  assert.equal(schmuck["aria-label"], undefined, "ein leerer Name ist schlimmer als gar keiner");
+
+  // Leerzeichen sind auch keine Beschriftung.
+  assert.equal(bildAttribute("   ")["aria-hidden"], "true");
+
+  const echt = bildAttribute("Zahlenstrahl von 0 bis 100");
+  assert.equal(echt["role"], "img");
+  assert.equal(echt["aria-label"], "Zahlenstrahl von 0 bis 100");
+  assert.equal(echt["aria-hidden"], undefined, "ein beschriftetes Bild darf nie versteckt werden");
+
+  // Die Klasse trägt das Layout – sie muss in beiden Fällen dranbleiben.
+  assert.equal(schmuck["class"], "bild");
+  assert.equal(echt["class"], "bild");
+});

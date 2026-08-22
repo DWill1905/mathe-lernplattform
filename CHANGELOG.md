@@ -4,6 +4,20 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.22.4] – 2026-08-22
+
+### Behoben
+
+**Schmuckbilder meldeten sich als namenloses Bild.** Die Motive auf der
+Startseite, die Themenkacheln und der Jubel wurden mit `role="img"` und einem
+LEEREN `aria-label` eingesetzt. Ein Screenreader kündigt damit ein Bild an, das
+er nicht benennen kann — auf der Startseite dreizehnmal hintereinander, obwohl
+der Titel jedes Mal direkt daneben steht.
+
+Eine leere Beschriftung heißt jetzt ausdrücklich „nur Schmuck“: Das Bild
+bekommt `aria-hidden="true"` und gar keine Rolle. Die Entscheidung steht in
+`bildAttribute()` in `dom.ts` und ist ohne DOM prüfbar.
+
 ## [1.22.3] – 2026-08-22
 
 ### Behoben
