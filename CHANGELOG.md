@@ -4,6 +4,58 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.12.0] – 2026-08-22
+
+### Geändert
+
+**Die Rechengeschichten drehten sich fast nur ums Schenken.**
+Auf Stufe 1 gab es genau zwei Geschichten: „… schenkt … dazu“ und
+„… verschenkt …“. Das waren 100 % Schenken. Auch auf den höheren Stufen kam
+derselbe Satzbau immer wieder, weil je Rechenart nur ein einziger Text
+existierte und nur der Gegenstand wechselte.
+
+Die Rechenart steckt jetzt weiterhin in der Funktion, die **Geschichte** kommt
+aber aus einem Pool daneben – 60 Vorlagen insgesamt:
+
+- **Dazu**: Gummienten in der Badewanne, Ameisen am Kuchenkrümel, Tauben auf
+  dem Dach, Popcorn aus der Maschine, ein Drache mit Goldmünzen, der Bus an
+  der Haltestelle …
+- **Weg**: Socken, die in der Waschmaschine verschwinden, ein Hund, der seine
+  Knochen nicht wiederfindet, platzende Luftballons, Frösche, die ins Wasser
+  hüpfen, Goldtaler, die über Bord rollen …
+- **Mehr als**: Oliven auf der Pizza, Runden auf der Bahn, Schrauben am
+  Roboter, Nester in Eiche und Buche …
+- **Verteilen**: Jonglierbälle auf Artisten, Küken in Grüppchen, Kaninchen aus
+  Zauberhüten …
+- **Malnehmen**: Punkte auf Marienkäfern, Augen an Monstern, Erdbeeren am
+  Spieß, Wölfe im Rudel …
+- **Zwei Schritte**, **Einkauf** und **Vergleich** ebenso mit je neun Vorlagen.
+
+Gemessen über je 800 Aufgaben, Namen und Zahlen herausgerechnet:
+
+| Stufe | verschiedene Geschichten | häufigste Geschichte | mit „schenken“ |
+| --- | --- | --- | --- |
+| 1 | 16 → **37** | 8,3 % → **5,8 %** | 100 % → **0 %** |
+| 2 | 32 → **53** | 6,1 % → **3,4 %** | 40 % → **0 %** |
+| 3 | 17 → **27** | 34,4 % → **5,0 %** | 36 % → **0 %** |
+
+Die 16 Geschichten auf Stufe 1 waren dabei nur zwei Situationen – „schenkt
+dazu“ und „verschenkt“ – mal acht Gegenstände. Auf Stufe 3 machte eine einzige
+Geschichte über ein Drittel aller Aufgaben aus.
+
+### Behoben
+
+- **„Auf Jonass Pizza“** – Namen auf s, ß, x oder z bekommen im Wesfall nur
+  einen Apostroph. Neue Hilfsfunktion `wesfall()`, richtig ist „Jonas’ Pizza“.
+- **„Emma dreht 10 Runden, Lina schafft 70 Runden mehr.“** Bei „mehr als“ durfte
+  der Unterschied größer sein als die Ausgangszahl – rechnerisch richtig, als
+  Geschichte Unfug. Er bleibt jetzt kleiner oder gleich.
+
+Vier neue Tests: Vielfalt der Geschichten (Namen und Zahlen herausgerechnet,
+sonst zählten wechselnde Vornamen schon als neue Geschichte), der Schenk-Anteil,
+die Größenordnung bei „mehr als“ und der Wesfall. Alle vier wurden gegen den
+alten Stand gegengeprüft – sie schlagen dort an.
+
 ## [1.11.1] – 2026-08-21
 
 ### Behoben

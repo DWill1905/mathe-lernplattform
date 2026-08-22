@@ -73,6 +73,13 @@ verwässern.
 
 ## Wichtigste Fallstricke
 
+- **Rechengeschichten: Rechenart in der Funktion, Geschichte im Pool daneben.**
+  Eine neue Vorlage muss für JEDE Zahl aus dem Bereich ihrer Rechenart sinnvoll
+  bleiben – „3 Kinder teilen sich 60 Bonbons“ geht, „60 Kinder auf einem Sofa“
+  nicht. Ein Test hält fest, dass keine Geschichte den Topf beherrscht.
+- **Namen im Wesfall über `wesfall()`**, nie über `${name}s`: Bei Jonas und
+  Elias käme sonst „Jonass“ heraus.
+
 - **Illustrationen tragen NIE eine Farbe im SVG**, nur `bild-*`-Klassen. Und
   die Tinte (`--bild-strich`, `--bild-dunkel`) ist in beiden Farbschemata
   dunkel; hell wird stattdessen der Grund UNTER der Zeichnung

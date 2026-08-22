@@ -5,6 +5,7 @@ import assert from "node:assert/strict";
 import { mulberry32 } from "../js/random.js";
 import { GENERATOREN, MIX_TOPF, RUNDENLAENGE, gemischteRunde, runde } from "../js/tasks/index.js";
 import { HEFT_THEMEN, THEMEN, WEITERE_THEMEN } from "../js/topics.js";
+import { NAMEN, wesfall } from "../js/tasks/helpers.js";
 
 const STUFEN = [1, 2, 3];
 
@@ -274,6 +275,83 @@ test("eine Runde stellt keine Aufgabe zweimal – auch keine Bildaufgabe", () =>
           aufgaben.length,
           `${thema.id}/Stufe ${stufe}/Seed ${seed}: dieselbe Aufgabe kam doppelt`
         );
+      }
+    }
+  }
+});
+
+/*
+ * Die Rechengeschichten sollen abwechslungsreich sein. Vorher kannte Stufe 1
+ * genau zwei Geschichten – beide ums Schenken – und ein Kind las immer
+ * dasselbe. Der Test hält fest, dass keine Geschichte den Topf beherrscht.
+ */
+const neueNamen = new RegExp(`\\b(${NAMEN.join("|")})\\b`, "g");
+
+test("Sachaufgaben erzählen viele verschiedene Geschichten", () => {
+  for (const stufe of [1, 2, 3]) {
+    const rng = mulberry32(2024 + stufe);
+    const anfaenge = new Map();
+    const N = 800;
+    for (let i = 0; i < N; i++) {
+      const aufgabe = GENERATOREN.sachaufgaben(rng, stufe);
+      // Zahlen UND Namen raus – sonst zählte „Mia hat …“ gegen „Ben hat …“
+      // schon als andere Geschichte, und der Test ließe zwei Situationen mit
+      // wechselnden Vornamen als „vielfältig“ durchgehen.
+      const geruest = aufgabe.frage
+        .replace(/\d+/g, "#")
+        .replace(neueNamen, "@")
+        .split(/[.?]/)[0];
+      anfaenge.set(geruest, (anfaenge.get(geruest) ?? 0) + 1);
+    }
+    assert.ok(anfaenge.size >= 24, `Stufe ${stufe}: nur ${anfaenge.size} verschiedene Geschichten`);
+    const haeufigste = Math.max(...anfaenge.values());
+    assert.ok(
+      haeufigste / N <= 0.2,
+      `Stufe ${stufe}: eine Geschichte macht ${((100 * haeufigste) / N).toFixed(0)} % aus`
+    );
+  }
+});
+
+test("in den Sachaufgaben geht es nicht dauernd ums Schenken", () => {
+  for (const stufe of [1, 2, 3]) {
+    const rng = mulberry32(77 + stufe);
+    let schenken = 0;
+    const N = 600;
+    for (let i = 0; i < N; i++) {
+      if (/schenk/i.test(GENERATOREN.sachaufgaben(rng, stufe).frage)) schenken++;
+    }
+    assert.ok(schenken / N <= 0.15, `Stufe ${stufe}: ${((100 * schenken) / N).toFixed(0)} % drehen sich ums Schenken`);
+  }
+});
+
+test("bei „mehr als“ bleibt der Unterschied kleiner als die Ausgangszahl", () => {
+  const rng = mulberry32(555);
+  for (let i = 0; i < 800; i++) {
+    for (const stufe of [1, 2]) {
+      const aufgabe = GENERATOREN.sachaufgaben(rng, stufe);
+      if (aufgabe.typ !== "sach/mehr-als") continue;
+      const [a, b] = aufgabe.erklaerung.match(/\d+/g).map(Number);
+      assert.ok(b <= a, `„${aufgabe.frage}“ – ${b} mehr als ${a} ergibt keine sinnvolle Geschichte`);
+    }
+  }
+});
+
+test("der Wesfall eines Namens ist deutsch richtig", () => {
+  // Namen auf s, ß, x, z bekommen nur einen Apostroph.
+  assert.equal(wesfall("Mia"), "Mias");
+  assert.equal(wesfall("Noah"), "Noahs");
+  assert.equal(wesfall("Jonas"), "Jonas’");
+  assert.equal(wesfall("Elias"), "Elias’");
+  assert.equal(wesfall("Max"), "Max’");
+  assert.equal(wesfall("Fritz"), "Fritz’");
+
+  // Und in den Aufgaben taucht kein doppeltes s auf.
+  const rng = mulberry32(4242);
+  for (let i = 0; i < 1500; i++) {
+    for (const stufe of [1, 2, 3]) {
+      const frage = GENERATOREN.sachaufgaben(rng, stufe).frage;
+      for (const name of NAMEN) {
+        assert.ok(!frage.includes(`${name}s `) || !name.endsWith("s"), `falscher Wesfall in „${frage}“`);
       }
     }
   }

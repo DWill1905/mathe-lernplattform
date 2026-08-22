@@ -51,6 +51,15 @@ export const NAMEN: readonly string[] = [
   "Noah",
 ];
 
+/**
+ * Der Wesfall eines Namens: „Mias Pizza“, aber „Jonas’ Pizza“. Namen auf
+ * s, ß, x oder z bekommen im Deutschen nur einen Apostroph – ohne diese
+ * Prüfung stand „Jonass Pizza“ in der Aufgabe.
+ */
+export function wesfall(name: string): string {
+  return /[sßxz]$/.test(name) ? `${name}’` : `${name}s`;
+}
+
 /** Zwei verschiedene Namen. */
 export function zweiNamen(rng: Rng): [string, string] {
   const [a, b] = rng.shuffle(NAMEN);
