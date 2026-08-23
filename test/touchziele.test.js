@@ -122,28 +122,34 @@ test("der Antwortbereich rückt in die Daumenzone, die Rechnung bleibt bei ihm",
 });
 
 /*
- * Ohne Bild UND ohne Rechnung folgt der Antwortbereich der Frage UNMITTELBAR
- * – dann darf die Daumenzonen-Regel oben NICHT mehr greifen: Sonst landet
- * der gesamte freie Platz als eine einzige, unerklärte Lücke direkt unter
- * einer kurzen Frage wie „Wie heißt der Nachfolger von 77?“ – das sieht aus
- * wie ein fehlendes Bild, ist aber keins. Die Lücke gehört in diesem Fall
- * unauffällig unter das Tastenfeld, wie vor der Daumenzonen-Regel.
+ * Eine kurze Karte (weder Bild noch Rechnung) darf die Spalte nicht füllen.
+ *
+ * Sonst bleibt in der weißen Fläche ein Loch stehen – erst direkt unter der
+ * Frage, nach dem ersten Reparaturversuch unter dem Tastenfeld. Beide Male
+ * sah es aus wie ein fehlendes Erklärbild. Die Karte schrumpft deshalb auf
+ * ihren Inhalt (`flex: none`) und rückt ans untere Ende (`margin-top: auto`),
+ * damit die Luft AUSSERHALB der Karte liegt und das Tastenfeld trotzdem in
+ * der Daumenzone bleibt. Beide Eigenschaften zusammen ergeben erst die
+ * Wirkung – deshalb prüft der Test beide.
  */
-test("ohne Bild und Rechnung bleibt der Antwortbereich direkt an der Frage", () => {
+test("eine kurze Aufgabenkarte schrumpft und rückt in die Daumenzone", () => {
   const bloecke = [...CSS.matchAll(/@media \(orientation: (?:portrait|landscape)[^{]*\{([\s\S]*?)\n\}/g)]
     .map((t) => t[1])
     .filter((block) => block.includes("min-height: 100dvh"));
   assert.equal(bloecke.length, 2);
 
   for (const block of bloecke) {
-    const ruecksatz = block.match(
-      /\.karte-aufgabe > \.aufgabe-frage \+ \.eingabe-bereich,[^{]*\.auswahl,[^{]*\.bildauswahl\s*\{([^}]*)\}/
-    );
-    assert.ok(ruecksatz, "die Regel für Frage direkt vor dem Antwortbereich fehlt");
+    const regel = block.match(/\.karte-aufgabe-schlank\s*\{([^}]*)\}/);
+    assert.ok(regel, "die Regel für die kurze Aufgabenkarte fehlt");
     assert.match(
-      ruecksatz[1],
-      /margin-top:\s*0/,
-      "ohne Bild und Rechnung darf der Antwortbereich nicht mehr nach unten rücken"
+      regel[1],
+      /flex:\s*none/,
+      "ohne flex: none füllt die kurze Karte die Spalte – und klafft innen"
+    );
+    assert.match(
+      regel[1],
+      /margin-top:\s*auto/,
+      "ohne margin-top: auto klebt die kurze Karte oben statt in der Daumenzone"
     );
   }
 });

@@ -4,6 +4,38 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.34.0] – 2026-08-23
+
+### Geändert
+
+**Die Hilfsaufgabe erscheint nur noch, wo sie wirklich hilft.** Bei den
+Nachbaraufgaben („Rechentricks“) ist der Trick „Verdopplung ± 1“ erst über
+dem Zehner eine Abkürzung: `7 + 8` löst man damit schneller als durch
+Zählen – `1 + 3` nicht. Dort war das Aufschreiben der Hilfsaufgabe mehr
+Arbeit als die Aufgabe selbst, und ein Kind fragt sich zu Recht, wozu.
+Unterhalb des Zehners entfällt das Angebot deshalb ganz.
+
+Die **Umkehraufgaben** der Aufgabenfamilien (`6 + ? = 9`) behalten ihre
+Hilfsaufgabe ausdrücklich auch bei kleinen Zahlen: Dort ist das Umdrehen
+kein Umweg, sondern genau der Kniff, den die Aufgabe üben soll. Zwei Tests
+halten beide Seiten der Regel fest.
+
+### Behoben
+
+**Der leere Block in kurzen Aufgabenkarten ist weg.** Eine Aufgabe ohne
+Erklärbild und ohne große Rechnung („Wie viele Zehner hat die Zahl 31?“)
+besteht nur aus Frage, Antwortfeld und Tasten – füllte die Karte aber
+trotzdem die ganze Fensterhöhe. Der übrige Platz stand dadurch als weiße
+Fläche mitten in der Karte: erst über dem Antwortfeld (sah aus wie ein
+fehlendes Bild), nach dem ersten Reparaturversuch als 236 gemessene Pixel
+darunter.
+
+Beides war dieselbe Verwechslung – der freie Platz gehört gar nicht in die
+Karte. Kurze Karten schrumpfen jetzt auf ihren Inhalt und rücken ans untere
+Ende: Das Tastenfeld bleibt in der Daumenzone, und die Luft liegt darüber
+auf dem Seitenhintergrund, wo sie als Luft gelesen wird. Aufgaben mit Bild
+sind unverändert – dort wächst weiterhin das Bild in den freien Platz.
+
 ## [1.33.1] – 2026-08-23
 
 ### Behoben

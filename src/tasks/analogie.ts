@@ -18,6 +18,23 @@ function hilfsaufgabe(a: number, zeichen: string, b: number, ergebnis: number): 
   };
 }
 
+/**
+ * Lohnt sich die Hilfsaufgabe hier überhaupt?
+ *
+ * Bei den Nachbaraufgaben ist der Trick „Verdopplung ± 1“ erst ÜBER dem
+ * Zehner eine Abkürzung: `7 + 8` geht damit schneller als durch Zählen,
+ * `1 + 3` nicht – dort ist die Hilfsaufgabe ein Umweg, und ein Kind fragt
+ * sich zu Recht, wozu es sie aufschreiben soll. Unterhalb des Zehners
+ * entfällt das Angebot deshalb ganz.
+ *
+ * Die Umkehraufgaben in `familien.ts` (`6 + ? = 9`) sind davon ausdrücklich
+ * NICHT betroffen: Dort ist das Umdrehen selbst der Kniff, den die Aufgabe
+ * üben soll – unabhängig davon, wie klein die Zahlen sind.
+ */
+function ueberDemZehner(groessteZahl: number): boolean {
+  return groessteZahl > 10;
+}
+
 export function analogie(rng: Rng, stufe: Stufe): Aufgabe {
   if (stufe === 1) {
     const wahl = rng.int(1, 3);
@@ -207,7 +224,8 @@ function nachbarPlus(rng: Rng): Aufgabe {
   return {
     typ: "analogie/nachbar-plus",
     frage: "Wie lautet das Ergebnis?",
-    vorstufe: hilfsaufgabe(a, "+", a, doppelt),
+    // Die größte beteiligte Zahl ist hier das Ergebnis.
+    vorstufe: ueberDemZehner(loesung) ? hilfsaufgabe(a, "+", a, doppelt) : undefined,
     rechnung: `${a} + ${partner} =`,
     antwortfeld: zahlfeld(),
     loesung: String(loesung),
@@ -226,7 +244,8 @@ function nachbarMinus(rng: Rng): Aufgabe {
   return {
     typ: "analogie/nachbar-minus",
     frage: "Wie lautet das Ergebnis?",
-    vorstufe: hilfsaufgabe(zahl, "−", a, a),
+    // Beim Minusrechnen ist die Ausgangszahl die größte.
+    vorstufe: ueberDemZehner(zahl) ? hilfsaufgabe(zahl, "−", a, a) : undefined,
     rechnung: `${zahl} − ${partner} =`,
     antwortfeld: zahlfeld(),
     loesung: String(loesung),

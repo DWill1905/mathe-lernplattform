@@ -900,3 +900,67 @@ test("kein Aufgabentext trägt einen falschen Artikel", () => {
 
   assert.deepEqual([...falsch], [], `falsche Artikel:\n  ${[...falsch].join("\n  ")}`);
 });
+
+/*
+ * Die Hilfsaufgabe der Nachbaraufgaben lohnt erst über dem Zehner.
+ *
+ * Der Trick „Verdopplung ± 1“ ist bei `7 + 8` eine echte Abkürzung, bei
+ * `1 + 3` nicht – dort wäre das Aufschreiben der Hilfsaufgabe mehr Arbeit
+ * als die Aufgabe selbst, und genau das fiel beim Üben unangenehm auf.
+ * Unterhalb des Zehners entfällt das Angebot deshalb.
+ *
+ * Geprüft wird aus dem ERGEBNIS, nicht aus den Zwischenwerten: Die größte
+ * Zahl wird aus der angezeigten Rechnung und der Lösung gelesen – so, wie
+ * ein Kind sie sieht.
+ */
+test("die Nachbaraufgabe bietet die Hilfsaufgabe erst über dem Zehner an", () => {
+  let mitHilfe = 0;
+  let ohneHilfe = 0;
+
+  for (const stufe of STUFEN) {
+    for (let i = 0; i < 500; i++) {
+      const aufgabe = GENERATOREN.analogie(mulberry32(i * 13 + stufe), stufe);
+      if (!aufgabe.typ.startsWith("analogie/nachbar")) continue;
+      const zahlen = [...aufgabe.rechnung.matchAll(/\d+/g)].map((t) => Number(t[0]));
+      const groesste = Math.max(...zahlen, Number(aufgabe.loesung));
+      const kontext = `${aufgabe.typ}: ${aufgabe.rechnung} ${aufgabe.loesung}`;
+
+      if (aufgabe.vorstufe) {
+        mitHilfe++;
+        assert.ok(groesste > 10, `${kontext}: Hilfsaufgabe trotz kleiner Zahlen`);
+      } else {
+        ohneHilfe++;
+        assert.ok(groesste <= 10, `${kontext}: Hilfsaufgabe fehlt, obwohl sie hier hilft`);
+      }
+    }
+  }
+
+  // Beide Fälle müssen wirklich vorkommen – sonst misst der Test nichts.
+  assert.ok(mitHilfe > 10, `zu wenige Nachbaraufgaben MIT Hilfsaufgabe: ${mitHilfe}`);
+  assert.ok(ohneHilfe > 10, `zu wenige Nachbaraufgaben OHNE Hilfsaufgabe: ${ohneHilfe}`);
+});
+
+/*
+ * Die Umkehraufgaben der Aufgabenfamilien behalten ihre Hilfsaufgabe IMMER –
+ * auch bei kleinen Zahlen wie `6 + ? = 9`. Dort ist das Umdrehen nicht eine
+ * Abkürzung, sondern der Kniff, den die Aufgabe überhaupt üben soll.
+ */
+test("Umkehraufgaben behalten ihre Hilfsaufgabe auch bei kleinen Zahlen", () => {
+  let klein = 0;
+
+  for (const stufe of STUFEN) {
+    for (let i = 0; i < 400; i++) {
+      const aufgabe = GENERATOREN.familien(mulberry32(i * 17 + stufe), stufe);
+      if (!aufgabe.typ.includes("umkehr")) continue;
+      const zahlen = [...aufgabe.rechnung.matchAll(/\d+/g)].map((t) => Number(t[0]));
+      if (Math.max(...zahlen, Number(aufgabe.loesung)) > 10) continue;
+      klein++;
+      assert.ok(
+        aufgabe.vorstufe,
+        `${aufgabe.typ}: ${aufgabe.rechnung} – gerade hier ist die Umkehrung der Kniff`
+      );
+    }
+  }
+
+  assert.ok(klein > 5, `zu wenige kleine Umkehraufgaben geprüft: ${klein}`);
+});

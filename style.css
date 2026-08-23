@@ -2730,19 +2730,21 @@ body {
   }
 
   /*
-   * Ohne Bild UND ohne Rechnung folgt der Antwortbereich der Frage UNMITTELBAR
-   * (kein anderes Element dazwischen) – genau das drückt der Direkt-Nachbar
-   * `+` aus. Für diesen Fall bleibt die Lücke besser dort, wo sie vor der
-   * Daumenzonen-Regel war: unauffällig unter dem Tastenfeld statt als große,
-   * unerklärte Leerstelle direkt unter einer kurzen Frage wie „Wie viele
-   * Einer hat die Zahl 73?“ – das sah aus wie ein fehlendes Bild, war aber
-   * keins. Höhere Spezifität (drei Klassen statt zwei) gewinnt unabhängig
-   * von der Reihenfolge gegen die Regel oben.
+   * Eine kurze Karte (weder Bild noch Rechnung) füllt die Spalte NICHT.
+   *
+   * Zuerst rutschte hier der Antwortbereich nach unten und riss ein großes
+   * Loch direkt unter die Frage – das sah aus wie ein fehlendes Bild. Der
+   * Gegenversuch, ihn oben festzuhalten, schob dasselbe Loch nur ans untere
+   * Kartenende; 236 gemessene Pixel weiße Fläche unter dem Tastenfeld.
+   *
+   * Beides war dieselbe Verwechslung: Der freie Platz gehört gar nicht IN die
+   * Karte. Sie schrumpft deshalb auf ihren Inhalt und rückt ans untere Ende –
+   * das Tastenfeld bleibt in der Daumenzone, und die Luft liegt darüber auf
+   * dem Seitenhintergrund, wo sie als Luft gelesen wird und nicht als Fehler.
    */
-  body.uebung-laeuft .karte-aufgabe > .aufgabe-frage + .eingabe-bereich,
-  body.uebung-laeuft .karte-aufgabe > .aufgabe-frage + .auswahl,
-  body.uebung-laeuft .karte-aufgabe > .aufgabe-frage + .bildauswahl {
-    margin-top: 0;
+  body.uebung-laeuft .karte-aufgabe-schlank {
+    flex: none;
+    margin-top: auto;
   }
 
   /*
@@ -2819,19 +2821,21 @@ body {
   }
 
   /*
-   * Ohne Bild UND ohne Rechnung folgt der Antwortbereich der Frage UNMITTELBAR
-   * (kein anderes Element dazwischen) – genau das drückt der Direkt-Nachbar
-   * `+` aus. Für diesen Fall bleibt die Lücke besser dort, wo sie vor der
-   * Daumenzonen-Regel war: unauffällig unter dem Tastenfeld statt als große,
-   * unerklärte Leerstelle direkt unter einer kurzen Frage wie „Wie viele
-   * Einer hat die Zahl 73?“ – das sah aus wie ein fehlendes Bild, war aber
-   * keins. Höhere Spezifität (drei Klassen statt zwei) gewinnt unabhängig
-   * von der Reihenfolge gegen die Regel oben.
+   * Eine kurze Karte (weder Bild noch Rechnung) füllt die Spalte NICHT.
+   *
+   * Zuerst rutschte hier der Antwortbereich nach unten und riss ein großes
+   * Loch direkt unter die Frage – das sah aus wie ein fehlendes Bild. Der
+   * Gegenversuch, ihn oben festzuhalten, schob dasselbe Loch nur ans untere
+   * Kartenende; 236 gemessene Pixel weiße Fläche unter dem Tastenfeld.
+   *
+   * Beides war dieselbe Verwechslung: Der freie Platz gehört gar nicht IN die
+   * Karte. Sie schrumpft deshalb auf ihren Inhalt und rückt ans untere Ende –
+   * das Tastenfeld bleibt in der Daumenzone, und die Luft liegt darüber auf
+   * dem Seitenhintergrund, wo sie als Luft gelesen wird und nicht als Fehler.
    */
-  body.uebung-laeuft .karte-aufgabe > .aufgabe-frage + .eingabe-bereich,
-  body.uebung-laeuft .karte-aufgabe > .aufgabe-frage + .auswahl,
-  body.uebung-laeuft .karte-aufgabe > .aufgabe-frage + .bildauswahl {
-    margin-top: 0;
+  body.uebung-laeuft .karte-aufgabe-schlank {
+    flex: none;
+    margin-top: auto;
   }
 
   /*

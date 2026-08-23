@@ -282,7 +282,18 @@ function zeichne(ziel, sitzung) {
             reihe.appendChild(zaehler);
         reihe.appendChild(puzzlestreifen(sitzung, sitzung.puzzle));
     }
-    const karte = el("section", { class: `karte karte-aufgabe${inVorstufe ? " karte-vorstufe" : ""}` });
+    /*
+     * Eine Aufgabe ohne Erklärbild UND ohne große Rechnung ist kurz: nur Frage,
+     * Antwortfeld, Tasten. Solche Karten dürfen die Fensterhöhe nicht füllen –
+     * sonst bleibt in der weißen Fläche ein Loch stehen, das wie ein fehlendes
+     * Bild aussieht. Das Stylesheet lässt sie stattdessen auf ihren Inhalt
+     * schrumpfen und ans untere Ende rücken.
+     */
+    const schlank = !schritt.rechnung && !(aufgabe.bild && !inVorstufe);
+    const karte = el("section", {
+        class: `karte karte-aufgabe${inVorstufe ? " karte-vorstufe" : ""}` +
+            (schlank ? " karte-aufgabe-schlank" : ""),
+    });
     if (!sitzung.themaId && !inVorstufe) {
         karte.appendChild(el("span", { class: "aufgabe-thema" }, icon(thema(eintrag.thema).symbol, "aufgabe-thema-symbol"), thema(eintrag.thema).titel));
     }
