@@ -4,6 +4,22 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.33.1] – 2026-08-23
+
+### Behoben
+
+**Riesige, unerklärte Lücke bei kurzen Fragen ohne Bild oder Rechnung.**
+Die Daumenzonen-Regel (1.28.0) schob den Antwortbereich bei JEDER Aufgabe
+ohne Erklärbild nach unten – bei einer kurzen Frage wie „Wie heißt der
+Nachfolger von 77?“ landete dadurch der GESAMTE freie Platz als eine
+einzige Lücke direkt unter der Frage, statt wie beabsichtigt unauffällig
+unter dem Tastenfeld zu bleiben. Das sah aus wie ein fehlendes Bild.
+
+Jetzt gilt: Folgt der Antwortbereich der Frage UNMITTELBAR (kein Bild,
+keine Rechnung dazwischen), bleibt er direkt an ihr dran – der freie Platz
+bleibt dort, wo er vor der Daumenzonen-Regel war. Ein neuer Test hält das
+fest.
+
 ## [1.33.0] – 2026-08-23
 
 Abschluss des Redesigns „Die Zahleneule als Begleiterin“ (1.29.0–1.33.0).

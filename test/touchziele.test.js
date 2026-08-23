@@ -120,3 +120,30 @@ test("der Antwortbereich rückt in die Daumenzone, die Rechnung bleibt bei ihm",
     assert.match(reset[1], /margin-top:\s*0/, "hinter der Rechnung muss der Antwortbereich wieder anliegen");
   }
 });
+
+/*
+ * Ohne Bild UND ohne Rechnung folgt der Antwortbereich der Frage UNMITTELBAR
+ * – dann darf die Daumenzonen-Regel oben NICHT mehr greifen: Sonst landet
+ * der gesamte freie Platz als eine einzige, unerklärte Lücke direkt unter
+ * einer kurzen Frage wie „Wie heißt der Nachfolger von 77?“ – das sieht aus
+ * wie ein fehlendes Bild, ist aber keins. Die Lücke gehört in diesem Fall
+ * unauffällig unter das Tastenfeld, wie vor der Daumenzonen-Regel.
+ */
+test("ohne Bild und Rechnung bleibt der Antwortbereich direkt an der Frage", () => {
+  const bloecke = [...CSS.matchAll(/@media \(orientation: (?:portrait|landscape)[^{]*\{([\s\S]*?)\n\}/g)]
+    .map((t) => t[1])
+    .filter((block) => block.includes("min-height: 100dvh"));
+  assert.equal(bloecke.length, 2);
+
+  for (const block of bloecke) {
+    const ruecksatz = block.match(
+      /\.karte-aufgabe > \.aufgabe-frage \+ \.eingabe-bereich,[^{]*\.auswahl,[^{]*\.bildauswahl\s*\{([^}]*)\}/
+    );
+    assert.ok(ruecksatz, "die Regel für Frage direkt vor dem Antwortbereich fehlt");
+    assert.match(
+      ruecksatz[1],
+      /margin-top:\s*0/,
+      "ohne Bild und Rechnung darf der Antwortbereich nicht mehr nach unten rücken"
+    );
+  }
+});

@@ -2730,6 +2730,22 @@ body {
   }
 
   /*
+   * Ohne Bild UND ohne Rechnung folgt der Antwortbereich der Frage UNMITTELBAR
+   * (kein anderes Element dazwischen) – genau das drückt der Direkt-Nachbar
+   * `+` aus. Für diesen Fall bleibt die Lücke besser dort, wo sie vor der
+   * Daumenzonen-Regel war: unauffällig unter dem Tastenfeld statt als große,
+   * unerklärte Leerstelle direkt unter einer kurzen Frage wie „Wie viele
+   * Einer hat die Zahl 73?“ – das sah aus wie ein fehlendes Bild, war aber
+   * keins. Höhere Spezifität (drei Klassen statt zwei) gewinnt unabhängig
+   * von der Reihenfolge gegen die Regel oben.
+   */
+  body.uebung-laeuft .karte-aufgabe > .aufgabe-frage + .eingabe-bereich,
+  body.uebung-laeuft .karte-aufgabe > .aufgabe-frage + .auswahl,
+  body.uebung-laeuft .karte-aufgabe > .aufgabe-frage + .bildauswahl {
+    margin-top: 0;
+  }
+
+  /*
    * ACHTUNG, hier lag ein Fehler: Mit `flex: 0 1 auto` kam die Basisgröße aus
    * dem Inhalt – und der Inhalt war ein SVG mit `height: 100%`. Höhe des
    * Kastens hängt am SVG, Höhe des SVG hängt am Kasten: Das löst der Browser
@@ -2799,6 +2815,22 @@ body {
   body.uebung-laeuft .karte-aufgabe > .aufgabe-rechnung ~ .eingabe-bereich,
   body.uebung-laeuft .karte-aufgabe > .aufgabe-rechnung ~ .auswahl,
   body.uebung-laeuft .karte-aufgabe > .aufgabe-rechnung ~ .bildauswahl {
+    margin-top: 0;
+  }
+
+  /*
+   * Ohne Bild UND ohne Rechnung folgt der Antwortbereich der Frage UNMITTELBAR
+   * (kein anderes Element dazwischen) – genau das drückt der Direkt-Nachbar
+   * `+` aus. Für diesen Fall bleibt die Lücke besser dort, wo sie vor der
+   * Daumenzonen-Regel war: unauffällig unter dem Tastenfeld statt als große,
+   * unerklärte Leerstelle direkt unter einer kurzen Frage wie „Wie viele
+   * Einer hat die Zahl 73?“ – das sah aus wie ein fehlendes Bild, war aber
+   * keins. Höhere Spezifität (drei Klassen statt zwei) gewinnt unabhängig
+   * von der Reihenfolge gegen die Regel oben.
+   */
+  body.uebung-laeuft .karte-aufgabe > .aufgabe-frage + .eingabe-bereich,
+  body.uebung-laeuft .karte-aufgabe > .aufgabe-frage + .auswahl,
+  body.uebung-laeuft .karte-aufgabe > .aufgabe-frage + .bildauswahl {
     margin-top: 0;
   }
 
