@@ -590,6 +590,8 @@ body {
   border-radius: var(--radius-pille);
   background: var(--haupt-hell);
   color: var(--haupt-text);
+  /* Eine Pille bricht nie um – „Stufe 1“ auf zwei Zeilen ist keine Pille. */
+  white-space: nowrap;
   font-size: 0.78rem;
   font-weight: 700;
 }
@@ -2287,6 +2289,16 @@ body {
   margin: 0;
 }
 
+/* Leerzustände: die dösende Eule mittig, der Hinweis darunter. */
+.leerzustand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.8rem;
+  text-align: center;
+}
+
 /* Sanftes Schweben im Leerlauf – wenige Pixel, keine Unruhe. */
 .eule-schwebt svg {
   animation: eule-schweben 3s ease-in-out infinite alternate;
@@ -3209,6 +3221,37 @@ body {
   100% {
     transform: translate(var(--weg-x), var(--weg-y)) scale(1.1);
     opacity: 0;
+  }
+}
+
+/* ------------------------------------------------------ Jubelnde Eule */
+
+/* Die Eule hüpft zweimal fröhlich auf und federt aus. */
+.jubel-eulensprung {
+  animation: eulen-sprung 2s ease-in-out both;
+}
+
+@keyframes eulen-sprung {
+  0% {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  16% {
+    transform: translateY(-18px);
+    opacity: 1;
+  }
+  34% {
+    transform: translateY(0);
+  }
+  52% {
+    transform: translateY(-10px);
+  }
+  68% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
   }
 }
 

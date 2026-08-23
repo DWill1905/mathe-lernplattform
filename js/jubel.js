@@ -10,6 +10,7 @@
  * deshalb direkt testbar.
  */
 import { el, svgBild } from "./dom.js";
+import { euleJubelGruppe } from "./eule.js";
 /** Alle Jubelarten in fester Reihenfolge. */
 export const JUBEL_ARTEN = [
     "zauberhut",
@@ -19,6 +20,7 @@ export const JUBEL_ARTEN = [
     "konfetti",
     "rakete",
     "sterne",
+    "eule",
 ];
 /**
  * Wie lange der Jubel läuft (ms). Danach räumt die Anzeige ihn weg. Die Werte
@@ -33,6 +35,7 @@ const DAUER = {
     konfetti: 2100,
     rakete: 1800,
     sterne: 1400,
+    eule: 2000,
 };
 export function jubelDauer(art) {
     return DAUER[art];
@@ -184,6 +187,23 @@ function sterne() {
     }
     return huelle(200, 150, teile);
 }
+/* ----------------------------------------------------- Jubelnde Eule */
+/**
+ * Die Zahleneule höchstselbst hüpft ins Bild. Die Pose kommt aus dem
+ * Eulen-Baukasten (`eule.ts`) – Ergebnisseite und Jubel zeigen dadurch
+ * garantiert dieselbe Eule, keine Kopie, die auseinanderlaufen könnte.
+ * Sie fliegt bewusst NICHT quer durchs Bild: Das Querflug-Layout gehört
+ * den drei Tieren, die Eule feiert mittig wie der Zauberhut.
+ */
+function eule() {
+    const funken = funkenreihe([
+        [28, 42, 9],
+        [172, 50, 10],
+        [22, 102, 7],
+        [178, 108, 8],
+    ]);
+    return huelle(200, 150, `<g class="jubel-eulensprung"><g transform="translate(43 14)">${euleJubelGruppe()}</g></g>` + funken);
+}
 const BAUER = {
     zauberhut,
     schwein,
@@ -192,6 +212,7 @@ const BAUER = {
     konfetti,
     rakete,
     sterne,
+    eule,
 };
 /** Das SVG einer Jubelart. */
 export function jubelSvg(art) {

@@ -4,6 +4,26 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.32.0] – 2026-08-23
+
+### Hinzugefügt
+
+**Ein neuer Jubel: die Eule springt ins Bild.** Als achte Jubelart hüpft
+die Zahleneule nach einer richtigen Antwort fröhlich auf und federt aus,
+umringt von Funken. Die Pose kommt aus dem Eulen-Baukasten – Ergebnisseite
+und Jubel zeigen garantiert dieselbe Eule. Sie fliegt bewusst nicht quer
+durchs Bild; das bleibt Schwein, Biene und Vogel. Bei reduzierter Bewegung
+blendet sie wie alle Jubel ruhig ein und aus.
+
+**Schlafende Eule im leeren Fortschritt.** Solange noch keine Runde
+gerechnet wurde, döst die Eule unter der Zwei-Wochen-Übersicht und wartet
+sichtbar auf die erste Säule.
+
+### Behoben
+
+- „Stufe 1“-Pillen brechen bei langen Thementiteln nicht mehr auf zwei
+  Zeilen um.
+
 ## [1.31.0] – 2026-08-23
 
 ### Geändert

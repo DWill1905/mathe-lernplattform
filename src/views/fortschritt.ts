@@ -1,4 +1,5 @@
-import { el } from "../dom.js";
+import { el, svgBild } from "../dom.js";
+import { euleSvg } from "../eule.js";
 import { icon } from "../icons.js";
 import { ERFOLGE, levelInfo, zeitText } from "../gamification.js";
 import { ladeFortschritt, tagesSchluessel } from "../state.js";
@@ -161,8 +162,8 @@ function aktivitaet(f: Fortschritt): HTMLElement {
     );
   }
 
-  // Ganz ohne Übung wären hier nur vierzehn leere Striche – ein Kind soll
-  // stattdessen lesen, dass die Säulen auf SEINE Runden warten.
+  // Ganz ohne Übung wären hier nur vierzehn leere Striche – stattdessen
+  // döst die Eule und wartet sichtbar auf die erste Runde.
   const nochLeer = tage.every((t) => t.gesamt === 0);
   return el(
     "section",
@@ -170,10 +171,15 @@ function aktivitaet(f: Fortschritt): HTMLElement {
     el("h2", { class: "abschnitt-titel", text: "Die letzten zwei Wochen" }),
     saeulen,
     nochLeer
-      ? el("p", {
-          class: "hinweis",
-          text: "Hier wächst für jeden Übungstag eine Säule. Deine erste beginnt mit der ersten Runde!",
-        })
+      ? el(
+          "div",
+          { class: "leerzustand" },
+          el("div", { class: "eule-mittel" }, svgBild(euleSvg("schlaeft"), "")),
+          el("p", {
+            class: "hinweis",
+            text: "Die Eule wartet noch auf deine erste Runde – dann wächst hier für jeden Übungstag eine Säule.",
+          })
+        )
       : null
   );
 }
