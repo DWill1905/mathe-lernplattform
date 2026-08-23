@@ -75,6 +75,10 @@ von Hand setzen.
   Aufgabenfamilien und Zahlenmauern – mit Stoppuhr und gespeicherter
   Bestleistung.
 - **Punkte, Level, Sterne, Tagesserie und fünfzehn Abzeichen** als Motivation.
+- **Die Zahleneule als Begleiterin**: Sie winkt auf der Startseite, feiert auf
+  der Ergebnisseite (oder macht nach einer schwachen Runde Mut – nie strafend),
+  hüpft als Jubel ins Bild und döst in leeren Übersichten. Fünf Posen aus
+  einem eigenen Baukasten (`src/eule.ts`).
 - **Fortschrittsseite** mit Trefferquoten je Thema und einer Übersicht der
   letzten zwei Wochen.
 - **Elternbereich** mit Lernstandstabelle, den häufigsten Fehlerarten und der
@@ -125,6 +129,7 @@ src/
   icons.ts          das Symbolset (35 Icons im 24er-Raster, currentColor)
   figures.ts        Erklärbilder als SVG (Uhr, Geld, Formen, Zahlenmauern, Rechenräder, Tabellen …)
   bilder.ts         farbige Illustrationen: ein Bild je Thema, Puzzlemotive
+  eule.ts           die Zahleneule als Maskottchen: fünf Posen aus einem Baukasten
   jubel.ts          die Überraschungen nach einer richtigen Antwort
 tools/sw-liste.mjs  erzeugt die Precache-Liste in sw.js aus den echten Dateien
   dom.ts            el()-Helfer zum DOM-Bauen ohne Framework

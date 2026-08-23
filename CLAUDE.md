@@ -88,8 +88,16 @@ verwässern.
 - `src/bilder.ts` – farbige Illustrationen: ein Bild je Thema (die Navigation
   läuft über Bilder, nicht über Fließtext) und die Puzzlemotive. Ohne
   DOM-Zugriff, deshalb direkt testbar.
+- `src/eule.ts` – die Zahleneule als Ganzkörper-Maskottchen: fünf Posen
+  (winkt, jubelt, freut, mutmacht, schläft) aus wiederverwendeten
+  Teil-Bausteinen, Farben nur über `bild-*`-Klassen. `euleFuerQuote()`
+  spiegelt die Lobtext-Stufen und straft NIE – eine traurige Pose gibt es
+  nicht, und `test/eule.test.js` verabredet die Posenliste ausdrücklich.
+  Die `eule-*`-Klassen des kleinen Kopf-Icons in `icons.ts` sind davon
+  getrennt (Strichsymbol-Welt, Themenfarben) und bleiben unangetastet.
 - `src/jubel.ts` – was nach einer richtigen Antwort passiert: Zauberhut,
-  fliegende Tiere, Konfetti, Rakete, Sternenregen. Der SVG-Teil ist rein, die
+  fliegende Tiere, Konfetti, Rakete, Sternenregen – und die hüpfende Eule,
+  deren Pose aus `eule.ts` kommt (keine Kopie). Der SVG-Teil ist rein, die
   Anzeige hängt die Ebene an `document.body`.
 - `src/views/*` – Start, Übung, Fortschritt, Elternbereich.
 - `src/app.ts` / `src/router.ts` / `src/shell.ts` – Routentabelle,

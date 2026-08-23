@@ -4,6 +4,22 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.33.0] – 2026-08-23
+
+Abschluss des Redesigns „Die Zahleneule als Begleiterin“ (1.29.0–1.33.0).
+
+### Geändert
+
+**Neues App-Icon mit der ganzen Eule.** `icons/icon.svg`, die
+Maskable-Variante und alle PNG-Ableitungen (192/512/Maskable/Apple-Touch)
+zeigen jetzt die Ganzkörper-Eule aus dem Baukasten – weiß auf violettem
+Grund, beim Maskable-Icon sicher in der inneren 80-Prozent-Zone. Wer die
+App neu installiert oder das Lesezeichen erneuert, bekommt die neue Eule
+auf den Startbildschirm.
+
+**Doku nachgezogen**: README und CLAUDE.md beschreiben den Eulen-Baukasten
+(`src/eule.ts`) und die Begleiterin-Funktion.
+
 ## [1.32.0] – 2026-08-23
 
 ### Hinzugefügt
