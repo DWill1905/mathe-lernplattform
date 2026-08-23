@@ -4,6 +4,37 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.29.0] – 2026-08-23
+
+Erster Schritt des Redesigns „Die Zahleneule als Begleiterin“.
+
+### Geändert
+
+**Ein Design-Fundament statt gewachsener Einzelwerte.**
+
+- **Rundungs-Skala**: Statt 14, 12, 22, 8, 999 … quer durch das Stylesheet
+  gibt es vier Stufen (`--radius-gross/-mittel/-klein/-pille`), auf die alle
+  36 Rundungen umgestellt sind. Alles wirkt eine Spur runder und wie aus
+  einem Guss; die alte `--radius`-Variable ist ersetzt.
+- **Weiche Violett-Flächen**: Neue Töne `--grund-oben`, `--weich-a`,
+  `--weich-b` in beiden Farbschemata. Die Seite beginnt oben mit einem Hauch
+  mehr Violett („Himmel“), die Begrüßungskarte läuft von Violett nach Rosé,
+  Kennzahlen, Antwortfeld und Hauptknopf nutzen dieselben Töne.
+- **Typografie**: Begrüßungs- und Ergebnistitel sind kräftiger (Gewicht 800),
+  Abschnittstitel tragen einen kleinen Markenpunkt.
+
+### Hinzugefügt
+
+**Ein Kontrast-Wächter** (`test/kontrast.test.js`): Die README versprach
+WCAG AA, aber nichts wachte darüber – eine Farbänderung konnte Text
+unlesbar machen, und die CI blieb grün. Der Test parst beide Farbschemata
+aus `style.css` (Dunkel erbt von Hell, wie im Browser) und rechnet die
+Verhältnisse der tatsächlich benutzten Paarungen nach – Fließtext auf
+Karten und Flächen mit 4,5:1, UI-Grafik und Illustrationstinte mit 3:1,
+die Schrift auf dem Markenverlauf an BEIDEN Enden. Ein Wächter für den
+Wächter stellt sicher, dass die Blöcke wirklich gefunden werden – ein
+grüner Test, der nichts misst, ist keiner.
+
 ## [1.28.0] – 2026-08-23
 
 ### Geändert
