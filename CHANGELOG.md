@@ -4,6 +4,24 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.27.1] – 2026-08-22
+
+### Behoben
+
+**Drei Konstanten standen doppelt — und zwei davon hätten bei einer Änderung
+eine FALSCHE Aussage auf den Bildschirm gebracht:**
+
+- Die Ergebnisseite rechnete die neue Stufe als `stufe + 1` nach. Wie stark
+  eine Stufe steigt oder fällt, entscheidet aber allein `stufeAnpassen()`.
+  `RundenErgebnis` trägt die nächste Stufe jetzt selbst — sonst stünde beim
+  nächsten Eingriff dort eine Zahl, und ein Kind übte danach auf einer anderen
+  Stufe als angekündigt.
+- Der Fortschritt zeigte die Rechenmeister-Bestleistung als „x / 20“ mit fest
+  eingetippter 20 statt `MEISTERLAENGE`.
+- Die Länge des Aktivitätsverlaufs (90 Tage) stand an drei Stellen: beim Laden,
+  beim Fortschreiben und beim Zusammenführen zweier Geräte. Eine davon zu
+  vergessen hieße, dass der Verlauf je nach Weg unterschiedlich lang wird.
+
 ## [1.27.0] – 2026-08-22
 
 ### Behoben

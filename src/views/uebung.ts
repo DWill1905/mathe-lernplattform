@@ -1228,7 +1228,7 @@ function zeichneErgebnis(ziel: HTMLElement, sitzung: Sitzung): void {
     karte.appendChild(
       el("p", {
         class: "ergebnis-aufstieg",
-        text: `Stark! Ab jetzt übst du bei ${thema(sitzung.themaId).titel} auf Stufe ${sitzung.stufe + 1}.`,
+        text: `Stark! Ab jetzt übst du bei ${thema(sitzung.themaId).titel} auf Stufe ${ergebnis.naechsteStufe}.`,
       })
     );
   }

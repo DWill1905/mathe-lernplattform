@@ -149,4 +149,14 @@ export interface RundenErgebnis {
   herzen: number;
   neueErfolge: string[];
   stufeAufgestiegen: boolean;
+  /**
+   * Die Stufe, auf der es weitergeht.
+   *
+   * Sie steht hier, statt in der Ansicht als `stufe + 1` nachgerechnet zu
+   * werden: Wie stark eine Stufe steigt oder fällt, entscheidet allein
+   * `stufeAnpassen()` in `gamification.ts`. Rechnet die Ansicht mit, steht dort
+   * beim nächsten Eingriff eine falsche Zahl auf dem Bildschirm – und ein Kind
+   * übt danach auf einer anderen Stufe als angekündigt.
+   */
+  naechsteStufe: Stufe;
 }

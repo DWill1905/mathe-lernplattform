@@ -2,6 +2,7 @@ import { el } from "../dom.js";
 import { icon } from "../icons.js";
 import { ERFOLGE, levelInfo, zeitText } from "../gamification.js";
 import { ladeFortschritt, tagesSchluessel } from "../state.js";
+import { MEISTERLAENGE } from "../tasks/index.js";
 import { THEMEN } from "../topics.js";
 import type { RouteHandler } from "../router.js";
 import type { Fortschritt } from "../types.js";
@@ -38,7 +39,7 @@ export const zeige: RouteHandler = (ziel) => {
       fortschritt.meister.besteTreffer > 0
         ? kennzahl(
             "Rechenmeister",
-            `${fortschritt.meister.besteTreffer} / 20`,
+            `${fortschritt.meister.besteTreffer} / ${MEISTERLAENGE}`,
             `Bestzeit ${zeitText(fortschritt.meister.besteZeit)}`
           )
         : kennzahl("Rechenmeister", "–", "noch nicht gelaufen")

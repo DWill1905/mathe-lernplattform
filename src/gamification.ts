@@ -3,7 +3,7 @@
  * gespeicherten Fortschritt berechnet – es gibt keinen zweiten Zustand.
  */
 
-import { heute, speichereFortschritt, tagesSchluessel } from "./state.js";
+import { MAX_VERLAUF, heute, speichereFortschritt, tagesSchluessel } from "./state.js";
 import { HEFT_THEMEN, THEMEN } from "./topics.js";
 import type { Fortschritt, RundenErgebnis, Stufe, ThemaId } from "./types.js";
 
@@ -260,7 +260,7 @@ function verlaufFortschreiben(f: Fortschritt, richtig: number, gesamt: number): 
   } else {
     f.verlauf.push({ tag, richtig, gesamt });
   }
-  if (f.verlauf.length > 90) f.verlauf = f.verlauf.slice(-90);
+  if (f.verlauf.length > MAX_VERLAUF) f.verlauf = f.verlauf.slice(-MAX_VERLAUF);
 }
 
 /**
@@ -332,6 +332,7 @@ export function werteRundeAus(f: Fortschritt, eingabe: RundenEingabe): RundenErg
     herzen: eingabe.herzen,
     neueErfolge,
     stufeAufgestiegen: aufgestiegen,
+    naechsteStufe: neueStufe,
   };
 }
 
@@ -414,6 +415,8 @@ export function werteMixAus(f: Fortschritt, eingabe: MixEingabe): RundenErgebnis
     herzen: eingabe.herzen,
     neueErfolge,
     stufeAufgestiegen: false,
+    // Eine gemischte Runde verändert keine Stufe (siehe oben).
+    naechsteStufe: 2,
   };
 }
 

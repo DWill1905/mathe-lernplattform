@@ -283,3 +283,45 @@ test("Schwerpunkte sind die häufigsten aktuellen Fehlerarten", () => {
   assert.equal(schwerpunkte(fortschritt).size, 8);
   assert.equal(schwerpunkte(fortschritt, 3).size, 3);
 });
+
+/**
+ * Die angekündigte Stufe muss die sein, auf der es wirklich weitergeht.
+ *
+ * Die Ergebnisseite rechnete sie vorher als `stufe + 1` nach. Wie stark eine
+ * Stufe steigt oder fällt, entscheidet aber allein `stufeAnpassen()` – rechnet
+ * die Ansicht mit, steht beim nächsten Eingriff dort eine falsche Zahl, und
+ * ein Kind übt danach auf einer anderen Stufe als angekündigt.
+ */
+test("die Ergebnisseite bekommt die nächste Stufe gesagt, statt sie zu raten", () => {
+  const grund = () => ({
+    thema: "plusminus",
+    stufe: 1,
+    besteSerie: 0,
+    fehlerTypen: [],
+    richtigeTypen: [],
+    herzen: 0,
+  });
+
+  // Fast fehlerfrei: eine Stufe hoch.
+  const f = standardFortschritt();
+  const hoch = werteRundeAus(f, { ...grund(), richtig: 10, gesamt: 10 });
+  assert.equal(hoch.stufeAufgestiegen, true);
+  assert.equal(hoch.naechsteStufe, f.themen.plusminus.stufe, "die Ankündigung passt nicht zum Gespeicherten");
+  assert.equal(hoch.naechsteStufe, 2);
+
+  // Schwache Runde auf Stufe 3: eine Stufe zurück – und das darf die Anzeige
+  // niemals als „+1“ ausgeben.
+  const g = standardFortschritt();
+  g.themen.plusminus.stufe = 3;
+  const runter = werteRundeAus(g, { ...grund(), stufe: 3, richtig: 2, gesamt: 10 });
+  assert.equal(runter.stufeAufgestiegen, false);
+  assert.equal(runter.naechsteStufe, 2);
+  assert.equal(runter.naechsteStufe, g.themen.plusminus.stufe);
+
+  // Und eine mittlere Runde lässt alles, wie es ist.
+  const h = standardFortschritt();
+  h.themen.plusminus.stufe = 2;
+  const gleich = werteRundeAus(h, { ...grund(), stufe: 2, richtig: 6, gesamt: 10 });
+  assert.equal(gleich.naechsteStufe, 2);
+  assert.equal(gleich.naechsteStufe, h.themen.plusminus.stufe);
+});

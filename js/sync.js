@@ -17,7 +17,7 @@
  * Die reinen Teile (Code, Zusammenführung, Prüfung) sind ohne Netz und ohne
  * DOM testbar; alle Netzaufrufe nehmen ihr `fetch` als Parameter entgegen.
  */
-import { ladeFortschritt, pruefeFortschritt, speichereFortschritt } from "./state.js";
+import { MAX_VERLAUF, ladeFortschritt, pruefeFortschritt, speichereFortschritt } from "./state.js";
 import { THEMEN } from "./topics.js";
 /* ------------------------------------------------------------ Einrichtung */
 /**
@@ -179,7 +179,7 @@ function verschmelzeVerlauf(a, b) {
         });
     }
     // Dieselbe Obergrenze wie beim Laden – sonst wüchse der Verlauf unbegrenzt.
-    return [...proTag.values()].sort((x, y) => x.tag.localeCompare(y.tag)).slice(-90);
+    return [...proTag.values()].sort((x, y) => x.tag.localeCompare(y.tag)).slice(-MAX_VERLAUF);
 }
 const KOPFZEILEN = { "Content-Type": "application/json" };
 /**

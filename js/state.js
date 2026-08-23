@@ -11,7 +11,13 @@ import { THEMEN, istThemaId } from "./topics.js";
 const SCHLUESSEL = "mathe2:fortschritt";
 /** Obergrenzen – verhindern, dass gespeicherte Daten unbegrenzt wachsen. */
 const MAX_PUNKTE = 9_999_999;
-const MAX_VERLAUF = 90;
+/**
+ * So viele Tagesbilanzen werden aufgehoben. Die Zahl steht EINMAL hier: Sie
+ * wird an drei Stellen gebraucht (Laden, Fortschreiben, Zusammenführen), und
+ * eine davon zu vergessen hieße, dass der Verlauf je nach Weg unterschiedlich
+ * lang wird.
+ */
+export const MAX_VERLAUF = 90;
 const MAX_FEHLERTYPEN = 300;
 const MAX_NAME = 20;
 /** Sechs Runden Gedächtnis – mehr bringt nichts und kostet nur Speicher. */
