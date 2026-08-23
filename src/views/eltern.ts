@@ -66,6 +66,13 @@ export function fehlerText(typ: string): string {
 export const zeige: RouteHandler = (ziel) => {
   const fortschritt = ladeFortschritt();
 
+  /*
+   * Wer hier regelmäßig vorbeischaut, will die ZAHLEN sehen – Lernstand,
+   * Fehler, Tempo. Die Erklärung, wie die Zahleneule funktioniert, braucht
+   * man einmal; danach war sie eine Textwand VOR allen Daten. Der wichtigste
+   * Satz (die Übungen passen sich selbst an) bleibt sichtbar, der Rest ist
+   * aufklappbar – nichts davon ist gestrichen.
+   */
   const einleitung = el(
     "section",
     { class: "karte" },
@@ -77,26 +84,31 @@ export const zeige: RouteHandler = (ziel) => {
         "höher, nach einer sehr schwachen Runde eine Stufe zurück. Unten können Sie die Stufe auch " +
         "von Hand einstellen.",
     }),
-    el("p", {
-      class: "fliesstext",
-      text:
-        "Themen mit der Marke „Heft“ kommen im Übungsheft der 2. Klasse vor. Sie stehen auf der " +
-        "Startseite oben, werden zuerst empfohlen und häufiger ins gemischte Training gezogen.",
-    }),
-    el("p", {
-      class: "fliesstext",
-      text:
-        "Die Zahleneule funktioniert ohne Internet. Nach dem ersten Aufruf liegt sie vollständig " +
-        "auf dem Gerät – im Zug, im Ferienhaus oder bei ausgefallenem WLAN lässt sich genauso üben. " +
-        "Über das Browsermenü („Zum Startbildschirm hinzufügen“) landet sie als eigenes Symbol auf " +
-        "dem Tablet und startet ohne Adresszeile.",
-    }),
-    el("p", {
-      class: "fliesstext",
-      text:
-        "Alle Daten bleiben auf diesem Gerät im Browserspeicher. Es gibt kein Konto, keinen Server " +
-        "und keine Werbung.",
-    })
+    el(
+      "details",
+      {},
+      el("summary", { text: "Mehr über die Zahleneule" }),
+      el("p", {
+        class: "fliesstext",
+        text:
+          "Themen mit der Marke „Heft“ kommen im Übungsheft der 2. Klasse vor. Sie stehen auf der " +
+          "Startseite oben, werden zuerst empfohlen und häufiger ins gemischte Training gezogen.",
+      }),
+      el("p", {
+        class: "fliesstext",
+        text:
+          "Die Zahleneule funktioniert ohne Internet. Nach dem ersten Aufruf liegt sie vollständig " +
+          "auf dem Gerät – im Zug, im Ferienhaus oder bei ausgefallenem WLAN lässt sich genauso üben. " +
+          "Über das Browsermenü („Zum Startbildschirm hinzufügen“) landet sie als eigenes Symbol auf " +
+          "dem Tablet und startet ohne Adresszeile.",
+      }),
+      el("p", {
+        class: "fliesstext",
+        text:
+          "Alle Daten bleiben auf diesem Gerät im Browserspeicher. Es gibt kein Konto, keinen Server " +
+          "und keine Werbung.",
+      })
+    )
   );
 
   const tabelle = el(

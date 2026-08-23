@@ -147,7 +147,11 @@ verwässern.
   Feste Höhengrenzen in `vh` reichten nicht: Je nach Aufgabenart sind Frage
   und Antwortbereich unterschiedlich hoch, mal blieb Luft, mal fehlten 90 px
   und das Tastenfeld rutschte aus dem Bild. Im schmalen Querformat gilt das
-  nicht – dort ist die Karte zweispaltig.
+  nicht – dort ist die Karte zweispaltig. OHNE Erklärbild ankert der
+  Antwortbereich per `margin-top: auto` am unteren Kartenrand (Daumenzone),
+  und die Lücke sitzt VOR der Rechnung, damit sie beim Antwortfeld bleibt –
+  sonst stand ein totes Drittel Karte unter den Tasten. Ein Test in
+  `touchziele.test.js` hält beide Regeln fest.
 
 - **Die `vorstufe` ist ein freiwilliger Bonus, kein Pflichtschritt.** Eine
   Aufgabe startet IMMER bei der eigentlichen Frage; erst wer „Hilfsaufgabe

@@ -424,7 +424,10 @@ function zeichne(ziel: HTMLElement, sitzung: Sitzung): void {
         { class: "uebung-bilanz" },
         sitzung.herzen > 0 &&
           el("span", { class: "uebung-herzen" }, icon("herz", "herz-klein"), String(sitzung.herzen)),
-        el("span", { class: "uebung-treffer", text: `${sitzung.richtig} richtig` })
+        // Erst wenn etwas beantwortet ist: Ein „0 richtig“ als Allererstes
+        // wäre eine Null, bevor das Kind überhaupt etwas tun konnte.
+        sitzung.ergebnisse.length > 0 &&
+          el("span", { class: "uebung-treffer", text: `${sitzung.richtig} richtig` })
       )
     )
   );

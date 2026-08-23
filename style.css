@@ -79,7 +79,9 @@ body {
   margin: 0;
   background: var(--grund);
   color: var(--text);
-  font-family: "Segoe UI", "Helvetica Neue", system-ui, -apple-system, sans-serif;
+  /* `ui-rounded` gibt es nur bei Apple (SF Rounded) – also genau auf dem
+     iPad, auf dem geübt wird. Überall sonst greift die bisherige Kette. */
+  font-family: ui-rounded, "Segoe UI", "Helvetica Neue", system-ui, -apple-system, sans-serif;
   font-size: 18px;
   line-height: 1.5;
 }
@@ -393,6 +395,19 @@ body {
 
 .knopf:hover:not(:disabled) {
   border-color: var(--haupt);
+}
+
+/*
+ * Jede große Fläche gibt beim Drücken spürbar nach – wie die Zifferntasten
+ * (`.taste:active`) es schon tun. Auf einem Touchscreen ist das die einzige
+ * Rückmeldung ZWISCHEN Antippen und Reaktion der App; ohne sie fühlt sich
+ * ein Knopf tot an und Kinder tippen doppelt.
+ */
+.knopf:active:not(:disabled),
+.bildknopf:active,
+.kachel:active,
+.weiterknopf:active {
+  transform: scale(0.98);
 }
 
 .knopf:focus-visible {
@@ -1909,6 +1924,42 @@ body {
   height: 2.8rem;
 }
 
+/*
+ * Die verdienten Sterne poppen nacheinander auf – der Moment, für den die
+ * ganze Runde gerechnet wurde, darf kurz glänzen. Nur die vollen Sterne
+ * springen; die leeren stehen von Anfang an still da, sonst sähe es aus, als
+ * würde etwas weggenommen. `backwards` hält jeden Stern bis zu seinem
+ * Einsatz unsichtbar. Bei reduzierter Bewegung schaltet die globale Regel
+ * alle Animationen ab, die Sterne stehen dann einfach da.
+ */
+.ergebnis-sterne .stern-voll {
+  animation: stern-auf 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+
+.ergebnis-sterne .stern-voll:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.ergebnis-sterne .stern-voll:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes stern-auf {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  70% {
+    transform: scale(1.25);
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 /* Themenfarben für Symbole außerhalb der Kacheln */
 .farbe-blau {
   color: var(--blau);
@@ -2522,6 +2573,31 @@ body {
   }
 
   /*
+   * Ohne Erklärbild bliebe unter dem Tastenfeld ein totes Drittel Karte: Die
+   * Spalte füllt die Fensterhöhe, aber nichts wächst. Der übrige Platz wird
+   * deshalb zum Abstand nach OBEN – die Frage bleibt oben, Rechnung und
+   * Tasten rücken zusammen ans untere Ende, in die Daumenzone. Die Lücke
+   * liegt VOR der Rechnung, damit „37 + 48 =“ direkt über dem Antwortfeld
+   * steht – genau da, wo sonst das Erklärbild säße. Gibt es ein Bild, frisst
+   * dessen `flex-grow` den Platz zuerst, und `auto` fällt auf null zurück;
+   * das Polster darunter hält dann den Mindestabstand.
+   */
+  body.uebung-laeuft .karte-aufgabe > .aufgabe-rechnung,
+  body.uebung-laeuft .karte-aufgabe > .eingabe-bereich,
+  body.uebung-laeuft .karte-aufgabe > .auswahl,
+  body.uebung-laeuft .karte-aufgabe > .bildauswahl {
+    margin-top: auto;
+    padding-top: 0.5rem;
+  }
+
+  /* Steht eine Rechnung davor, hat SIE die Lücke schon aufgenommen. */
+  body.uebung-laeuft .karte-aufgabe > .aufgabe-rechnung ~ .eingabe-bereich,
+  body.uebung-laeuft .karte-aufgabe > .aufgabe-rechnung ~ .auswahl,
+  body.uebung-laeuft .karte-aufgabe > .aufgabe-rechnung ~ .bildauswahl {
+    margin-top: 0;
+  }
+
+  /*
    * ACHTUNG, hier lag ein Fehler: Mit `flex: 0 1 auto` kam die Basisgröße aus
    * dem Inhalt – und der Inhalt war ein SVG mit `height: 100%`. Höhe des
    * Kastens hängt am SVG, Höhe des SVG hängt am Kasten: Das löst der Browser
@@ -2567,6 +2643,31 @@ body {
   /* Alles außer dem Bild behält seine natürliche Höhe. */
   body.uebung-laeuft .karte-aufgabe > * {
     flex: none;
+  }
+
+  /*
+   * Ohne Erklärbild bliebe unter dem Tastenfeld ein totes Drittel Karte: Die
+   * Spalte füllt die Fensterhöhe, aber nichts wächst. Der übrige Platz wird
+   * deshalb zum Abstand nach OBEN – die Frage bleibt oben, Rechnung und
+   * Tasten rücken zusammen ans untere Ende, in die Daumenzone. Die Lücke
+   * liegt VOR der Rechnung, damit „37 + 48 =“ direkt über dem Antwortfeld
+   * steht – genau da, wo sonst das Erklärbild säße. Gibt es ein Bild, frisst
+   * dessen `flex-grow` den Platz zuerst, und `auto` fällt auf null zurück;
+   * das Polster darunter hält dann den Mindestabstand.
+   */
+  body.uebung-laeuft .karte-aufgabe > .aufgabe-rechnung,
+  body.uebung-laeuft .karte-aufgabe > .eingabe-bereich,
+  body.uebung-laeuft .karte-aufgabe > .auswahl,
+  body.uebung-laeuft .karte-aufgabe > .bildauswahl {
+    margin-top: auto;
+    padding-top: 0.5rem;
+  }
+
+  /* Steht eine Rechnung davor, hat SIE die Lücke schon aufgenommen. */
+  body.uebung-laeuft .karte-aufgabe > .aufgabe-rechnung ~ .eingabe-bereich,
+  body.uebung-laeuft .karte-aufgabe > .aufgabe-rechnung ~ .auswahl,
+  body.uebung-laeuft .karte-aufgabe > .aufgabe-rechnung ~ .bildauswahl {
+    margin-top: 0;
   }
 
   /*

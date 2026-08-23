@@ -70,5 +70,13 @@ function aktivitaet(f) {
             stil: { height: `${Math.max(anteil, tag.gesamt > 0 ? 12 : 4)}%` },
         })), el("span", { class: "aktivitaet-text", text: WOCHENTAGE[tag.datum.getDay()] ?? "" })));
     }
-    return el("section", { class: "karte" }, el("h2", { class: "abschnitt-titel", text: "Die letzten zwei Wochen" }), saeulen);
+    // Ganz ohne Übung wären hier nur vierzehn leere Striche – ein Kind soll
+    // stattdessen lesen, dass die Säulen auf SEINE Runden warten.
+    const nochLeer = tage.every((t) => t.gesamt === 0);
+    return el("section", { class: "karte" }, el("h2", { class: "abschnitt-titel", text: "Die letzten zwei Wochen" }), saeulen, nochLeer
+        ? el("p", {
+            class: "hinweis",
+            text: "Hier wächst für jeden Übungstag eine Säule. Deine erste beginnt mit der ersten Runde!",
+        })
+        : null);
 }

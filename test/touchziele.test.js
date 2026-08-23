@@ -93,3 +93,30 @@ test("nirgends wird der Fokusrahmen ersatzlos abgeschaltet", () => {
     );
   }
 });
+
+/*
+ * Ohne Erklärbild ankert der Antwortbereich am unteren Kartenrand (Daumen-
+ * zone) statt unter der Frage zu kleben und ein totes Drittel Karte übrig zu
+ * lassen. Die Lücke sitzt VOR der Rechnung, damit „37 + 48 =“ direkt über dem
+ * Antwortfeld steht. Beides muss im Hochformat UND im hohen Querformat
+ * gelten – die Spalte über die volle Fensterhöhe gibt es in beiden Blöcken.
+ */
+test("der Antwortbereich rückt in die Daumenzone, die Rechnung bleibt bei ihm", () => {
+  const bloecke = [...CSS.matchAll(/@media \(orientation: (?:portrait|landscape)[^{]*\{([\s\S]*?)\n\}/g)]
+    .map((t) => t[1])
+    .filter((block) => block.includes("min-height: 100dvh"));
+  assert.equal(bloecke.length, 2, "Hochformat und hohes Querformat bauen die Spalte – beide müssen da sein");
+
+  for (const block of bloecke) {
+    const anker = block.match(
+      /\.karte-aufgabe > \.aufgabe-rechnung,[^{]*\.eingabe-bereich,[^{]*\{([^}]*)\}/
+    );
+    assert.ok(anker, "die Ankerregel für Rechnung und Antwortbereich fehlt");
+    assert.match(anker[1], /margin-top:\s*auto/, "ohne margin-top: auto bleibt das tote Drittel unter den Tasten");
+
+    // Und die Rechnung nimmt die Lücke ALLEIN – sonst klaffte sie doppelt.
+    const reset = block.match(/\.aufgabe-rechnung ~ \.eingabe-bereich[^{]*\{([^}]*)\}/);
+    assert.ok(reset, "die Rückstellung hinter einer Rechnung fehlt");
+    assert.match(reset[1], /margin-top:\s*0/, "hinter der Rechnung muss der Antwortbereich wieder anliegen");
+  }
+});

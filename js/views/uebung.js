@@ -258,7 +258,11 @@ function zeichne(ziel, sitzung) {
         "aria-valuenow": String(nummer),
         "aria-label": `Aufgabe ${nummer} von ${gesamt}`,
     }, el("div", { class: "balken-fuellung", stil: { width: `${(sitzung.index / gesamt) * 100}%` } })), el("div", { class: "uebung-zaehler" }, el("span", { text: `Aufgabe ${nummer} von ${gesamt}` }), el("span", { class: "uebung-bilanz" }, sitzung.herzen > 0 &&
-        el("span", { class: "uebung-herzen" }, icon("herz", "herz-klein"), String(sitzung.herzen)), el("span", { class: "uebung-treffer", text: `${sitzung.richtig} richtig` }))));
+        el("span", { class: "uebung-herzen" }, icon("herz", "herz-klein"), String(sitzung.herzen)), 
+    // Erst wenn etwas beantwortet ist: Ein „0 richtig“ als Allererstes
+    // wäre eine Null, bevor das Kind überhaupt etwas tun konnte.
+    sitzung.ergebnisse.length > 0 &&
+        el("span", { class: "uebung-treffer", text: `${sitzung.richtig} richtig` }))));
     if (sitzung.puzzle) {
         /*
          * Das Puzzle rückt NEBEN den Zähler, nicht darüber. Als eigene Zeile

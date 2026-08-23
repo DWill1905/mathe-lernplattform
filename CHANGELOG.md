@@ -4,6 +4,38 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.28.0] – 2026-08-23
+
+### Geändert
+
+**Das Tastenfeld sitzt jetzt in der Daumenzone.** Ohne Erklärbild blieb unter
+den Tasten ein totes Drittel Karte: Die Übungsspalte füllt die Fensterhöhe,
+aber nichts wuchs. Jetzt ankern Rechnung, Antwortfeld und Tasten am unteren
+Kartenrand – da, wo die Daumen sind –, und die Lücke liegt VOR der Rechnung,
+sodass „37 + 48 =“ direkt über dem Antwortfeld steht, genau wie es mit
+Erklärbild aussieht. Ein Test in `touchziele.test.js` hält beide Regeln fest.
+
+**Der Elternbereich zeigt zuerst Zahlen, dann Text.** Wer regelmäßig
+vorbeischaut, will den Lernstand sehen; die Erklärung, wie die Zahleneule
+funktioniert, braucht man einmal. Der wichtigste Satz (die Übungen passen
+sich selbst an) bleibt stehen, der Rest steckt aufklappbar unter „Mehr über
+die Zahleneule“ – gestrichen ist nichts.
+
+**Kleinere Politur:**
+
+- Die verdienten Sterne der Ergebnisseite poppen nacheinander auf – nur die
+  vollen; die leeren stehen still, sonst sähe es aus, als würde etwas
+  weggenommen. Bei reduzierter Bewegung entfällt der Effekt.
+- „0 richtig“ erscheint nicht mehr, bevor die erste Aufgabe beantwortet ist –
+  eine Null, bevor das Kind etwas tun konnte, ist keine Rückmeldung.
+- Alle großen Flächen (Knöpfe, Bildknöpfe, Kacheln) geben beim Drücken
+  spürbar nach, wie die Zifferntasten es schon taten.
+- Die leere Zwei-Wochen-Übersicht erklärt jetzt, dass dort für jeden
+  Übungstag eine Säule wächst, statt vierzehn leere Striche zu zeigen.
+- Auf Apple-Geräten – also auf dem iPad, auf dem geübt wird – schreibt die
+  App jetzt in der runden Systemschrift (`ui-rounded`); überall sonst bleibt
+  alles wie bisher.
+
 ## [1.27.0] – 2026-08-23
 
 ### Hinzugefügt
