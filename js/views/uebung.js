@@ -17,7 +17,6 @@ import { mulberry32, zufallsSeed } from "../random.js";
 import { PUZZLE_TEILE, puzzleBild, puzzleStaende, waehleMotiv, } from "../bilder.js";
 import { raeumeJubel, waehleJubel, zeigeJubel } from "../jubel.js";
 import { normalisiere, rechnungPasst } from "../antwort.js";
-import { aufgabeSprechen, schweig, sprich, vorlesenAn, vorlesenMoeglich } from "../vorlesen.js";
 import { gleicheAb } from "../sync.js";
 import { ladeFortschritt, merkeGestellteAufgaben } from "../state.js";
 import { MEISTERLAENGE, MEISTER_THEMEN, RUNDENLAENGE, aufgabenSchluessel, gemischteRunde, runde, } from "../tasks/index.js";
@@ -44,12 +43,6 @@ function setzeFokus() {
     fokusZiel = null;
     ziel?.focus();
 }
-/**
- * Welche Aufgabe zuletzt vorgelesen wurde. Ohne diesen Merker läse die
- * automatische Vorlesehilfe bei JEDEM Neuzeichnen los – also bei jeder
- * getippten Ziffer.
- */
-let zuletztVorgelesen = "";
 /** Aufräumhaken der laufenden Runde – Timer und Tastatur dürfen nie überleben. */
 let timer = null;
 let uhrTakt = null;
@@ -94,8 +87,6 @@ window.addEventListener("hashchange", () => {
     // im selben Moment selbst gelöscht. Sonst schwebte ein fliegendes Schwein
     // über der Startseite weiter.
     raeumeJubel();
-    // Eine Stimme, die nach dem Abbrechen weiterredet, wäre gespenstisch.
-    schweig();
     document.body.classList.remove(LAEUFT);
 });
 export const zeige = (ziel, parameter) => {
@@ -116,8 +107,6 @@ export const zeige = (ziel, parameter) => {
  * auf der neuen Stufe weiter, auch beim direkten „Nochmal üben“.
  */
 function baueSitzung(wunsch) {
-    // Eine frische Runde fängt beim Vorlesen wieder von vorne an.
-    zuletztVorgelesen = "";
     const sitzung = baueRunde(wunsch);
     // Was gerade gestellt wurde, meidet die nächste Runde.
     if (sitzung)
@@ -245,7 +234,6 @@ function zeichne(ziel, sitzung) {
     const aufgabe = eintrag.aufgabe;
     const schritt = aktuellerSchritt(aufgabe, sitzung);
     const inVorstufe = sitzung.phase === "vorstufe";
-    vielleichtVorlesen(sitzung, schritt);
     const nummer = sitzung.index + 1;
     const gesamt = sitzung.eintraege.length;
     const titel = sitzung.puzzle
@@ -255,11 +243,7 @@ function zeichne(ziel, sitzung) {
             : sitzung.themaId
                 ? thema(sitzung.themaId).titel
                 : "Gemischtes Training";
-    const kopf = el("section", { class: "uebung-kopf" }, el("div", { class: "uebung-kopf-zeile" }, 
-    // Abbrechen und Vorlesen bleiben zusammen links; die Marke (oder die
-    // Stoppuhr) gehört nach rechts. Als drei gleichrangige Kinder einer
-    // `space-between`-Zeile landete der Lautsprecher sonst in der Mitte.
-    el("div", { class: "uebung-kopf-links" }, el("a", { class: "knopf knopf-klein knopf-still", href: "#/", text: "← Abbrechen" }), vorleseKnopf(schritt)), sitzung.meister
+    const kopf = el("section", { class: "uebung-kopf" }, el("div", { class: "uebung-kopf-zeile" }, el("a", { class: "knopf knopf-klein knopf-still", href: "#/", text: "← Abbrechen" }), sitzung.meister
         ? stoppuhr(sitzung)
         : el("span", {
             class: "marke",
@@ -330,15 +314,21 @@ function zeichne(ziel, sitzung) {
     }
     if (schritt.rechnung)
         karte.appendChild(el("p", { class: "aufgabe-rechnung", text: schritt.rechnung }));
-    karte.appendChild(antwortbereich(ziel, sitzung, schritt));
     /*
      * Der Bonus ist ein Angebot, keine Pflicht: Wer mag, rechnet die
      * Hilfsaufgabe selbst und bekommt ein Herz dafür. Wer nicht mag, beantwortet
      * einfach die eigentliche Aufgabe.
+     *
+     * Er steht VOR dem Antwortbereich – vorher stand er darunter, also unter dem
+     * Tastenfeld und damit auf dem Handy regelmäßig unter dem Fensterrand. Ein
+     * Angebot, das niemand sieht, ist keins. Hier fällt es zwischen Aufgabe und
+     * Tastenfeld unmöglich zu übersehen, und es steht auch inhaltlich richtig:
+     * Die Frage „erst die kleine Aufgabe?" kommt VOR dem Antworten.
      */
     if (bonusMoeglich(sitzung) && aufgabe.vorstufe) {
         karte.appendChild(el("button", {
-            class: "knopf knopf-klein knopf-bonus",
+            class: "bonus-angebot",
+            type: "button",
             onclick: () => {
                 // Angefangene Eingabe der Hauptaufgabe parken, nicht wegwerfen.
                 sitzung.hauptEingabe = sitzung.eingabe;
@@ -346,8 +336,9 @@ function zeichne(ziel, sitzung) {
                 sitzung.phase = "vorstufe";
                 zeichne(ziel, sitzung);
             },
-        }, icon("herz", "herz-klein"), "Hilfsaufgabe selbst rechnen"));
+        }, icon("herz", "bonus-herz"), el("span", { class: "bonus-text" }, el("strong", { class: "bonus-titel", text: "Erst die Hilfsaufgabe rechnen?" }), el("span", { class: "bonus-lohn", text: "Das ist freiwillig und bringt ein Herz." })), icon("pfeil", "bonus-pfeil")));
     }
+    karte.appendChild(antwortbereich(ziel, sitzung, schritt));
     if (aufgabe.tipp && !sitzung.beantwortet && !sitzung.meister && !inVorstufe) {
         karte.appendChild(sitzung.tippOffen
             ? el("p", { class: "tipp tipp-offen" }, icon("gluehbirne", "tipp-symbol"), aufgabe.tipp)
@@ -363,52 +354,6 @@ function zeichne(ziel, sitzung) {
         karte.appendChild(rueckmeldung(ziel, sitzung, schritt));
     ziel.replaceChildren(kopf, karte);
     setzeFokus();
-}
-/**
- * Der Vorleseknopf.
- *
- * Zweitklässler lesen noch langsam; wer an „Auf dem Dach sitzen 14 Tauben"
- * scheitert, scheitert an der Sprache und nicht an der Mathematik. Kann das
- * Gerät nicht sprechen, fällt der Knopf ersatzlos weg — ein Knopf, der nichts
- * tut, ist schlimmer als keiner.
- */
-function vorleseKnopf(schritt) {
-    if (!vorlesenMoeglich())
-        return null;
-    const text = schrittText(schritt);
-    return el("button", {
-        class: "knopf knopf-klein knopf-still knopf-vorlesen",
-        type: "button",
-        "aria-label": "Aufgabe vorlesen",
-        title: "Aufgabe vorlesen",
-        onclick: () => sprich(text),
-    }, icon("lautsprecher", "vorlese-symbol"));
-}
-/**
- * Liest die Aufgabe von selbst vor, wenn das im Elternbereich eingeschaltet
- * ist. Steht bewusst NICHT in `zeichne()`: Das läuft bei jedem Tastendruck,
- * und die Stimme finge bei jeder Ziffer von vorne an.
- */
-function vielleichtVorlesen(sitzung, schritt) {
-    // Nur beim WECHSEL der Aufgabe – `zeichne()` läuft bei jedem Tastendruck,
-    // und die Stimme finge sonst bei jeder getippten Ziffer von vorne an.
-    const marke = `${sitzung.index}/${sitzung.phase}`;
-    if (marke === zuletztVorgelesen)
-        return;
-    zuletztVorgelesen = marke;
-    if (!vorlesenAn())
-        return;
-    sprich(schrittText(schritt));
-}
-/** Der sprechbare Text dessen, was gerade gefragt wird. */
-function schrittText(schritt) {
-    return aufgabeSprechen({
-        typ: "",
-        frage: schritt.frage,
-        rechnung: schritt.rechnung,
-        antwortfeld: schritt.antwortfeld,
-        loesung: schritt.loesung,
-    });
 }
 /**
  * Das Puzzle über der Aufgabe. Ein Teil deckt sich auf, sobald seine Aufgabe

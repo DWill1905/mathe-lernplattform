@@ -55,7 +55,6 @@ const KERN = [
   "./js/views/fortschritt.js",
   "./js/views/start.js",
   "./js/views/uebung.js",
-  "./js/vorlesen.js",
   "./manifest.webmanifest",
   "./style.css",
 ];

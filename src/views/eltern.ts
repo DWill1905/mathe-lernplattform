@@ -16,7 +16,6 @@ import {
   zuletztAbgeglichen,
   type AbgleichErgebnis,
 } from "../sync.js";
-import { setzeVorlesen, vorlesenAn, vorlesenMoeglich } from "../vorlesen.js";
 import { THEMEN, istThemaId } from "../topics.js";
 import type { RouteHandler } from "../router.js";
 import type { Stufe, ThemaId } from "../types.js";
@@ -230,47 +229,6 @@ function fehlerkarte(fehler: Record<string, number>): HTMLElement {
   return karte;
 }
 
-/**
- * Schalter für das automatische Vorlesen.
- *
- * Zweitklässler lesen noch langsam. Wer an „Auf dem Dach sitzen 14 Tauben"
- * scheitert, scheitert an der SPRACHE statt an der Mathematik. In der Übung
- * gibt es dafür immer einen Lautsprecherknopf; hier lässt sich einstellen,
- * dass jede Aufgabe von selbst vorgelesen wird.
- *
- * Standard ist AUS: Ein Gerät, das im Klassenzimmer oder abends plötzlich
- * losredet, überrascht unangenehm.
- */
-function vorleseSchalter(): HTMLElement {
-  if (!vorlesenMoeglich()) {
-    return el("p", {
-      class: "hinweis",
-      text: "Vorlesen: Dieses Gerät bringt keine Sprachausgabe mit.",
-    });
-  }
-
-  const kasten = el("input", { type: "checkbox", class: "schalter", id: "vorlesen" }) as HTMLInputElement;
-  kasten.checked = vorlesenAn();
-  kasten.addEventListener("change", () => setzeVorlesen(kasten.checked));
-
-  return el(
-    "div",
-    { class: "einstellung-schalter" },
-    kasten,
-    el("label", { for: "vorlesen", class: "einstellung-text" }, "Aufgaben automatisch vorlesen"),
-    el("p", {
-      class: "hinweis",
-      text:
-        "Die Sprachausgabe des Geräts liest den Aufgabentext vor. Die Zahleneule wählt dafür " +
-        "bevorzugt eine Stimme, die auf dem Gerät selbst läuft – manche Browser bieten auch " +
-        "Online-Stimmen an, die den Text an ihren Hersteller schicken würden. In der Übung " +
-        "geht das Vorlesen jederzeit auch von Hand über den Lautsprecherknopf. Die " +
-        "Bildbeschreibung wird bewusst NICHT vorgelesen: Sie verriete bei Uhr- und " +
-        "Formaufgaben die Lösung.",
-    })
-  );
-}
-
 function einstellungen(name: string): HTMLElement {
   const nameFeld = el("input", {
     class: "eingabe",
@@ -312,7 +270,6 @@ function einstellungen(name: string): HTMLElement {
     { class: "karte" },
     el("h2", { class: "abschnitt-titel", text: "Einstellungen" }),
     el("div", { class: "einstellung-zeile" }, nameFeld, speichern),
-    vorleseSchalter(),
     el("p", {
       class: "hinweis",
       text: "Beim Zurücksetzen werden Punkte, Sterne, Abzeichen und alle Statistiken gelöscht.",

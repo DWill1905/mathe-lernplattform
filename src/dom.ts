@@ -73,10 +73,10 @@ export function svgSymbol(quelle: string, klasse = "symbol"): HTMLElement {
 /**
  * Die barrierefreien Attribute eines eingesetzten Bildes.
  *
- * Ohne Beschriftung ist das Bild SCHMUCK und muss vor der Vorlesehilfe
+ * Ohne Beschriftung ist das Bild SCHMUCK und muss vor dem Screenreader
  * verschwinden: `role="img"` mit leerem `aria-label` meldet stattdessen ein
  * namenloses Bild, und auf der Startseite steht neben jedem Motiv ohnehin
- * schon der Titel – ein Kind hörte dort dreizehnmal „Grafik“ vor dem Namen.
+ * schon der Titel – dort käme dreizehnmal „Grafik“ vor dem Namen.
  *
  * Rein und ohne DOM-Zugriff, damit die Entscheidung prüfbar bleibt.
  */

@@ -31,7 +31,7 @@ function mindesthoehen(klasse) {
 }
 
 /** Was ein Kind mit dem Finger trifft. */
-const ZIELE = [".taste", ".knopf-auswahl", ".knopf-klein", ".knopf-vorlesen", ".mauer-stein"];
+const ZIELE = [".taste", ".knopf-auswahl", ".knopf-klein", ".bonus-angebot", ".mauer-stein"];
 
 test("kein Touch-Ziel wird kleiner als 40 px", () => {
   for (const ziel of ZIELE) {

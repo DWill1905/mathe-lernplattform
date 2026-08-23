@@ -50,7 +50,7 @@ test("das Sprungziel ist fokussierbar", () => {
   );
 });
 
-/* ---------------------------------------------------- Bilder und Vorlesen */
+/* ------------------------------------------------------------- Bilder */
 
 /**
  * `role="img"` mit LEEREM `aria-label` ist der schlimmste aller Fälle: Der
@@ -106,4 +106,44 @@ test("nach einer falschen Antwort bekommt die Rückmeldung den Fokus", () => {
     "der Fokus muss NACH dem Neuzeichnen gesetzt werden – vorher gibt es das Element noch gar nicht"
   );
   assert.match(uebung, /fokusZiel\s*=\s*kasten/, "die Rückmeldung meldet sich nicht als Fokusziel an");
+});
+
+/* ------------------------------------------------------ Bonus in der Übung */
+
+/**
+ * Das Angebot „Erst die Hilfsaufgabe rechnen?“ muss VOR dem Antwortbereich
+ * stehen.
+ *
+ * Es stand einmal darunter – also unter dem Tastenfeld und damit auf dem Handy
+ * regelmäßig unter dem Fensterrand. Ein Angebot, das niemand sieht, ist keins.
+ * Und es gehört auch inhaltlich nach vorn: Die Frage „erst die kleine
+ * Aufgabe?“ kommt vor dem Antworten, nicht danach.
+ */
+test("das Bonusangebot steht über dem Antwortbereich", () => {
+  const uebung = readFileSync(new URL("../js/views/uebung.js", import.meta.url), "utf8");
+
+  const bonus = uebung.indexOf('"bonus-angebot"');
+  const antwort = uebung.indexOf("karte.appendChild(antwortbereich(");
+  assert.ok(bonus > 0, "das Bonusangebot fehlt ganz");
+  assert.ok(antwort > 0, "der Antwortbereich wird nicht mehr an die Karte gehängt");
+  assert.ok(
+    bonus < antwort,
+    "das Bonusangebot wird nach dem Antwortbereich angehängt – dort liegt es unter dem Tastenfeld"
+  );
+});
+
+/**
+ * Und es muss aussehen wie ein Angebot, nicht wie ein Nebensatz: eigene
+ * Fläche, sichtbarer Rahmen, Herz. Ohne diese Prüfung fällt es beim nächsten
+ * Aufräumen still wieder auf Knopfgröße zurück.
+ */
+test("das Bonusangebot ist eine eigene Fläche, kein kleiner Knopf", () => {
+  const css = readFileSync(new URL("../style.css", import.meta.url), "utf8");
+  const regel = css.match(/\n\.bonus-angebot\s*\{([^}]*)\}/);
+  assert.ok(regel, "es gibt keine Regel für .bonus-angebot");
+  assert.match(regel[1], /width:\s*100%/, "das Angebot soll die volle Breite nutzen");
+  assert.match(regel[1], /border:\s*2px/, "ohne Rahmen sieht es aus wie Fließtext");
+
+  const uebung = readFileSync(new URL("../js/views/uebung.js", import.meta.url), "utf8");
+  assert.match(uebung, /icon\("herz",\s*"bonus-herz"\)/, "dem Angebot fehlt das Herz");
 });

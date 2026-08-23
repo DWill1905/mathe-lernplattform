@@ -11,6 +11,15 @@ Offene Ideen, grob nach Nutzen sortiert. Maßgeblich bleibt das Übungsheft der
 3. **Mehrere Profile** auf einem Gerät (Geschwister), Umschalter im
    Elternbereich.
 
+## Zurückgestellt
+
+- **Vorlesefunktion** für Aufgabentexte (`speechSynthesis`). Einmal gebaut und
+  wieder ausgebaut: Ein Teil der angebotenen Stimmen sind Online-Stimmen, die
+  den Aufgabentext an ihren Hersteller schicken – das verträgt sich schlecht
+  mit einer App, die sonst ohne Netz auskommt. Wer es erneut angeht, muss auf
+  `localService` bestehen und den Knopf ausblenden, wenn es keine solche Stimme
+  gibt. Entschieden am 23.08.2026.
+
 ## Bewusst nicht geplant
 
 - **Ganze Tabellenzeile am Stück ausfüllen.** Die Rechentabelle fragt weiterhin

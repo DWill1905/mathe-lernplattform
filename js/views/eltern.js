@@ -6,7 +6,6 @@ import { el } from "../dom.js";
 import { SCHWERPUNKT_AB } from "../gamification.js";
 import { ladeFortschritt, setzeZurueck, speichereFortschritt } from "../state.js";
 import { eingerichtet, familienCode, gleicheAb, neuerFamilienCode, normalisiereCode, setzeFamilienCode, zuletztAbgeglichen, } from "../sync.js";
-import { setzeVorlesen, vorlesenAn, vorlesenMoeglich } from "../vorlesen.js";
 import { THEMEN, istThemaId } from "../topics.js";
 /**
  * Kennungen, deren Präfix nicht wörtlich einer Themen-Id entspricht. Ohne
@@ -131,37 +130,6 @@ function fehlerkarte(fehler) {
     }), liste);
     return karte;
 }
-/**
- * Schalter für das automatische Vorlesen.
- *
- * Zweitklässler lesen noch langsam. Wer an „Auf dem Dach sitzen 14 Tauben"
- * scheitert, scheitert an der SPRACHE statt an der Mathematik. In der Übung
- * gibt es dafür immer einen Lautsprecherknopf; hier lässt sich einstellen,
- * dass jede Aufgabe von selbst vorgelesen wird.
- *
- * Standard ist AUS: Ein Gerät, das im Klassenzimmer oder abends plötzlich
- * losredet, überrascht unangenehm.
- */
-function vorleseSchalter() {
-    if (!vorlesenMoeglich()) {
-        return el("p", {
-            class: "hinweis",
-            text: "Vorlesen: Dieses Gerät bringt keine Sprachausgabe mit.",
-        });
-    }
-    const kasten = el("input", { type: "checkbox", class: "schalter", id: "vorlesen" });
-    kasten.checked = vorlesenAn();
-    kasten.addEventListener("change", () => setzeVorlesen(kasten.checked));
-    return el("div", { class: "einstellung-schalter" }, kasten, el("label", { for: "vorlesen", class: "einstellung-text" }, "Aufgaben automatisch vorlesen"), el("p", {
-        class: "hinweis",
-        text: "Die Sprachausgabe des Geräts liest den Aufgabentext vor. Die Zahleneule wählt dafür " +
-            "bevorzugt eine Stimme, die auf dem Gerät selbst läuft – manche Browser bieten auch " +
-            "Online-Stimmen an, die den Text an ihren Hersteller schicken würden. In der Übung " +
-            "geht das Vorlesen jederzeit auch von Hand über den Lautsprecherknopf. Die " +
-            "Bildbeschreibung wird bewusst NICHT vorgelesen: Sie verriete bei Uhr- und " +
-            "Formaufgaben die Lösung.",
-    }));
-}
 function einstellungen(name) {
     const nameFeld = el("input", {
         class: "eingabe",
@@ -195,7 +163,7 @@ function einstellungen(name) {
             location.reload();
         },
     });
-    const karte = el("section", { class: "karte" }, el("h2", { class: "abschnitt-titel", text: "Einstellungen" }), el("div", { class: "einstellung-zeile" }, nameFeld, speichern), vorleseSchalter(), el("p", {
+    const karte = el("section", { class: "karte" }, el("h2", { class: "abschnitt-titel", text: "Einstellungen" }), el("div", { class: "einstellung-zeile" }, nameFeld, speichern), el("p", {
         class: "hinweis",
         text: "Beim Zurücksetzen werden Punkte, Sterne, Abzeichen und alle Statistiken gelöscht.",
     }), loeschen);

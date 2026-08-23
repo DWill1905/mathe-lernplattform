@@ -563,14 +563,6 @@ body {
   margin-bottom: 0.6rem;
 }
 
-/* Abbrechen und Vorlesen gehören zusammen – sonst rutscht der Lautsprecher
-   in die Mitte der Zeile. */
-.uebung-kopf-links {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-
 .uebung-zaehler {
   display: flex;
   justify-content: space-between;
@@ -1061,51 +1053,6 @@ body {
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-bottom: 0.75rem;
-}
-
-/* ------------------------------------------------------------- Vorlesen */
-
-.einstellung-schalter {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  column-gap: 0.6rem;
-  margin-bottom: 0.75rem;
-}
-
-.einstellung-schalter .hinweis {
-  grid-column: 2;
-  margin-top: 0.25rem;
-}
-
-.schalter {
-  /* Groß genug zum sicheren Treffen – auch mit Kinderhänden. */
-  width: 1.5rem;
-  height: 1.5rem;
-  accent-color: var(--haupt);
-}
-
-.einstellung-text {
-  font-weight: 600;
-  cursor: pointer;
-}
-
-/*
- * Der Lautsprecher in der Übung. Er steht neben „Abbrechen“ und muss dort auch
- * im Querformat noch sicher zu treffen sein (siehe die 40-px-Regel).
- */
-.knopf-vorlesen {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 2.6rem;
-  min-height: 2.6rem;
-  padding: 0.35rem;
-}
-
-.vorlese-symbol {
-  width: 1.35rem;
-  height: 1.35rem;
 }
 
 .gespeichert {
@@ -1601,6 +1548,23 @@ body {
   .knopf-auswahl {
     min-height: 50px;
   }
+
+  /* Das Bonusangebot rückt zusammen – aber nie unter 40 px, das bleibt ein
+     Touch-Ziel wie jedes andere. */
+  .bonus-angebot {
+    min-height: 46px;
+    margin: 0.45rem 0;
+    padding: 0.4rem 0.7rem;
+  }
+
+  .bonus-herz {
+    width: 1.6rem;
+    height: 1.6rem;
+  }
+
+  .bonus-titel {
+    font-size: 0.95rem;
+  }
 }
 
 /* --- Querformat auf dem Handy: Anzeige und Tastenfeld nebeneinander ------ */
@@ -1669,6 +1633,32 @@ body {
 
   .bild {
     max-width: 130px;
+  }
+
+  /*
+   * Im Querformat bleibt vom Angebot die Kernzeile: Bei rund 390 px Höhe
+   * kostet der Lohn-Satz eine ganze Textzeile, und die fehlt dann dem
+   * Erklärbild. Das Herz sagt zusammen mit „Erst die Hilfsaufgabe rechnen?"
+   * genug – die Belohnung erklärt danach die Bonusseite selbst.
+   */
+  .bonus-angebot {
+    min-height: 42px;
+    margin: 0.35rem 0;
+    padding: 0.3rem 0.6rem;
+    gap: 0.5rem;
+  }
+
+  .bonus-lohn {
+    display: none;
+  }
+
+  .bonus-herz {
+    width: 1.4rem;
+    height: 1.4rem;
+  }
+
+  .bonus-titel {
+    font-size: 0.9rem;
   }
 
   .aufgabe-rechnung {
@@ -3081,23 +3071,74 @@ body {
  * unter dem Antwortbereich neben dem Tipp – nicht davor, wo er wie ein
  * Pflichtschritt aussähe.
  */
-.knopf-bonus {
-  display: inline-flex;
+/*
+ * Das Bonusangebot: „Erst die Hilfsaufgabe rechnen?"
+ *
+ * Es stand früher als kleiner Knopf UNTER dem Antwortbereich – also unter dem
+ * Tastenfeld und damit auf dem Handy regelmäßig unter dem Fensterrand. Ein
+ * Angebot, das niemand sieht, ist keins. Jetzt liegt es als breite Fläche
+ * zwischen Aufgabe und Tastenfeld und sieht auch wie ein Angebot aus: Herz
+ * links, zwei Zeilen Text, Pfeil rechts.
+ */
+.bonus-angebot {
+  display: flex;
   align-items: center;
-  gap: 0.4rem;
-  margin-top: 0.7rem;
-  border-color: color-mix(in srgb, var(--rot) 45%, var(--rand));
-  background: color-mix(in srgb, var(--rot) 10%, var(--karte));
+  gap: 0.7rem;
+  width: 100%;
+  min-height: 56px;
+  margin: 0.6rem 0;
+  padding: 0.6rem 0.85rem;
+  border: 2px solid color-mix(in srgb, var(--rot) 45%, var(--rand));
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--rot) 12%, var(--karte));
   color: var(--text);
-  font-weight: 700;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 
-.knopf-bonus:hover {
-  background: color-mix(in srgb, var(--rot) 18%, var(--karte));
+.bonus-angebot:hover {
+  border-color: var(--rot);
+  background: color-mix(in srgb, var(--rot) 20%, var(--karte));
 }
 
-.knopf-bonus .herz-klein {
+.bonus-angebot:active {
+  transform: scale(0.99);
+}
+
+.bonus-herz {
+  flex: 0 0 auto;
+  width: 1.9rem;
+  height: 1.9rem;
   color: var(--rot);
+}
+
+/* Der Text nimmt den Platz zwischen Herz und Pfeil ein. */
+.bonus-text {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.bonus-titel {
+  font-size: 1.02rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.bonus-lohn {
+  color: var(--text-leise);
+  font-size: 0.86rem;
+  line-height: 1.25;
+}
+
+.bonus-pfeil {
+  flex: 0 0 auto;
+  width: 1.3rem;
+  height: 1.3rem;
+  color: color-mix(in srgb, var(--rot) 75%, var(--text));
 }
 
 .marke-bonus {
@@ -3141,7 +3182,6 @@ body {
 body.uebung-laeuft .karte-aufgabe > .hilfszeile,
 body.uebung-laeuft .karte-aufgabe > .marke,
 body.uebung-laeuft .karte-aufgabe > .aufgabe-thema,
-body.uebung-laeuft .karte-aufgabe > .knopf-bonus,
 body.uebung-laeuft .karte-aufgabe > .knopf-tipp {
   align-self: center;
 }

@@ -4,7 +4,33 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
-## [1.27.1] – 2026-08-22
+## [1.26.0] – 2026-08-23
+
+### Geändert
+
+**Das Bonusangebot ist jetzt nicht mehr zu übersehen.** „Hilfsaufgabe selbst
+rechnen“ war ein kleiner Knopf UNTER dem Antwortbereich — also unter dem
+Tastenfeld und damit auf dem Handy regelmäßig unter dem Fensterrand. Ein
+Angebot, das niemand sieht, ist keins, und der Bonus ist der Weg, auf dem ein
+Kind sich eine schwere Aufgabe selbst erschließt.
+
+Es liegt jetzt als eigene, breite Fläche ZWISCHEN Aufgabe und Tastenfeld:
+großes Herz links, „Erst die Hilfsaufgabe rechnen?“ als Überschrift, darunter
+„Das ist freiwillig und bringt ein Herz“, rechts ein Pfeil. Damit steht es auch
+inhaltlich richtig — die Frage kommt vor dem Antworten, nicht danach.
+
+Auf flachen Bildschirmen rückt es zusammen, im Querformat entfällt die zweite
+Zeile; unter 40 px Höhe geht es nie, es bleibt ein Touch-Ziel wie jedes andere.
+
+### Entfernt
+
+**Die Vorlesefunktion ist wieder ausgebaut** (war in 1.25.0 dieses Zweigs
+hinzugekommen und ist nie erschienen). Der Grund steht in `ROADMAP.md` unter
+„Zurückgestellt“: Ein Teil der von `speechSynthesis` angebotenen Stimmen sind
+Online-Stimmen, die den Aufgabentext an ihren Hersteller schicken. Das verträgt
+sich schlecht mit einer App, die sonst vollständig ohne Netz auskommt.
+
+## [1.25.6] – 2026-08-22
 
 ### Behoben
 
@@ -22,29 +48,7 @@ eine FALSCHE Aussage auf den Bildschirm gebracht:**
   beim Fortschreiben und beim Zusammenführen zweier Geräte. Eine davon zu
   vergessen hieße, dass der Verlauf je nach Weg unterschiedlich lang wird.
 
-## [1.27.0] – 2026-08-22
-
-### Behoben
-
-**Beim Vorlesen konnte der Aufgabentext das Gerät verlassen.** Die
-Vorlesefunktion nahm die erste deutsche Stimme, die der Browser anbot. Ein Teil
-dieser Stimmen sind aber ONLINE-Stimmen: Der Browser schickt den Text dann an
-den Server des Herstellers. Bei einer App, die sonst ausdrücklich ohne Netz
-auskommt, wäre das ein stiller Wortbruch — und der Text im Elternbereich
-versprach genau das Gegenteil.
-
-Eine Stimme, die auf dem Gerät selbst läuft (`localService`), hat jetzt
-Vorrang. Der Text im Elternbereich und die README sagen außerdem klar, was
-bleibt: Gibt es nur eine Online-Stimme, wird sie benutzt — wer sichergehen
-will, lässt das Vorlesen aus.
-
-### Hinzugefügt
-
-Die Vorlesefunktion steht jetzt auch in der README — sowohl in der
-Funktionsliste als auch im Abschnitt „Datenschutz“, zusammen mit der
-Synchronisierung als zweiter Ausnahme vom Grundsatz „kein Netz“.
-
-## [1.26.5] – 2026-08-22
+## [1.25.5] – 2026-08-22
 
 ### Behoben
 
@@ -60,7 +64,11 @@ nächsten neuen Thema fällt sofort auf, dass die Beschreibung nachgezogen werde
 muss. Geprüft wird auch, dass jedes Heft-Thema in der README überhaupt
 vorkommt.
 
-## [1.26.4] – 2026-08-22
+Im Abschnitt „Datenschutz“ der README steht jetzt ausdrücklich, dass die
+Synchronisierung die einzige Ausnahme vom Grundsatz „kein Netz“ ist und
+ausdrücklich eingerichtet werden muss.
+
+## [1.25.4] – 2026-08-22
 
 ### Behoben
 
@@ -76,7 +84,7 @@ Tabstopp. Bewusst NICHT auf den Knopf selbst: Ein Kind hält eine Taste gern
 länger gedrückt, und ein fokussierter Knopf löste bei der Tastenwiederholung
 sofort aus — die Erklärung wäre weg, bevor sie gelesen ist.
 
-## [1.26.3] – 2026-08-22
+## [1.25.3] – 2026-08-22
 
 ### Behoben
 
@@ -100,7 +108,7 @@ Browserspeicher wie die Daten vom anderen Gerät:
 
 Vier Tests in `test/sicherheit.test.js` halten das fest.
 
-## [1.26.2] – 2026-08-22
+## [1.25.2] – 2026-08-22
 
 ### Behoben
 
@@ -115,7 +123,7 @@ Der Artikel kommt jetzt aus `mitArtikel()` in `figures.ts`, direkt neben der
 Formenliste. Ein Test durchsucht 15 600 erzeugte Aufgabentexte nach falschen
 Artikeln — in Fragen, Tipps, Erklärungen und Bildbeschreibungen.
 
-## [1.26.1] – 2026-08-22
+## [1.25.1] – 2026-08-22
 
 ### Behoben
 
@@ -142,7 +150,7 @@ verraten:
 - Über alle Themen: Die richtige Antwort steht gleichmäßig auf alle Plätze
   verteilt (nachgemessen, Abweichung unter 6 Prozentpunkten).
 
-## [1.26.0] – 2026-08-22
+## [1.25.0] – 2026-08-22
 
 ### Behoben
 
@@ -163,7 +171,7 @@ gezielt in etwa der Hälfte der Fälle ausgewählt.
 Ein Test hält beides fest: dass unter den Auswahl-Tabellen beide Antwortarten
 vorkommen und keine über 90 % hinaus dominiert.
 
-## [1.25.3] – 2026-08-22
+## [1.24.3] – 2026-08-22
 
 ### Entfernt
 
@@ -183,7 +191,7 @@ Ballast ist nicht nur Gewicht: Er wird mitgepflegt, mitgelesen und mitgeprüft,
 und beim Lesen sieht er aus wie eine benutzte Schnittstelle.
 `test/totercode.test.js` hält das ab jetzt fest.
 
-## [1.25.2] – 2026-08-22
+## [1.24.2] – 2026-08-22
 
 ### Behoben
 
@@ -197,7 +205,7 @@ steht. Jetzt gilt eine Regel für alles Fokussierbare.
 Zwei Tests halten das fest: dass es die allgemeine Regel gibt und dass nirgends
 ein `outline: none` ohne Ersatz steht — das klassische Loch.
 
-## [1.25.1] – 2026-08-22
+## [1.24.1] – 2026-08-22
 
 ### Behoben
 
@@ -217,42 +225,6 @@ er sonst zwischen Abbrechen und Stufenmarke.
 `test/touchziele.test.js` prüft jetzt jede `min-height` von Tasten,
 Auswahlknöpfen, kleinen Knöpfen und Mauersteinen — auch in den Media-Queries,
 wo die Versuchung am größten ist, „nur ein paar Pixel“ zu opfern.
-
-## [1.25.0] – 2026-08-22
-
-### Hinzugefügt
-
-**Vorlesefunktion** — der oberste Punkt der Roadmap. Zweitklässler lesen noch
-langsam. Wer an „Auf dem Dach sitzen 14 Tauben“ scheitert, scheitert an der
-SPRACHE und nicht an der Mathematik — und übt dann genau das Falsche.
-
-- In der Übung steht neben „Abbrechen“ ein **Lautsprecherknopf**, der die
-  Aufgabe vorliest.
-- Im Elternbereich lässt sich **automatisches Vorlesen** einschalten. Standard
-  ist aus: Ein Gerät, das im Klassenzimmer plötzlich losredet, überrascht
-  unangenehm.
-
-Benutzt wird `speechSynthesis`, die eingebaute Sprachausgabe des Geräts: keine
-neue Abhängigkeit, kein Netzaufruf, keine Daten, die das Gerät verlassen. Fehlt
-sie, fällt der Knopf ersatzlos weg.
-
-Der Kern ist die Übersetzung in einen sprechbaren Text (`src/vorlesen.ts`,
-ohne DOM und deshalb direkt geprüft):
-
-- Rechenzeichen werden Wörter: `37 + 48 =` → „37 plus 48“, `? · 5 = 30` →
-  „wie viel mal 5 ist gleich 30“. Das echte Minus (U+2212) und den Malpunkt
-  kennt sonst fast keine Stimme.
-- Auch im Fragetext und in den **Auswahlmöglichkeiten** — bei den
-  Tauschaufgaben stehen dort ganze Rechnungen. Dabei bleiben `7:30` eine
-  Uhrzeit (kein „geteilt durch“) und `10-€-Scheine` ein Bindestrich (kein
-  „minus“).
-- Einheiten werden ausgeschrieben: `3 m` → „3 Meter“, `20 ct` → „20 Cent“.
-- Die **Bildbeschreibung wird bewusst NICHT vorgelesen**: Sie ist für
-  jemanden gedacht, der das Bild nicht sieht — „Uhr, die 7:30 Uhr zeigt“
-  verriete einem Kind, das nur langsam liest, die Lösung.
-
-Ein Test liest 5850 erzeugte Aufgaben durch und lässt kein ungesprochenes
-Rechenzeichen durch.
 
 ## [1.24.0] – 2026-08-22
 

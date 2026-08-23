@@ -131,12 +131,6 @@ const FORMEN: Record<string, string> = {
     '<circle cx="8.7" cy="10.4" r="1.3" class="eule-pupille"/><circle cx="15.3" cy="10.4" r="1.3" class="eule-pupille"/>' +
     '<path d="M12 13.2 10.6 15h2.8z" class="eule-schnabel"/>' +
     '<path d="M5.2 6.2 4 3.2l3 1.4M18.8 6.2 20 3.2l-3 1.4" class="eule-ohren"/>',
-
-  /* ---------------------------------------------------------- Vorlesen */
-
-  lautsprecher:
-    '<path d="M4 9.5h3.5L12 5.5v13L7.5 14.5H4Z"/>' +
-    '<path d="M15.5 9.2a4 4 0 0 1 0 5.6M18 6.8a7.5 7.5 0 0 1 0 10.4"/>',
 };
 
 export type IconName = keyof typeof FORMEN & string;
