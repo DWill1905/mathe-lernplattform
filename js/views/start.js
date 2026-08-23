@@ -1,6 +1,7 @@
 import { el, svgBild } from "../dom.js";
 import { icon } from "../icons.js";
 import { themenbild } from "../bilder.js";
+import { euleSvg } from "../eule.js";
 import { empfehlung, levelInfo } from "../gamification.js";
 import { ladeFortschritt, speichereFortschritt } from "../state.js";
 import { HEFT_THEMEN, WEITERE_THEMEN, thema } from "../topics.js";
@@ -21,7 +22,7 @@ export const zeige = (ziel) => {
      * allem und schob die eigentliche Auswahl aus dem Bild. Level und Punkte
      * sind Beiwerk, die Themen sind die Hauptsache.
      */
-    const begruessung = el("section", { class: "karte karte-begruessung" }, el("div", { class: "begruessung-zeile" }, el("h1", {
+    const begruessungInnen = el("div", { class: "begruessung-innen" }, el("div", { class: "begruessung-zeile" }, el("h1", {
         class: "begruessung-titel",
         text: fortschritt.name ? `Hallo ${fortschritt.name}!` : "Hallo!",
     }), el("span", { class: "marke marke-level", text: `Level ${level.stufe}` })), el("div", {
@@ -32,8 +33,11 @@ export const zeige = (ziel) => {
         "aria-valuenow": String(Math.round(level.anteil * 100)),
         "aria-label": `Fortschritt bis Level ${level.stufe + 1}`,
     }, el("div", { class: "balken-fuellung", stil: { width: `${Math.round(level.anteil * 100)}%` } })), el("p", { class: "level-rest", text: `${fortschritt.punkte} Punkte · ${level.titel}` }));
+    // Die Eule begrüßt links, der Text steht rechts – sie ist Schmuck, keine
+    // Information, und bleibt deshalb ohne Beschriftung.
+    const begruessung = el("section", { class: "karte karte-begruessung" }, el("div", { class: "begruessung-eule eule-mittel eule-schwebt" }, svgBild(euleSvg("winkt"), "")), begruessungInnen);
     if (!fortschritt.name)
-        begruessung.appendChild(namensFeld());
+        begruessungInnen.appendChild(namensFeld());
     /** Ein großer Bildknopf – Bild oben, ein kurzer Titel darunter. */
     const bildknopf = (ziel_, bild, titel, klasse) => el("a", { class: `bildknopf ${klasse}`, href: ziel_ }, el("span", { class: "bildknopf-bild" }, svgBild(themenbild(bild), "")), el("span", { class: "bildknopf-titel", text: titel }));
     const schnellstart = el("section", { class: "schnellstart" }, bildknopf("#/uebung/mix", "mix", "Gemischt", "bildknopf-haupt"), bildknopf("#/puzzle", "puzzle", "Puzzle", ""), bildknopf("#/rechenmeister", "meister", "Auf Zeit", ""));

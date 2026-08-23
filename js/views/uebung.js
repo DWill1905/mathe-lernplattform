@@ -17,6 +17,7 @@ import { mulberry32, zufallsSeed } from "../random.js";
 import { PUZZLE_TEILE, puzzleBild, puzzleStaende, waehleMotiv, } from "../bilder.js";
 import { raeumeJubel, waehleJubel, zeigeJubel } from "../jubel.js";
 import { normalisiere, rechnungPasst } from "../antwort.js";
+import { euleFuerQuote, euleSvg } from "../eule.js";
 import { gleicheAb } from "../sync.js";
 import { ladeFortschritt, merkeGestellteAufgaben } from "../state.js";
 import { MEISTERLAENGE, MEISTER_THEMEN, RUNDENLAENGE, aufgabenSchluessel, gemischteRunde, runde, } from "../tasks/index.js";
@@ -827,7 +828,10 @@ function zeichneErgebnis(ziel, sitzung) {
         if (neue)
             zeichne(ziel, neue);
     };
-    const karte = el("section", { class: "karte karte-ergebnis" }, el("div", { class: "ergebnis-sterne" }, sterneAnzeige(ergebnis.sterne)), el("h1", { class: "ergebnis-titel", text: lobText(ergebnis.richtig, ergebnis.gesamt) }), el("p", {
+    const karte = el("section", { class: "karte karte-ergebnis" }, 
+    // Die Eule feiert mit – ihre Pose folgt derselben Stufe wie der Lobtext,
+    // und sie straft nie: Auch nach einer schwachen Runde macht sie nur Mut.
+    el("div", { class: "ergebnis-eule eule-gross" }, svgBild(euleSvg(euleFuerQuote(ergebnis.richtig, ergebnis.gesamt)), "")), el("div", { class: "ergebnis-sterne" }, sterneAnzeige(ergebnis.sterne)), el("h1", { class: "ergebnis-titel", text: lobText(ergebnis.richtig, ergebnis.gesamt) }), el("p", {
         class: "ergebnis-bilanz",
         text: `${ergebnis.richtig} von ${ergebnis.gesamt} Aufgaben richtig · +${ergebnis.punkte} Punkte`,
     }));

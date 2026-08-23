@@ -1,6 +1,7 @@
 import { el, svgBild } from "../dom.js";
 import { icon } from "../icons.js";
 import { themenbild } from "../bilder.js";
+import { euleSvg } from "../eule.js";
 import { empfehlung, levelInfo } from "../gamification.js";
 import { ladeFortschritt, speichereFortschritt } from "../state.js";
 import { HEFT_THEMEN, WEITERE_THEMEN, thema } from "../topics.js";
@@ -25,9 +26,9 @@ export const zeige: RouteHandler = (ziel) => {
    * allem und schob die eigentliche Auswahl aus dem Bild. Level und Punkte
    * sind Beiwerk, die Themen sind die Hauptsache.
    */
-  const begruessung = el(
-    "section",
-    { class: "karte karte-begruessung" },
+  const begruessungInnen = el(
+    "div",
+    { class: "begruessung-innen" },
     el("div", { class: "begruessung-zeile" }, el("h1", {
       class: "begruessung-titel",
       text: fortschritt.name ? `Hallo ${fortschritt.name}!` : "Hallo!",
@@ -47,7 +48,16 @@ export const zeige: RouteHandler = (ziel) => {
     el("p", { class: "level-rest", text: `${fortschritt.punkte} Punkte · ${level.titel}` })
   );
 
-  if (!fortschritt.name) begruessung.appendChild(namensFeld());
+  // Die Eule begrüßt links, der Text steht rechts – sie ist Schmuck, keine
+  // Information, und bleibt deshalb ohne Beschriftung.
+  const begruessung = el(
+    "section",
+    { class: "karte karte-begruessung" },
+    el("div", { class: "begruessung-eule eule-mittel eule-schwebt" }, svgBild(euleSvg("winkt"), "")),
+    begruessungInnen
+  );
+
+  if (!fortschritt.name) begruessungInnen.appendChild(namensFeld());
 
   /** Ein großer Bildknopf – Bild oben, ein kurzer Titel darunter. */
   const bildknopf = (ziel_: string, bild: string, titel: string, klasse: string): HTMLElement =>

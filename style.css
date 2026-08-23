@@ -850,6 +850,12 @@ body {
 
 .karte-ergebnis {
   text-align: center;
+  background: linear-gradient(170deg, var(--weich-a), var(--karte) 45%);
+}
+
+/* Die Eule steht über den Sternen – mit etwas Luft nach unten. */
+.ergebnis-eule {
+  margin-bottom: 0.4rem;
 }
 
 .ergebnis-sterne {
@@ -1853,8 +1859,8 @@ body {
 }
 
 .kopf-symbol {
-  width: 2.2rem;
-  height: 2.2rem;
+  width: 2.4rem;
+  height: 2.4rem;
 }
 
 .nav-symbol {
@@ -2053,8 +2059,29 @@ body {
 }
 
 .karte-begruessung {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
   background: linear-gradient(150deg, var(--weich-a), var(--weich-b));
   border-color: color-mix(in srgb, var(--haupt) 22%, var(--rand));
+}
+
+/* Der Text neben der Eule braucht den ganzen Rest – und darf schrumpfen. */
+.begruessung-innen {
+  flex: 1;
+  min-width: 0;
+}
+
+.begruessung-eule {
+  flex: none;
+}
+
+/* Auf sehr schmalen Handys weicht die Eule ein Stück, nie der Text. */
+@media (max-width: 380px) {
+  .begruessung-eule svg {
+    width: 72px;
+    height: 72px;
+  }
 }
 
 .begruessung-titel {

@@ -4,6 +4,22 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.31.0] – 2026-08-23
+
+### Geändert
+
+**Die Eule ist jetzt sichtbar da.**
+
+- **Startseite**: In der Begrüßungskarte winkt die Eule links neben dem
+  „Hallo“ und schwebt sanft auf und ab (bei reduzierter Bewegung steht sie
+  still). Auf sehr schmalen Handys weicht die Eule ein Stück – nie der Text.
+- **Ergebnisseite**: Über den Sternen steht die große Eule, und ihre Pose
+  folgt derselben Stufe wie der Lobtext – fehlerfreie Runde: sie jubelt mit
+  hochgerissenen Flügeln; gute Runde: sie freut sich; schwache Runde: sie
+  zeigt aufmunternd auf ein Herz. Nie eine traurige Miene.
+- Die Ergebniskarte trägt jetzt oben den weichen Violett-Verlauf, das
+  Eulen-Symbol in der Kopfzeile ist eine Spur größer.
+
 ## [1.30.0] – 2026-08-23
 
 ### Hinzugefügt
