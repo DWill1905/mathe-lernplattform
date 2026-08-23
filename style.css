@@ -2201,6 +2201,10 @@ body {
 .bild-lila {
   fill: #8b5cf6;
 }
+/* Bauch und Flügel der Eule – heller als der Körper, sonst unsichtbar. */
+.bild-lila-hell {
+  fill: #c4b5fd;
+}
 .bild-rosa {
   fill: #ec4899;
 }
@@ -2219,6 +2223,56 @@ body {
 .bild-text {
   fill: var(--bild-strich);
   font-weight: 700;
+}
+
+/* ========================================================== Die Eule */
+
+/*
+ * Größenstufen des Maskottchens (`src/eule.ts`). Das SVG hat nur seine
+ * viewBox – ohne feste Breite UND Höhe fiele es auf null zusammen (siehe
+ * die Fallstricke in CLAUDE.md und den Test in bilder.test.js).
+ */
+.eule-gross svg {
+  width: 132px;
+  height: 132px;
+}
+
+.eule-mittel svg {
+  width: 96px;
+  height: 96px;
+}
+
+.eule-klein svg {
+  width: 64px;
+  height: 64px;
+}
+
+.eule-gross,
+.eule-mittel,
+.eule-klein {
+  display: flex;
+  justify-content: center;
+}
+
+.eule-gross .bild,
+.eule-mittel .bild,
+.eule-klein .bild {
+  margin: 0;
+}
+
+/* Sanftes Schweben im Leerlauf – wenige Pixel, keine Unruhe. */
+.eule-schwebt svg {
+  animation: eule-schweben 3s ease-in-out infinite alternate;
+}
+
+@keyframes eule-schweben {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(-4px);
+  }
 }
 .bild-strich {
   fill: none;

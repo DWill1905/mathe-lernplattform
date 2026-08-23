@@ -4,6 +4,25 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.30.0] – 2026-08-23
+
+### Hinzugefügt
+
+**Die Zahleneule bekommt einen Körper** (`src/eule.ts`): Bisher existierte
+die Namensgeberin nur als winziges Kopfzeilen-Icon – gefeiert haben Hase,
+Schwein, Biene und Vogel. Der neue Baukasten setzt aus wenigen Teilen
+(Körper, Bauch, Flügel, Augen, Schnabel) fünf Posen zusammen: **winkt**,
+**jubelt**, **freut**, **mutmacht** und **schläft**. `euleFuerQuote()`
+wählt die Pose zur Trefferquote und spiegelt dabei die Lobtext-Stufen –
+NIE strafend: Auch bei null Treffern macht die Eule Mut, eine traurige
+Pose gibt es nicht (und ein Test verabredet das ausdrücklich).
+
+Gezeichnet wird wie in `bilder.ts`: reine SVG-Zeichenketten, Farben nur
+über `bild-*`-Klassen (neu: `bild-lila-hell` für Bauch und Flügel), ohne
+DOM-Zugriff und deshalb direkt testbar (`test/eule.test.js`). In den
+Ansichten taucht die Eule ab der nächsten Version auf – dieser Schritt
+liefert den Baukasten.
+
 ## [1.29.0] – 2026-08-23
 
 Erster Schritt des Redesigns „Die Zahleneule als Begleiterin“.
