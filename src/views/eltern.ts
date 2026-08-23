@@ -4,7 +4,7 @@
  */
 
 import { el } from "../dom.js";
-import { SCHWERPUNKT_AB } from "../gamification.js";
+import { SCHWERPUNKT_AB, TEMPO_AB, muehsameTypen, schwerpunkte } from "../gamification.js";
 import { ladeFortschritt, setzeZurueck, speichereFortschritt } from "../state.js";
 import {
   eingerichtet,
@@ -18,7 +18,7 @@ import {
 } from "../sync.js";
 import { THEMEN, istThemaId } from "../topics.js";
 import type { RouteHandler } from "../router.js";
-import type { Stufe, ThemaId } from "../types.js";
+import type { Fortschritt, Stufe, ThemaId } from "../types.js";
 
 /**
  * Kennungen, deren Präfix nicht wörtlich einer Themen-Id entspricht. Ohne
@@ -149,6 +149,7 @@ export const zeige: RouteHandler = (ziel) => {
     einleitung,
     uebersicht,
     fehlerkarte(fortschritt.fehler),
+    tempokarte(fortschritt),
     abgleichKarte(ziel),
     einstellungen(fortschritt.name)
   );
@@ -225,6 +226,66 @@ function fehlerkarte(fehler: Record<string, number>): HTMLElement {
         "also den aktuellen Stand, nicht alle Fehler seit Beginn.",
     }),
     liste
+  );
+  return karte;
+}
+
+/**
+ * Die Flüssigkeits-Auswertung: Aufgabenarten, die richtig, aber auffällig
+ * langsam gelöst werden. Richtig ist nicht gleich sicher – wer 7 · 8 erst
+ * nach zwanzig Sekunden hat, zählt noch, statt abzurufen.
+ *
+ * Diese Zeiten stehen NUR hier. Das Kind bekommt nie eine Uhr zu sehen.
+ */
+function tempokarte(fortschritt: Fortschritt): HTMLElement {
+  const karte = el(
+    "section",
+    { class: "karte" },
+    el("h2", { class: "abschnitt-titel", text: "Richtig, aber langsam" })
+  );
+  const befunde = muehsameTypen(fortschritt);
+
+  if (befunde.length === 0) {
+    karte.appendChild(
+      el("p", {
+        class: "hinweis",
+        text:
+          "Keine Auffälligkeiten: Was oft genug geübt wurde, geht ähnlich flott von der Hand " +
+          "wie vergleichbare Aufgaben.",
+      })
+    );
+  } else {
+    // Ob eine Art wirklich häufiger drankommt, entscheidet `schwerpunkte()` –
+    // Fehler gehen vor, und die Plätze sind begrenzt. Die Karte darf nur
+    // behaupten, was dort tatsächlich gewählt wurde.
+    const wiederholt = schwerpunkte(fortschritt);
+    const liste = el("ul", { class: "liste" });
+    for (const befund of befunde) {
+      liste.appendChild(
+        el(
+          "li",
+          {},
+          el("strong", { text: fehlerText(befund.typ) }),
+          ` – etwa ${Math.round(befund.sekunden)} Sekunden, vergleichbare Aufgaben brauchen ` +
+            `etwa ${Math.round(befund.ueblich)}`,
+          wiederholt.has(befund.typ)
+            ? el("span", { class: "marke marke-heft", text: "wird wiederholt" })
+            : null
+        )
+      );
+    }
+    karte.append(liste);
+  }
+
+  karte.appendChild(
+    el("p", {
+      class: "hinweis",
+      text:
+        "Gemessen wird nur bei richtigen Antworten und erst ab " +
+        `${TEMPO_AB} Messungen je Aufgabenart; verglichen wird immer mit ähnlichen Aufgaben ` +
+        "desselben Themas. Dem Kind werden keine Zeiten angezeigt – langsame Arten kommen " +
+        "einfach häufiger dran, bis sie flüssig sitzen.",
+    })
   );
   return karte;
 }

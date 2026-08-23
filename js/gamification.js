@@ -2,7 +2,7 @@
  * Punkte, Level, Sterne, Streak und Abzeichen. Alles rein aus dem
  * gespeicherten Fortschritt berechnet – es gibt keinen zweiten Zustand.
  */
-import { MAX_VERLAUF, heute, speichereFortschritt, tagesSchluessel } from "./state.js";
+import { MAX_VERLAUF, TEMPO_MAX_SEKUNDEN, heute, speichereFortschritt, tagesSchluessel } from "./state.js";
 import { HEFT_THEMEN, THEMEN } from "./topics.js";
 /* ================================================================ Level */
 const LEVEL_TITEL = [
@@ -172,6 +172,80 @@ export const ERFOLGE = [
         erreicht: (f) => levelInfo(f.punkte).stufe >= 5,
     },
 ];
+/**
+ * Neues zählt 30 %: Ein einzelner Ausreißer (kurz abgelenkt, Trinkpause)
+ * verschiebt den Mittelwert nur ein Stück, echte Übung zieht ihn trotzdem
+ * zügig nach unten.
+ */
+const TEMPO_GLAETTUNG = 0.3;
+const TEMPO_MAX_ANZAHL = 999;
+/** Schreibt die geglättete Antwortzeit je Aufgabentyp fort. */
+export function bucheTempo(f, zeiten) {
+    for (const { typ, sekunden } of zeiten) {
+        // Null, negativ (verstellte Uhr) oder Unsinn wird nicht gebucht; alles
+        // über der Obergrenze war eine Pause und wird auf sie gekappt.
+        if (!Number.isFinite(sekunden) || sekunden <= 0)
+            continue;
+        const wert = Math.min(sekunden, TEMPO_MAX_SEKUNDEN);
+        const alt = f.tempo[typ];
+        if (!alt) {
+            f.tempo[typ] = { sekunden: zehntel(wert), anzahl: 1 };
+            continue;
+        }
+        alt.sekunden = zehntel(alt.sekunden + TEMPO_GLAETTUNG * (wert - alt.sekunden));
+        alt.anzahl = Math.min(alt.anzahl + 1, TEMPO_MAX_ANZAHL);
+    }
+}
+/** Auf Zehntel runden – mehr Genauigkeit gaukelt nur Messschärfe vor. */
+function zehntel(wert) {
+    return Math.round(wert * 10) / 10;
+}
+/** Erst ab so vielen Messungen ist ein Mittelwert eine Aussage. */
+export const TEMPO_AB = 3;
+/**
+ * Ab dem Anderthalbfachen der üblichen Zeit UND mindestens drei Sekunden
+ * darüber gilt ein Typ als mühsam. Der Faktor allein reichte nicht: Bei
+ * schnellen Typen (3 s gegen 4,5 s) wäre er längst Rauschen.
+ */
+const MUEHSAM_FAKTOR = 1.5;
+const MUEHSAM_ABSTAND = 3;
+/**
+ * Aufgabentypen, die richtig, aber auffällig langsam gelöst werden.
+ *
+ * Verglichen wird IMMER nur innerhalb desselben Bereichs (dem Teil vor dem
+ * `/`): Eine Sachaufgabe braucht auch flüssig gelöst eine halbe Minute, weil
+ * gelesen werden muss – gegen das Einmaleins gehalten wäre jede davon
+ * „langsam“. Erst gegen ihresgleichen wird eine Zeit zur Aussage. Feste
+ * Sekundengrenzen je Thema wären die Alternative gewesen; die veralten aber
+ * mit jedem Gerät und jedem Kind, der Vergleich mit den Geschwister-Typen nie.
+ */
+export function muehsameTypen(f, anzahl = 8) {
+    const reif = Object.entries(f.tempo).filter(([, t]) => t.anzahl >= TEMPO_AB);
+    const proBereich = new Map();
+    for (const [typ, t] of reif) {
+        const bereich = typ.split("/")[0] ?? "";
+        proBereich.set(bereich, [...(proBereich.get(bereich) ?? []), t.sekunden]);
+    }
+    const ueblich = new Map();
+    for (const [bereich, werte] of proBereich)
+        ueblich.set(bereich, median(werte));
+    return reif
+        .map(([typ, t]) => ({
+        typ,
+        sekunden: t.sekunden,
+        ueblich: ueblich.get(typ.split("/")[0] ?? "") ?? t.sekunden,
+    }))
+        .filter((b) => b.sekunden >= b.ueblich * MUEHSAM_FAKTOR && b.sekunden >= b.ueblich + MUEHSAM_ABSTAND)
+        .sort((a, b) => b.sekunden - b.ueblich - (a.sekunden - a.ueblich))
+        .slice(0, anzahl);
+}
+function median(werte) {
+    const sortiert = [...werte].sort((a, b) => a - b);
+    const mitte = Math.floor(sortiert.length / 2);
+    if (sortiert.length % 2 === 1)
+        return sortiert[mitte];
+    return (sortiert[mitte - 1] + sortiert[mitte]) / 2;
+}
 /* ==================================================== Fehlerschwerpunkte */
 /**
  * Schreibt die Fehlerbilanz fort. Jeder Fehler zählt hoch, jede richtige
@@ -192,15 +266,24 @@ function buchefehler(f, falsch, richtig) {
 /** Wie oft ein Fehlertyp auftreten muss, bevor er gezielt wiederholt wird. */
 export const SCHWERPUNKT_AB = 2;
 /**
- * Aufgabentypen, die gezielt wiederholt werden sollen: die häufigsten
- * Fehlerarten. Eine leere Menge heißt „nichts Besonderes üben“.
+ * Aufgabentypen, die gezielt wiederholt werden sollen: zuerst die häufigsten
+ * Fehlerarten, danach füllen die mühsamen Typen (richtig, aber auffällig
+ * langsam) die freien Plätze. Fehler gehen vor – wo etwas FALSCH läuft, ist
+ * Wiederholung dringender als dort, wo es nur zäh läuft. Eine leere Menge
+ * heißt „nichts Besonderes üben“.
  */
 export function schwerpunkte(f, anzahl = 8) {
-    return new Set(Object.entries(f.fehler)
+    const gewaehlt = new Set(Object.entries(f.fehler)
         .filter(([, wie_oft]) => wie_oft >= SCHWERPUNKT_AB)
         .sort((a, b) => b[1] - a[1])
         .slice(0, anzahl)
         .map(([typ]) => typ));
+    for (const befund of muehsameTypen(f)) {
+        if (gewaehlt.size >= anzahl)
+            break;
+        gewaehlt.add(befund.typ);
+    }
+    return gewaehlt;
 }
 /* =========================================================== Auswertung */
 function gestern() {
@@ -261,6 +344,7 @@ export function werteRundeAus(f, eingabe) {
     f.punkte += punkte;
     f.herzen += eingabe.herzen;
     buchefehler(f, eingabe.fehlerTypen, eingabe.richtigeTypen);
+    bucheTempo(f, eingabe.zeiten ?? []);
     streakFortschreiben(f);
     verlaufFortschreiben(f, eingabe.richtig, eingabe.gesamt);
     for (const erfolg of ERFOLGE) {
@@ -331,6 +415,7 @@ export function werteMixAus(f, eingabe) {
     f.punkte += punkte;
     f.herzen += eingabe.herzen;
     buchefehler(f, eingabe.fehlerTypen, eingabe.richtigeTypen);
+    bucheTempo(f, eingabe.zeiten ?? []);
     streakFortschreiben(f);
     verlaufFortschreiben(f, eingabe.richtig, eingabe.gesamt);
     for (const erfolg of ERFOLGE) {

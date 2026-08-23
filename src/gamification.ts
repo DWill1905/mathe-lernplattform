@@ -3,7 +3,7 @@
  * gespeicherten Fortschritt berechnet – es gibt keinen zweiten Zustand.
  */
 
-import { MAX_VERLAUF, heute, speichereFortschritt, tagesSchluessel } from "./state.js";
+import { MAX_VERLAUF, TEMPO_MAX_SEKUNDEN, heute, speichereFortschritt, tagesSchluessel } from "./state.js";
 import { HEFT_THEMEN, THEMEN } from "./topics.js";
 import type { Fortschritt, RundenErgebnis, Stufe, ThemaId } from "./types.js";
 
@@ -203,6 +203,113 @@ export const ERFOLGE: readonly Erfolg[] = [
   },
 ];
 
+/* ============================================================ Tempo */
+
+/**
+ * Die Flüssigkeits-Bilanz: Richtig ist nicht gleich sicher. Ein Kind, das
+ * 7 · 8 erst nach zwanzig Sekunden hat, zählt noch, statt abzurufen – genau
+ * das soll in der 2. Klasse verschwinden. Deshalb merkt sich die App je
+ * Aufgabentyp, wie lange RICHTIGE Antworten dauern; falsche sagen über die
+ * Sicherheit nichts und stehen schon in der Fehlerbilanz.
+ *
+ * Die Zeiten sieht nur der Elternbereich. Dem Kind werden sie NIE gezeigt –
+ * eine tickende Uhr neben jeder Aufgabe wäre Druck, keine Hilfe.
+ */
+
+/** Eine gemessene richtige Antwort: welcher Typ, wie viele Sekunden. */
+export interface TempoMessung {
+  typ: string;
+  sekunden: number;
+}
+
+/**
+ * Neues zählt 30 %: Ein einzelner Ausreißer (kurz abgelenkt, Trinkpause)
+ * verschiebt den Mittelwert nur ein Stück, echte Übung zieht ihn trotzdem
+ * zügig nach unten.
+ */
+const TEMPO_GLAETTUNG = 0.3;
+const TEMPO_MAX_ANZAHL = 999;
+
+/** Schreibt die geglättete Antwortzeit je Aufgabentyp fort. */
+export function bucheTempo(f: Fortschritt, zeiten: readonly TempoMessung[]): void {
+  for (const { typ, sekunden } of zeiten) {
+    // Null, negativ (verstellte Uhr) oder Unsinn wird nicht gebucht; alles
+    // über der Obergrenze war eine Pause und wird auf sie gekappt.
+    if (!Number.isFinite(sekunden) || sekunden <= 0) continue;
+    const wert = Math.min(sekunden, TEMPO_MAX_SEKUNDEN);
+    const alt = f.tempo[typ];
+    if (!alt) {
+      f.tempo[typ] = { sekunden: zehntel(wert), anzahl: 1 };
+      continue;
+    }
+    alt.sekunden = zehntel(alt.sekunden + TEMPO_GLAETTUNG * (wert - alt.sekunden));
+    alt.anzahl = Math.min(alt.anzahl + 1, TEMPO_MAX_ANZAHL);
+  }
+}
+
+/** Auf Zehntel runden – mehr Genauigkeit gaukelt nur Messschärfe vor. */
+function zehntel(wert: number): number {
+  return Math.round(wert * 10) / 10;
+}
+
+/** Erst ab so vielen Messungen ist ein Mittelwert eine Aussage. */
+export const TEMPO_AB = 3;
+
+/**
+ * Ab dem Anderthalbfachen der üblichen Zeit UND mindestens drei Sekunden
+ * darüber gilt ein Typ als mühsam. Der Faktor allein reichte nicht: Bei
+ * schnellen Typen (3 s gegen 4,5 s) wäre er längst Rauschen.
+ */
+const MUEHSAM_FAKTOR = 1.5;
+const MUEHSAM_ABSTAND = 3;
+
+export interface TempoBefund {
+  typ: string;
+  /** Geglättete Zeit dieses Typs in Sekunden. */
+  sekunden: number;
+  /** Übliche Zeit (Median) der Typen desselben Bereichs. */
+  ueblich: number;
+}
+
+/**
+ * Aufgabentypen, die richtig, aber auffällig langsam gelöst werden.
+ *
+ * Verglichen wird IMMER nur innerhalb desselben Bereichs (dem Teil vor dem
+ * `/`): Eine Sachaufgabe braucht auch flüssig gelöst eine halbe Minute, weil
+ * gelesen werden muss – gegen das Einmaleins gehalten wäre jede davon
+ * „langsam“. Erst gegen ihresgleichen wird eine Zeit zur Aussage. Feste
+ * Sekundengrenzen je Thema wären die Alternative gewesen; die veralten aber
+ * mit jedem Gerät und jedem Kind, der Vergleich mit den Geschwister-Typen nie.
+ */
+export function muehsameTypen(f: Fortschritt, anzahl = 8): TempoBefund[] {
+  const reif = Object.entries(f.tempo).filter(([, t]) => t.anzahl >= TEMPO_AB);
+
+  const proBereich = new Map<string, number[]>();
+  for (const [typ, t] of reif) {
+    const bereich = typ.split("/")[0] ?? "";
+    proBereich.set(bereich, [...(proBereich.get(bereich) ?? []), t.sekunden]);
+  }
+  const ueblich = new Map<string, number>();
+  for (const [bereich, werte] of proBereich) ueblich.set(bereich, median(werte));
+
+  return reif
+    .map(([typ, t]) => ({
+      typ,
+      sekunden: t.sekunden,
+      ueblich: ueblich.get(typ.split("/")[0] ?? "") ?? t.sekunden,
+    }))
+    .filter((b) => b.sekunden >= b.ueblich * MUEHSAM_FAKTOR && b.sekunden >= b.ueblich + MUEHSAM_ABSTAND)
+    .sort((a, b) => b.sekunden - b.ueblich - (a.sekunden - a.ueblich))
+    .slice(0, anzahl);
+}
+
+function median(werte: readonly number[]): number {
+  const sortiert = [...werte].sort((a, b) => a - b);
+  const mitte = Math.floor(sortiert.length / 2);
+  if (sortiert.length % 2 === 1) return sortiert[mitte]!;
+  return (sortiert[mitte - 1]! + sortiert[mitte]!) / 2;
+}
+
 /* ==================================================== Fehlerschwerpunkte */
 
 /**
@@ -223,17 +330,25 @@ function buchefehler(f: Fortschritt, falsch: readonly string[], richtig: readonl
 export const SCHWERPUNKT_AB = 2;
 
 /**
- * Aufgabentypen, die gezielt wiederholt werden sollen: die häufigsten
- * Fehlerarten. Eine leere Menge heißt „nichts Besonderes üben“.
+ * Aufgabentypen, die gezielt wiederholt werden sollen: zuerst die häufigsten
+ * Fehlerarten, danach füllen die mühsamen Typen (richtig, aber auffällig
+ * langsam) die freien Plätze. Fehler gehen vor – wo etwas FALSCH läuft, ist
+ * Wiederholung dringender als dort, wo es nur zäh läuft. Eine leere Menge
+ * heißt „nichts Besonderes üben“.
  */
 export function schwerpunkte(f: Fortschritt, anzahl = 8): Set<string> {
-  return new Set(
+  const gewaehlt = new Set(
     Object.entries(f.fehler)
       .filter(([, wie_oft]) => wie_oft >= SCHWERPUNKT_AB)
       .sort((a, b) => b[1] - a[1])
       .slice(0, anzahl)
       .map(([typ]) => typ)
   );
+  for (const befund of muehsameTypen(f)) {
+    if (gewaehlt.size >= anzahl) break;
+    gewaehlt.add(befund.typ);
+  }
+  return gewaehlt;
 }
 
 /* =========================================================== Auswertung */
@@ -287,6 +402,8 @@ export interface RundenEingabe {
   richtigeTypen: readonly string[];
   /** Selbst gelöste Hilfsaufgaben. */
   herzen: number;
+  /** Antwortzeiten der richtigen Antworten, für die Tempo-Bilanz. */
+  zeiten?: readonly TempoMessung[];
 }
 
 /**
@@ -313,6 +430,7 @@ export function werteRundeAus(f: Fortschritt, eingabe: RundenEingabe): RundenErg
   f.punkte += punkte;
   f.herzen += eingabe.herzen;
   buchefehler(f, eingabe.fehlerTypen, eingabe.richtigeTypen);
+  bucheTempo(f, eingabe.zeiten ?? []);
   streakFortschreiben(f);
   verlaufFortschreiben(f, eingabe.richtig, eingabe.gesamt);
 
@@ -378,6 +496,8 @@ export interface MixEingabe {
   besteSerie: number;
   /** Selbst gelöste Hilfsaufgaben. */
   herzen: number;
+  /** Antwortzeiten der richtigen Antworten, für die Tempo-Bilanz. */
+  zeiten?: readonly TempoMessung[];
 }
 
 /**
@@ -396,6 +516,7 @@ export function werteMixAus(f: Fortschritt, eingabe: MixEingabe): RundenErgebnis
   f.punkte += punkte;
   f.herzen += eingabe.herzen;
   buchefehler(f, eingabe.fehlerTypen, eingabe.richtigeTypen);
+  bucheTempo(f, eingabe.zeiten ?? []);
   streakFortschreiben(f);
   verlaufFortschreiben(f, eingabe.richtig, eingabe.gesamt);
 

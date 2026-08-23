@@ -109,9 +109,9 @@ export function zuletztAbgeglichen() {
  * - **Gesammeltes** wächst nur: Punkte, Herzen, gelöste Puzzles, Erfolge,
  *   Sterne, beste Serien, gezählte Aufgaben. Hier gewinnt der größere Wert,
  *   und es kann nichts verloren gehen.
- * - **Der aktuelle Stand** beschreibt das Jetzt: Name, Streak, Fehlerbilanz,
- *   zuletzt gestellte Aufgaben – und die **Stufe**. Hier gewinnt das Gerät,
- *   auf dem zuletzt geübt wurde.
+ * - **Der aktuelle Stand** beschreibt das Jetzt: Name, Streak, Fehler- und
+ *   Tempo-Bilanz, zuletzt gestellte Aufgaben – und die **Stufe**. Hier gewinnt
+ *   das Gerät, auf dem zuletzt geübt wurde.
  *
  * Die Stufe gehört ausdrücklich zur zweiten Gruppe: Sie kann sinken, damit ein
  * alter Höchststand ein Kind nicht dauerhaft überfordert (siehe
@@ -150,6 +150,7 @@ export function verschmelze(a, b) {
         letzterTag: frisch.letzterTag,
         verlauf: verschmelzeVerlauf(a.verlauf, b.verlauf),
         fehler: frisch.fehler,
+        tempo: frisch.tempo,
         meister: {
             besteTreffer: Math.max(a.meister.besteTreffer, b.meister.besteTreffer),
             // Bei der Zeit ist WENIGER besser – aber 0 heißt „noch keine“.

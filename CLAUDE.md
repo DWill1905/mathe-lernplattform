@@ -56,7 +56,8 @@ verwässern.
 - `src/figures.ts` – Erklärbilder als SVG-Zeichenketten, ohne DOM-Zugriff und
   deshalb direkt testbar.
 - `src/gamification.ts` – Punkte, Level, Sterne, Herzen, Streak, Abzeichen,
-  Stufenanpassung.
+  Stufenanpassung – und die Tempo-Bilanz (`bucheTempo`, `muehsameTypen`):
+  geglättete Antwortzeiten RICHTIGER Antworten je Aufgabentyp.
 - `cloudflare/worker.js` – die Gegenstelle, läuft bei Cloudflare. Die
   KV-Bindung darf `STAND` **oder** `KV` heißen (Cloudflares Beispiel nennt sie
   `KV`); fehlt sie ganz, antwortet der Worker mit einer Anleitung statt eines
@@ -231,6 +232,17 @@ verwässern.
   Falsche Antworten zählen hoch, richtige derselben Art wieder herunter. Wer
   eine neue Auswertung darauf baut, darf sie nicht als „Fehler seit Beginn“
   auslegen.
+- **Die Tempo-Bilanz (`fortschritt.tempo`) zählt NUR richtige Antworten** –
+  wie lange eine falsche dauert, sagt über die Sicherheit nichts. Sie ist ein
+  geglätteter Mittelwert, kein Verlauf. Langsam ist ein Typ nie absolut,
+  sondern nur im Vergleich zum Median SEINES Bereichs (Teil vor dem `/`):
+  Eine Sachaufgabe braucht auch flüssig gelöst lange, weil gelesen werden
+  muss – gegen das Einmaleins gehalten wäre jede davon „langsam“. Und die
+  Zeiten sieht ausschließlich der Elternbereich: Dem Kind NIE eine Uhr oder
+  Zeitangabe zeigen, das wäre Druck statt Hilfe. Tipp und Bonus halten die
+  Messung bewusst nicht an – wer die Hilfsaufgabe braucht, löst die Aufgabe
+  eben (noch) nicht flüssig. Beim Abgleich kommt `tempo` wie `fehler` vom
+  zuletzt benutzten Gerät, nicht als Maximum.
 - **Drei Antwortarten**: `zahl` (Zahlentastatur), `auswahl` (Textknöpfe) und
   `bildauswahl` (Bildkarten A–D; die Lösung ist die Kennung, nicht das Bild).
   Wer eine vierte ergänzt, muss `antwortbereich()` in `views/uebung.ts` und

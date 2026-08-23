@@ -4,6 +4,37 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.27.0] – 2026-08-23
+
+### Hinzugefügt
+
+**Die App unterscheidet jetzt „richtig“ von „sicher“.** Ein Kind, das 7 · 8
+erst nach zwanzig Sekunden hat, zählt noch, statt abzurufen – genau das soll
+in der 2. Klasse verschwinden, und genau das war bisher unsichtbar: Die App
+maß nur richtig/falsch und warf die Antwortzeit weg.
+
+Jetzt merkt sie sich je Aufgabenart, wie lange RICHTIGE Antworten dauern
+(geglätteter Mittelwert; falsche Antworten stehen schon in der Fehlerbilanz
+und sagen über die Sicherheit nichts). Daraus folgt zweierlei:
+
+- **Elternbereich, neue Karte „Richtig, aber langsam“**: Aufgabenarten, die
+  deutlich länger brauchen als vergleichbare Arten desselben Themas.
+  Verglichen wird bewusst NUR innerhalb des Themas – eine Sachaufgabe braucht
+  auch flüssig gelöst eine halbe Minute, weil gelesen werden muss; gegen das
+  Einmaleins gehalten wäre jede davon „langsam“.
+- **Die Schwerpunkt-Wiederholung übt Zähes mit**: Freie Plätze, die keine
+  Fehlerart braucht, füllen jetzt die langsamen Arten. Fehler gehen weiter
+  vor – wo etwas falsch läuft, ist Wiederholung dringender als dort, wo es
+  nur zäh läuft.
+
+Das Kind bekommt davon nichts zu sehen: keine Uhr, keine Zeitangabe, kein
+Druck – langsame Arten kommen einfach häufiger dran, bis sie flüssig sitzen.
+Messungen über einer Minute gelten als Pause (Tablet weggelegt) und werden
+gekappt; gewertet wird eine Art erst ab drei Messungen. Beim Geräte-Abgleich
+wandert die Tempo-Bilanz wie Fehlerbilanz und Stufe vom zuletzt benutzten
+Gerät. Gespeicherte und fremde Daten laufen wie alles andere durch die
+Prüfung in `state.ts`.
+
 ## [1.26.0] – 2026-08-23
 
 ### Geändert

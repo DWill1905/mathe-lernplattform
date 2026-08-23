@@ -24,6 +24,14 @@ const MAX_PUNKTE = 9_999_999;
 export const MAX_VERLAUF = 90;
 const MAX_FEHLERTYPEN = 300;
 const MAX_NAME = 20;
+/**
+ * Länger als eine Minute ist keine Messung mehr, sondern eine Pause (Tablet
+ * weggelegt, Abendessen). Gilt beim Buchen UND beim Laden – sonst könnte ein
+ * manipulierter Wert die Tempo-Bilanz eines Typs dauerhaft verzerren.
+ */
+export const TEMPO_MAX_SEKUNDEN = 60;
+const MAX_TEMPO_TYPEN = 300;
+const MAX_TEMPO_ANZAHL = 999;
 /** Sechs Runden Gedächtnis – mehr bringt nichts und kostet nur Speicher. */
 const MAX_LETZTE = 60;
 /** Ein Kurzschlüssel ist ein 32-Bit-Wert in Basis 36, also nie länger. */
@@ -61,6 +69,7 @@ export function standardFortschritt(): Fortschritt {
     letzterTag: "",
     verlauf: [],
     fehler: {},
+    tempo: {},
     meister: { besteZeit: 0, besteTreffer: 0 },
     herzen: 0,
     puzzleGeloest: 0,
@@ -156,6 +165,8 @@ export function pruefeFortschritt(roh: unknown): Fortschritt {
     for (const [typ, anzahl] of geprueft) fehler[typ] = anzahl;
   }
 
+  const tempo = tempoAus(daten["tempo"]);
+
   const rohMeister = (daten["meister"] ?? {}) as Record<string, unknown>;
   const meister = {
     // Eine Bestzeit von über zwei Stunden ist keine – dann lieber „noch keine“.
@@ -172,11 +183,43 @@ export function pruefeFortschritt(roh: unknown): Fortschritt {
     letzterTag: istDatum(daten["letzterTag"]) ? daten["letzterTag"] : "",
     verlauf,
     fehler,
+    tempo,
     meister,
     herzen: ganzeZahl(daten["herzen"], 0, MAX_PUNKTE, 0),
     puzzleGeloest: ganzeZahl(daten["puzzleGeloest"], 0, MAX_PUNKTE, 0),
     letzteAufgaben: schluesselListe(daten["letzteAufgaben"]),
   };
+}
+
+/**
+ * Prüft die Tempo-Bilanz. Die Zeiten sind die einzigen Kommazahlen im ganzen
+ * Spielstand – `ganzeZahl()` würde sie stillschweigend abrunden und die
+ * Glättung Schritt für Schritt verfälschen. Beim Kappen überleben wie bei der
+ * Fehlerbilanz die aussagekräftigsten Einträge: die mit den meisten Messungen.
+ */
+function tempoAus(wert: unknown): Fortschritt["tempo"] {
+  const tempo: Fortschritt["tempo"] = {};
+  if (typeof wert !== "object" || wert === null) return tempo;
+
+  const geprueft: [string, { sekunden: number; anzahl: number }][] = [];
+  for (const [typ, roh] of Object.entries(wert)) {
+    if (typeof roh !== "object" || roh === null) continue;
+    const eintrag = roh as Record<string, unknown>;
+    const sekunden = kommazahl(eintrag["sekunden"], TEMPO_MAX_SEKUNDEN);
+    const anzahl = ganzeZahl(eintrag["anzahl"], 1, MAX_TEMPO_ANZAHL, 0);
+    if (sekunden === null || anzahl === 0) continue;
+    geprueft.push([typ.slice(0, 60), { sekunden, anzahl }]);
+  }
+  geprueft.sort((a, b) => b[1].anzahl - a[1].anzahl);
+  for (const [typ, eintrag] of geprueft.slice(0, MAX_TEMPO_TYPEN)) tempo[typ] = eintrag;
+  return tempo;
+}
+
+/** Eine positive Kommazahl bis `max`, auf Zehntel gerundet – sonst `null`. */
+function kommazahl(wert: unknown, max: number): number | null {
+  if (typeof wert !== "number" || !Number.isFinite(wert)) return null;
+  if (wert <= 0 || wert > max) return null;
+  return Math.round(wert * 10) / 10;
 }
 
 /**

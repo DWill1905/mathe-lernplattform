@@ -124,6 +124,13 @@ export interface Fortschritt {
   verlauf: { tag: string; richtig: number; gesamt: number }[];
   /** Aufgabentyp → Anzahl Fehler, für den Elternbereich. */
   fehler: Record<string, number>;
+  /**
+   * Aufgabentyp → geglättete Antwortzeit RICHTIGER Antworten in Sekunden und
+   * wie viele Messungen eingeflossen sind. Sagt, was nur mühsam richtig ist –
+   * der Elternbereich zeigt es, und die Schwerpunkt-Wiederholung nutzt es.
+   * Das Kind bekommt diese Zeiten NIE zu sehen.
+   */
+  tempo: Record<string, { sekunden: number; anzahl: number }>;
   /** Bestwerte des Rechenmeisters (Zeit in Sekunden, 0 = noch keiner). */
   meister: { besteZeit: number; besteTreffer: number };
   /** Gesammelte Herzen aus selbst gelösten Hilfsaufgaben. */

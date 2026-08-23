@@ -22,6 +22,7 @@ import {
   werteRundeAus,
   zeitText,
   type MixEingabe,
+  type TempoMessung,
 } from "../gamification.js";
 import { mulberry32, zufallsSeed } from "../random.js";
 import {
@@ -66,6 +67,15 @@ interface Sitzung {
   jubelStart: number;
   /** Startzeitpunkt in Millisekunden – nur im Rechenmeister genutzt. */
   startZeit: number;
+  /**
+   * Wann die LAUFENDE Aufgabe zum ersten Mal auf dem Schirm stand. Tipp und
+   * Bonus halten die Zeit bewusst nicht an: Wer die Hilfsaufgabe braucht,
+   * löst die Aufgabe eben (noch) nicht flüssig – genau das soll die
+   * Tempo-Bilanz festhalten.
+   */
+  aufgabeStart: number;
+  /** Antwortzeiten der richtigen Antworten, für die Tempo-Bilanz. */
+  zeiten: TempoMessung[];
   stufe: Stufe;
   eintraege: Eintrag[];
   index: number;
@@ -273,6 +283,8 @@ function neueSitzung(
     jubelZaehler: 0,
     jubelStart: Math.abs(zufallsSeed()) % 7,
     startZeit: Date.now(),
+    aufgabeStart: Date.now(),
+    zeiten: [],
     stufe,
     eintraege,
     index: 0,
@@ -948,6 +960,8 @@ function rueckmeldung(ziel: HTMLElement, sitzung: Sitzung, schritt: Schritt): HT
       sitzung.eingabe = "";
       sitzung.index++;
       aufgabeZuruecksetzen(sitzung);
+      // Die Zeit der nächsten Aufgabe läuft ab jetzt, nicht seit Rundenbeginn.
+      sitzung.aufgabeStart = Date.now();
     }
     zeichne(ziel, sitzung);
   };
@@ -1029,6 +1043,12 @@ function pruefe(ziel: HTMLElement, sitzung: Sitzung, antwort: string): void {
     sitzung.serie++;
     sitzung.besteSerie = Math.max(sitzung.besteSerie, sitzung.serie);
     sitzung.richtigeTypen.push(eintrag.aufgabe.typ);
+    // Nur richtige Antworten kommen in die Tempo-Bilanz: Wie lange eine
+    // FALSCHE dauert, sagt über die Sicherheit nichts.
+    sitzung.zeiten.push({
+      typ: eintrag.aufgabe.typ,
+      sekunden: (Date.now() - sitzung.aufgabeStart) / 1000,
+    });
     jubele(sitzung);
   } else {
     sitzung.serie = 0;
@@ -1068,6 +1088,7 @@ function zeichneErgebnis(ziel: HTMLElement, sitzung: Sitzung): void {
       fehlerTypen: sitzung.fehlerTypen,
       richtigeTypen: sitzung.richtigeTypen,
       herzen: sitzung.herzen,
+      zeiten: sitzung.zeiten,
     });
   } else {
     const proThema = new Map<ThemaId, { richtig: number; gesamt: number }>();
@@ -1085,6 +1106,7 @@ function zeichneErgebnis(ziel: HTMLElement, sitzung: Sitzung): void {
       richtigeTypen: sitzung.richtigeTypen,
       besteSerie: sitzung.besteSerie,
       herzen: sitzung.herzen,
+      zeiten: sitzung.zeiten,
     };
     if (sitzung.puzzle && sitzung.richtig === sitzung.eintraege.length) {
       fortschritt.puzzleGeloest++;

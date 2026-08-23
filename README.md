@@ -56,6 +56,11 @@ von Hand setzen.
 - **Gezielte Fehlerwiederholung**: Aufgabenarten, bei denen es zuletzt hakte,
   kommen häufiger dran – und verschwinden wieder aus der Wiederholung, sobald
   sie sitzen.
+- **Flüssigkeit statt nur richtig/falsch**: Die App merkt sich je Aufgabenart,
+  wie lange richtige Antworten dauern. Was auffällig länger braucht als
+  vergleichbare Aufgaben desselben Themas, steht im Elternbereich unter
+  „Richtig, aber langsam“ und wird wie eine Fehlerart häufiger geübt. Das Kind
+  sieht dabei nie eine Uhr.
 - **Tipps** zu jeder Aufgabe, die das Kind selbst aufklappen kann.
 - **Hilfsaufgabe als Bonus**: Bei Rechentricks und Umkehraufgaben steht die
   eigentliche Aufgabe da – wer mag, schreibt die passende Hilfsaufgabe **ganz
@@ -72,7 +77,8 @@ von Hand setzen.
 - **Punkte, Level, Sterne, Tagesserie und fünfzehn Abzeichen** als Motivation.
 - **Fortschrittsseite** mit Trefferquoten je Thema und einer Übersicht der
   letzten zwei Wochen.
-- **Elternbereich** mit Lernstandstabelle und den häufigsten Fehlerarten.
+- **Elternbereich** mit Lernstandstabelle, den häufigsten Fehlerarten und der
+  Tempo-Auswertung „Richtig, aber langsam“.
 - **Vollständig offlinefähig**: Nach dem ersten Aufruf liegt die gesamte App
   auf dem Gerät – jede Ansicht, jedes Bild, jede Aufgabe. Ohne Netz ändert sich
   nichts außer einem Hinweis in der Kopfzeile.

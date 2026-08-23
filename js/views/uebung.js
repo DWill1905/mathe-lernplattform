@@ -157,6 +157,8 @@ function neueSitzung(themaId, stufe, eintraege, meister = false, puzzle = null) 
         jubelZaehler: 0,
         jubelStart: Math.abs(zufallsSeed()) % 7,
         startZeit: Date.now(),
+        aufgabeStart: Date.now(),
+        zeiten: [],
         stufe,
         eintraege,
         index: 0,
@@ -683,6 +685,8 @@ function rueckmeldung(ziel, sitzung, schritt) {
             sitzung.eingabe = "";
             sitzung.index++;
             aufgabeZuruecksetzen(sitzung);
+            // Die Zeit der nächsten Aufgabe läuft ab jetzt, nicht seit Rundenbeginn.
+            sitzung.aufgabeStart = Date.now();
         }
         zeichne(ziel, sitzung);
     };
@@ -737,6 +741,12 @@ function pruefe(ziel, sitzung, antwort) {
         sitzung.serie++;
         sitzung.besteSerie = Math.max(sitzung.besteSerie, sitzung.serie);
         sitzung.richtigeTypen.push(eintrag.aufgabe.typ);
+        // Nur richtige Antworten kommen in die Tempo-Bilanz: Wie lange eine
+        // FALSCHE dauert, sagt über die Sicherheit nichts.
+        sitzung.zeiten.push({
+            typ: eintrag.aufgabe.typ,
+            sekunden: (Date.now() - sitzung.aufgabeStart) / 1000,
+        });
         jubele(sitzung);
     }
     else {
@@ -773,6 +783,7 @@ function zeichneErgebnis(ziel, sitzung) {
             fehlerTypen: sitzung.fehlerTypen,
             richtigeTypen: sitzung.richtigeTypen,
             herzen: sitzung.herzen,
+            zeiten: sitzung.zeiten,
         });
     }
     else {
@@ -792,6 +803,7 @@ function zeichneErgebnis(ziel, sitzung) {
             richtigeTypen: sitzung.richtigeTypen,
             besteSerie: sitzung.besteSerie,
             herzen: sitzung.herzen,
+            zeiten: sitzung.zeiten,
         };
         if (sitzung.puzzle && sitzung.richtig === sitzung.eintraege.length) {
             fortschritt.puzzleGeloest++;
