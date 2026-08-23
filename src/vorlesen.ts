@@ -7,9 +7,10 @@
  * lassen.
  *
  * Benutzt wird `speechSynthesis`, die im Browser eingebaute Sprachausgabe:
- * keine neue Abhängigkeit, kein Netzaufruf, keine Daten, die das Gerät
- * verlassen. Fehlt sie oder gibt es keine deutsche Stimme, bleibt der Knopf
- * einfach aus.
+ * keine neue Abhängigkeit, kein `fetch`, kein Konto. Eine Stimme, die auf dem
+ * GERÄT läuft, wird dabei bevorzugt (`localService`) – ein Teil der angebotenen
+ * Stimmen sind Online-Stimmen, und die schicken den Text an den Server ihres
+ * Herstellers. Fehlt die Sprachausgabe ganz, bleibt der Knopf einfach aus.
  *
  * Der Teil, der aus einer Aufgabe einen SPRECHBAREN Text macht, ist rein und
  * ohne DOM – nur so lässt sich prüfen, dass aus `37 + 48 =` auch wirklich
@@ -155,16 +156,29 @@ export function vorlesenMoeglich(): boolean {
 }
 
 /**
- * Sucht eine deutsche Stimme.
+ * Sucht eine deutsche Stimme – und zwar bevorzugt eine, die auf dem GERÄT
+ * läuft.
+ *
+ * Das ist keine Feinheit: Ein Teil der Stimmen in `getVoices()` sind
+ * Online-Stimmen. Wird eine davon genommen, schickt der Browser den
+ * Aufgabentext an den Server des Herstellers – bei einer App, die sonst
+ * ausdrücklich ohne Netz auskommt und mit „alles bleibt auf dem Gerät" wirbt,
+ * wäre das ein stiller Wortbruch. `localService` unterscheidet beide.
  *
  * `getVoices()` ist beim ersten Aufruf oft noch leer – die Liste kommt
  * asynchron nach. Deshalb wird sie bei jedem Sprechen neu befragt statt einmal
- * gemerkt; findet sich keine deutsche, spricht die Standardstimme mit
+ * gemerkt. Findet sich gar keine deutsche, spricht die Standardstimme mit
  * `lang="de-DE"`, was auf den meisten Geräten trotzdem passt.
  */
+export function waehleStimme(
+  stimmen: readonly { lang: string; localService?: boolean }[]
+): { lang: string; localService?: boolean } | undefined {
+  const deutsch = stimmen.filter((s) => s.lang.toLowerCase().startsWith("de"));
+  return deutsch.find((s) => s.localService === true) ?? deutsch[0];
+}
+
 function deutscheStimme(): SpeechSynthesisVoice | undefined {
-  const stimmen = speechSynthesis.getVoices();
-  return stimmen.find((s) => s.lang.toLowerCase().startsWith("de"));
+  return waehleStimme(speechSynthesis.getVoices()) as SpeechSynthesisVoice | undefined;
 }
 
 /**

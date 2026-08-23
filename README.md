@@ -85,6 +85,13 @@ von Hand setzen.
 - **Eigenes Symbolset statt Emojis**: 35 selbst gezeichnete SVG-Icons, die
   ihre Farbe vom Umfeld übernehmen – gleich auf jedem Gerät, in jeder
   Themenfarbe und in beiden Farbschemata.
+- **Vorlesefunktion**: Ein Lautsprecherknopf liest die Aufgabe vor, im
+  Elternbereich lässt sich das auch für jede Aufgabe automatisch einschalten
+  (Standard aus). Zweitklässler, die noch langsam lesen, scheitern sonst an der
+  Sprache statt an der Mathematik. Rechenzeichen werden dabei zu Wörtern
+  („37 plus 48“), Einheiten ausgeschrieben („3 Meter“) – und die
+  Bildbeschreibung wird bewusst nicht vorgelesen, weil sie bei Uhr- und
+  Formaufgaben die Lösung verriete.
 - **Hell- und Dunkelmodus**, große Schaltflächen, Tastatur- und
   Screenreader-tauglich. Alle Textfarben erfüllen WCAG AA (nachgemessen).
 
@@ -152,6 +159,16 @@ Vollständigkeit der Liste und die Installierbarkeit ab.
 Es gibt keinen Server und keine Netzwerkaufrufe. Alles, was gespeichert wird,
 steht unter dem Schlüssel `mathe2:fortschritt` im Browserspeicher des Geräts
 und lässt sich im Elternbereich vollständig löschen.
+
+Zwei Dinge, die dabei ehrlich benannt gehören:
+
+- Die **Synchronisierung** zwischen mehreren Geräten ist die einzige Ausnahme
+  und muss ausdrücklich eingerichtet werden (siehe unten). Ohne Familien-Code
+  passiert gar nichts.
+- Beim **Vorlesen** benutzt die Zahleneule die Sprachausgabe des Geräts. Sie
+  wählt dafür bevorzugt eine Stimme, die lokal läuft – manche Browser bieten
+  daneben Online-Stimmen an, die den Text an ihren Hersteller schicken würden.
+  Wer sichergehen will, lässt das Vorlesen aus.
 
 ## Auf mehreren Geräten
 

@@ -103,3 +103,30 @@ test("die Einstellung liegt nicht im Spielstand-Bereich", () => {
   assert.equal(localStorage.getItem("mathe2:fortschritt"), null);
   setzeVorlesen(false);
 });
+
+/* ------------------------------------------------------------ Stimmenwahl */
+
+/**
+ * Ein Teil der Stimmen in `getVoices()` sind ONLINE-Stimmen: Der Browser
+ * schickt den Text an den Server des Herstellers. Bei einer App, die sonst
+ * ausdrücklich ohne Netz auskommt und mit „alles bleibt auf dem Gerät“ wirbt,
+ * wäre das ein stiller Wortbruch – deshalb hat eine Stimme auf dem Gerät
+ * immer Vorrang.
+ */
+test("eine Stimme auf dem Gerät hat Vorrang vor einer Online-Stimme", async () => {
+  const { waehleStimme } = await import("../js/vorlesen.js");
+
+  const stimmen = [
+    { lang: "en-US", localService: true },
+    { lang: "de-DE", localService: false },
+    { lang: "de-AT", localService: true },
+  ];
+  assert.equal(waehleStimme(stimmen).lang, "de-AT", "die Online-Stimme wurde vorgezogen");
+
+  // Gibt es nur eine Online-Stimme auf Deutsch, ist sie besser als gar keine.
+  assert.equal(waehleStimme([{ lang: "de-DE", localService: false }]).lang, "de-DE");
+
+  // Gar keine deutsche Stimme: Dann spricht die Standardstimme mit lang="de-DE".
+  assert.equal(waehleStimme([{ lang: "fr-FR", localService: true }]), undefined);
+  assert.equal(waehleStimme([]), undefined);
+});

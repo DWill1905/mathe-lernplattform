@@ -154,10 +154,12 @@ function vorleseSchalter() {
     kasten.addEventListener("change", () => setzeVorlesen(kasten.checked));
     return el("div", { class: "einstellung-schalter" }, kasten, el("label", { for: "vorlesen", class: "einstellung-text" }, "Aufgaben automatisch vorlesen"), el("p", {
         class: "hinweis",
-        text: "Die Sprachausgabe des Geräts liest den Aufgabentext vor – ohne Internet und ohne " +
-            "dass Daten das Gerät verlassen. In der Übung geht das jederzeit auch von Hand über " +
-            "den Lautsprecherknopf. Die Bildbeschreibung wird bewusst NICHT vorgelesen: Sie " +
-            "verriete bei Uhr- und Formaufgaben die Lösung.",
+        text: "Die Sprachausgabe des Geräts liest den Aufgabentext vor. Die Zahleneule wählt dafür " +
+            "bevorzugt eine Stimme, die auf dem Gerät selbst läuft – manche Browser bieten auch " +
+            "Online-Stimmen an, die den Text an ihren Hersteller schicken würden. In der Übung " +
+            "geht das Vorlesen jederzeit auch von Hand über den Lautsprecherknopf. Die " +
+            "Bildbeschreibung wird bewusst NICHT vorgelesen: Sie verriete bei Uhr- und " +
+            "Formaufgaben die Lösung.",
     }));
 }
 function einstellungen(name) {

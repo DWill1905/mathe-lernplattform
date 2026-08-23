@@ -4,6 +4,28 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.27.0] – 2026-08-22
+
+### Behoben
+
+**Beim Vorlesen konnte der Aufgabentext das Gerät verlassen.** Die
+Vorlesefunktion nahm die erste deutsche Stimme, die der Browser anbot. Ein Teil
+dieser Stimmen sind aber ONLINE-Stimmen: Der Browser schickt den Text dann an
+den Server des Herstellers. Bei einer App, die sonst ausdrücklich ohne Netz
+auskommt, wäre das ein stiller Wortbruch — und der Text im Elternbereich
+versprach genau das Gegenteil.
+
+Eine Stimme, die auf dem Gerät selbst läuft (`localService`), hat jetzt
+Vorrang. Der Text im Elternbereich und die README sagen außerdem klar, was
+bleibt: Gibt es nur eine Online-Stimme, wird sie benutzt — wer sichergehen
+will, lässt das Vorlesen aus.
+
+### Hinzugefügt
+
+Die Vorlesefunktion steht jetzt auch in der README — sowohl in der
+Funktionsliste als auch im Abschnitt „Datenschutz“, zusammen mit der
+Synchronisierung als zweiter Ausnahme vom Grundsatz „kein Netz“.
+
 ## [1.26.5] – 2026-08-22
 
 ### Behoben
