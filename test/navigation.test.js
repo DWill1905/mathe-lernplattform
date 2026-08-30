@@ -147,3 +147,28 @@ test("das Bonusangebot ist eine eigene Fläche, kein kleiner Knopf", () => {
   const uebung = readFileSync(new URL("../js/views/uebung.js", import.meta.url), "utf8");
   assert.match(uebung, /icon\("pferd",\s*"bonus-pferd"\)/, "dem Angebot fehlt das Pferd");
 });
+
+/*
+ * Das Pferd galoppiert NUR nach einer selbst gelösten Hilfsaufgabe.
+ *
+ * Geprüft wird am ausgelieferten Kompilat: Der Aufruf muss genau einmal
+ * vorkommen, und zwar im Vorstufen-Zweig – dort, wo der Bonus verbucht wird.
+ * Stünde er zusätzlich im Zweig der normalen Antwort, käme das Pferd bei
+ * jeder richtigen Aufgabe und wäre keine Besonderheit mehr.
+ */
+test("der Bonus-Jubel wird an genau einer Stelle ausgelöst", () => {
+  const uebung = readFileSync(new URL("../js/views/uebung.js", import.meta.url), "utf8");
+  assert.equal(
+    [...uebung.matchAll(/zeigeJubel\(BONUS_JUBEL\)/g)].length,
+    1,
+    "der Bonus-Jubel darf an genau EINER Stelle stehen"
+  );
+
+  const pruefe = uebung.slice(uebung.indexOf("function pruefe("), uebung.indexOf("function jubele("));
+  const bonuszweig = pruefe.slice(pruefe.indexOf('"vorstufe"'), pruefe.indexOf("sitzung.ergebnisse.push"));
+  assert.match(bonuszweig, /zeigeJubel\(BONUS_JUBEL\)/, "die gelöste Hilfsaufgabe muss das Pferd auslösen");
+  assert.ok(
+    !bonuszweig.includes("jubele(sitzung)"),
+    "im Bonus darf nicht zusätzlich die normale Reihe laufen"
+  );
+});

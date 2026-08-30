@@ -99,6 +99,13 @@ verwässern.
   fliegende Tiere, Konfetti, Rakete, Sternenregen – und die hüpfende Eule,
   deren Pose aus `eule.ts` kommt (keine Kopie). Der SVG-Teil ist rein, die
   Anzeige hängt die Ebene an `document.body`.
+  **`JUBEL_ARTEN` ist die Rotation für normale Antworten; `BONUS_JUBEL`
+  (`"pferd"`, Pferd mit Reiterin) steht ausdrücklich NICHT darin** – es gehört
+  allein der selbst gelösten Hilfsaufgabe und wird in `views/uebung.ts` direkt
+  über `zeigeJubel(BONUS_JUBEL)` ausgelöst. Tests iterieren deshalb über
+  `ALLE_JUBEL_ARTEN`, sonst bliebe das Pferd ungeprüft. `quert()` (früher
+  `fliegt()`) entscheidet über die Querbahn `jubel-quer` – ein Pferd fliegt
+  nicht, gemeint war immer die Layoutfrage.
 - `src/views/*` – Start, Übung, Fortschritt, Elternbereich.
 - `src/app.ts` / `src/router.ts` / `src/shell.ts` – Routentabelle,
   Hash-Router, App-Shell.
@@ -133,6 +140,13 @@ verwässern.
   dunkel; hell wird stattdessen der Grund UNTER der Zeichnung
   (`--bild-grund`). Der erste Versuch drehte die Tinte im Dunkelmodus mit –
   dann lag heller Umriss auf hellem Zifferblatt und die Uhr verschwand.
+- **Jede neue Jubel-Klasse braucht eine EIGENE CSS-Regel.** Der Test sucht
+  die Zeichenfolge `.name {` wörtlich; ein gruppierter Selektor
+  (`.a,\n.b {`) enthält sie nicht und lässt den Test fallen. Und jedes
+  bewegte Teil braucht `transform-box: fill-box`, sonst dreht der Browser um
+  die Mitte der ganzen Bühne statt um den Ansatz – dann fällt die Figur
+  auseinander. Die Dauer steht doppelt (`DAUER` und CSS) und wird von einem
+  Test aneinandergebunden.
 - **Kein `style="…"` in erzeugtem SVG.** Die CSP dieser Seite verbietet
   Inline-Styles; Varianten gehören in Klassen (siehe `jubel-stern-0` … `-9`).
   Ein Test in `test/jubel.test.js` hält das fest.

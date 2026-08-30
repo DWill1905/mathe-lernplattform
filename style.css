@@ -2242,6 +2242,18 @@ body {
 .bild-braun {
   fill: #b45309;
 }
+/* Das Bonus-Pferd (`jubel.ts`): Fuchsfell, blonder Zopf, heller Hautton.
+   Jede Klasse steht bewusst für sich statt in einer Gruppe – der Klassen-Test
+   in `jubel.test.js` sucht den Selektor wörtlich, mit Klammer dahinter. */
+.bild-fell {
+  fill: #c17d4a;
+}
+.bild-blond {
+  fill: #e8c15c;
+}
+.bild-haut {
+  fill: #f2c39c;
+}
 .bild-hell {
   fill: var(--bild-hell);
 }
@@ -3044,13 +3056,13 @@ body {
   }
 }
 
-/* --- Fliegendes Tier: quer über den Schirm ---------------------------- */
+/* --- Querbahn: Motiv läuft über den Schirm ---------------------------- */
 
-.jubel-flug {
+.jubel-quer {
   place-items: start center;
 }
 
-.jubel-flug .jubel-buehne {
+.jubel-quer .jubel-buehne {
   position: absolute;
   /* Weit oben: Dort liegt bei jeder Aufgabenart die Frage, nicht das
      Antwortfeld – ein Kind soll beim Tippen nichts zugedeckt bekommen. */
@@ -3070,11 +3082,11 @@ body {
 }
 
 /* Auf und ab, während es fliegt. */
-.jubel-flug .illu {
-  animation: flug-wippe 0.75s ease-in-out infinite;
+.jubel-quer .illu {
+  animation: quer-wippe 0.75s ease-in-out infinite;
 }
 
-@keyframes flug-wippe {
+@keyframes quer-wippe {
   0%,
   100% {
     transform: translateY(-9px);
@@ -3293,6 +3305,94 @@ body {
   }
 }
 
+/* --- Pferd mit Reiterin: Galopp (nur nach der Hilfsaufgabe) ---------- */
+
+/*
+ * Breiter und getragener als die drei Flieger: Ein Galopp wirkt nur ruhig,
+ * wenn er den Schirm nicht hetzt – und die Reiterin soll man erkennen.
+ * Die Dauer MUSS zu `DAUER.pferd` in `jubel.ts` passen, sonst räumt die
+ * Anzeige mitten im Galopp ab; ein Test bindet beide Zahlen aneinander.
+ */
+.jubel-pferd .jubel-buehne {
+  /* Etwas größer als die Flieger (die Reiterin braucht Platz), aber nicht so
+     groß, dass der Galopp die Frage darunter zudeckt. */
+  width: min(64vw, 300px);
+  animation-duration: 2.6s;
+}
+
+/* Der Auf-und-ab-Takt folgt dem Galopp, nicht dem Flügelschlag. */
+.jubel-pferd .illu {
+  animation-duration: 0.42s;
+}
+
+/*
+ * Beine, Mähne, Schweif und Zopf drehen um IHREN Ansatz – dafür braucht jede
+ * Regel `transform-box: fill-box`. Ohne sie dreht der Browser um die Mitte der
+ * ganzen Bühne, und das Pferd fällt auseinander.
+ */
+.jubel-galopp-vorn {
+  transform-box: fill-box;
+  transform-origin: top center;
+  animation: galopp-vorn 0.42s ease-in-out infinite;
+}
+
+.jubel-galopp-hinten {
+  transform-box: fill-box;
+  transform-origin: top center;
+  animation: galopp-hinten 0.42s ease-in-out infinite;
+}
+
+@keyframes galopp-vorn {
+  0%,
+  100% {
+    transform: rotate(-22deg);
+  }
+
+  50% {
+    transform: rotate(16deg);
+  }
+}
+
+@keyframes galopp-hinten {
+  0%,
+  100% {
+    transform: rotate(20deg);
+  }
+
+  50% {
+    transform: rotate(-16deg);
+  }
+}
+
+.jubel-maehne {
+  transform-box: fill-box;
+  transform-origin: right center;
+  animation: weht 0.55s ease-in-out infinite;
+}
+
+.jubel-schweif {
+  transform-box: fill-box;
+  transform-origin: right center;
+  animation: weht 0.55s ease-in-out 0.12s infinite;
+}
+
+.jubel-haar {
+  transform-box: fill-box;
+  transform-origin: right center;
+  animation: weht 0.55s ease-in-out 0.06s infinite;
+}
+
+@keyframes weht {
+  0%,
+  100% {
+    transform: rotate(-5deg);
+  }
+
+  50% {
+    transform: rotate(5deg);
+  }
+}
+
 /*
  * Wer Bewegung reduziert haben möchte, bekommt trotzdem eine Rückmeldung –
  * nur eben ohne Flug und Geschüttel: Das Bild blendet ruhig auf und wieder ab.
@@ -3308,7 +3408,7 @@ body {
     animation: ruhiger-jubel 1.2s ease-in-out both !important;
   }
 
-  .jubel-flug {
+  .jubel-quer {
     place-items: center;
   }
 

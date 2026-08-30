@@ -50,8 +50,8 @@ von Hand setzen.
 - **Zahlentastatur** statt Systemtastatur; auf dem Rechner funktionieren auch
   die Zifferntasten, Rücktaste und Enter.
 - **Zweischrittige Aufgaben**: Bei Rechentricks und Umkehraufgaben rechnet das
-  Kind erst die Hilfsaufgabe (`3 + 4 = ?`). Stimmt sie, springt ein animiertes
-  Pferd auf und es gibt Extrapunkte; danach steht die Hilfsaufgabe als Hinweis
+  Kind erst die Hilfsaufgabe (`3 + 4 = ?`). Stimmt sie, galoppiert ein Pferd
+  mit einer Reiterin durchs Bild und es gibt Extrapunkte; danach steht die Hilfsaufgabe als Hinweis
   über der großen Aufgabe (`30 + 40 = ?`).
 - **Gezielte Fehlerwiederholung**: Aufgabenarten, bei denen es zuletzt hakte,
   kommen häufiger dran – und verschwinden wieder aus der Wiederholung, sobald

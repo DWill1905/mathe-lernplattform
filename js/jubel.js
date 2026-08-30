@@ -11,7 +11,13 @@
  */
 import { el, svgBild } from "./dom.js";
 import { euleJubelGruppe } from "./eule.js";
-/** Alle Jubelarten in fester Reihenfolge. */
+/**
+ * Die Arten, die bei einer normalen richtigen Antwort REIHUM drankommen.
+ *
+ * Das Pferd steht ausdrücklich NICHT darin: Käme es über `waehleJubel()` auch
+ * bei gewöhnlichen Antworten dran, wäre es keine Belohnung für den
+ * freiwilligen Umweg mehr, sondern die neunte Überraschung von neun.
+ */
 export const JUBEL_ARTEN = [
     "zauberhut",
     "schwein",
@@ -22,6 +28,13 @@ export const JUBEL_ARTEN = [
     "sterne",
     "eule",
 ];
+/** Der Jubel, der allein der selbst gelösten Hilfsaufgabe gehört. */
+export const BONUS_JUBEL = "pferd";
+/**
+ * Rotation plus Bonus. Die Tests prüfen hierüber die SVG-Zusicherungen – sonst
+ * bliebe ausgerechnet das Pferd ungeprüft, weil es in der Reihe fehlt.
+ */
+export const ALLE_JUBEL_ARTEN = [...JUBEL_ARTEN, BONUS_JUBEL];
 /**
  * Wie lange der Jubel läuft (ms). Danach räumt die Anzeige ihn weg. Die Werte
  * müssen zu den Dauern in `style.css` passen – ein zu kurzer Wert schnitte die
@@ -36,13 +49,22 @@ const DAUER = {
     rakete: 1800,
     sterne: 1400,
     eule: 2000,
+    // Etwas getragener als die Flieger: Ein Galopp soll nicht hetzen, und die
+    // Reiterin will erkannt werden. Muss zu `.jubel-pferd` in `style.css` passen.
+    pferd: 2600,
 };
 export function jubelDauer(art) {
     return DAUER[art];
 }
-/** Fliegt das Motiv quer durchs Bild? Die Anzeige braucht dafür ein anderes Layout. */
-export function fliegt(art) {
-    return art === "schwein" || art === "biene" || art === "vogel";
+/**
+ * Durchquert das Motiv den Schirm, statt mittig zu stehen? Die Anzeige braucht
+ * dafür ein anderes Layout (`jubel-quer`).
+ *
+ * Hieß früher `fliegt()` – das stimmte nur, solange es drei Vögel und Schweine
+ * waren. Ein Pferd galoppiert; gemeint war immer die Layoutfrage.
+ */
+export function quert(art) {
+    return art === "schwein" || art === "biene" || art === "vogel" || art === "pferd";
 }
 function huelle(breite, hoehe, inhalt) {
     return `<svg viewBox="0 0 ${breite} ${hoehe}" class="illu" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${inhalt}</svg>`;
@@ -141,6 +163,64 @@ function vogel() {
         `<path d="M86 18c2-8 8-10 12-6" class="bild-strich"/>` +
         fluegel(48, 42));
 }
+/* ------------------------------------------- Pferd mit Reiterin */
+/**
+ * Ein Beinpaar mit dunklem Huf – abgerundete Balken, wie beim Dino in
+ * `bilder.ts`. Die Klasse trägt die Galopp-Bewegung aus dem Stylesheet.
+ */
+function beinpaar(x, klasse) {
+    const bein = (bx) => `<rect x="${bx}" y="46" width="8" height="26" rx="4" class="bild-fell"/>` +
+        `<rect x="${bx - 0.5}" y="66" width="9" height="6" rx="3" class="bild-dunkel"/>`;
+    return `<g class="${klasse}">${bein(x)}${bein(x + 10)}</g>`;
+}
+/**
+ * Die Reiterin: blonder Zopf im Fahrtwind, Arme am Zügel.
+ *
+ * Das Gesicht kommt bewusst OHNE `bild-strich`-Kontur aus – bei dieser
+ * viewBox ist der Strich drei Einheiten breit und legte sich wie eine Kapuze
+ * um den kleinen Kopf. Die Abgrenzung übernimmt das Haar, das ihn hinten und
+ * oben umschließt; nach vorn liegt er ohnehin auf der dunklen Mähne.
+ */
+function reiterin() {
+    return (
+    // Bein mit Stiefel, seitlich am Sattel – kurz, sonst hängt es im Bauch.
+    `<path d="M54 30h7v9l-3 6h-6l2-7z" class="bild-blau"/>` +
+        // Oberkörper und der Arm, der nach vorn zum Zügel greift.
+        `<path d="M50 32c0-9 3-13 8-13s8 4 8 13z" class="bild-tuerkis"/>` +
+        `<path d="M62 24l14-3 1.5 5-14 4z" class="bild-tuerkis"/>` +
+        `<circle cx="78" cy="23" r="2.8" class="bild-haut"/>` +
+        // Zopf zuerst: Er liegt HINTER dem Kopf und weht im Fahrtwind.
+        `<path d="M50 10c-8 2-13 6-15 13 5-3 9-2 11 2 0-6 2-11 4-15z" class="bild-blond jubel-haar"/>` +
+        `<circle cx="57" cy="13" r="7" class="bild-haut"/>` +
+        `<path d="M50 11a7 7 0 0 1 14 0c-1.5-3.5-4-5.5-7-5.5s-5.5 2-7 5.5z" class="bild-blond"/>` +
+        `<circle cx="60.5" cy="13" r="1.4" class="bild-dunkel"/>`);
+}
+/**
+ * Der Bonus-Jubel: ein Pferd mit blonder Reiterin galoppiert nach rechts.
+ *
+ * Wie die drei fliegenden Tiere viewBox 120 × 80 und Blick nach RECHTS – nur
+ * so stimmt die Querbahn (`.jubel-quer`). Die Zeichenreihenfolge IST die
+ * Ebenenlogik: Schweif und Hinterbeine hinter den Rumpf, die Reiterin zuletzt.
+ */
+function pferd() {
+    return huelle(120, 80, 
+    // Schweif, Hinterbeine – hinter dem Rumpf.
+    `<path d="M24 40c-9-6-18-3-21 8 6-3 10 0 11 7 2-8 5-13 10-15z" class="bild-braun jubel-schweif"/>` +
+        beinpaar(28, "jubel-galopp-hinten") +
+        // Rumpf, Hals, Mähne.
+        `<ellipse cx="55" cy="42" rx="30" ry="15" class="bild-fell"/>` +
+        `<path d="M68 32c3-11 12-19 22-22l7 11c-9 4-14 11-16 20z" class="bild-fell"/>` +
+        `<path d="M90 8c-11 5-19 14-22 27 4-4 8-5 12-3-1-8 4-15 12-17z" class="bild-braun jubel-maehne"/>` +
+        // Ohren, Kopf, Auge, Nüster.
+        `<path d="M87 12V4l6 5zM96 9l3-7 3 7z" class="bild-fell"/>` +
+        `<ellipse cx="100" cy="18" rx="15" ry="8" class="bild-fell" transform="rotate(22 100 18)"/>` +
+        `<circle cx="96" cy="14" r="2.4" class="bild-dunkel"/>` +
+        `<circle cx="110" cy="26" r="1.6" class="bild-dunkel"/>` +
+        // Satteldecke, Vorderbeine, Reiterin.
+        `<path d="M44 30h22l-4 9H47z" class="bild-rot"/>` +
+        beinpaar(64, "jubel-galopp-vorn") +
+        reiterin());
+}
 /* ---------------------------------------------------------- Konfetti */
 function konfetti() {
     const farben = ["bild-rot", "bild-gelb", "bild-gruen", "bild-blau", "bild-lila", "bild-rosa", "bild-tuerkis"];
@@ -213,6 +293,7 @@ const BAUER = {
     rakete,
     sterne,
     eule,
+    pferd,
 };
 /** Das SVG einer Jubelart. */
 export function jubelSvg(art) {
@@ -247,7 +328,7 @@ export function zeigeJubel(art) {
     raeumeJubel();
     const buehne = svgBild(jubelSvg(art), "");
     buehne.classList.add("jubel-buehne");
-    const knoten = el("div", { class: `jubel jubel-${art}${fliegt(art) ? " jubel-flug" : ""}` }, buehne);
+    const knoten = el("div", { class: `jubel jubel-${art}${quert(art) ? " jubel-quer" : ""}` }, buehne);
     document.body.appendChild(knoten);
     const uhr = setTimeout(() => {
         knoten.remove();

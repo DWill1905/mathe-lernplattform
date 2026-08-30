@@ -32,7 +32,7 @@ import {
   waehleMotiv,
   type Puzzle,
 } from "../bilder.js";
-import { raeumeJubel, waehleJubel, zeigeJubel } from "../jubel.js";
+import { BONUS_JUBEL, JUBEL_ARTEN, raeumeJubel, waehleJubel, zeigeJubel } from "../jubel.js";
 import { normalisiere, rechnungPasst } from "../antwort.js";
 import { euleFuerQuote, euleSvg } from "../eule.js";
 import { gleicheAb } from "../sync.js";
@@ -282,7 +282,9 @@ function neueSitzung(
     meister,
     puzzle,
     jubelZaehler: 0,
-    jubelStart: Math.abs(zufallsSeed()) % 7,
+    // Aus der Liste, nicht geraten: Ein festes `% 7` ließ die achte Art
+    // als Rundenstart nie zu.
+    jubelStart: Math.abs(zufallsSeed()) % JUBEL_ARTEN.length,
     startZeit: Date.now(),
     aufgabeStart: Date.now(),
     zeiten: [],
@@ -1047,7 +1049,17 @@ function pruefe(ziel: HTMLElement, sitzung: Sitzung, antwort: string): void {
     sitzung.bonusRichtig = richtig;
     if (richtig) {
       sitzung.pferde++;
-      jubele(sitzung);
+      /*
+       * Die Hilfsaufgabe bekommt IHREN eigenen Jubel – nicht den nächsten aus
+       * der Reihe. Käme das Pferd über die Rotation, träte es auch bei ganz
+       * gewöhnlichen Antworten auf, und die Belohnung für den freiwilligen
+       * Umweg wäre nichts Besonderes mehr.
+       *
+       * Der Rotationszähler bleibt dabei unangetastet: Die acht
+       * Überraschungen der Runde laufen lückenlos weiter, egal wie viele
+       * Hilfsaufgaben ein Kind dazwischen rechnet.
+       */
+      zeigeJubel(BONUS_JUBEL);
     }
     zeichne(ziel, sitzung);
     return;
