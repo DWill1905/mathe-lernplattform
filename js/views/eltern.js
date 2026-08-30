@@ -314,7 +314,7 @@ function abgleichKarte(ziel) {
         },
     })), meldung, el("p", {
         class: "fliesstext hinweis",
-        text: "Beim Abgleich werden gesammelte Punkte, Herzen, Sterne und Erfolge beider Geräte " +
+        text: "Beim Abgleich werden gesammelte Punkte, Pferde, Sterne und Erfolge beider Geräte " +
             "zusammengeführt – dabei geht nichts verloren. Stufe, Streak und Fehlerbilanz kommen von " +
             "dem Gerät, auf dem zuletzt geübt wurde.",
     }));

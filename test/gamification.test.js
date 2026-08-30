@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import {
   ERFOLGE,
   schwerpunkte,
-  HERZ_PUNKTE,
+  PFERD_PUNKTE,
   empfehlung,
   levelInfo,
   levelSchwelle,
@@ -57,7 +57,7 @@ test("eine sehr gute Runde lässt aufsteigen, eine sehr schwache absteigen", () 
     besteSerie: 10,
     fehlerTypen: [],
     richtigeTypen: [],
-    herzen: 0,
+    pferde: 0,
   });
   assert.equal(ergebnisAuf.sterne, 3);
   assert.equal(ergebnisAuf.stufeAufgestiegen, true);
@@ -75,7 +75,7 @@ test("eine sehr gute Runde lässt aufsteigen, eine sehr schwache absteigen", () 
     besteSerie: 1,
     fehlerTypen: ["geld/rueckgeld", "geld/rueckgeld"],
     richtigeTypen: [],
-    herzen: 0,
+    pferde: 0,
   });
   assert.equal(ab.themen.geld.stufe, 2, "nach einer schwachen Runde wird es leichter");
   assert.equal(ab.fehler["geld/rueckgeld"], 2);
@@ -91,7 +91,7 @@ test("die erste Runde schaltet ein Abzeichen frei und startet die Serie", () => 
     besteSerie: 4,
     fehlerTypen: ["zahlenraum/runden"],
     richtigeTypen: [],
-    herzen: 0,
+    pferde: 0,
   });
   assert.ok(ergebnis.neueErfolge.includes("start"));
   assert.equal(fortschritt.streakTage, 1);
@@ -107,7 +107,7 @@ test("die erste Runde schaltet ein Abzeichen frei und startet die Serie", () => 
     besteSerie: 2,
     fehlerTypen: [],
     richtigeTypen: [],
-    herzen: 0,
+    pferde: 0,
   });
   assert.equal(fortschritt.streakTage, 1);
   assert.equal(fortschritt.verlauf.length, 1);
@@ -127,7 +127,7 @@ test("das gemischte Training verschiebt keine Stufen", () => {
     fehlerTypen: [],
     richtigeTypen: [],
     besteSerie: 10,
-    herzen: 0,
+    pferde: 0,
   });
   assert.equal(fortschritt.themen.geometrie.stufe, 2);
   assert.equal(fortschritt.themen.geometrie.sterne, 0, "eine Mischrunde vergibt keine Sterne");
@@ -199,7 +199,7 @@ test("Zeiten werden als Minuten und Sekunden angezeigt", () => {
   assert.equal(zeitText(127), "2:07 min");
 });
 
-test("Herzen zählen extra Punkte und werden dauerhaft gesammelt", () => {
+test("Pferde zählen extra Punkte und werden dauerhaft gesammelt", () => {
   const fortschritt = standardFortschritt();
   const ergebnis = werteRundeAus(fortschritt, {
     thema: "analogie",
@@ -209,11 +209,11 @@ test("Herzen zählen extra Punkte und werden dauerhaft gesammelt", () => {
     besteSerie: 3,
     fehlerTypen: [],
     richtigeTypen: [],
-    herzen: 4,
+    pferde: 4,
   });
-  assert.equal(ergebnis.herzen, 4);
-  assert.equal(fortschritt.herzen, 4);
-  assert.equal(ergebnis.punkte, 5 * 10 + 4 * HERZ_PUNKTE, "Herzen kommen zu den Rundenpunkten dazu");
+  assert.equal(ergebnis.pferde, 4);
+  assert.equal(fortschritt.pferde, 4);
+  assert.equal(ergebnis.punkte, 5 * 10 + 4 * PFERD_PUNKTE, "Pferde kommen zu den Rundenpunkten dazu");
 
   werteMixAus(fortschritt, {
     richtig: 2,
@@ -222,17 +222,17 @@ test("Herzen zählen extra Punkte und werden dauerhaft gesammelt", () => {
     fehlerTypen: [],
     richtigeTypen: [],
     besteSerie: 2,
-    herzen: 3,
+    pferde: 3,
   });
-  assert.equal(fortschritt.herzen, 7, "Herzen aus dem gemischten Training zählen mit");
+  assert.equal(fortschritt.pferde, 7, "Pferde aus dem gemischten Training zählen mit");
 });
 
-test("das Herzensache-Abzeichen gibt es ab 25 Hilfsaufgaben", () => {
+test("das Pferdestark-Abzeichen gibt es ab 25 Hilfsaufgaben", () => {
   const fortschritt = standardFortschritt();
   const abzeichen = ERFOLGE.find((e) => e.id === "herzen25");
-  fortschritt.herzen = 24;
+  fortschritt.pferde = 24;
   assert.equal(abzeichen.erreicht(fortschritt), false);
-  fortschritt.herzen = 25;
+  fortschritt.pferde = 25;
   assert.equal(abzeichen.erreicht(fortschritt), true);
 });
 
@@ -247,7 +247,7 @@ test("richtige Antworten bauen die Fehlerbilanz wieder ab", () => {
       besteSerie: 1,
       fehlerTypen: falsch,
       richtigeTypen: richtig,
-      herzen: 0,
+      pferde: 0,
     });
 
   runde(["plusminus/ergaenzen", "plusminus/ergaenzen", "plusminus/tabelle"], []);
@@ -299,7 +299,7 @@ test("die Ergebnisseite bekommt die nächste Stufe gesagt, statt sie zu raten", 
     besteSerie: 0,
     fehlerTypen: [],
     richtigeTypen: [],
-    herzen: 0,
+    pferde: 0,
   });
 
   // Fast fehlerfrei: eine Stufe hoch.

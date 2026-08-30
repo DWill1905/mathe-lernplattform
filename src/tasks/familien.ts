@@ -42,7 +42,7 @@ export function familien(rng: Rng, stufe: Stufe): Aufgabe {
  * (`? · 5 = 30`).
  *
  * Die Umkehrung selbst ist die Hilfsaufgabe: Wer sie freiwillig ganz auftippt,
- * bekommt ein Herz.
+ * bekommt ein Pferd.
  */
 
 /** Lücke in einer Plusaufgabe – auflösen lässt sie sich nur durch Minus. */

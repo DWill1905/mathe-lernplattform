@@ -23,7 +23,7 @@ Dazu kommen zwei eigene Modi: **Puzzle** und **Rechenmeister**.
 | 🔢 Zahlen bis 100 | Vorgänger/Nachfolger, Zehner und Einer, Nachbarzehner, Zahlenstrahl, Runden, Zahlenfolgen mit Pfeilschritten |
 | ➕ Plus & Minus | bis 20, mit vollen Zehnern, bis 100 ohne und mit Zehnerübergang, Platzhalter- und Tabellenaufgaben |
 | 💡 Rechentricks | Analogieaufgaben (3 + 4 → 30 + 40, 3 + 2 → 13 + 2), Nachbaraufgaben (7 + 7 → 7 + 8), plus/minus 10, Hunderter |
-| 💖 Hilfsaufgaben | Bei Rechentricks und Umkehraufgaben rechnet das Kind zuerst die Hilfsaufgabe selbst – das gibt ein Herz |
+| 🐴 Hilfsaufgaben | Bei Rechentricks und Umkehraufgaben rechnet das Kind zuerst die Hilfsaufgabe selbst – das gibt ein Pferd |
 | 👨‍👩‍👧‍👦 Aufgabenfamilien | „3 Zahlen, 4 Aufgaben“: Tausch- und Umkehraufgaben, Lücken in allen vier Formen |
 | 🧱 Mauern & Räder | Zahlenmauern (3, 6 oder 10 Steine) mit fehlendem Stein, Rechenkästen mit Fähnchen, Rechenräder in zwei Formen |
 | **Weitere Themen** | |
@@ -51,7 +51,7 @@ von Hand setzen.
   die Zifferntasten, Rücktaste und Enter.
 - **Zweischrittige Aufgaben**: Bei Rechentricks und Umkehraufgaben rechnet das
   Kind erst die Hilfsaufgabe (`3 + 4 = ?`). Stimmt sie, springt ein animiertes
-  Herz auf und es gibt Extrapunkte; danach steht die Hilfsaufgabe als Hinweis
+  Pferd auf und es gibt Extrapunkte; danach steht die Hilfsaufgabe als Hinweis
   über der großen Aufgabe (`30 + 40 = ?`).
 - **Gezielte Fehlerwiederholung**: Aufgabenarten, bei denen es zuletzt hakte,
   kommen häufiger dran – und verschwinden wieder aus der Wiederholung, sobald
@@ -64,7 +64,7 @@ von Hand setzen.
 - **Tipps** zu jeder Aufgabe, die das Kind selbst aufklappen kann.
 - **Hilfsaufgabe als Bonus**: Bei Rechentricks und Umkehraufgaben steht die
   eigentliche Aufgabe da – wer mag, schreibt die passende Hilfsaufgabe **ganz
-  selbst auf** (`3 − 2 = 1`, nicht nur die 1) und bekommt ein Herz dafür. Wer
+  selbst auf** (`3 − 2 = 1`, nicht nur die 1) und bekommt ein Pferd dafür. Wer
   nicht mag, antwortet einfach direkt.
 - **Gemischtes Training** über alle Themen hinweg.
 - **Puzzle**: Hinter zwölf Teilen versteckt sich ein Bild. Jede richtig
@@ -236,7 +236,7 @@ nach jeder Runde.
 
 ### Was beim Abgleich passiert
 
-Gesammeltes wird zusammengeführt und geht nie verloren: Punkte, Herzen, gelöste
+Gesammeltes wird zusammengeführt und geht nie verloren: Punkte, Pferde, gelöste
 Puzzles, Erfolge, Sterne, beste Serien. Der aktuelle Stand — Name, Stufe,
 Streak, Fehlerbilanz — kommt von dem Gerät, auf dem zuletzt geübt wurde. Die
 Stufe gehört bewusst dazu und wird **nicht** als Höchststand geführt: Sie sinkt

@@ -64,7 +64,7 @@ export function standardFortschritt() {
         fehler: {},
         tempo: {},
         meister: { besteZeit: 0, besteTreffer: 0 },
-        herzen: 0,
+        pferde: 0,
         puzzleGeloest: 0,
         letzteAufgaben: [],
     };
@@ -171,7 +171,18 @@ export function pruefeFortschritt(roh) {
         fehler,
         tempo,
         meister,
-        herzen: ganzeZahl(daten["herzen"], 0, MAX_PUNKTE, 0),
+        /*
+         * Die Belohnung für eine selbst gelöste Hilfsaufgabe hieß bis 1.34
+         * `herzen`. Alte Spielstände tragen deshalb nur das alte Feld – und weil
+         * diese Prüfung den Stand als WHITELIST neu aufbaut, verschwände es beim
+         * ersten Laden spurlos, mitsamt allem Gesammelten. Der Rückfall liest es
+         * ausdrücklich mit; geprüft wird danach genau wie beim neuen Feld, denn
+         * das alte ist kein bisschen vertrauenswürdiger.
+         *
+         * `??` und NICHT `||`: Eine echt gespeicherte 0 muss eine 0 bleiben,
+         * sonst holt ein zurückgesetzter Stand die alten Herzen zurück.
+         */
+        pferde: ganzeZahl(daten["pferde"] ?? daten["herzen"], 0, MAX_PUNKTE, 0),
         puzzleGeloest: ganzeZahl(daten["puzzleGeloest"], 0, MAX_PUNKTE, 0),
         letzteAufgaben: schluesselListe(daten["letzteAufgaben"]),
     };
@@ -269,9 +280,24 @@ export function merkeGestellteAufgaben(schluessel) {
     fortschritt.letzteAufgaben = [...fortschritt.letzteAufgaben, ...schluessel].slice(-MAX_LETZTE);
     speichereFortschritt(fortschritt);
 }
+/**
+ * Der Stand, wie er in den Speicher und über die Leitung geht.
+ *
+ * Er trägt ein ÜBERGANGSFELD: `herzen` spiegelt `pferde`. Ein zweites Gerät,
+ * das noch die Fassung vor 1.35 im Vorrat des Service Workers hat, kennt
+ * `pferde` nicht – seine Prüfung wirft das Feld weg, führt mit seinem eigenen
+ * (alten) Stand zusammen und schreibt ihn zurück. Ohne den Spiegel fiele die
+ * Zahl dabei auf den letzten Stand des alten Geräts zurück.
+ *
+ * Kann entfallen, sobald sicher kein Gerät mehr die alte Fassung ausliefert –
+ * frühestens zwei Versionen später.
+ */
+export function zumSpeichern(fortschritt) {
+    return { ...fortschritt, herzen: fortschritt.pferde };
+}
 export function speichereFortschritt(fortschritt) {
     try {
-        localStorage.setItem(SCHLUESSEL, JSON.stringify(fortschritt));
+        localStorage.setItem(SCHLUESSEL, JSON.stringify(zumSpeichern(fortschritt)));
     }
     catch {
         // Privater Modus oder voller Speicher: Die Übung läuft trotzdem weiter.

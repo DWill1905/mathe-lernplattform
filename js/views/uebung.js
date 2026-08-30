@@ -6,7 +6,7 @@
  * bei einem Fehler bleibt der Rechenweg stehen, bis das Kind weiterklickt.
  *
  * Aufgaben mit einer `vorstufe` laufen in zwei Schritten: Erst rechnet das
- * Kind die Hilfsaufgabe selbst (das gibt ein Herz), danach steht sie als
+ * Kind die Hilfsaufgabe selbst (das gibt ein Pferd), danach steht sie als
  * Hinweis über der eigentlichen Aufgabe. Im Rechenmeister entfällt dieser
  * Schritt – dort zählt die Zeit.
  */
@@ -179,7 +179,7 @@ function neueSitzung(themaId, stufe, eintraege, meister = false, puzzle = null) 
         hauptEingabe: "",
         felder: [],
         feldIndex: 0,
-        herzen: 0,
+        pferde: 0,
     };
     return sitzung;
 }
@@ -258,8 +258,8 @@ function zeichne(ziel, sitzung) {
         "aria-valuemax": String(gesamt),
         "aria-valuenow": String(nummer),
         "aria-label": `Aufgabe ${nummer} von ${gesamt}`,
-    }, el("div", { class: "balken-fuellung", stil: { width: `${(sitzung.index / gesamt) * 100}%` } })), el("div", { class: "uebung-zaehler" }, el("span", { text: `Aufgabe ${nummer} von ${gesamt}` }), el("span", { class: "uebung-bilanz" }, sitzung.herzen > 0 &&
-        el("span", { class: "uebung-herzen" }, icon("herz", "herz-klein"), String(sitzung.herzen)), 
+    }, el("div", { class: "balken-fuellung", stil: { width: `${(sitzung.index / gesamt) * 100}%` } })), el("div", { class: "uebung-zaehler" }, el("span", { text: `Aufgabe ${nummer} von ${gesamt}` }), el("span", { class: "uebung-bilanz" }, sitzung.pferde > 0 &&
+        el("span", { class: "uebung-pferde" }, icon("pferd", "pferd-klein"), String(sitzung.pferde)), 
     // Erst wenn etwas beantwortet ist: Ein „0 richtig“ als Allererstes
     // wäre eine Null, bevor das Kind überhaupt etwas tun konnte.
     sitzung.ergebnisse.length > 0 &&
@@ -303,11 +303,11 @@ function zeichne(ziel, sitzung) {
      * weil niemand wusste, wobei sie helfen sollte.
      */
     if (inVorstufe) {
-        karte.append(el("span", { class: "marke marke-bonus" }, icon("herz", "herz-klein"), "Bonusaufgabe"), el("p", { class: "hilfszeile hilfszeile-ziel", text: `Dafür: ${aufgabe.rechnung ?? aufgabe.frage}` }));
+        karte.append(el("span", { class: "marke marke-bonus" }, icon("pferd", "pferd-klein"), "Bonusaufgabe"), el("p", { class: "hilfszeile hilfszeile-ziel", text: `Dafür: ${aufgabe.rechnung ?? aufgabe.frage}` }));
     }
     // Ist der Bonus gerechnet, steht sein Ergebnis über der Hauptaufgabe.
     if (!inVorstufe && aufgabe.vorstufe && sitzung.bonusVersucht) {
-        karte.appendChild(el("p", { class: `hilfszeile${sitzung.bonusRichtig ? " hilfszeile-geschafft" : ""}` }, sitzung.bonusRichtig ? icon("herz", "herz-klein") : icon("gluehbirne", "tipp-symbol"), `Hilfsaufgabe: ${aufgabe.vorstufe.rechnung} ${aufgabe.vorstufe.loesung}`));
+        karte.appendChild(el("p", { class: `hilfszeile${sitzung.bonusRichtig ? " hilfszeile-geschafft" : ""}` }, sitzung.bonusRichtig ? icon("pferd", "pferd-klein") : icon("gluehbirne", "tipp-symbol"), `Hilfsaufgabe: ${aufgabe.vorstufe.rechnung} ${aufgabe.vorstufe.loesung}`));
     }
     /*
      * Mehrzeilige Fragen sind die Ausnahme (bisher nur die Beziehungsketten).
@@ -334,7 +334,7 @@ function zeichne(ziel, sitzung) {
         karte.appendChild(el("p", { class: "aufgabe-rechnung", text: schritt.rechnung }));
     /*
      * Der Bonus ist ein Angebot, keine Pflicht: Wer mag, rechnet die
-     * Hilfsaufgabe selbst und bekommt ein Herz dafür. Wer nicht mag, beantwortet
+     * Hilfsaufgabe selbst und bekommt ein Pferd dafür. Wer nicht mag, beantwortet
      * einfach die eigentliche Aufgabe.
      *
      * Er steht VOR dem Antwortbereich – vorher stand er darunter, also unter dem
@@ -354,7 +354,7 @@ function zeichne(ziel, sitzung) {
                 sitzung.phase = "vorstufe";
                 zeichne(ziel, sitzung);
             },
-        }, icon("herz", "bonus-herz"), el("span", { class: "bonus-text" }, el("strong", { class: "bonus-titel", text: "Erst die Hilfsaufgabe rechnen?" }), el("span", { class: "bonus-lohn", text: "Das ist freiwillig und bringt ein Herz." })), icon("pfeil", "bonus-pfeil")));
+        }, icon("pferd", "bonus-pferd"), el("span", { class: "bonus-text" }, el("strong", { class: "bonus-titel", text: "Erst die Hilfsaufgabe rechnen?" }), el("span", { class: "bonus-lohn", text: "Das ist freiwillig und bringt ein Pferd." })), icon("pfeil", "bonus-pfeil")));
     }
     karte.appendChild(antwortbereich(ziel, sitzung, schritt));
     if (aufgabe.tipp && !sitzung.beantwortet && !sitzung.meister && !inVorstufe) {
@@ -709,7 +709,7 @@ function rueckmeldung(ziel, sitzung, schritt) {
     if (sitzung.warRichtig) {
         timer = window.setTimeout(weiter, inVorstufe ? 1300 : 900);
         return inVorstufe
-            ? el("div", { class: "rueckmeldung rueckmeldung-herz", role: "status" }, icon("herz", "herz"), el("span", { text: "Richtig! Ein Herz für dich." }))
+            ? el("div", { class: "rueckmeldung rueckmeldung-pferd", role: "status" }, icon("pferd", "pferd"), el("span", { text: "Richtig! Ein Pferd für dich." }))
             : el("div", { class: "rueckmeldung rueckmeldung-richtig", role: "status" }, icon("haken", "rueckmeldung-symbol"), el("span", { text: "Richtig!" }));
     }
     const kasten = el("div", { class: "rueckmeldung rueckmeldung-falsch", role: "status", tabindex: "-1" }, el("p", { class: "rueckmeldung-zeile" }, icon("gedanke", "rueckmeldung-symbol"), 
@@ -740,12 +740,12 @@ function pruefe(ziel, sitzung, antwort) {
     sitzung.beantwortet = true;
     sitzung.warRichtig = richtig;
     if (sitzung.phase === "vorstufe") {
-        // Der Bonus bringt ein Herz, zählt aber nicht in die Trefferbilanz – er
+        // Der Bonus bringt ein Pferd, zählt aber nicht in die Trefferbilanz – er
         // ist freiwillig, also darf er die Runde weder retten noch verderben.
         sitzung.bonusVersucht = true;
         sitzung.bonusRichtig = richtig;
         if (richtig) {
-            sitzung.herzen++;
+            sitzung.pferde++;
             jubele(sitzung);
         }
         zeichne(ziel, sitzung);
@@ -798,7 +798,7 @@ function zeichneErgebnis(ziel, sitzung) {
             besteSerie: sitzung.besteSerie,
             fehlerTypen: sitzung.fehlerTypen,
             richtigeTypen: sitzung.richtigeTypen,
-            herzen: sitzung.herzen,
+            pferde: sitzung.pferde,
             zeiten: sitzung.zeiten,
         });
     }
@@ -818,7 +818,7 @@ function zeichneErgebnis(ziel, sitzung) {
             fehlerTypen: sitzung.fehlerTypen,
             richtigeTypen: sitzung.richtigeTypen,
             besteSerie: sitzung.besteSerie,
-            herzen: sitzung.herzen,
+            pferde: sitzung.pferde,
             zeiten: sitzung.zeiten,
         };
         if (sitzung.puzzle && sitzung.richtig === sitzung.eintraege.length) {
@@ -846,8 +846,8 @@ function zeichneErgebnis(ziel, sitzung) {
         class: "ergebnis-bilanz",
         text: `${ergebnis.richtig} von ${ergebnis.gesamt} Aufgaben richtig · +${ergebnis.punkte} Punkte`,
     }));
-    if (ergebnis.herzen > 0) {
-        karte.appendChild(el("p", { class: "ergebnis-herzen" }, icon("herz", "herz"), ` ${ergebnis.herzen} ${ergebnis.herzen === 1 ? "Hilfsaufgabe" : "Hilfsaufgaben"} selbst gelöst`));
+    if (ergebnis.pferde > 0) {
+        karte.appendChild(el("p", { class: "ergebnis-pferde" }, icon("pferd", "pferd"), ` ${ergebnis.pferde} ${ergebnis.pferde === 1 ? "Hilfsaufgabe" : "Hilfsaufgaben"} selbst gelöst`));
     }
     if (sitzung.puzzle) {
         // Am Ende sind alle Aufgaben durch – deshalb steht hier die volle Anzahl.

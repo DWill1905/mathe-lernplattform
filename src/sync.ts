@@ -18,7 +18,13 @@
  * DOM testbar; alle Netzaufrufe nehmen ihr `fetch` als Parameter entgegen.
  */
 
-import { MAX_VERLAUF, ladeFortschritt, pruefeFortschritt, speichereFortschritt } from "./state.js";
+import {
+  MAX_VERLAUF,
+  ladeFortschritt,
+  pruefeFortschritt,
+  speichereFortschritt,
+  zumSpeichern,
+} from "./state.js";
 import { THEMEN } from "./topics.js";
 import type { Fortschritt, ThemaFortschritt, ThemaId } from "./types.js";
 
@@ -113,7 +119,7 @@ export function zuletztAbgeglichen(): string | null {
  *
  * Die Felder zerfallen in zwei Gruppen:
  *
- * - **Gesammeltes** wächst nur: Punkte, Herzen, gelöste Puzzles, Erfolge,
+ * - **Gesammeltes** wächst nur: Punkte, Pferde, gelöste Puzzles, Erfolge,
  *   Sterne, beste Serien, gezählte Aufgaben. Hier gewinnt der größere Wert,
  *   und es kann nichts verloren gehen.
  * - **Der aktuelle Stand** beschreibt das Jetzt: Name, Streak, Fehler- und
@@ -165,7 +171,7 @@ export function verschmelze(a: Fortschritt, b: Fortschritt): Fortschritt {
       // Bei der Zeit ist WENIGER besser – aber 0 heißt „noch keine“.
       besteZeit: besteZeit(a.meister.besteZeit, b.meister.besteZeit),
     },
-    herzen: Math.max(a.herzen, b.herzen),
+    pferde: Math.max(a.pferde, b.pferde),
     puzzleGeloest: Math.max(a.puzzleGeloest, b.puzzleGeloest),
     letzteAufgaben: frisch.letzteAufgaben,
   };
@@ -253,7 +259,9 @@ export async function sendeStand(
   const antwort = await hole(`${WORKER_URL}/speichere`, {
     method: "POST",
     headers: KOPFZEILEN,
-    body: JSON.stringify({ code, daten: stand }),
+    // Mit Übergangsfeld: Ein Gerät mit der Fassung vor 1.35 kennt `pferde`
+    // nicht und würde die Zahl beim nächsten Abgleich zurücksetzen.
+    body: JSON.stringify({ code, daten: zumSpeichern(stand) }),
   });
   if (!antwort.ok) throw await grund(antwort);
 }

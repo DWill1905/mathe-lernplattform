@@ -48,7 +48,7 @@ export type Antwortfeld =
 
 /**
  * Die Hilfsaufgabe als freiwilliger Bonus. Wer sie GANZ selbst aufschreibt
- * („3 − 2 = 1“, nicht nur die 1), bekommt ein Herz – danach steht sie als
+ * („3 − 2 = 1“, nicht nur die 1), bekommt ein Pferd – danach steht sie als
  * Hinweis über der eigentlichen Aufgabe.
  */
 export interface Vorstufe {
@@ -80,7 +80,7 @@ export interface Aufgabe {
   tipp?: string;
   /** Rechenweg, der nach einer falschen Antwort gezeigt wird. */
   erklaerung?: string;
-  /** Optionaler erster Schritt, der ein Herz einbringt. */
+  /** Optionaler erster Schritt, der ein Pferd einbringt. */
   vorstufe?: Vorstufe;
 }
 
@@ -133,8 +133,8 @@ export interface Fortschritt {
   tempo: Record<string, { sekunden: number; anzahl: number }>;
   /** Bestwerte des Rechenmeisters (Zeit in Sekunden, 0 = noch keiner). */
   meister: { besteZeit: number; besteTreffer: number };
-  /** Gesammelte Herzen aus selbst gelösten Hilfsaufgaben. */
-  herzen: number;
+  /** Gesammelte Pferde aus selbst gelösten Hilfsaufgaben. */
+  pferde: number;
   /** Fehlerfrei gelöste Puzzles. */
   puzzleGeloest: number;
   /**
@@ -152,8 +152,8 @@ export interface RundenErgebnis {
   gesamt: number;
   sterne: number;
   punkte: number;
-  /** In dieser Runde verdiente Herzen. */
-  herzen: number;
+  /** In dieser Runde verdiente Pferde. */
+  pferde: number;
   neueErfolge: string[];
   stufeAufgestiegen: boolean;
   /**

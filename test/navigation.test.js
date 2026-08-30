@@ -134,7 +134,7 @@ test("das Bonusangebot steht über dem Antwortbereich", () => {
 
 /**
  * Und es muss aussehen wie ein Angebot, nicht wie ein Nebensatz: eigene
- * Fläche, sichtbarer Rahmen, Herz. Ohne diese Prüfung fällt es beim nächsten
+ * Fläche, sichtbarer Rahmen, Pferd. Ohne diese Prüfung fällt es beim nächsten
  * Aufräumen still wieder auf Knopfgröße zurück.
  */
 test("das Bonusangebot ist eine eigene Fläche, kein kleiner Knopf", () => {
@@ -145,5 +145,5 @@ test("das Bonusangebot ist eine eigene Fläche, kein kleiner Knopf", () => {
   assert.match(regel[1], /border:\s*2px/, "ohne Rahmen sieht es aus wie Fließtext");
 
   const uebung = readFileSync(new URL("../js/views/uebung.js", import.meta.url), "utf8");
-  assert.match(uebung, /icon\("herz",\s*"bonus-herz"\)/, "dem Angebot fehlt das Herz");
+  assert.match(uebung, /icon\("pferd",\s*"bonus-pferd"\)/, "dem Angebot fehlt das Pferd");
 });

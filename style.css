@@ -1262,7 +1262,7 @@ details[open] summary {
   font-variant-numeric: tabular-nums;
 }
 
-/* Hilfsaufgaben und Herzen */
+/* Hilfsaufgaben und Pferde */
 
 .karte-vorstufe {
   border-color: color-mix(in srgb, var(--rot) 45%, var(--rand));
@@ -1284,12 +1284,12 @@ details[open] summary {
   gap: 0.7rem;
 }
 
-.uebung-herzen {
+.uebung-pferde {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
-.rueckmeldung-herz {
+.rueckmeldung-pferd {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1300,23 +1300,23 @@ details[open] summary {
   font-weight: 700;
 }
 
-.ergebnis-herzen {
+.ergebnis-pferde {
   margin: -0.4rem 0 1rem;
   font-weight: 700;
 }
 
-/* Das Herz springt einmal auf und schlägt dann zweimal nach. */
-.herz {
+/* Das Pferd springt einmal auf und nickt dann zweimal nach. */
+.pferd {
   display: inline-block;
   font-size: 1.9rem;
   line-height: 1;
   transform-origin: center;
   animation:
-    herz-auf 620ms cubic-bezier(0.2, 0.9, 0.3, 1.5) both,
-    herz-schlag 900ms 620ms ease-in-out 2;
+    pferd-auf 620ms cubic-bezier(0.2, 0.9, 0.3, 1.5) both,
+    pferd-nicken 900ms 620ms ease-in-out 2;
 }
 
-@keyframes herz-auf {
+@keyframes pferd-auf {
   0% {
     transform: scale(0.2) rotate(-14deg);
     opacity: 0.2;
@@ -1334,16 +1334,18 @@ details[open] summary {
   }
 }
 
-@keyframes herz-schlag {
+@keyframes pferd-nicken {
   0%,
   100% {
-    transform: scale(1);
+    transform: rotate(0deg);
   }
-  28% {
-    transform: scale(1.18);
+
+  30% {
+    transform: rotate(-9deg);
   }
-  56% {
-    transform: scale(1);
+
+  60% {
+    transform: rotate(5deg);
   }
 }
 
@@ -1619,7 +1621,7 @@ body {
     padding: 0.4rem 0.7rem;
   }
 
-  .bonus-herz {
+  .bonus-pferd {
     width: 1.6rem;
     height: 1.6rem;
   }
@@ -1700,7 +1702,7 @@ body {
   /*
    * Im Querformat bleibt vom Angebot die Kernzeile: Bei rund 390 px Höhe
    * kostet der Lohn-Satz eine ganze Textzeile, und die fehlt dann dem
-   * Erklärbild. Das Herz sagt zusammen mit „Erst die Hilfsaufgabe rechnen?"
+   * Erklärbild. Das Pferd sagt zusammen mit „Erst die Hilfsaufgabe rechnen?"
    * genug – die Belohnung erklärt danach die Bonusseite selbst.
    */
   .bonus-angebot {
@@ -1714,7 +1716,7 @@ body {
     display: none;
   }
 
-  .bonus-herz {
+  .bonus-pferd {
     width: 1.4rem;
     height: 1.4rem;
   }
@@ -1934,13 +1936,13 @@ body {
   color: var(--haupt);
 }
 
-.herz {
+.pferd {
   width: 2rem;
   height: 2rem;
   color: var(--rot);
 }
 
-.herz-klein {
+.pferd-klein {
   width: 1.05rem;
   height: 1.05rem;
   color: var(--rot);
@@ -3377,7 +3379,7 @@ body {
  * Es stand früher als kleiner Knopf UNTER dem Antwortbereich – also unter dem
  * Tastenfeld und damit auf dem Handy regelmäßig unter dem Fensterrand. Ein
  * Angebot, das niemand sieht, ist keins. Jetzt liegt es als breite Fläche
- * zwischen Aufgabe und Tastenfeld und sieht auch wie ein Angebot aus: Herz
+ * zwischen Aufgabe und Tastenfeld und sieht auch wie ein Angebot aus: Pferd
  * links, zwei Zeilen Text, Pfeil rechts.
  */
 .bonus-angebot {
@@ -3406,14 +3408,14 @@ body {
   transform: scale(0.99);
 }
 
-.bonus-herz {
+.bonus-pferd {
   flex: 0 0 auto;
   width: 1.9rem;
   height: 1.9rem;
   color: var(--rot);
 }
 
-/* Der Text nimmt den Platz zwischen Herz und Pfeil ein. */
+/* Der Text nimmt den Platz zwischen Pferd und Pfeil ein. */
 .bonus-text {
   display: flex;
   flex: 1 1 auto;
@@ -3450,7 +3452,7 @@ body {
   color: var(--text);
 }
 
-.marke-bonus .herz-klein {
+.marke-bonus .pferd-klein {
   color: var(--rot);
 }
 
@@ -3462,7 +3464,7 @@ body {
   font-weight: 600;
 }
 
-/* Selbst gerechnet: die Zeile trägt ein Herz. */
+/* Selbst gerechnet: die Zeile trägt ein Pferd. */
 .hilfszeile-geschafft {
   display: inline-flex;
   align-items: center;
@@ -3470,7 +3472,7 @@ body {
   background: color-mix(in srgb, var(--richtig) 16%, transparent);
 }
 
-.hilfszeile-geschafft .herz-klein {
+.hilfszeile-geschafft .pferd-klein {
   color: var(--rot);
 }
 

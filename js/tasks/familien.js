@@ -44,7 +44,7 @@ export function familien(rng, stufe) {
  * (`? · 5 = 30`).
  *
  * Die Umkehrung selbst ist die Hilfsaufgabe: Wer sie freiwillig ganz auftippt,
- * bekommt ein Herz.
+ * bekommt ein Pferd.
  */
 /** Lücke in einer Plusaufgabe – auflösen lässt sie sich nur durch Minus. */
 function umkehrZuPlus(rng, max) {

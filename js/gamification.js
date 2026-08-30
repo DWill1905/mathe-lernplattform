@@ -48,8 +48,8 @@ export function sterneFuerRunde(richtig, gesamt) {
         return 1;
     return 0;
 }
-/** Punkte, die ein selbst gelöstes Herz (Hilfsaufgabe) einbringt. */
-export const HERZ_PUNKTE = 5;
+/** Punkte, die ein selbst verdientes Pferd (Hilfsaufgabe) einbringt. */
+export const PFERD_PUNKTE = 5;
 /** Punkte einer Runde: schwerere Stufen zählen mehr, fehlerfrei gibt Bonus. */
 export function punkteFuerRunde(richtig, gesamt, stufe) {
     const proAufgabe = stufe === 1 ? 10 : stufe === 2 ? 15 : 20;
@@ -151,11 +151,17 @@ export const ERFOLGE = [
         erreicht: (f) => f.meister.besteTreffer >= 20,
     },
     {
+        /*
+         * Die Kennung bleibt „herzen25“, obwohl es längst Pferde sind: Sie steckt
+         * in jeder gespeicherten `erfolge`-Liste. Eine neue Kennung ließe die alte
+         * als toten Eintrag liegen und feierte etwas längst Geschafftes ein
+         * zweites Mal, mit großem Bahnhof.
+         */
         id: "herzen25",
-        titel: "Herzensache",
+        titel: "Pferdestark",
         text: "25 Hilfsaufgaben selbst gelöst.",
-        symbol: "herz",
-        erreicht: (f) => f.herzen >= 25,
+        symbol: "pferd",
+        erreicht: (f) => f.pferde >= 25,
     },
     {
         id: "puzzle",
@@ -330,7 +336,7 @@ function stufeAnpassen(alt, richtig, gesamt) {
 export function werteRundeAus(f, eingabe) {
     const eintrag = f.themen[eingabe.thema];
     const sterne = sterneFuerRunde(eingabe.richtig, eingabe.gesamt);
-    const punkte = punkteFuerRunde(eingabe.richtig, eingabe.gesamt, eingabe.stufe) + eingabe.herzen * HERZ_PUNKTE;
+    const punkte = punkteFuerRunde(eingabe.richtig, eingabe.gesamt, eingabe.stufe) + eingabe.pferde * PFERD_PUNKTE;
     const vorher = f.erfolge.slice();
     eintrag.gesamt += eingabe.gesamt;
     eintrag.richtig += eingabe.richtig;
@@ -342,7 +348,7 @@ export function werteRundeAus(f, eingabe) {
     // soll ein Kind nicht dauerhaft überfordern.
     eintrag.stufe = neueStufe;
     f.punkte += punkte;
-    f.herzen += eingabe.herzen;
+    f.pferde += eingabe.pferde;
     buchefehler(f, eingabe.fehlerTypen, eingabe.richtigeTypen);
     bucheTempo(f, eingabe.zeiten ?? []);
     streakFortschreiben(f);
@@ -360,7 +366,7 @@ export function werteRundeAus(f, eingabe) {
         gesamt: eingabe.gesamt,
         sterne,
         punkte,
-        herzen: eingabe.herzen,
+        pferde: eingabe.pferde,
         neueErfolge,
         stufeAufgestiegen: aufgestiegen,
         naechsteStufe: neueStufe,
@@ -411,9 +417,9 @@ export function werteMixAus(f, eingabe) {
         stand.gesamt += eintrag.gesamt;
         stand.richtig += eintrag.richtig;
     }
-    const punkte = punkteFuerRunde(eingabe.richtig, eingabe.gesamt, 2) + eingabe.herzen * HERZ_PUNKTE;
+    const punkte = punkteFuerRunde(eingabe.richtig, eingabe.gesamt, 2) + eingabe.pferde * PFERD_PUNKTE;
     f.punkte += punkte;
-    f.herzen += eingabe.herzen;
+    f.pferde += eingabe.pferde;
     buchefehler(f, eingabe.fehlerTypen, eingabe.richtigeTypen);
     bucheTempo(f, eingabe.zeiten ?? []);
     streakFortschreiben(f);
@@ -431,7 +437,7 @@ export function werteMixAus(f, eingabe) {
         gesamt: eingabe.gesamt,
         sterne: sterneFuerRunde(eingabe.richtig, eingabe.gesamt),
         punkte,
-        herzen: eingabe.herzen,
+        pferde: eingabe.pferde,
         neueErfolge,
         stufeAufgestiegen: false,
         // Eine gemischte Runde verändert keine Stufe (siehe oben).

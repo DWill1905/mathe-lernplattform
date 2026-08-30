@@ -33,9 +33,9 @@ export const zeige: RouteHandler = (ziel) => {
       kennzahl("Sterne", `${sterne} / ${THEMEN.length * 3}`, "aus allen Themen"),
       kennzahl("Serie", String(fortschritt.streakTage), fortschritt.streakTage === 1 ? "Tag" : "Tage in Folge"),
       kennzahl(
-        "Herzen",
-        String(fortschritt.herzen),
-        fortschritt.herzen === 1 ? "Hilfsaufgabe gelöst" : "Hilfsaufgaben gelöst"
+        "Pferde",
+        String(fortschritt.pferde),
+        fortschritt.pferde === 1 ? "Hilfsaufgabe gelöst" : "Hilfsaufgaben gelöst"
       ),
       fortschritt.meister.besteTreffer > 0
         ? kennzahl(

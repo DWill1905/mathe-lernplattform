@@ -63,8 +63,8 @@ export function sterneFuerRunde(richtig: number, gesamt: number): number {
   return 0;
 }
 
-/** Punkte, die ein selbst gelöstes Herz (Hilfsaufgabe) einbringt. */
-export const HERZ_PUNKTE = 5;
+/** Punkte, die ein selbst verdientes Pferd (Hilfsaufgabe) einbringt. */
+export const PFERD_PUNKTE = 5;
 
 /** Punkte einer Runde: schwerere Stufen zählen mehr, fehlerfrei gibt Bonus. */
 export function punkteFuerRunde(richtig: number, gesamt: number, stufe: Stufe): number {
@@ -181,11 +181,17 @@ export const ERFOLGE: readonly Erfolg[] = [
     erreicht: (f) => f.meister.besteTreffer >= 20,
   },
   {
+    /*
+     * Die Kennung bleibt „herzen25“, obwohl es längst Pferde sind: Sie steckt
+     * in jeder gespeicherten `erfolge`-Liste. Eine neue Kennung ließe die alte
+     * als toten Eintrag liegen und feierte etwas längst Geschafftes ein
+     * zweites Mal, mit großem Bahnhof.
+     */
     id: "herzen25",
-    titel: "Herzensache",
+    titel: "Pferdestark",
     text: "25 Hilfsaufgaben selbst gelöst.",
-    symbol: "herz",
-    erreicht: (f) => f.herzen >= 25,
+    symbol: "pferd",
+    erreicht: (f) => f.pferde >= 25,
   },
   {
     id: "puzzle",
@@ -401,7 +407,7 @@ export interface RundenEingabe {
   /** Aufgabentypen, die richtig beantwortet wurden. */
   richtigeTypen: readonly string[];
   /** Selbst gelöste Hilfsaufgaben. */
-  herzen: number;
+  pferde: number;
   /** Antwortzeiten der richtigen Antworten, für die Tempo-Bilanz. */
   zeiten?: readonly TempoMessung[];
 }
@@ -413,7 +419,7 @@ export interface RundenEingabe {
 export function werteRundeAus(f: Fortschritt, eingabe: RundenEingabe): RundenErgebnis {
   const eintrag = f.themen[eingabe.thema];
   const sterne = sterneFuerRunde(eingabe.richtig, eingabe.gesamt);
-  const punkte = punkteFuerRunde(eingabe.richtig, eingabe.gesamt, eingabe.stufe) + eingabe.herzen * HERZ_PUNKTE;
+  const punkte = punkteFuerRunde(eingabe.richtig, eingabe.gesamt, eingabe.stufe) + eingabe.pferde * PFERD_PUNKTE;
   const vorher = f.erfolge.slice();
 
   eintrag.gesamt += eingabe.gesamt;
@@ -428,7 +434,7 @@ export function werteRundeAus(f: Fortschritt, eingabe: RundenEingabe): RundenErg
   eintrag.stufe = neueStufe;
 
   f.punkte += punkte;
-  f.herzen += eingabe.herzen;
+  f.pferde += eingabe.pferde;
   buchefehler(f, eingabe.fehlerTypen, eingabe.richtigeTypen);
   bucheTempo(f, eingabe.zeiten ?? []);
   streakFortschreiben(f);
@@ -447,7 +453,7 @@ export function werteRundeAus(f: Fortschritt, eingabe: RundenEingabe): RundenErg
     gesamt: eingabe.gesamt,
     sterne,
     punkte,
-    herzen: eingabe.herzen,
+    pferde: eingabe.pferde,
     neueErfolge,
     stufeAufgestiegen: aufgestiegen,
     naechsteStufe: neueStufe,
@@ -495,7 +501,7 @@ export interface MixEingabe {
   richtigeTypen: readonly string[];
   besteSerie: number;
   /** Selbst gelöste Hilfsaufgaben. */
-  herzen: number;
+  pferde: number;
   /** Antwortzeiten der richtigen Antworten, für die Tempo-Bilanz. */
   zeiten?: readonly TempoMessung[];
 }
@@ -512,9 +518,9 @@ export function werteMixAus(f: Fortschritt, eingabe: MixEingabe): RundenErgebnis
     stand.gesamt += eintrag.gesamt;
     stand.richtig += eintrag.richtig;
   }
-  const punkte = punkteFuerRunde(eingabe.richtig, eingabe.gesamt, 2) + eingabe.herzen * HERZ_PUNKTE;
+  const punkte = punkteFuerRunde(eingabe.richtig, eingabe.gesamt, 2) + eingabe.pferde * PFERD_PUNKTE;
   f.punkte += punkte;
-  f.herzen += eingabe.herzen;
+  f.pferde += eingabe.pferde;
   buchefehler(f, eingabe.fehlerTypen, eingabe.richtigeTypen);
   bucheTempo(f, eingabe.zeiten ?? []);
   streakFortschreiben(f);
@@ -533,7 +539,7 @@ export function werteMixAus(f: Fortschritt, eingabe: MixEingabe): RundenErgebnis
     gesamt: eingabe.gesamt,
     sterne: sterneFuerRunde(eingabe.richtig, eingabe.gesamt),
     punkte,
-    herzen: eingabe.herzen,
+    pferde: eingabe.pferde,
     neueErfolge,
     stufeAufgestiegen: false,
     // Eine gemischte Runde verändert keine Stufe (siehe oben).

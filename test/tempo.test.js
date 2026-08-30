@@ -58,7 +58,7 @@ test("die Zeiten laufen über die Rundenauswertung in den Fortschritt", () => {
     besteSerie: 1,
     fehlerTypen: [],
     richtigeTypen: ["plusminus/zehner"],
-    herzen: 0,
+    pferde: 0,
     zeiten: [{ typ: "plusminus/zehner", sekunden: 7 }],
   });
   assert.deepEqual(f.tempo["plusminus/zehner"], { sekunden: 7, anzahl: 1 });
@@ -73,7 +73,7 @@ test("die Zeiten laufen über die Rundenauswertung in den Fortschritt", () => {
     besteSerie: 1,
     fehlerTypen: [],
     richtigeTypen: [],
-    herzen: 0,
+    pferde: 0,
   });
   assert.deepEqual(g.tempo, {});
 });

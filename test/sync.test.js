@@ -14,7 +14,12 @@ import {
   setzeFamilienCode,
   verschmelze,
 } from "../js/sync.js";
-import { ladeFortschritt, speichereFortschritt, standardFortschritt } from "../js/state.js";
+import {
+  ladeFortschritt,
+  pruefeFortschritt,
+  speichereFortschritt,
+  standardFortschritt,
+} from "../js/state.js";
 import { THEMEN } from "../js/topics.js";
 
 /** Ein Spielstand mit gesetzten Werten, damit Unterschiede sichtbar werden. */
@@ -56,14 +61,14 @@ test("beim Abtippen ist Groß- und Kleinschreibung egal", () => {
 /* -------------------------------------------------------- Zusammenführung */
 
 test("Gesammeltes geht bei der Zusammenführung nie verloren", () => {
-  const a = stand({ punkte: 500, herzen: 12, puzzleGeloest: 2, erfolge: ["blitz", "herz"], letzterTag: "2026-08-20" });
-  const b = stand({ punkte: 300, herzen: 40, puzzleGeloest: 5, erfolge: ["herz", "wort"], letzterTag: "2026-08-21" });
+  const a = stand({ punkte: 500, pferde: 12, puzzleGeloest: 2, erfolge: ["blitz", "herz"], letzterTag: "2026-08-20" });
+  const b = stand({ punkte: 300, pferde: 40, puzzleGeloest: 5, erfolge: ["herz", "wort"], letzterTag: "2026-08-21" });
   a.themen.plusminus = { stufe: 3, richtig: 90, gesamt: 100, sterne: 3, besteSerie: 9 };
   b.themen.plusminus = { stufe: 1, richtig: 40, gesamt: 60, sterne: 2, besteSerie: 12 };
 
   const z = verschmelze(a, b);
   assert.equal(z.punkte, 500);
-  assert.equal(z.herzen, 40);
+  assert.equal(z.pferde, 40);
   assert.equal(z.puzzleGeloest, 5);
   assert.deepEqual([...z.erfolge].sort(), ["blitz", "herz", "wort"]);
   assert.equal(z.themen.plusminus.richtig, 90);
@@ -135,8 +140,8 @@ test("der Aktivitätsverlauf wird je Tag zusammengeführt und gedeckelt", () => 
 });
 
 test("die Zusammenführung ist von der Reihenfolge unabhängig", () => {
-  const a = stand({ punkte: 120, herzen: 3, letzterTag: "2026-08-20", erfolge: ["x"] });
-  const b = stand({ punkte: 80, herzen: 11, letzterTag: "2026-08-21", erfolge: ["y"] });
+  const a = stand({ punkte: 120, pferde: 3, letzterTag: "2026-08-20", erfolge: ["x"] });
+  const b = stand({ punkte: 80, pferde: 11, letzterTag: "2026-08-21", erfolge: ["y"] });
   a.themen.mauern = { stufe: 2, richtig: 30, gesamt: 40, sterne: 2, besteSerie: 6 };
   b.themen.mauern = { stufe: 3, richtig: 10, gesamt: 12, sterne: 1, besteSerie: 8 };
   const eins = verschmelze(a, b);
@@ -147,7 +152,7 @@ test("die Zusammenführung ist von der Reihenfolge unabhängig", () => {
 });
 
 test("mit sich selbst verschmolzen ändert sich nichts", () => {
-  const a = stand({ punkte: 640, herzen: 9, letzterTag: "2026-08-21", erfolge: ["x", "y"] });
+  const a = stand({ punkte: 640, pferde: 9, letzterTag: "2026-08-21", erfolge: ["x", "y"] });
   a.themen.geld = { stufe: 2, richtig: 30, gesamt: 44, sterne: 2, besteSerie: 7 };
   a.verlauf = [{ tag: "2026-08-21", richtig: 8, gesamt: 10 }];
   assert.deepEqual(verschmelze(a, a), a);
@@ -274,20 +279,20 @@ test("zwei Geräte finden über denselben Code zusammen", async () => {
   const code = "ABCD2345";
 
   // Gerät A übt und gleicht ab.
-  const a = stand({ punkte: 300, herzen: 5, letzterTag: "2026-08-20", erfolge: ["blitz"] });
+  const a = stand({ punkte: 300, pferde: 5, letzterTag: "2026-08-20", erfolge: ["blitz"] });
   a.themen.plusminus = { stufe: 3, richtig: 60, gesamt: 70, sterne: 3, besteSerie: 9 };
   speichereFortschritt(a);
   assert.equal((await abgleichMit(code, server.hole)).art, "gesendet");
 
   // Gerät B: eigener Stand, gleicht ab und bekommt A dazu.
-  const b = stand({ punkte: 120, herzen: 40, letzterTag: "2026-08-21", erfolge: ["herz"] });
+  const b = stand({ punkte: 120, pferde: 40, letzterTag: "2026-08-21", erfolge: ["herz"] });
   b.themen.plusminus = { stufe: 1, richtig: 20, gesamt: 30, sterne: 1, besteSerie: 3 };
   speichereFortschritt(b);
   assert.equal((await abgleichMit(code, server.hole)).art, "verschmolzen");
 
   const aufB = ladeFortschritt();
   assert.equal(aufB.punkte, 300, "die Punkte von A fehlen");
-  assert.equal(aufB.herzen, 40, "die Herzen von B fehlen");
+  assert.equal(aufB.pferde, 40, "die Pferde von B fehlen");
   assert.deepEqual([...aufB.erfolge].sort(), ["blitz", "herz"]);
   assert.equal(aufB.themen.plusminus.sterne, 3, "die Sterne von A fehlen");
   assert.equal(aufB.themen.plusminus.stufe, 1, "die Stufe kommt vom zuletzt benutzten Gerät");
@@ -297,7 +302,7 @@ test("zwei Geräte finden über denselben Code zusammen", async () => {
   await abgleichMit(code, server.hole);
   const aufA = ladeFortschritt();
   assert.equal(aufA.punkte, 300);
-  assert.equal(aufA.herzen, 40);
+  assert.equal(aufA.pferde, 40);
   assert.deepEqual([...aufA.erfolge].sort(), ["blitz", "herz"]);
 
   // Ein weiterer Abgleich ändert nichts mehr.
@@ -358,4 +363,25 @@ test("ein Fehlschlag beim Abgleich wird im Elternbereich benannt", async () => {
     meldung.includes("KV-Bindung fehlt"),
     `der Grund der Gegenstelle muss durchgereicht werden, stattdessen: ${meldung}`
   );
+});
+
+/*
+ * Der Stand vom ANDEREN Gerät kann noch von vor 1.35 stammen – dann trägt er
+ * nur das alte Feld. Er läuft durch dieselbe Prüfung wie der eigene Speicher,
+ * also greift auch dort der Rückfall. Ohne ihn käme beim Abgleich eine 0 an
+ * und das Maximum wäre still der kleinere Wert.
+ */
+test("ein Stand von einem Gerät mit der alten Fassung verliert keine Pferde", () => {
+  const alt = standardFortschritt();
+  alt.letzterTag = "2026-08-21";
+  delete alt.pferde;
+  alt.herzen = 40;
+
+  const gelesen = pruefeFortschritt(alt);
+  assert.equal(gelesen.pferde, 40, "der Rückfall greift auch für fremde Stände");
+
+  const eigen = standardFortschritt();
+  eigen.pferde = 12;
+  eigen.letzterTag = "2026-08-20";
+  assert.equal(verschmelze(eigen, gelesen).pferde, 40, "beim Zusammenführen gewinnt der größere Wert");
 });

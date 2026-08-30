@@ -55,7 +55,7 @@ verwässern.
   `familien`, `mauern`); `tasks/index.ts` hält die Registry und baut Runden.
 - `src/figures.ts` – Erklärbilder als SVG-Zeichenketten, ohne DOM-Zugriff und
   deshalb direkt testbar.
-- `src/gamification.ts` – Punkte, Level, Sterne, Herzen, Streak, Abzeichen,
+- `src/gamification.ts` – Punkte, Level, Sterne, Pferde, Streak, Abzeichen,
   Stufenanpassung – und die Tempo-Bilanz (`bucheTempo`, `muehsameTypen`):
   geglättete Antwortzeiten RICHTIGER Antworten je Aufgabentyp.
 - `cloudflare/worker.js` – die Gegenstelle, läuft bei Cloudflare. Die
@@ -168,7 +168,7 @@ verwässern.
   Daraus folgt: **Die Hauptfrage muss für sich allein verständlich sein**,
   also kein „Und jetzt die große Aufgabe“ (Test in `generatoren.test.js`), und
   sie braucht eine sichtbare Rechnung oder ein Bild. Die Hilfsaufgabe zählt
-  NICHT in die Trefferbilanz – sie bringt ein Herz. Ihr Ergebnis muss im
+  NICHT in die Trefferbilanz – sie bringt ein Pferd. Ihr Ergebnis muss im
   Zahlenraum bleiben und darf nie negativ werden (`test/mauern.test.js`).
 - **Im Bonus wird die GANZE Rechnung getippt** (`3 − 2 = 1`), nicht nur das
   Ergebnis – dafür gibt es die Antwortart `"rechnung"` mit +, − und = auf dem
@@ -240,6 +240,13 @@ verwässern.
 - **Eine neue Route braucht einen Eintrag in `ANSICHTEN` (`src/app.ts`).**
   Die Liste wird im Leerlauf komplett vorgeladen; nur dadurch bleibt die App
   nach dem Code-Splitting offline vollständig.
+- **Der Spielstand trägt ein ÜBERGANGSFELD.** Die Belohnung der Hilfsaufgabe
+  hieß bis 1.34 `herzen` und heißt seit 1.35 `pferde`. `pruefeFortschritt()`
+  liest deshalb `daten["pferde"] ?? daten["herzen"]` (mit `??`, nicht `||` –
+  eine echte 0 muss eine 0 bleiben), und `zumSpeichern()` spiegelt `pferde`
+  zurück nach `herzen`. Ohne den Spiegel setzt ein Gerät, das noch die alte
+  Fassung im Vorrat hat, die Zahl beim nächsten Abgleich zurück. Beides
+  entfällt frühestens zwei Versionen später.
 - **Die Fehlerbilanz (`fortschritt.fehler`) ist ein SALDO, keine Gesamtzahl.**
   Falsche Antworten zählen hoch, richtige derselben Art wieder herunter. Wer
   eine neue Auswertung darauf baut, darf sie nicht als „Fehler seit Beginn“

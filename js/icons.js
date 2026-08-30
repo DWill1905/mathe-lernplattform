@@ -46,7 +46,15 @@ const FORMEN = {
     pfeil: '<path d="M4 12h15M13 6l6 6-6 6"/>',
     gedanke: '<path d="M6.5 15.5A4 4 0 0 1 6 7.6a4.5 4.5 0 0 1 8.4-1.4 3.8 3.8 0 0 1 3.1 6.6 3.5 3.5 0 0 1-2.5 2.7z"/>' +
         '<circle cx="7" cy="19" r="1.6"/><circle cx="4" cy="21.6" r="1"/>',
-    herz: '<path d="M12 20.5S3.5 15.2 3.5 9.3A4.8 4.8 0 0 1 12 6.4a4.8 4.8 0 0 1 8.5 2.9c0 5.9-8.5 11.2-8.5 11.2Z" fill="currentColor"/>',
+    /*
+     * Pferdekopf im Profil, nach links – die Springer-Silhouette, die auch ein
+     * Kind sofort liest: Schnauze, Stirn, zwei Ohren, kräftiger Hals.
+     *
+     * Gefüllt wie das Herz davor, und bewusst OHNE Auge: Auf einer einfarbigen
+     * Fläche müsste es eine Aussparung sein, und die ginge nur mit einer festen
+     * Hintergrundfarbe – die verbietet der Dunkelmodus.
+     */
+    pferd: '<path d="M4.8 13.6c-.6-2.1.2-4 2.1-5.4l3.5-4-.7-2.8 3.4 2 1.1-2.2 1.8 3.4c2 1.8 3 4.1 3 6.8v11h-5.6v-9.2c0-1.6-1.1-2.6-2.6-2.6-1.8 0-3.1 1.2-3.6 3.1z" fill="currentColor"/>',
     stern: '<path d="m12 3.2 2.7 5.5 6 .9-4.3 4.2 1 6-5.4-2.8-5.4 2.8 1-6L3.3 9.6l6-.9z" fill="currentColor"/>',
     sternLeer: '<path d="m12 3.2 2.7 5.5 6 .9-4.3 4.2 1 6-5.4-2.8-5.4 2.8 1-6L3.3 9.6l6-.9z"/>',
     schloss: '<rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.8a4 4 0 0 1 8 0v2.7"/>' +

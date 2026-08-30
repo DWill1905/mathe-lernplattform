@@ -66,7 +66,7 @@ test("kaputte oder manipulierte Daten werden geprüft statt übernommen", () => 
   assert.deepEqual(geladen.verlauf, []);
   assert.deepEqual(geladen.fehler, { "einmaleins/reihe-7": 4 });
   assert.deepEqual(geladen.meister, { besteZeit: 0, besteTreffer: 0 });
-  assert.equal(geladen.herzen, 0, "negative Herzen gibt es nicht");
+  assert.equal(geladen.pferde, 0, "negative Pferde gibt es nicht");
 });
 
 test("fehlende Bestwerte des Rechenmeisters werden ergänzt", () => {
@@ -85,4 +85,49 @@ test("Zurücksetzen löscht den Spielstand", () => {
   speichereFortschritt(fortschritt);
   setzeZurueck();
   assert.equal(ladeFortschritt().punkte, 0);
+});
+
+/*
+ * Aus Herzen wurden Pferde (1.35.0) – und kein Kind darf dabei sein
+ * Gesammeltes verlieren.
+ *
+ * `pruefeFortschritt()` baut den Stand als WHITELIST neu auf: Ein Feld, das
+ * niemand ausdrücklich liest, ist beim nächsten Laden spurlos weg. Ohne den
+ * Rückfall auf das alte Feld stünde jeder bestehende Spielstand auf null.
+ */
+test("gesammelte Herzen kommen als Pferde zurück", () => {
+  localStorage.setItem(SCHLUESSEL, JSON.stringify({ punkte: 100, herzen: 17 }));
+  assert.equal(ladeFortschritt().pferde, 17, "der Rückfall auf das alte Feld fehlt");
+});
+
+test("steht das neue Feld da, gilt es – auch wenn es null ist", () => {
+  localStorage.setItem(SCHLUESSEL, JSON.stringify({ pferde: 3, herzen: 17 }));
+  assert.equal(ladeFortschritt().pferde, 3, "das neue Feld hat Vorrang");
+
+  // Der Grund für `??` statt `||`: Eine echte 0 ist ein Wert, kein Fehlen.
+  // Sonst holte ein zurückgesetzter Stand die alten Herzen zurück.
+  localStorage.setItem(SCHLUESSEL, JSON.stringify({ pferde: 0, herzen: 17 }));
+  assert.equal(ladeFortschritt().pferde, 0, "eine echte 0 darf nicht auf das alte Feld zurückfallen");
+});
+
+test("auch das alte Feld ist ungeprüfte Eingabe", () => {
+  for (const kaputt of [-5, "viele", {}, Number.NaN, 1e308]) {
+    localStorage.setItem(SCHLUESSEL, JSON.stringify({ herzen: kaputt }));
+    assert.equal(ladeFortschritt().pferde, 0, `herzen: ${JSON.stringify(kaputt)} kam ungeprüft durch`);
+  }
+});
+
+/*
+ * Das Übergangsfeld: Der gespeicherte Stand trägt `herzen` als Spiegel von
+ * `pferde`. Ein zweites Gerät, das noch die Fassung vor 1.35 im Vorrat hat,
+ * kennt `pferde` nicht – ohne den Spiegel setzt es die Zahl beim nächsten
+ * Abgleich auf seinen eigenen alten Stand zurück.
+ */
+test("der gespeicherte Stand trägt das Übergangsfeld", () => {
+  const fortschritt = standardFortschritt();
+  fortschritt.pferde = 9;
+  speichereFortschritt(fortschritt);
+  const roh = JSON.parse(localStorage.getItem(SCHLUESSEL));
+  assert.equal(roh.pferde, 9);
+  assert.equal(roh.herzen, 9, "ohne den Spiegel verliert ein Gerät mit der alten Fassung die Pferde");
 });

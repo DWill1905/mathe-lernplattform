@@ -22,11 +22,11 @@ const boesartig = [
   ["Prototype Pollution im Fehlerobjekt", { fehler: { __proto__: { schadcode: 1 }, constructor: 9 } }],
   ["Prototype Pollution in den Themen", { themen: { __proto__: { schadcode: 1 }, plusminus: { __proto__: { schadcode: 1 } } } }],
   ["Prototype Pollution auf oberster Ebene", '{"__proto__":{"schadcode":"ja"},"punkte":5}'],
-  ["Riesenzahlen", { punkte: 1e308, streakTage: 1e12, herzen: Number.MAX_SAFE_INTEGER,
+  ["Riesenzahlen", { punkte: 1e308, streakTage: 1e12, pferde: Number.MAX_SAFE_INTEGER, herzen: Number.MAX_SAFE_INTEGER,
     meister: { besteZeit: 1e15, besteTreffer: 1e9 },
     themen: { plusminus: { stufe: 1e9, gesamt: 1e12, richtig: 1e12, sterne: 99, besteSerie: 1e12 } } }],
   ["NaN und Infinity", { punkte: null, streakTage: "Infinity", themen: { geld: { stufe: NaN, gesamt: null, richtig: [], sterne: {} } } }],
-  ["falsche Typen überall", { name: {}, punkte: [], themen: [], erfolge: {}, verlauf: {}, fehler: [], meister: "x", herzen: {}, letzterTag: 5 }],
+  ["falsche Typen überall", { name: {}, punkte: [], themen: [], erfolge: {}, verlauf: {}, fehler: [], meister: "x", pferde: {}, herzen: {}, letzterTag: 5 }],
   ["überlange Listen", { verlauf: Array.from({ length: 5000 }, () => ({ tag: "2026-01-01", gesamt: 1, richtig: 1 })),
     fehler: Object.fromEntries(Array.from({ length: 5000 }, (_, i) => [`t${i}`, 5])) }],
   ["kaputtes JSON", "{nicht wirklich json"],
@@ -59,7 +59,7 @@ for (const [name, nutzlast] of boesartig) {
     Object.keys(f.fehler).forEach((typ) => assert.equal(typeof fehlerText(typ), "string"));
     werteRundeAus(f, {
       thema: "plusminus", stufe: 2, richtig: 5, gesamt: 10, besteSerie: 2,
-      fehlerTypen: ["plusminus/tabelle"], richtigeTypen: [], herzen: 0,
+      fehlerTypen: ["plusminus/tabelle"], richtigeTypen: [], pferde: 0,
     });
   });
 }
