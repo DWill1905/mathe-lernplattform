@@ -107,11 +107,25 @@ export function form(name) {
     return huelle(200, 200, formInhalt(name));
 }
 /**
+ * Dieselbe Figur in anderer Größe und Lage. Im Heft liegen die Formen einer
+ * Gruppe gedreht und verschieden groß nebeneinander – sie trotzdem
+ * wiederzuerkennen ist Teil der Übung.
+ */
+export function formVariante(name, lage = {}) {
+    const groesse = lage.groesse ?? 1;
+    const drehung = lage.drehung ?? 0;
+    const gedreht = `rotate(${r(drehung)}) scale(${r(groesse)})`;
+    return huelle(200, 200, `<g transform="translate(100 100) ${gedreht} translate(-100 -100)">${formInhalt(name)}</g>`);
+}
+/**
  * Nur die Zeichnung einer Figur, ohne SVG-Hülle. So lässt sich dieselbe Form
  * auch in eine Musterreihe einsetzen, ohne sie ein zweites Mal zu beschreiben.
  */
 function formInhalt(name) {
     switch (name) {
+        case "Ellipse":
+            return (`<ellipse cx="100" cy="100" rx="88" ry="54" class="fig-flaeche-bunt"/>` +
+                `<ellipse cx="100" cy="100" rx="88" ry="54" class="fig-linie" fill="none" stroke-width="4"/>`);
         case "Kreis":
             return `<circle cx="100" cy="100" r="74" class="fig-flaeche-bunt"/><circle cx="100" cy="100" r="74" class="fig-linie" fill="none" stroke-width="4"/>`;
         case "Quadrat":
@@ -504,45 +518,54 @@ export function puzzleHoehen(zieher, abschnitte = 4) {
 /* ------------------------------------------------------ Hunderterfeld */
 /**
  * Hunderterfeld wie im Übungsheft: zehn Reihen zu zehn Zahlen, 1 bis 100.
- * `verdeckt` sind die abgedeckten Felder – dort steht keine Zahl mehr, und
- * genau das ist die Orientierungsaufgabe. Das Feld `gesucht` ist ebenfalls
- * abgedeckt, trägt aber zusätzlich das Fragezeichen.
+ *
+ * Im Heft ist das Feld fast LEER – nur eine Handvoll Zahlen steht darin, und
+ * genau deshalb ist es eine Orientierungsübung. `sichtbar` sagt darum, welche
+ * Zahlen gedruckt werden; alle anderen Kästchen bleiben leer. `gesucht` trägt
+ * das Fragezeichen.
  */
-export function hunderterfeld(verdeckt, gesucht = null) {
+export function hunderterfeld(sichtbar, gesucht = null) {
     const breiteZelle = 46;
     const hoeheZelle = 34;
-    const abgedeckt = new Set(verdeckt);
-    if (gesucht !== null)
-        abgedeckt.add(gesucht);
+    const gedruckt = new Set(sichtbar);
     let teile = "";
     for (let zahl = 1; zahl <= 100; zahl++) {
         const x = ((zahl - 1) % 10) * breiteZelle;
         const y = Math.floor((zahl - 1) / 10) * hoeheZelle;
         const istGesucht = zahl === gesucht;
-        const klasse = istGesucht ? "fig-feld-gesucht" : abgedeckt.has(zahl) ? "fig-feld-verdeckt" : "fig-feld";
         teile +=
-            `<rect x="${x}" y="${y}" width="${breiteZelle}" height="${hoeheZelle}" class="${klasse}"/>` +
+            `<rect x="${x}" y="${y}" width="${breiteZelle}" height="${hoeheZelle}" ` +
+                `class="${istGesucht ? "fig-feld-gesucht" : "fig-feld"}"/>` +
                 `<rect x="${x}" y="${y}" width="${breiteZelle}" height="${hoeheZelle}" class="fig-linie" fill="none" stroke-width="1.5"/>`;
         if (istGesucht) {
             teile +=
                 `<text x="${x + breiteZelle / 2}" y="${y + hoeheZelle / 2 + 8}" class="fig-text-marke" ` +
                     `text-anchor="middle" font-size="22">?</text>`;
         }
-        else if (!abgedeckt.has(zahl)) {
+        else if (gedruckt.has(zahl)) {
             teile +=
                 `<text x="${x + breiteZelle / 2}" y="${y + hoeheZelle / 2 + 6}" class="fig-text" ` +
                     `text-anchor="middle" font-size="17">${zahl}</text>`;
         }
     }
-    return huelle(breiteZelle * 10, hoeheZelle * 10, teile);
+    return gerahmt(breiteZelle * 10, hoeheZelle * 10, teile);
 }
 /**
- * Ausschnitt aus dem Hunderterfeld – im Heft als Kreuz oder als Treppe. Nur
- * die angegebenen Felder werden gezeichnet, der Rest bleibt leer; Zeile und
- * Spalte sind die Lage im ganzen Feld und werden hier auf den Ausschnitt
- * heruntergerechnet.
+ * Legt einen schmalen Rand um ein Bild. Ohne ihn schneidet der Bildrand die
+ * äußeren Rahmenlinien zur Hälfte weg – das Hunderterfeld sah unten und links
+ * aus, als fehlte ihm der Rahmen.
  */
-export function hundertfeldStueck(felder) {
+function gerahmt(breite, hoehe, inhalt) {
+    const rand = 2;
+    return huelle(breite + rand * 2, hoehe + rand * 2, `<g transform="translate(${rand} ${rand})">${inhalt}</g>`);
+}
+/**
+ * Ausschnitt aus dem Hunderterfeld – im Heft als Streifen, Kreuz, Block oder
+ * Treppe. Nur die angegebenen Felder werden gezeichnet, der Rest bleibt leer;
+ * Zeile und Spalte sind die Lage im ganzen Feld und werden hier auf den
+ * Ausschnitt heruntergerechnet.
+ */
+export function hunderterfeldStueck(felder) {
     const breiteZelle = 68;
     const hoeheZelle = 52;
     const zeilen = felder.map((f) => f.zeile);
@@ -564,19 +587,68 @@ export function hundertfeldStueck(felder) {
                 `class="${gesucht ? "fig-text-marke" : "fig-text"}" text-anchor="middle" font-size="26">` +
                 `${gesucht ? "?" : feld.wert}</text>`;
     }
-    return huelle(breite, hoehe, teile);
+    return gerahmt(breite, hoehe, teile);
+}
+/* -------------------------------------------------------- Rechenstrich */
+/**
+ * Rechenstrich wie im Heft: ein kurzer AUSSCHNITT des Zahlenstrahls mit
+ * Strichen im Abstand 1, beschrifteten Enden und – auf der leichteren Stufe –
+ * beschrifteter Mitte. Am gesuchten Strich hängt ein Kästchen mit „?“.
+ *
+ * Bewusst nicht `zahlenstrahl()`: Der geht über den ganzen Zahlenraum und hat
+ * nur Zehnerstriche. Dort ließe sich zwischen zwei Zehnern nichts ablesen –
+ * genau das ist hier die Aufgabe.
+ */
+export function rechenstrich(von, bis, markiert, mitteBeschriftet) {
+    const breite = 520;
+    const links = 40;
+    const rechts = breite - 40;
+    const y = 62;
+    const mitte = (von + bis) / 2;
+    const stelle = (wert) => links + ((rechts - links) * (wert - von)) / (bis - von);
+    let teile = `<line x1="${links}" y1="${y}" x2="${rechts}" y2="${y}" class="fig-linie" stroke-width="3"/>`;
+    for (let wert = von; wert <= bis; wert++) {
+        const beschriftet = wert === von || wert === bis || (mitteBeschriftet && wert === mitte);
+        const hoch = beschriftet ? 16 : 8;
+        teile +=
+            `<line x1="${r(stelle(wert))}" y1="${y - hoch}" x2="${r(stelle(wert))}" y2="${y + hoch}" ` +
+                `class="fig-linie" stroke-width="${beschriftet ? 3.5 : 2}"/>`;
+        if (beschriftet) {
+            teile +=
+                `<text x="${r(stelle(wert))}" y="${y - 24}" class="fig-text" text-anchor="middle" ` +
+                    `font-size="22">${wert}</text>`;
+        }
+    }
+    // Das Kästchen hängt an einer Führungslinie unter dem gesuchten Strich –
+    // so wie im Heft, wo das Kind die Zahl hineinschreibt.
+    const x = stelle(markiert);
+    const kastenB = 62;
+    const kastenH = 44;
+    const kastenY = y + 34;
+    teile +=
+        `<line x1="${r(x)}" y1="${y + 8}" x2="${r(x)}" y2="${kastenY}" class="fig-linie" stroke-width="2"/>` +
+            `<rect x="${r(x - kastenB / 2)}" y="${kastenY}" width="${kastenB}" height="${kastenH}" rx="6" class="fig-feld-gesucht"/>` +
+            `<rect x="${r(x - kastenB / 2)}" y="${kastenY}" width="${kastenB}" height="${kastenH}" rx="6" ` +
+            `class="fig-linie" fill="none" stroke-width="2.5"/>` +
+            `<text x="${r(x)}" y="${kastenY + 32}" class="fig-text-marke" text-anchor="middle" font-size="26">?</text>`;
+    return huelle(breite, kastenY + kastenH + 6, teile);
 }
 /* --------------------------------------------------------- Musterreihe */
 /**
  * Musterreihe aus Formen, wie auf der Musterseite des Hefts. `null` ist die
  * Lücke – sie steht am Ende (nach rechts fortsetzen) oder am Anfang (nach
- * links fortsetzen).
+ * links fortsetzen), nie in der Mitte: dort wäre sie oft schon aus dem
+ * direkten Nachbarn ablesbar.
  */
 export function formenreihe(namen) {
     const kaestchen = 84;
     const spalt = 10;
     const faktor = (kaestchen * 0.94) / 200;
     const rand = (kaestchen - 200 * faktor) / 2;
+    // Die Formen werden mitskaliert, ihre Striche also dünner. Die Lücke bekommt
+    // dieselbe Strichstärke – sonst drängt sich das leere Kästchen optisch vor
+    // die Formen, um die es eigentlich geht.
+    const strich = r(4 * faktor);
     let teile = "";
     namen.forEach((name, i) => {
         const x = i * (kaestchen + spalt);
@@ -584,7 +656,7 @@ export function formenreihe(namen) {
             teile +=
                 `<rect x="${x}" y="0" width="${kaestchen}" height="${kaestchen}" rx="10" class="fig-feld-gesucht"/>` +
                     `<rect x="${x}" y="0" width="${kaestchen}" height="${kaestchen}" rx="10" class="fig-linie" ` +
-                    `fill="none" stroke-width="3" stroke-dasharray="8 6"/>` +
+                    `fill="none" stroke-width="${strich}" stroke-dasharray="8 6"/>` +
                     `<text x="${x + kaestchen / 2}" y="${kaestchen / 2 + 14}" class="fig-text-marke" ` +
                     `text-anchor="middle" font-size="40">?</text>`;
         }
@@ -592,5 +664,5 @@ export function formenreihe(namen) {
             teile += `<g transform="translate(${r(x + rand)} ${r(rand)}) scale(${r(faktor)})">${formInhalt(name)}</g>`;
         }
     });
-    return huelle(namen.length * (kaestchen + spalt) - spalt, kaestchen, teile);
+    return gerahmt(namen.length * (kaestchen + spalt) - spalt, kaestchen, teile);
 }

@@ -4,6 +4,69 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.38.0] – 2026-09-04
+
+### Geändert
+
+**Die Heft-Aufgaben aus 1.37.0 treffen jetzt wirklich die Übung aus dem
+Heft.** Beim genauen Ansehen der Originalseiten zeigte sich an acht Stellen,
+dass meine Umsetzung ein anderes Lernziel traf – nicht falsch, aber eben
+nicht das, was das Kind in der Schule macht.
+
+- **Das Hunderterfeld ist fast leer.** Vorher standen 97 von 100 Zahlen
+  darin; die Lücke war am direkten Nachbarn abzulesen, orientieren musste
+  sich niemand. Jetzt sind es wie im Heft nur Anker: auf Stufe 1 die
+  Zeilenanfänge und die Zehnerspalte, ab Stufe 2 nur noch die Zehnerspalte.
+- **Der Rechenstrich ist ein kurzer Abschnitt mit einem Strich je Zahl** –
+  20 bis 30 statt des ganzen Zahlenstrahls, mit beschrifteten Enden und (bis
+  Stufe 2) beschrifteter Mitte. Vorher lief die Marke über den 0–100-Strahl
+  mit nur Zehnerstrichen, weshalb die Lösung ein Vielfaches von 5 sein
+  musste. Diese Einschränkung fällt weg: Jetzt kann jede Zahl dazwischen
+  gefragt werden.
+- **Die Hunderterfeld-Ausschnitte gibt es in sechs Formen** – waagerechter
+  Streifen, senkrechte Spalte, Kreuz, Vierer- und Sechserblock, Treppe. Es
+  waren nur Kreuz und Treppe.
+- **„Welche Form passt nicht?“ vergleicht die Form, nicht die Eckenzahl.**
+  Im Heft heißt das Kästchen „Quadrate“ und enthält einen Fast-Treffer: ein
+  Rechteck unter Quadraten, eine in die Länge gezogene Form unter Kreisen.
+  Genau das ist die Übung – ein Rechteck hat schließlich auch vier Ecken.
+  Die drei Formen der Gruppe stehen dabei in verschiedenen Größen und leicht
+  gedreht nebeneinander, denn sie trotzdem wiederzuerkennen gehört dazu.
+- **Muster dürfen eine Form wiederholen.** Im Heft sind die Grundmuster bis
+  zu vier Formen lang und sehen aus wie „Quadrat, Quadrat, Dreieck,
+  Dreieck“. Meine waren immer zwei oder drei paarweise verschiedene Formen.
+  Gebaut wird jetzt aus den vier Formen des Hefts (Quadrat, Rechteck,
+  Dreieck, Kreis) statt aus allen acht – ein Sechseck kam dort nie vor und
+  wäre in einem 40 Pixel breiten Kästchen ohnehin kaum zu erkennen. Und der
+  Tipp verrät die Periode nicht mehr: „Kreise erst das Grundmuster ein“ ist
+  im Heft der erste Arbeitsschritt, den nahm der alte Tipp vorweg.
+- **Die Zahlenpaare beim Vergleichen sind verwandt.** Im Heft stehen 39 und
+  34, 65 und 56, 81 und 81 gegeneinander – gleiche Zehner, vertauschte
+  Ziffern, Gleichstand. Zwei unabhängige Zufallszahlen waren meistens auf
+  den ersten Blick verschieden und übten nichts.
+- **Beim Ordnen stammen die vier Zahlen aus derselben Ziffernfamilie**
+  (12, 32, 21, 23 oder 9, 91, 19, 90), wie im Heft. Erst dadurch muss ein
+  Kind Zehner und Einer wirklich trennen.
+- **Die Schrittweite 1 kommt bei den Regeln vor** – „immer + 1“ ist im Heft
+  das ausgeschriebene Beispiel und fehlte.
+
+### Hinzugefügt
+
+**„Welche Zahlenreihe passt zur Regel?“** – die Umkehrung der Regelaufgabe
+und die letzte Aufgabe der Heftseite („Finde zu jeder Regel eine
+Zahlenfolge“). Die Regel steht da, vier Reihen stehen zur Wahl.
+
+### Behoben
+
+**Die Lücke der Musterreihe war doppelt so kräftig gezeichnet wie die
+Formen daneben.** Die Formen werden in ihr Kästchen skaliert, ihre Striche
+also dünner; das gestrichelte leere Kästchen war es nicht und drängte sich
+optisch vor die Formen, um die es eigentlich geht.
+
+**Das Quadrat wird so groß gezeichnet wie die anderen Figuren.** Es maß 60
+von 200 Einheiten, alle übrigen etwa 150. Allein gezeigt fiel das nicht auf –
+in der Musterreihe stand es neben dem Sechseck wie ein Punkt.
+
 ## [1.37.0] – 2026-09-04
 
 ### Hinzugefügt
@@ -42,10 +105,6 @@ Aufgabenformen geworden:
 „Geometrische Formen, Muster“ gehört zum Pflichtstoff; das Thema steht
 deshalb auf der Startseite oben bei den Heft-Themen und wird im gemischten
 Training doppelt gezogen. Aus dem Heft sind es damit sieben Themen.
-
-**Das Quadrat wird so groß gezeichnet wie die anderen Figuren.** Es maß 60
-von 200 Einheiten, alle übrigen etwa 150. Allein gezeigt fiel das nicht auf –
-in der Musterreihe stand es neben dem Sechseck wie ein Punkt.
 
 Drei neue Erklärbilder in `figures.ts`: `hunderterfeld()`,
 `hundertfeldStueck()` und `formenreihe()`. Die Zeichnung einer Form steckt

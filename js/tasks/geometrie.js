@@ -1,4 +1,4 @@
-import { ALLE_FORMEN, eckenZahl, form, formenreihe, mitArtikel, puzzleHoehen, puzzleteil, spiegelachse, } from "../figures.js";
+import { ALLE_FORMEN, eckenZahl, form, formVariante, formenreihe, mitArtikel, puzzleHoehen, puzzleteil, spiegelachse, } from "../figures.js";
 import { auswahlfeld, zahlfeld } from "./helpers.js";
 /** Körper mit ihren Kennzahlen – für die Fragen der dritten Stufe. */
 const KOERPER = [
@@ -6,77 +6,134 @@ const KOERPER = [
     { name: "Quader", ecken: 8, flaechen: 6, kanten: 12 },
 ];
 export function geometrie(rng, stufe) {
-    if (stufe === 1) {
-        return rng.pick([formErkennen, formErkennen, formMitEcken, puzzle, passtNicht, musterRechts])(rng);
-    }
-    if (stufe === 2) {
-        return rng.pick([eckenZaehlen, seitenZaehlen, formMitEcken, puzzle, passtNicht, musterLinks])(rng);
-    }
-    return rng.pick([symmetrie, koerper, umfangQuadrat, umfangRechteck, musterLinks])(rng);
+    // Die Musteraufgaben brauchen die Stufe: Sie bestimmt, wie lang das
+    // Grundmuster werden darf.
+    const varianten = stufe === 1
+        ? [formErkennen, formErkennen, formMitEcken, puzzle, passtNicht, musterRechts]
+        : stufe === 2
+            ? [eckenZaehlen, seitenZaehlen, formMitEcken, puzzle, passtNicht, musterRechts, musterLinks]
+            : [symmetrie, koerper, umfangQuadrat, umfangRechteck, passtNicht, musterLinks];
+    return rng.pick(varianten)(rng, stufe);
 }
 /* ------------------------------------------- Formen und Muster (Heft) */
 /**
- * „Welche Form passt nicht?" wie im Heft. Verglichen wird die Eckenzahl:
- * Drei Vierecke und eine Form mit anderer Eckenzahl. Drei GLEICHE Formen
- * gehen nicht – dann wären drei Bildkarten identisch und die Frage nach der
- * einen richtigen Karte wäre nicht mehr eindeutig.
+ * Die Gruppen aus „Welche Form passt jeweils nicht?“ im Heft: ein Kästchen
+ * heißt „Quadrate“ und enthält lauter Quadrate – und einen Fast-Treffer.
+ * Verglichen wird also die Form selbst, nicht die Eckenzahl: Ein Rechteck
+ * unter Quadraten hat genauso vier Ecken, und genau darum geht es.
  */
-function passtNicht(rng) {
-    const vierecke = ALLE_FORMEN.filter((f) => eckenZahl(f) === 4);
-    const gruppe = rng.shuffle([...vierecke]).slice(0, 3);
-    const andere = ALLE_FORMEN.filter((f) => eckenZahl(f) !== 4);
-    const ausreisser = rng.pick(andere);
-    const kennungen = ["A", "B", "C", "D"];
-    const gemischt = rng.shuffle([...gruppe, ausreisser]);
-    const optionen = gemischt.map((name, i) => ({
-        kennung: kennungen[i],
-        svg: form(name),
-        beschriftung: mitArtikel(name),
-    }));
-    const loesung = kennungen[gemischt.indexOf(ausreisser)];
-    const ecken = eckenZahl(ausreisser);
-    return {
-        typ: "geometrie/passt-nicht",
-        frage: "Drei dieser Formen haben gleich viele Ecken. Welche passt nicht dazu?",
-        antwortfeld: { art: "bildauswahl", optionen },
-        loesung,
-        tipp: "Zähle bei jeder Form die Ecken.",
-        erklaerung: `${gruppe.join(", ")} haben 4 Ecken. ${mitArtikel(ausreisser)} hat ` +
-            `${ecken === 0 ? "gar keine Ecke" : `${ecken} Ecken`}.`,
-    };
-}
-function musterRechts(rng) {
-    return muster(rng, false);
-}
-function musterLinks(rng) {
-    return muster(rng, true);
+const FORMGRUPPEN = [
+    {
+        mehrzahl: "Quadrate",
+        form: "Quadrat",
+        ausreisser: ["Rechteck", "Trapez"],
+        warum: "Beim Quadrat sind alle vier Seiten gleich lang.",
+    },
+    {
+        mehrzahl: "Rechtecke",
+        form: "Rechteck",
+        // Kein Quadrat als Ausreißer: Ein Quadrat IST ein Rechteck – die Aufgabe
+        // hätte dann keine richtige Antwort.
+        ausreisser: ["Trapez", "Raute"],
+        warum: "Beim Rechteck stehen alle vier Ecken gerade, wie bei einer Postkarte.",
+    },
+    {
+        mehrzahl: "Dreiecke",
+        form: "Dreieck",
+        ausreisser: ["Quadrat", "Rechteck", "Trapez"],
+        warum: "Ein Dreieck hat genau drei Ecken.",
+    },
+    {
+        mehrzahl: "Kreise",
+        form: "Kreis",
+        ausreisser: ["Ellipse", "Sechseck"],
+        warum: "Ein Kreis ist überall gleich rund.",
+    },
+];
+/**
+ * Wie eine Form heißt. „Ellipse“ ist kein Wort für die 2. Klasse – sie wird
+ * deshalb beschrieben statt benannt.
+ */
+function formName(name, gross = true) {
+    if (name === "Ellipse")
+        return `${gross ? "Eine" : "eine"} in die Länge gezogene Form`;
+    return mitArtikel(name, gross);
 }
 /**
- * Muster fortsetzen. Im Heft geht das ausdrücklich in BEIDE Richtungen –
- * nach links ist die schwerere Übung, weil das Grundmuster dafür rückwärts
- * gedacht werden muss.
+ * „Welche Form passt nicht?“ wie im Heft: drei Formen einer benannten Gruppe
+ * – verschieden groß und leicht gedreht, denn sie trotzdem wiederzuerkennen
+ * ist Teil der Übung – und ein Fast-Treffer dazwischen.
  */
-function muster(rng, nachLinks) {
-    const laenge = rng.pick([2, 2, 3]);
-    const grund = rng.shuffle([...ALLE_FORMEN]).slice(0, laenge);
-    const luecke = nachLinks ? 0 : 5;
+function passtNicht(rng) {
+    const gruppe = rng.pick(FORMGRUPPEN);
+    const ausreisser = rng.pick([...gruppe.ausreisser]);
+    // Drei deutlich verschiedene Größen: Zwei gleiche Karten wären nicht
+    // entscheidbar, und im Heft liegen die Formen ohnehin bunt gemischt.
+    const groessen = rng.shuffle([0.62, 0.8, 1]);
+    const karten = groessen.map((groesse, i) => ({
+        name: gruppe.form,
+        svg: formVariante(gruppe.form, { groesse, drehung: [-16, 0, 14][i] }),
+    }));
+    karten.push({ name: ausreisser, svg: formVariante(ausreisser, { groesse: 0.9, drehung: 8 }) });
+    const kennungen = ["A", "B", "C", "D"];
+    const gemischt = rng.shuffle(karten);
+    return {
+        typ: "geometrie/passt-nicht",
+        frage: `Das sollen alles ${gruppe.mehrzahl} sein. Welche Form passt nicht dazu?`,
+        antwortfeld: {
+            art: "bildauswahl",
+            // Die Karten werden NICHT benannt – drei gleiche Namen und ein anderer
+            // wären die Lösung im Klartext. Wie beim Puzzle heißen sie deshalb nur
+            // nach ihrer Kennung.
+            optionen: gemischt.map((karte, i) => ({
+                kennung: kennungen[i],
+                svg: karte.svg,
+                beschriftung: `Form ${kennungen[i]}`,
+            })),
+        },
+        loesung: kennungen[gemischt.findIndex((karte) => karte.name === ausreisser)],
+        tipp: gruppe.warum,
+        erklaerung: `${formName(ausreisser)} ist kein ${gruppe.form}. ${gruppe.warum}`,
+    };
+}
+/**
+ * Die vier Formen, aus denen das Heft seine Muster baut. Fünf- und Sechsecke
+ * kämen dort nicht vor und wären in einem 60 Pixel breiten Kästchen ohnehin
+ * kaum auseinanderzuhalten.
+ */
+const MUSTERFORMEN = ["Quadrat", "Rechteck", "Dreieck", "Kreis"];
+function musterRechts(rng, stufe) {
+    return muster(rng, false, stufe);
+}
+function musterLinks(rng, stufe) {
+    return muster(rng, true, stufe);
+}
+/**
+ * Muster fortsetzen. Im Heft geht das ausdrücklich in BEIDE Richtungen – nach
+ * links ist die schwerere Übung, weil das Grundmuster dafür rückwärts gedacht
+ * werden muss. Und die Grundmuster dort dürfen eine Form wiederholen
+ * (Quadrat, Quadrat, Dreieck, Dreieck), sind also nicht einfach eine Folge
+ * verschiedener Formen.
+ */
+function muster(rng, nachLinks, stufe) {
+    const laenge = stufe === 1 ? 2 : stufe === 2 ? rng.pick([2, 3]) : rng.pick([3, 4]);
+    const grund = grundmuster(rng, laenge);
+    // Es sollen immer mindestens zwei volle Durchläufe zu sehen sein – und
+    // höchstens acht Kästchen, sonst schrumpfen sie auf dem Telefon zu sehr.
+    const kaestchen = laenge === 4 ? 8 : 6;
+    const luecke = nachLinks ? 0 : kaestchen - 1;
     const reihe = [];
-    for (let i = 0; i < 6; i++)
+    for (let i = 0; i < kaestchen; i++)
         reihe.push(i === luecke ? null : grund[i % laenge]);
     const loesung = grund[luecke % laenge];
     // Die Ablenker kommen zuerst aus dem Muster selbst – sonst fiele die
     // richtige Karte schon dadurch auf, dass nur sie im Bild vorkommt.
     const ablenker = [
-        ...grund.filter((f) => f !== loesung),
-        ...rng.shuffle(ALLE_FORMEN.filter((f) => !grund.includes(f))),
+        ...new Set(grund.filter((f) => f !== loesung)),
+        ...rng.shuffle(MUSTERFORMEN.filter((f) => !grund.includes(f))),
     ].slice(0, 3);
     const kennungen = ["A", "B", "C", "D"];
     const gemischt = rng.shuffle([loesung, ...ablenker]);
-    const optionen = gemischt.map((name, i) => ({
-        kennung: kennungen[i],
-        svg: form(name),
-        beschriftung: mitArtikel(name),
-    }));
     return {
         typ: nachLinks ? "geometrie/muster-links" : "geometrie/muster-rechts",
         frage: nachLinks
@@ -87,13 +144,35 @@ function muster(rng, nachLinks) {
             beschriftung: `Musterreihe aus Formen mit einer Lücke ${nachLinks ? "am Anfang" : "am Ende"}`,
             breit: true,
         },
-        antwortfeld: { art: "bildauswahl", optionen },
+        antwortfeld: {
+            art: "bildauswahl",
+            optionen: gemischt.map((name, i) => ({
+                kennung: kennungen[i],
+                svg: form(name),
+                beschriftung: mitArtikel(name),
+            })),
+        },
         loesung: kennungen[gemischt.indexOf(loesung)],
-        tipp: laenge === 2
-            ? "Immer zwei Formen wechseln sich ab."
-            : "Immer drei Formen kommen der Reihe nach – dann fängt das Muster von vorn an.",
+        tipp: "Suche zuerst das kleinste Stück, das sich immer wiederholt.",
         erklaerung: `Das Grundmuster ist: ${grund.join(", ")}. Danach beginnt es wieder von vorn.`,
     };
+}
+/**
+ * Ein Grundmuster der gewünschten Länge. Formen dürfen sich darin
+ * wiederholen, das Muster selbst aber nicht: „Quadrat, Quadrat“ ist kein
+ * Zweiermuster, sondern ein Einermuster – dann gäbe es zwei richtige
+ * Antworten auf die Frage nach dem Grundmuster.
+ */
+function grundmuster(rng, laenge) {
+    for (let versuch = 0; versuch < 60; versuch++) {
+        const kandidat = Array.from({ length: laenge }, () => rng.pick(MUSTERFORMEN));
+        if (new Set(kandidat).size < 2)
+            continue;
+        const kuerzer = [1, 2, 3].some((teil) => teil < laenge && laenge % teil === 0 && kandidat.every((f, i) => f === kandidat[i % teil]));
+        if (!kuerzer)
+            return kandidat;
+    }
+    return rng.shuffle([...MUSTERFORMEN]).slice(0, laenge);
 }
 function formErkennen(rng) {
     const gewaehlt = rng.pick(ALLE_FORMEN);

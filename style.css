@@ -1229,14 +1229,10 @@ details[open] summary {
   fill: color-mix(in srgb, var(--haupt) 18%, var(--karte));
 }
 
-/* Hunderterfeld: verdeckte Felder sind zugeklebt, das gesuchte ist getönt. */
+/* Hunderterfeld, Ausschnitt, Rechenstrich: leere Kästchen und das gesuchte. */
 
 .fig-feld {
   fill: var(--karte);
-}
-
-.fig-feld-verdeckt {
-  fill: color-mix(in srgb, var(--blau) 55%, var(--karte));
 }
 
 .fig-feld-gesucht {

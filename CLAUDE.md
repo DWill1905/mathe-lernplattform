@@ -239,21 +239,41 @@ verwässern.
 - **Bei der Rechentabelle steht die Rechnung bewusst NICHT im Text.** Das
   Ablesen von Zeile und Spalte ist die eigentliche Übung; für Screenreader
   steckt die Aufgabe in der Bildbeschreibung. Ein Test hält das fest.
-- **Im Hunderterfeld ist die Reihe der Zehner und die Spalte der Einer.**
-  Nach rechts wird die Zahl um 1 größer, nach unten um 10. Beide Bilder
-  (`hunderterfeld()` und `hundertfeldStueck()`) geben die Kästchen an genau
-  berechenbaren Koordinaten aus – nur dadurch lässt sich im Test aus dem BILD
-  zurücklesen, welche Zahl unter dem Fragezeichen steht.
-- **In einer Bildauswahl darf keine Form doppelt vorkommen.** „Welche Form
-  passt nicht?“ funktioniert im Heft mit drei gleichen Formen; hier nicht,
-  denn `form()` zeichnet gleiche Namen identisch und zwei gleiche Bildkarten
-  wären nicht entscheidbar (ein Test in `generatoren.test.js` hält das fest).
-  Verglichen wird deshalb die ECKENZAHL: drei Vierecke und ein Ausreißer.
-- **Muster gehen in beide Richtungen.** Im Heft wird ausdrücklich auch nach
-  LINKS fortgesetzt; das ist die schwerere Übung, weil das Grundmuster dafür
-  rückwärts gedacht werden muss. `formenreihe()` setzt die Lücke deshalb an
-  den Anfang oder ans Ende, nie in die Mitte – dort wäre sie oft schon aus
-  dem direkten Nachbarn ablesbar.
+- **Das Hunderterfeld ist fast LEER.** Reihe = Zehner, Spalte = Einer; nach
+  rechts wird die Zahl um 1 größer, nach unten um 10. `hunderterfeld()`
+  bekommt deshalb die Liste der Zahlen, die GEDRUCKT werden – Stufe 1 die
+  Zeilenanfänge und die Zehnerspalte, ab Stufe 2 nur noch die Zehnerspalte.
+  Stünden fast alle Zahlen da, wäre die Lücke am direkten Nachbarn abzulesen
+  und die Orientierung entfiele; ein Test in `heftaufgaben.test.js` hält die
+  Obergrenze fest. Beide Bilder (`hunderterfeld()` und
+  `hunderterfeldStueck()`) geben die Kästchen an genau berechenbaren
+  Koordinaten aus – nur dadurch lässt sich im Test aus dem BILD zurücklesen,
+  welche Zahl unter dem Fragezeichen steht.
+- **Der Rechenstrich ist NICHT der Zahlenstrahl.** `zahlenstrahl()` geht über
+  den ganzen Zahlenraum und hat nur Zehnerstriche; dazwischen ließe sich
+  nichts ablesen. `rechenstrich()` zeigt wie im Heft einen Abschnitt von zehn
+  Zahlen mit einem Strich je Zahl, beschrifteten Enden und – bis Stufe 2 –
+  beschrifteter Mitte.
+- **„Welche Form passt nicht?“ vergleicht die FORM, nicht die Eckenzahl.** Im
+  Heft heißt das Kästchen „Quadrate“ und enthält einen Fast-Treffer: ein
+  Rechteck unter Quadraten, eine in die Länge gezogene Form unter Kreisen.
+  Drei gleiche Formen gehen trotzdem, weil `formVariante()` sie in
+  verschiedenen Größen und leicht gedreht zeichnet – zwei identische
+  Bildkarten wären nicht entscheidbar (Test in `generatoren.test.js`). Die
+  Drehung bleibt unter ±20°: Ein um 45° gedrehtes Quadrat wäre von der Raute
+  nicht zu unterscheiden. Die Karten heißen nur „Form A“ bis „Form D“; drei
+  gleiche Namen und ein anderer wären die Lösung im Klartext. Und ein Quadrat
+  taugt nie als Ausreißer unter Rechtecken – es IST eines.
+- **Muster gehen in beide Richtungen, und ihr Grundmuster ist das KLEINSTE
+  sich wiederholende Stück.** Im Heft wird ausdrücklich auch nach LINKS
+  fortgesetzt; das ist die schwerere Übung, weil das Grundmuster dafür
+  rückwärts gedacht werden muss. Formen dürfen sich darin wiederholen
+  (Quadrat, Quadrat, Dreieck, Dreieck), das Muster selbst aber nicht: „Kreis,
+  Dreieck, Kreis, Dreieck“ ist kein Vierer-, sondern ein Zweiermuster, und
+  die Erklärung nennte dann das falsche Grundmuster. `formenreihe()` setzt die
+  Lücke an den Anfang oder ans Ende, nie in die Mitte – dort wäre sie oft
+  schon aus dem direkten Nachbarn ablesbar –, und zeigt immer mindestens zwei
+  volle Durchläufe.
 - **Neue ausgelieferte Dateien gehören in den Precache.** Beim ersten Besuch
   lädt der Browser `index.html` und die statisch importierten Module, bevor der
   Service Worker die Kontrolle übernimmt – Laufzeit-Caching allein reicht also

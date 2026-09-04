@@ -5,8 +5,13 @@ import {
   ALLE_FORMEN,
   eckenZahl,
   form,
+  formVariante,
+  formenreihe,
   geldbild,
+  hunderterfeld,
+  hunderterfeldStueck,
   punktefeld,
+  rechenstrich,
   spiegelachse,
   uhr,
   zahlenstrahl,
@@ -21,6 +26,14 @@ const ALLE_BILDER = [
   zahlenstrahl(100, 40),
   punktefeld(3, 4),
   spiegelachse("Quadrat", true),
+  hunderterfeld([10, 20, 30], 44),
+  hunderterfeldStueck([
+    { zeile: 1, spalte: 2, wert: 13 },
+    { zeile: 2, spalte: 2, wert: null },
+  ]),
+  rechenstrich(40, 50, 43, true),
+  formenreihe(["Kreis", "Dreieck", null]),
+  formVariante("Ellipse", { groesse: 0.7, drehung: 12 }),
   ...ALLE_FORMEN.map((name) => form(name)),
 ];
 
