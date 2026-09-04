@@ -52,9 +52,9 @@ export const THEMEN = [
         symbol: "zahlen",
         farbe: "blau",
         stufen: [
-            "Vorgänger/Nachfolger, Zehner und Einer, größer/kleiner",
-            "Nachbarzehner, Zahlenfolgen mit Pfeilschritten, Zahlenstrahl",
-            "Zahlen ordnen, runden, Mitte finden, Folgen mit wechselnden Schritten",
+            "Vorgänger/Nachfolger, Zehner und Einer, größer/kleiner, Hunderterfeld",
+            "Nachbarzehner, Zahlenfolgen mit Pfeilschritten, Zahlenstrahl, Rechenstrich",
+            "Zahlen ordnen, runden, Mitte finden, Regeln finden, Hunderterfeld-Ausschnitte",
         ],
         ausHeft: true,
     },
@@ -78,6 +78,19 @@ export const THEMEN = [
         symbol: "geld",
         farbe: "gruen",
         stufen: ["Münzen zusammenzählen", "Euro und Cent umrechnen, Beträge legen, Preise vergleichen", "Bezahlen, Rückgeld und Beträge zusammenstellen"],
+        ausHeft: true,
+    },
+    {
+        id: "geometrie",
+        titel: "Formen",
+        kurz: "Figuren erkennen, Muster fortsetzen, Ecken zählen",
+        symbol: "formen",
+        farbe: "lila",
+        stufen: [
+            "Formen erkennen, Muster nach rechts fortsetzen, Puzzleteile zuordnen",
+            "Ecken und Seiten zählen, Muster nach links fortsetzen, welche Form passt nicht",
+            "Spiegelachsen, Körper, Umfang",
+        ],
         ausHeft: true,
     },
     {
@@ -114,15 +127,6 @@ export const THEMEN = [
         symbol: "lineal",
         farbe: "orange",
         stufen: ["Meter in Zentimeter", "cm und mm, Längen vergleichen", "mit Längen rechnen"],
-        ausHeft: false,
-    },
-    {
-        id: "geometrie",
-        titel: "Formen",
-        kurz: "Figuren erkennen, Ecken zählen, Symmetrie",
-        symbol: "formen",
-        farbe: "lila",
-        stufen: ["Formen erkennen und Puzzleteile zuordnen", "Ecken und Seiten zählen, schwierigere Puzzleteile", "Spiegelachsen und Körper"],
         ausHeft: false,
     },
     {

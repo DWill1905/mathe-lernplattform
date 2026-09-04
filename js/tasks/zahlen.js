@@ -1,12 +1,12 @@
-import { pfeilfolge, rechentabelle, zahlenstrahl } from "../figures.js";
+import { hundertfeldStueck, hunderterfeld, pfeilfolge, rechentabelle, zahlenstrahl, } from "../figures.js";
 import { auswahlfeld, zahlAblenker, zahlfeld } from "./helpers.js";
 /* ============================================================ Zahlenraum */
 export function zahlenraum(rng, stufe) {
     const varianten = stufe === 1
-        ? [nachbarzahl, zehnerEiner, zerlegen, vergleich]
+        ? [nachbarzahl, zehnerEiner, zerlegen, vergleich, vergleichszeichen, hundertfeld]
         : stufe === 2
-            ? [nachbarzehner, folge, strahl, pfeilkette]
-            : [runden, groesste, mitte, folgeSchwer, pfeilkette];
+            ? [nachbarzehner, folge, strahl, pfeilkette, hundertfeld, feldStueck, zwischenZehnern, strichMitte]
+            : [runden, groesste, mitte, folgeSchwer, pfeilkette, feldStueck, strichMitte, regel, ordnen];
     return rng.pick(varianten)(rng);
 }
 function nachbarzahl(rng) {
@@ -203,6 +203,202 @@ function folgeSchwer(rng) {
         loesung: String(loesung),
         tipp: "Wird die Reihe größer oder kleiner? Und um wie viel?",
         erklaerung: `Die Reihe geht in ${schritt}er-Schritten ${rueckwaerts ? "rückwärts" : "vorwärts"}: ${glieder[2]} ${rueckwaerts ? "−" : "+"} ${schritt} = ${loesung}`,
+    };
+}
+/* ------------------------------------------------- Aus dem Übungsheft */
+/**
+ * Hunderterfeld mit zugeklebten Feldern („Welche Zahl ist verdeckt?"). Die
+ * Zeile verrät die Zehner, die Spalte die Einer – das ist die Orientierung,
+ * um die es auf dieser Heftseite geht.
+ */
+function hundertfeld(rng) {
+    const loesung = rng.int(1, 100);
+    const weitere = new Set();
+    while (weitere.size < 4) {
+        const zahl = rng.int(1, 100);
+        if (zahl !== loesung)
+            weitere.add(zahl);
+    }
+    const zeile = Math.floor((loesung - 1) / 10) + 1;
+    const spalte = ((loesung - 1) % 10) + 1;
+    return {
+        typ: "zahlenraum/hunderterfeld",
+        frage: "Im Hunderterfeld sind Felder zugeklebt. Welche Zahl steht unter dem Fragezeichen?",
+        bild: {
+            svg: hunderterfeld([...weitere], loesung),
+            beschriftung: "Hunderterfeld von 1 bis 100 mit zugeklebten Feldern",
+            breit: true,
+        },
+        antwortfeld: zahlfeld(),
+        loesung: String(loesung),
+        tipp: "Geh in der Reihe nach links oder rechts zur nächsten Zahl, die noch da ist.",
+        erklaerung: `Das Feld steht in Reihe ${zeile} an Stelle ${spalte} – das ist die ${loesung}.`,
+    };
+}
+/**
+ * Ausschnitt aus dem Hunderterfeld, im Heft als Kreuz oder als Treppe. Nach
+ * rechts wird die Zahl um 1 größer, nach unten um 10 – genau das übt der
+ * Ausschnitt, weil die Nachbarschaft rundherum fehlt.
+ */
+function feldStueck(rng) {
+    const kreuz = rng.chance(0.6);
+    const zeile = kreuz ? rng.int(1, 8) : rng.int(0, 7);
+    const spalte = kreuz ? rng.int(1, 8) : rng.int(0, 8);
+    const stellen = kreuz
+        ? [
+            [zeile, spalte],
+            [zeile - 1, spalte],
+            [zeile + 1, spalte],
+            [zeile, spalte - 1],
+            [zeile, spalte + 1],
+        ]
+        : [
+            [zeile, spalte],
+            [zeile + 1, spalte],
+            [zeile + 1, spalte + 1],
+            [zeile + 2, spalte + 1],
+        ];
+    const gesucht = rng.int(0, stellen.length - 1);
+    const felder = stellen.map(([z, s], i) => ({
+        zeile: z,
+        spalte: s,
+        wert: i === gesucht ? null : z * 10 + s + 1,
+    }));
+    const [zg, sg] = stellen[gesucht];
+    const loesung = zg * 10 + sg + 1;
+    // Der Rechenweg geht vom Nachbarn aus, der wirklich im Ausschnitt liegt.
+    const wert = (z, s) => felder.find((f) => f.zeile === z && f.spalte === s)?.wert ?? null;
+    const oben = wert(zg - 1, sg);
+    const links = wert(zg, sg - 1);
+    const rechts = wert(zg, sg + 1);
+    const unten = wert(zg + 1, sg);
+    const erklaerung = oben !== null
+        ? `Ein Feld tiefer sind es 10 mehr: ${oben} + 10 = ${loesung}`
+        : links !== null
+            ? `Ein Feld weiter rechts ist es 1 mehr: ${links} + 1 = ${loesung}`
+            : rechts !== null
+                ? `Ein Feld weiter links ist es 1 weniger: ${rechts} − 1 = ${loesung}`
+                : `Ein Feld höher sind es 10 weniger: ${unten ?? loesung + 10} − 10 = ${loesung}`;
+    return {
+        typ: "zahlenraum/hunderterfeld-stueck",
+        frage: "Das ist ein Stück aus dem Hunderterfeld. Welche Zahl fehlt?",
+        bild: {
+            svg: hundertfeldStueck(felder),
+            beschriftung: `Ausschnitt aus dem Hunderterfeld in ${kreuz ? "Kreuzform" : "Treppenform"}`,
+        },
+        antwortfeld: zahlfeld(),
+        loesung: String(loesung),
+        tipp: "Nach rechts wird die Zahl um 1 größer, nach unten um 10.",
+        erklaerung,
+    };
+}
+/**
+ * Rechenstrich: Die Marke sitzt genau zwischen zwei Zehnern. Beim
+ * `strahl()` oben liegt sie immer AUF einem Zehner – hier muss dazwischen
+ * abgelesen werden, so wie im Heft auf der Seite zum Rechenstrich.
+ */
+function strichMitte(rng) {
+    const zehner = rng.int(0, 9) * 10;
+    const loesung = zehner + 5;
+    return {
+        typ: "zahlenraum/rechenstrich",
+        frage: "Die Marke liegt genau zwischen zwei Zehnern. Welche Zahl ist das?",
+        bild: {
+            svg: zahlenstrahl(100, loesung),
+            beschriftung: "Rechenstrich von 0 bis 100 mit einer Markierung zwischen zwei Zehnern",
+            breit: true,
+        },
+        antwortfeld: zahlfeld(),
+        loesung: String(loesung),
+        tipp: "Suche die beiden Zehner links und rechts von der Marke.",
+        erklaerung: `Zwischen ${zehner} und ${zehner + 10} liegt ${loesung} in der Mitte.`,
+    };
+}
+/** Kleiner, gleich oder größer – das Zeichen kommt in die Lücke. */
+function vergleichszeichen(rng) {
+    const a = rng.int(1, 100);
+    // Jede vierte Aufgabe ist ein Gleichstand: Sonst lernt ein Kind, dass das
+    // Gleichheitszeichen nie vorkommt, und rät es nie.
+    const b = rng.chance(0.25) ? a : rng.int(1, 100);
+    const loesung = a < b ? "<" : a > b ? ">" : "=";
+    return {
+        typ: "zahlenraum/vergleichszeichen",
+        frage: "Welches Zeichen gehört in die Lücke?",
+        rechnung: `${a}   ?   ${b}`,
+        antwortfeld: { art: "auswahl", optionen: ["<", "=", ">"] },
+        loesung,
+        tipp: "Die offene Seite des Zeichens zeigt immer zur größeren Zahl.",
+        erklaerung: `${a} ${loesung} ${b}`,
+    };
+}
+/** Umgekehrte Nachbarzehner: Welche Zahl liegt zwischen diesen beiden? */
+function zwischenZehnern(rng) {
+    const unten = rng.int(0, 9) * 10;
+    const loesung = unten + rng.int(1, 9);
+    const ablenker = [];
+    for (let versuch = 0; versuch < 40 && ablenker.length < 6; versuch++) {
+        const zahl = rng.int(1, 100);
+        if (zahl > unten && zahl < unten + 10)
+            continue;
+        if (!ablenker.includes(String(zahl)))
+            ablenker.push(String(zahl));
+    }
+    return {
+        typ: "zahlenraum/zwischen-zehnern",
+        frage: `Die Nachbarzehner einer Zahl sind ${unten} und ${unten + 10}. Welche Zahl kann das sein?`,
+        antwortfeld: auswahlfeld(rng, String(loesung), ablenker),
+        loesung: String(loesung),
+        tipp: `Die Zahl muss größer als ${unten} und kleiner als ${unten + 10} sein.`,
+        erklaerung: `${loesung} liegt zwischen ${unten} und ${unten + 10}.`,
+    };
+}
+/**
+ * Nicht die nächste Zahl ist gefragt, sondern die REGEL dahinter. Im Heft
+ * heißt das „immer + 1" – wer die Regel benennen kann, erkennt sie auch in
+ * einer fremden Reihe wieder.
+ */
+function regel(rng) {
+    const aufwaerts = rng.chance(0.6);
+    const schritt = rng.pick([2, 3, 4, 5, 10]);
+    const start = aufwaerts ? rng.int(1, 20) : rng.int(60, 100);
+    const richtung = aufwaerts ? schritt : -schritt;
+    const glieder = [0, 1, 2, 3].map((i) => start + i * richtung);
+    const zeichen = aufwaerts ? "+" : "−";
+    const loesung = `immer ${zeichen} ${schritt}`;
+    const ablenker = [2, 3, 4, 5, 10]
+        .filter((s) => s !== schritt)
+        .map((s) => `immer ${zeichen} ${s}`)
+        .concat(`immer ${aufwaerts ? "−" : "+"} ${schritt}`);
+    return {
+        typ: "zahlenraum/regel",
+        frage: "Nach welcher Regel geht diese Reihe weiter?",
+        rechnung: glieder.join(", "),
+        antwortfeld: auswahlfeld(rng, loesung, ablenker),
+        loesung,
+        tipp: "Schau dir an, wie weit es von einer Zahl zur nächsten ist.",
+        erklaerung: `Jede Zahl ist ${schritt} ${aufwaerts ? "größer" : "kleiner"} als die davor.`,
+    };
+}
+/** Vier Zahlen der Größe nach ordnen – die richtige Reihe steht zur Auswahl. */
+function ordnen(rng) {
+    const zahlen = new Set();
+    while (zahlen.size < 4)
+        zahlen.add(rng.int(1, 100));
+    const sortiert = [...zahlen].sort((x, y) => x - y);
+    const loesung = sortiert.join(", ");
+    const ablenker = [];
+    for (let versuch = 0; versuch < 60 && ablenker.length < 5; versuch++) {
+        const reihe = rng.shuffle(sortiert).join(", ");
+        if (reihe !== loesung && !ablenker.includes(reihe))
+            ablenker.push(reihe);
+    }
+    return {
+        typ: "zahlenraum/ordnen-reihe",
+        frage: "Welche Reihe ist von der kleinsten zur größten Zahl geordnet?",
+        antwortfeld: auswahlfeld(rng, loesung, ablenker, 3),
+        loesung,
+        tipp: "Suche zuerst die kleinste Zahl. Steht sie ganz vorn?",
+        erklaerung: `Der Größe nach: ${loesung}`,
     };
 }
 /* ============================================================ Plus/Minus */

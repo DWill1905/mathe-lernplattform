@@ -1,4 +1,4 @@
-import { ALLE_FORMEN, eckenZahl, form, mitArtikel, puzzleHoehen, puzzleteil, spiegelachse, } from "../figures.js";
+import { ALLE_FORMEN, eckenZahl, form, formenreihe, mitArtikel, puzzleHoehen, puzzleteil, spiegelachse, } from "../figures.js";
 import { auswahlfeld, zahlfeld } from "./helpers.js";
 /** Körper mit ihren Kennzahlen – für die Fragen der dritten Stufe. */
 const KOERPER = [
@@ -6,11 +6,94 @@ const KOERPER = [
     { name: "Quader", ecken: 8, flaechen: 6, kanten: 12 },
 ];
 export function geometrie(rng, stufe) {
-    if (stufe === 1)
-        return rng.pick([formErkennen, formErkennen, formMitEcken, puzzle])(rng);
-    if (stufe === 2)
-        return rng.pick([eckenZaehlen, seitenZaehlen, formMitEcken, puzzle])(rng);
-    return rng.pick([symmetrie, koerper, umfangQuadrat, umfangRechteck])(rng);
+    if (stufe === 1) {
+        return rng.pick([formErkennen, formErkennen, formMitEcken, puzzle, passtNicht, musterRechts])(rng);
+    }
+    if (stufe === 2) {
+        return rng.pick([eckenZaehlen, seitenZaehlen, formMitEcken, puzzle, passtNicht, musterLinks])(rng);
+    }
+    return rng.pick([symmetrie, koerper, umfangQuadrat, umfangRechteck, musterLinks])(rng);
+}
+/* ------------------------------------------- Formen und Muster (Heft) */
+/**
+ * „Welche Form passt nicht?" wie im Heft. Verglichen wird die Eckenzahl:
+ * Drei Vierecke und eine Form mit anderer Eckenzahl. Drei GLEICHE Formen
+ * gehen nicht – dann wären drei Bildkarten identisch und die Frage nach der
+ * einen richtigen Karte wäre nicht mehr eindeutig.
+ */
+function passtNicht(rng) {
+    const vierecke = ALLE_FORMEN.filter((f) => eckenZahl(f) === 4);
+    const gruppe = rng.shuffle([...vierecke]).slice(0, 3);
+    const andere = ALLE_FORMEN.filter((f) => eckenZahl(f) !== 4);
+    const ausreisser = rng.pick(andere);
+    const kennungen = ["A", "B", "C", "D"];
+    const gemischt = rng.shuffle([...gruppe, ausreisser]);
+    const optionen = gemischt.map((name, i) => ({
+        kennung: kennungen[i],
+        svg: form(name),
+        beschriftung: mitArtikel(name),
+    }));
+    const loesung = kennungen[gemischt.indexOf(ausreisser)];
+    const ecken = eckenZahl(ausreisser);
+    return {
+        typ: "geometrie/passt-nicht",
+        frage: "Drei dieser Formen haben gleich viele Ecken. Welche passt nicht dazu?",
+        antwortfeld: { art: "bildauswahl", optionen },
+        loesung,
+        tipp: "Zähle bei jeder Form die Ecken.",
+        erklaerung: `${gruppe.join(", ")} haben 4 Ecken. ${mitArtikel(ausreisser)} hat ` +
+            `${ecken === 0 ? "gar keine Ecke" : `${ecken} Ecken`}.`,
+    };
+}
+function musterRechts(rng) {
+    return muster(rng, false);
+}
+function musterLinks(rng) {
+    return muster(rng, true);
+}
+/**
+ * Muster fortsetzen. Im Heft geht das ausdrücklich in BEIDE Richtungen –
+ * nach links ist die schwerere Übung, weil das Grundmuster dafür rückwärts
+ * gedacht werden muss.
+ */
+function muster(rng, nachLinks) {
+    const laenge = rng.pick([2, 2, 3]);
+    const grund = rng.shuffle([...ALLE_FORMEN]).slice(0, laenge);
+    const luecke = nachLinks ? 0 : 5;
+    const reihe = [];
+    for (let i = 0; i < 6; i++)
+        reihe.push(i === luecke ? null : grund[i % laenge]);
+    const loesung = grund[luecke % laenge];
+    // Die Ablenker kommen zuerst aus dem Muster selbst – sonst fiele die
+    // richtige Karte schon dadurch auf, dass nur sie im Bild vorkommt.
+    const ablenker = [
+        ...grund.filter((f) => f !== loesung),
+        ...rng.shuffle(ALLE_FORMEN.filter((f) => !grund.includes(f))),
+    ].slice(0, 3);
+    const kennungen = ["A", "B", "C", "D"];
+    const gemischt = rng.shuffle([loesung, ...ablenker]);
+    const optionen = gemischt.map((name, i) => ({
+        kennung: kennungen[i],
+        svg: form(name),
+        beschriftung: mitArtikel(name),
+    }));
+    return {
+        typ: nachLinks ? "geometrie/muster-links" : "geometrie/muster-rechts",
+        frage: nachLinks
+            ? "Welche Form gehört vorne an das Muster – links vom ersten Kästchen?"
+            : "Wie geht das Muster nach rechts weiter?",
+        bild: {
+            svg: formenreihe(reihe),
+            beschriftung: `Musterreihe aus Formen mit einer Lücke ${nachLinks ? "am Anfang" : "am Ende"}`,
+            breit: true,
+        },
+        antwortfeld: { art: "bildauswahl", optionen },
+        loesung: kennungen[gemischt.indexOf(loesung)],
+        tipp: laenge === 2
+            ? "Immer zwei Formen wechseln sich ab."
+            : "Immer drei Formen kommen der Reihe nach – dann fängt das Muster von vorn an.",
+        erklaerung: `Das Grundmuster ist: ${grund.join(", ")}. Danach beginnt es wieder von vorn.`,
+    };
 }
 function formErkennen(rng) {
     const gewaehlt = rng.pick(ALLE_FORMEN);

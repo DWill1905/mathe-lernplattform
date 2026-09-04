@@ -6,7 +6,7 @@ Punkte stehen in `ROADMAP.md`, die Historie in `CHANGELOG.md`.
 ## Was ist das Projekt?
 
 Interaktive Lernplattform für Mathematik in der 2. Klasse (Deutsch), statische
-Seite für GitHub Pages: dreizehn Themen mit je drei Stufen (sechs davon aus
+Seite für GitHub Pages: dreizehn Themen mit je drei Stufen (sieben davon aus
 dem Übungsheft), Übungsrunden mit
 sofortiger Rückmeldung, Gamification (Punkte, Level, Sterne, Streak,
 Abzeichen) und ein Elternbereich. Feature-Liste: `README.md`.
@@ -17,7 +17,7 @@ Abzeichen) und ein Elternbereich. Feature-Liste: `README.md`.
 Themen daraus tragen in `topics.ts` das Kennzeichen `ausHeft: true`, stehen in
 der Themenliste vorn, werden von `empfehlung()` bevorzugt und stecken doppelt
 im `MIX_TOPF` des gemischten Trainings. Neue Aufgabenformen gehören zuerst in
-diese Bereiche; ergänzende Themen (Einmaleins, Uhrzeit, Längen, Formen,
+diese Bereiche; ergänzende Themen (Einmaleins, Geteilt, Uhrzeit, Längen,
 Sachaufgaben, Knobeln) sind Zusatz und dürfen den Schwerpunkt nicht
 verwässern.
 
@@ -239,6 +239,21 @@ verwässern.
 - **Bei der Rechentabelle steht die Rechnung bewusst NICHT im Text.** Das
   Ablesen von Zeile und Spalte ist die eigentliche Übung; für Screenreader
   steckt die Aufgabe in der Bildbeschreibung. Ein Test hält das fest.
+- **Im Hunderterfeld ist die Reihe der Zehner und die Spalte der Einer.**
+  Nach rechts wird die Zahl um 1 größer, nach unten um 10. Beide Bilder
+  (`hunderterfeld()` und `hundertfeldStueck()`) geben die Kästchen an genau
+  berechenbaren Koordinaten aus – nur dadurch lässt sich im Test aus dem BILD
+  zurücklesen, welche Zahl unter dem Fragezeichen steht.
+- **In einer Bildauswahl darf keine Form doppelt vorkommen.** „Welche Form
+  passt nicht?“ funktioniert im Heft mit drei gleichen Formen; hier nicht,
+  denn `form()` zeichnet gleiche Namen identisch und zwei gleiche Bildkarten
+  wären nicht entscheidbar (ein Test in `generatoren.test.js` hält das fest).
+  Verglichen wird deshalb die ECKENZAHL: drei Vierecke und ein Ausreißer.
+- **Muster gehen in beide Richtungen.** Im Heft wird ausdrücklich auch nach
+  LINKS fortgesetzt; das ist die schwerere Übung, weil das Grundmuster dafür
+  rückwärts gedacht werden muss. `formenreihe()` setzt die Lücke deshalb an
+  den Anfang oder ans Ende, nie in die Mitte – dort wäre sie oft schon aus
+  dem direkten Nachbarn ablesbar.
 - **Neue ausgelieferte Dateien gehören in den Precache.** Beim ersten Besuch
   lädt der Browser `index.html` und die statisch importierten Module, bevor der
   Service Worker die Kontrolle übernimmt – Laufzeit-Caching allein reicht also

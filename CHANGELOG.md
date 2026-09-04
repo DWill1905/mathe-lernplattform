@@ -4,6 +4,98 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.37.0] – 2026-09-04
+
+### Hinzugefügt
+
+**Die Orientierungsseiten aus dem Übungsheft sind jetzt in der App.** Fünf
+Heftseiten hatten in keinem Thema eine Entsprechung; daraus sind neun neue
+Aufgabenformen geworden:
+
+- **Hunderterfeld** („Welche Zahl ist verdeckt?“): Im Feld von 1 bis 100
+  sind fünf Kästchen zugeklebt, eines davon trägt ein Fragezeichen. Die
+  Reihe verrät die Zehner, die Spalte die Einer.
+- **Hunderterfeld-Ausschnitt** in Kreuz- und in Treppenform: Ohne die
+  Nachbarschaft rundherum muss die fehlende Zahl aus den angrenzenden
+  Feldern erschlossen werden – nach rechts 1 mehr, nach unten 10 mehr.
+- **Rechenstrich**: Die Marke sitzt genau zwischen zwei Zehnern. Der
+  bisherige Zahlenstrahl markierte immer volle Zehner; erst dazwischen wird
+  aus dem Ablesen eine Übung.
+- **Vergleichszeichen** `<`, `=`, `>` statt „welche Zahl ist größer?“. Jede
+  vierte Aufgabe ist ein Gleichstand – sonst lernt ein Kind, dass das
+  Gleichheitszeichen nie vorkommt, und wählt es nie.
+- **Zahl zwischen zwei Nachbarzehnern**: die Umkehrung der bisherigen
+  Nachbarzehner-Frage („Die Nachbarzehner sind 40 und 50 – welche Zahl kann
+  das sein?“).
+- **Regel finden**: Nicht die nächste Zahl ist gesucht, sondern die Regel
+  dahinter („immer + 3“).
+- **Zahlen der Größe nach ordnen** – die ganze Reihe, nicht nur die größte.
+- **„Welche Form passt nicht?“**: drei Vierecke und eine Form mit anderer
+  Eckenzahl.
+- **Muster fortsetzen**, wie im Heft ausdrücklich in BEIDE Richtungen: nach
+  rechts (Stufe 1) und nach links (ab Stufe 2), was schwerer ist, weil das
+  Grundmuster dafür rückwärts gedacht werden muss.
+
+### Geändert
+
+**„Formen“ zählt jetzt zu den Themen aus dem Übungsheft.** Die Heftseite
+„Geometrische Formen, Muster“ gehört zum Pflichtstoff; das Thema steht
+deshalb auf der Startseite oben bei den Heft-Themen und wird im gemischten
+Training doppelt gezogen. Aus dem Heft sind es damit sieben Themen.
+
+**Das Quadrat wird so groß gezeichnet wie die anderen Figuren.** Es maß 60
+von 200 Einheiten, alle übrigen etwa 150. Allein gezeigt fiel das nicht auf –
+in der Musterreihe stand es neben dem Sechseck wie ein Punkt.
+
+Drei neue Erklärbilder in `figures.ts`: `hunderterfeld()`,
+`hundertfeldStueck()` und `formenreihe()`. Die Zeichnung einer Form steckt
+jetzt in `formInhalt()`, damit die Musterreihe dieselben Figuren verwendet,
+statt sie ein zweites Mal zu beschreiben.
+
+Elf neue Tests in `test/heftaufgaben.test.js` prüfen durchgehend aus dem
+**Ergebnis**: Das Hunderterfeld wird aus dem Bild ausgelesen, der Ausschnitt
+wie von einem Kind aus den Nachbarn hergeleitet, die Musterreihe aus den
+gezeichneten Kästchen zusammengesetzt und mit der gewählten Karte gefüllt.
+Zwölf Sabotage-Proben zeigen, dass jeder davon auch anschlägt.
+
+## [1.36.0] – 2026-08-30
+
+### Hinzugefügt
+
+**Ein Pferd mit Reiterin galoppiert durch die gelöste Hilfsaufgabe.** Wer
+die Hilfsaufgabe freiwillig ganz selbst aufschreibt, sieht ein Pferd mit
+blonder Reiterin quer über den Schirm laufen – Mähne, Schweif und Zopf
+wehen, die Beine greifen gegenläufig aus.
+
+Der Galopp steht bewusst AUSSERHALB der normalen Jubel-Rotation
+(`BONUS_JUBEL` gehört nicht zu `JUBEL_ARTEN`): Stünde er darin, käme er auch
+bei gewöhnlichen Antworten und wäre statt einer besonderen Belohnung die
+neunte Überraschung von neun. Die Tests laufen deshalb über
+`ALLE_JUBEL_ARTEN`, damit das Pferd trotzdem allen Zusicherungen an die
+SVGs unterliegt.
+
+### Geändert
+
+`fliegt()` heißt jetzt `quert()` – ein Pferd fliegt nicht, gemeint war immer
+die Layoutfrage nach der Querbahn. Der Rundenstart der Jubel-Rotation
+rechnete außerdem noch mit sieben statt acht Arten.
+
+## [1.35.0] – 2026-08-30
+
+### Geändert
+
+**Aus Herzen werden Pferde.** Zähler, Bonus-Angebot, Rückmeldung,
+Ergebnisseite, Kennzahl im Elternbereich und das Abzeichen („Pferdestark“)
+tragen jetzt einen Pferdekopf.
+
+Bereits gesammelte Herzen werden beim Laden übernommen
+(`daten["pferde"] ?? daten["herzen"]` – mit `??`, damit eine echte 0 eine 0
+bleibt), und der gespeicherte Stand trägt das alte Feld übergangsweise
+gespiegelt. Ohne diesen Spiegel setzte ein Gerät, das noch die ältere
+Fassung im Vorrat hat, die Zahl beim nächsten Abgleich zurück. Die Kennung
+des Abzeichens bleibt `herzen25`: Eine neue ID hätte die alte als
+Karteileiche liegen lassen und etwas längst Geschafftes erneut gefeiert.
+
 ## [1.34.0] – 2026-08-23
 
 ### Geändert

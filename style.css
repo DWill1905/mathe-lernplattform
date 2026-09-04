@@ -1229,6 +1229,20 @@ details[open] summary {
   fill: color-mix(in srgb, var(--haupt) 18%, var(--karte));
 }
 
+/* Hunderterfeld: verdeckte Felder sind zugeklebt, das gesuchte ist getönt. */
+
+.fig-feld {
+  fill: var(--karte);
+}
+
+.fig-feld-verdeckt {
+  fill: color-mix(in srgb, var(--blau) 55%, var(--karte));
+}
+
+.fig-feld-gesucht {
+  fill: color-mix(in srgb, var(--haupt) 18%, var(--karte));
+}
+
 .fig-rad-aussen {
   fill: color-mix(in srgb, var(--rot) 24%, var(--karte));
 }

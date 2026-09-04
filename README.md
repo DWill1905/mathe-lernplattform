@@ -20,19 +20,19 @@ Dazu kommen zwei eigene Modi: **Puzzle** und **Rechenmeister**.
 | Thema | Inhalte |
 | --- | --- |
 | **Aus dem Übungsheft** | |
-| 🔢 Zahlen bis 100 | Vorgänger/Nachfolger, Zehner und Einer, Nachbarzehner, Zahlenstrahl, Runden, Zahlenfolgen mit Pfeilschritten |
+| 🔢 Zahlen bis 100 | Vorgänger/Nachfolger, Zehner und Einer, Nachbarzehner, Hunderterfeld und Hunderterfeld-Ausschnitte, Zahlenstrahl und Rechenstrich, `<`/`=`/`>`, Ordnen, Runden, Zahlenfolgen mit Pfeilschritten, Regeln finden |
 | ➕ Plus & Minus | bis 20, mit vollen Zehnern, bis 100 ohne und mit Zehnerübergang, Platzhalter- und Tabellenaufgaben |
 | 💡 Rechentricks | Analogieaufgaben (3 + 4 → 30 + 40, 3 + 2 → 13 + 2), Nachbaraufgaben (7 + 7 → 7 + 8), plus/minus 10, Hunderter |
 | 🐴 Hilfsaufgaben | Bei Rechentricks und Umkehraufgaben rechnet das Kind zuerst die Hilfsaufgabe selbst – das gibt ein Pferd |
 | 👨‍👩‍👧‍👦 Aufgabenfamilien | „3 Zahlen, 4 Aufgaben“: Tausch- und Umkehraufgaben, Lücken in allen vier Formen |
 | 🧱 Mauern & Räder | Zahlenmauern (3, 6 oder 10 Steine) mit fehlendem Stein, Rechenkästen mit Fähnchen, Rechenräder in zwei Formen |
+| 🔷 Formen | Figuren erkennen, Muster nach rechts **und links** fortsetzen, „welche Form passt nicht?“, Ecken und Seiten zählen, Puzzleteile, Spiegelachsen, Umfang, Körper |
 | **Weitere Themen** | |
 | ✖️ Einmaleins | alle Reihen von 1 bis 10, Punktefelder, Umkehraufgaben |
 | ➗ Geteilt | Teilen ohne Rest, Aufgaben mit Rest |
 | 💶 Geld | Münzen zählen, Euro und Cent umrechnen, bezahlen, Rückgeld und Beträge passend legen |
 | 🕒 Uhrzeit | analoge Uhr lesen, „halb“ und „Viertel vor/nach“, Zeitspannen |
 | 📏 Längen | m, cm und mm umrechnen, vergleichen, damit rechnen |
-| 🔷 Formen | Figuren erkennen, Puzzleteile zuordnen, Ecken und Seiten zählen, Spiegelachsen, Umfang, Körper |
 | 📖 Sachaufgaben | Rechengeschichten mit einem und zwei Rechenschritten |
 | 🧩 Knobeln | Verdoppeln/Halbieren, gerade und ungerade, Muster, Zahlenrätsel |
 

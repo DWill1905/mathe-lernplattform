@@ -139,41 +139,49 @@ export function mitArtikel(name: FormName, gross = true): string {
 
 /** Zeichnet eine ebene Figur mittig in ein 200×200-Feld. */
 export function form(name: FormName): string {
-  const inhalt = (() => {
-    switch (name) {
-      case "Kreis":
-        return `<circle cx="100" cy="100" r="74" class="fig-flaeche-bunt"/><circle cx="100" cy="100" r="74" class="fig-linie" fill="none" stroke-width="4"/>`;
-      case "Quadrat":
-        return rechteckForm(70, 70, 130, 130);
-      case "Rechteck":
-        return rechteckForm(24, 62, 176, 138);
-      case "Dreieck":
-        return polygon([
-          [100, 26],
-          [178, 168],
-          [22, 168],
-        ]);
-      case "Raute":
-        return polygon([
-          [100, 22],
-          [172, 100],
-          [100, 178],
-          [28, 100],
-        ]);
-      case "Trapez":
-        return polygon([
-          [58, 56],
-          [142, 56],
-          [180, 150],
-          [20, 150],
-        ]);
-      case "Fünfeck":
-        return polygon(regelmaessig(5, 78));
-      case "Sechseck":
-        return polygon(regelmaessig(6, 78));
-    }
-  })();
-  return huelle(200, 200, inhalt);
+  return huelle(200, 200, formInhalt(name));
+}
+
+/**
+ * Nur die Zeichnung einer Figur, ohne SVG-Hülle. So lässt sich dieselbe Form
+ * auch in eine Musterreihe einsetzen, ohne sie ein zweites Mal zu beschreiben.
+ */
+function formInhalt(name: FormName): string {
+  switch (name) {
+    case "Kreis":
+      return `<circle cx="100" cy="100" r="74" class="fig-flaeche-bunt"/><circle cx="100" cy="100" r="74" class="fig-linie" fill="none" stroke-width="4"/>`;
+    case "Quadrat":
+      // Bewusst so groß wie die übrigen Figuren: In der Musterreihe stehen
+      // sie nebeneinander, und ein Quadrat von 60 Einheiten sah neben dem
+      // Sechseck mit 156 wie ein Punkt aus.
+      return rechteckForm(30, 30, 170, 170);
+    case "Rechteck":
+      return rechteckForm(24, 62, 176, 138);
+    case "Dreieck":
+      return polygon([
+        [100, 26],
+        [178, 168],
+        [22, 168],
+      ]);
+    case "Raute":
+      return polygon([
+        [100, 22],
+        [172, 100],
+        [100, 178],
+        [28, 100],
+      ]);
+    case "Trapez":
+      return polygon([
+        [58, 56],
+        [142, 56],
+        [180, 150],
+        [20, 150],
+      ]);
+    case "Fünfeck":
+      return polygon(regelmaessig(5, 78));
+    case "Sechseck":
+      return polygon(regelmaessig(6, 78));
+  }
 }
 
 function rechteckForm(x1: number, y1: number, x2: number, y2: number): string {
@@ -623,4 +631,109 @@ export function puzzleHoehen(zieher: () => number, abschnitte = 4): number[] {
     hoehen.push(wert);
   }
   return hoehen;
+}
+
+/* ------------------------------------------------------ Hunderterfeld */
+
+/**
+ * Hunderterfeld wie im Übungsheft: zehn Reihen zu zehn Zahlen, 1 bis 100.
+ * `verdeckt` sind die abgedeckten Felder – dort steht keine Zahl mehr, und
+ * genau das ist die Orientierungsaufgabe. Das Feld `gesucht` ist ebenfalls
+ * abgedeckt, trägt aber zusätzlich das Fragezeichen.
+ */
+export function hunderterfeld(verdeckt: readonly number[], gesucht: number | null = null): string {
+  const breiteZelle = 46;
+  const hoeheZelle = 34;
+  const abgedeckt = new Set<number>(verdeckt);
+  if (gesucht !== null) abgedeckt.add(gesucht);
+
+  let teile = "";
+  for (let zahl = 1; zahl <= 100; zahl++) {
+    const x = ((zahl - 1) % 10) * breiteZelle;
+    const y = Math.floor((zahl - 1) / 10) * hoeheZelle;
+    const istGesucht = zahl === gesucht;
+    const klasse = istGesucht ? "fig-feld-gesucht" : abgedeckt.has(zahl) ? "fig-feld-verdeckt" : "fig-feld";
+    teile +=
+      `<rect x="${x}" y="${y}" width="${breiteZelle}" height="${hoeheZelle}" class="${klasse}"/>` +
+      `<rect x="${x}" y="${y}" width="${breiteZelle}" height="${hoeheZelle}" class="fig-linie" fill="none" stroke-width="1.5"/>`;
+    if (istGesucht) {
+      teile +=
+        `<text x="${x + breiteZelle / 2}" y="${y + hoeheZelle / 2 + 8}" class="fig-text-marke" ` +
+        `text-anchor="middle" font-size="22">?</text>`;
+    } else if (!abgedeckt.has(zahl)) {
+      teile +=
+        `<text x="${x + breiteZelle / 2}" y="${y + hoeheZelle / 2 + 6}" class="fig-text" ` +
+        `text-anchor="middle" font-size="17">${zahl}</text>`;
+    }
+  }
+  return huelle(breiteZelle * 10, hoeheZelle * 10, teile);
+}
+
+/** Ein Feld eines Hunderterfeld-Ausschnitts. `wert === null` ist das gesuchte. */
+export interface Ausschnittfeld {
+  zeile: number;
+  spalte: number;
+  wert: number | null;
+}
+
+/**
+ * Ausschnitt aus dem Hunderterfeld – im Heft als Kreuz oder als Treppe. Nur
+ * die angegebenen Felder werden gezeichnet, der Rest bleibt leer; Zeile und
+ * Spalte sind die Lage im ganzen Feld und werden hier auf den Ausschnitt
+ * heruntergerechnet.
+ */
+export function hundertfeldStueck(felder: readonly Ausschnittfeld[]): string {
+  const breiteZelle = 68;
+  const hoeheZelle = 52;
+  const zeilen = felder.map((f) => f.zeile);
+  const spalten = felder.map((f) => f.spalte);
+  const obenLinks = { zeile: Math.min(...zeilen), spalte: Math.min(...spalten) };
+  const breite = (Math.max(...spalten) - obenLinks.spalte + 1) * breiteZelle;
+  const hoehe = (Math.max(...zeilen) - obenLinks.zeile + 1) * hoeheZelle;
+
+  let teile = "";
+  for (const feld of felder) {
+    const x = (feld.spalte - obenLinks.spalte) * breiteZelle;
+    const y = (feld.zeile - obenLinks.zeile) * hoeheZelle;
+    const gesucht = feld.wert === null;
+    teile +=
+      `<rect x="${x}" y="${y}" width="${breiteZelle}" height="${hoeheZelle}" rx="6" ` +
+      `class="${gesucht ? "fig-feld-gesucht" : "fig-feld"}"/>` +
+      `<rect x="${x}" y="${y}" width="${breiteZelle}" height="${hoeheZelle}" rx="6" ` +
+      `class="fig-linie" fill="none" stroke-width="2.5"/>` +
+      `<text x="${x + breiteZelle / 2}" y="${y + hoeheZelle / 2 + 9}" ` +
+      `class="${gesucht ? "fig-text-marke" : "fig-text"}" text-anchor="middle" font-size="26">` +
+      `${gesucht ? "?" : feld.wert}</text>`;
+  }
+  return huelle(breite, hoehe, teile);
+}
+
+/* --------------------------------------------------------- Musterreihe */
+
+/**
+ * Musterreihe aus Formen, wie auf der Musterseite des Hefts. `null` ist die
+ * Lücke – sie steht am Ende (nach rechts fortsetzen) oder am Anfang (nach
+ * links fortsetzen).
+ */
+export function formenreihe(namen: readonly (FormName | null)[]): string {
+  const kaestchen = 84;
+  const spalt = 10;
+  const faktor = (kaestchen * 0.94) / 200;
+  const rand = (kaestchen - 200 * faktor) / 2;
+
+  let teile = "";
+  namen.forEach((name, i) => {
+    const x = i * (kaestchen + spalt);
+    if (name === null) {
+      teile +=
+        `<rect x="${x}" y="0" width="${kaestchen}" height="${kaestchen}" rx="10" class="fig-feld-gesucht"/>` +
+        `<rect x="${x}" y="0" width="${kaestchen}" height="${kaestchen}" rx="10" class="fig-linie" ` +
+        `fill="none" stroke-width="3" stroke-dasharray="8 6"/>` +
+        `<text x="${x + kaestchen / 2}" y="${kaestchen / 2 + 14}" class="fig-text-marke" ` +
+        `text-anchor="middle" font-size="40">?</text>`;
+    } else {
+      teile += `<g transform="translate(${r(x + rand)} ${r(rand)}) scale(${r(faktor)})">${formInhalt(name)}</g>`;
+    }
+  });
+  return huelle(namen.length * (kaestchen + spalt) - spalt, kaestchen, teile);
 }
