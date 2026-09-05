@@ -249,6 +249,16 @@ verwässern.
   `hunderterfeldStueck()`) geben die Kästchen an genau berechenbaren
   Koordinaten aus – nur dadurch lässt sich im Test aus dem BILD zurücklesen,
   welche Zahl unter dem Fragezeichen steht.
+- **Angemalte Felder im Hunderterfeld tragen KEIN Fragezeichen.** Bei
+  `zahlenraum/hunderterfeld-muster` ist das Gesuchte gerade das Feld, das noch
+  NICHT bunt ist – ein Fragezeichen würde es verraten. Alle fünf Felder
+  (vier bunte plus die Lösung) müssen in derselben Reihe oder derselben
+  Spalte liegen, sonst springt das Muster über den Rand und die Regel stimmt
+  nicht mehr.
+- **Verschieden lange Bildkarten brauchen dieselbe Breite.** `formenreihe()`
+  nimmt dafür `plaetze`. Ohne das skaliert der Browser jede Reihe einzeln in
+  ihre Karte, die kürzeste bekommt die größten Formen – und ein Kind wählt
+  beim Grundmuster nach Größe statt nach Muster.
 - **Der Rechenstrich ist NICHT der Zahlenstrahl.** `zahlenstrahl()` geht über
   den ganzen Zahlenraum und hat nur Zehnerstriche; dazwischen ließe sich
   nichts ablesen. `rechenstrich()` zeigt wie im Heft einen Abschnitt von zehn

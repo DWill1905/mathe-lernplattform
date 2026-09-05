@@ -4,6 +4,42 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.39.0] – 2026-09-05
+
+### Hinzugefügt
+
+Eine Aufgabe-für-Aufgabe-Inventur gegen die Heftseiten hat vier Formen
+gefunden, die noch fehlten:
+
+- **Muster im Hunderterfeld.** Im Heft werden Felder nach einer Regel
+  angemalt (2, 12, 22 … oder 92, 94, 96 …). Hier ist die Regel schon zu
+  sehen, und gefragt ist, welches Feld als Nächstes drankäme. Dafür muss ein
+  Kind die bunten Felder erst im fast leeren Feld verorten – genau die
+  Orientierung, die das Anmalen übt. Die angemalten Felder tragen bewusst
+  KEIN Fragezeichen: Gefragt ist das Feld, das noch nicht bunt ist.
+- **„Welches ist das Grundmuster?“** – im Heft der erste Arbeitsschritt jeder
+  Musteraufgabe („Kreise erst das Grundmuster ein“). Zur Wahl stehen vier
+  Musterstücke: das richtige, dasselbe Fenster um eins verschoben, ein zu
+  kurzes und das doppelte Grundmuster. Letzteres wiederholt sich zwar auch,
+  ist aber nicht das kleinste Stück – und genau das ist die Frage.
+- **Zahlenreihe mit Lücke mittendrin** („30, 31, ?, 33, 34“). Anders als bei
+  der Pfeilfolge steht der Schritt nirgends; er muss erst aus zwei
+  benachbarten Zahlen abgelesen werden.
+- **Beide Nachbarzehner auf einmal**, wie in der Tabelle des Hefts
+  („Zwischen welchen beiden Nachbarzehnern liegt die 47?“).
+
+### Geändert
+
+- **Der Rechenstrich wird auf Stufe 3 in der Hälfte der Fälle doppelt so
+  lang** (40 bis 60 statt 40 bis 50). Dann steht wie auf der
+  Zahlenstrahlseite des Hefts an jedem Zehner eine Zahl, die Striche liegen
+  aber enger beieinander.
+- **Beim Ordnen sind es manchmal sechs Zahlen** statt vier – zwei der Reihen
+  im Heft sind so lang.
+- **Die Vorschlagskarten des Grundmusters sind alle gleich breit gezeichnet.**
+  Sonst skaliert der Browser jede Reihe einzeln, die kürzeste bekäme die
+  größten Formen, und ein Kind wählte nach Größe statt nach Muster.
+
 ## [1.38.0] – 2026-09-04
 
 ### Geändert

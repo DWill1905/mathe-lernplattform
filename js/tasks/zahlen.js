@@ -6,10 +6,34 @@ export function zahlenraum(rng, stufe) {
     // Hunderterfeld entscheidet sie, wie viele Zahlen stehen bleiben, beim
     // Rechenstrich, ob die Mitte beschriftet ist.
     const varianten = stufe === 1
-        ? [nachbarzahl, zehnerEiner, zerlegen, vergleich, vergleichszeichen, hundertfeld]
+        ? [nachbarzahl, zehnerEiner, zerlegen, vergleich, vergleichszeichen, hundertfeld, hundertfeldMuster]
         : stufe === 2
-            ? [nachbarzehner, folge, strahl, pfeilkette, hundertfeld, feldStueck, zwischenZehnern, strichAblesen]
-            : [runden, groesste, mitte, folgeSchwer, pfeilkette, feldStueck, strichAblesen, regel, regelReihe, ordnen];
+            ? [
+                nachbarzehner,
+                nachbarzehnerPaar,
+                folge,
+                strahl,
+                pfeilkette,
+                hundertfeld,
+                hundertfeldMuster,
+                feldStueck,
+                zwischenZehnern,
+                strichAblesen,
+                reiheLuecke,
+            ]
+            : [
+                runden,
+                groesste,
+                mitte,
+                folgeSchwer,
+                pfeilkette,
+                feldStueck,
+                strichAblesen,
+                reiheLuecke,
+                regel,
+                regelReihe,
+                ordnen,
+            ];
     return rng.pick(varianten)(rng, stufe);
 }
 function nachbarzahl(rng) {
@@ -247,6 +271,51 @@ function hundertfeld(rng, stufe) {
         erklaerung: `Das Feld steht in Reihe ${zeile} an Stelle ${spalte} – das ist die ${loesung}.`,
     };
 }
+/**
+ * Muster im Hunderterfeld. Im Heft werden Felder nach einer Regel angemalt
+ * (2, 12, 22 … oder 92, 94, 96 …); hier ist die Regel schon zu sehen und
+ * gefragt ist, welches Feld als Nächstes drankäme. Dafür muss ein Kind die
+ * bunten Felder erst im fast leeren Feld verorten – genau die Orientierung,
+ * die das Anmalen im Heft übt.
+ */
+function hundertfeldMuster(rng, stufe) {
+    const anker = ankerZahlen(stufe);
+    const schritt = rng.pick(stufe === 1 ? [1, 10] : [1, 2, 10, 20]);
+    const waagerecht = schritt < 10;
+    let bunt = [];
+    let loesung = 0;
+    for (let versuch = 0; versuch < 60; versuch++) {
+        // Alle fünf Felder müssen in derselben Reihe (bzw. Spalte) liegen –
+        // sonst springt das Muster über den Rand und die Regel stimmt nicht mehr.
+        const platz = 4 * (waagerecht ? schritt : schritt / 10);
+        const zeile = waagerecht ? rng.int(0, 9) : rng.int(0, 9 - platz);
+        const spalte = waagerecht ? rng.int(0, 9 - platz) : rng.int(0, 9);
+        const start = zeile * 10 + spalte + 1;
+        const felder = [0, 1, 2, 3, 4].map((i) => start + i * schritt);
+        loesung = felder[4];
+        bunt = felder.slice(0, 4);
+        // Steht die gesuchte Zahl gedruckt da, ist nichts mehr zu überlegen; und
+        // mehr als ein bunter Anker nähme der Aufgabe ebenfalls die Arbeit ab.
+        if (anker.includes(loesung))
+            continue;
+        if (bunt.filter((zahl) => anker.includes(zahl)).length > 1)
+            continue;
+        break;
+    }
+    return {
+        typ: "zahlenraum/hunderterfeld-muster",
+        frage: "Die bunten Felder folgen einer Regel. Welche Zahl wird als Nächstes angemalt?",
+        bild: {
+            svg: hunderterfeld(anker, null, bunt),
+            beschriftung: `Hunderterfeld, angemalt sind ${bunt.join(", ")}`,
+            breit: true,
+        },
+        antwortfeld: zahlfeld(),
+        loesung: String(loesung),
+        tipp: `Schau, wie weit es von einem bunten Feld zum nächsten ist – ${waagerecht ? "sie stehen in einer Reihe" : "sie stehen untereinander"}.`,
+        erklaerung: `Angemalt sind ${bunt.join(", ")} – immer ${schritt} mehr. Also ${loesung}.`,
+    };
+}
 /** Die Ausschnittformen des Hefts, jeweils als Liste von [Zeile, Spalte]. */
 const AUSSCHNITTE = [
     { name: "Streifen", stellen: [[0, 0], [0, 1], [0, 2]], maxZeile: 9, maxSpalte: 7 },
@@ -309,10 +378,15 @@ function feldStueck(rng) {
  * (Heft, Aufgabe 2).
  */
 function strichAblesen(rng, stufe) {
-    const von = rng.int(0, 9) * 10;
-    const bis = von + 10;
-    const mitteBeschriftet = stufe < 3;
-    const mitte = von + 5;
+    // Auf Stufe 3 ist der Abschnitt in der Hälfte der Fälle doppelt so lang –
+    // dann steht wie auf der Zahlenstrahlseite des Hefts an jedem Zehner eine
+    // Zahl, die Striche liegen aber enger.
+    const lang = stufe === 3 && rng.chance(0.5);
+    const spanne = lang ? 20 : 10;
+    const von = rng.int(0, (100 - spanne) / 10) * 10;
+    const bis = von + spanne;
+    const mitteBeschriftet = stufe < 3 || lang;
+    const mitte = von + spanne / 2;
     // Die beschrifteten Striche selbst sind keine Frage – dort steht die Zahl.
     let loesung = rng.int(von + 1, bis - 1);
     while (mitteBeschriftet && loesung === mitte)
@@ -408,6 +482,31 @@ function zwischenZehnern(rng) {
         erklaerung: `${loesung} liegt zwischen ${unten} und ${unten + 10}.`,
     };
 }
+/**
+ * Beide Nachbarzehner auf einmal, wie in der Tabelle des Hefts
+ * („Nachbarzehner | Zahl | Nachbarzehner“).
+ */
+function nachbarzehnerPaar(rng) {
+    let zahl = rng.int(11, 89);
+    while (zahl % 10 === 0)
+        zahl = rng.int(11, 89);
+    const unten = Math.floor(zahl / 10) * 10;
+    const oben = unten + 10;
+    const loesung = `${unten} und ${oben}`;
+    const ablenker = [
+        `${unten - 10} und ${unten}`,
+        `${oben} und ${oben + 10}`,
+        `${unten} und ${oben + 10}`,
+    ].filter((paar) => !paar.includes("−") && Number(paar.split(" und ")[1]) <= 100);
+    return {
+        typ: "zahlenraum/nachbarzehner-paar",
+        frage: `Zwischen welchen beiden Nachbarzehnern liegt die ${zahl}?`,
+        antwortfeld: auswahlfeld(rng, loesung, ablenker),
+        loesung,
+        tipp: "Der Zehner davor und der Zehner danach – dazwischen liegen zehn Zahlen.",
+        erklaerung: `${zahl} liegt zwischen ${unten} und ${oben}.`,
+    };
+}
 /** Die Schrittweiten des Hefts – die 1 steht dort als Beispiel („immer + 1“). */
 const SCHRITTWEITEN = [1, 2, 3, 4, 5, 10];
 /** Eine Zahlenreihe mit festem Schritt, immer im Zahlenraum bis 100. */
@@ -441,6 +540,26 @@ function regel(rng) {
         loesung,
         tipp: "Schau dir an, wie weit es von einer Zahl zur nächsten ist.",
         erklaerung: `Jede Zahl ist ${schritt} ${aufwaerts ? "größer" : "kleiner"} als die davor.`,
+    };
+}
+/**
+ * Zahlenreihe mit einer Lücke MITTENDRIN („30, 31, ?, 33, 34“). Anders als
+ * bei der Pfeilfolge steht der Schritt nirgends – er muss erst aus zwei
+ * benachbarten Zahlen abgelesen werden.
+ */
+function reiheLuecke(rng) {
+    const aufwaerts = rng.chance(0.65);
+    const schritt = rng.pick(SCHRITTWEITEN);
+    const glieder = reiheMitSchritt(rng, schritt, aufwaerts, rng.pick([5, 6]));
+    const luecke = rng.int(1, glieder.length - 2);
+    return {
+        typ: "zahlenraum/reihe-luecke",
+        frage: "Welche Zahl fehlt in der Reihe?",
+        rechnung: glieder.map((wert, i) => (i === luecke ? "?" : String(wert))).join(", "),
+        antwortfeld: zahlfeld(),
+        loesung: String(glieder[luecke]),
+        tipp: "Schau zuerst, wie weit es von einer Zahl zur nächsten ist.",
+        erklaerung: `Die Reihe geht in ${schritt}er-Schritten ${aufwaerts ? "vorwärts" : "rückwärts"}: ${glieder[luecke - 1]} ${aufwaerts ? "+" : "−"} ${schritt} = ${glieder[luecke]}`,
     };
 }
 /**
@@ -478,7 +597,8 @@ function regelReihe(rng) {
  * Kind wirklich Zehner und Einer trennen, statt die Zahlen zu überfliegen.
  */
 function ordnen(rng) {
-    const zahlen = ziffernfamilie(rng);
+    // Zwei der Reihen im Heft sind sechs Zahlen lang.
+    const zahlen = ziffernfamilie(rng, rng.chance(0.3) ? 6 : 4);
     const sortiert = [...zahlen].sort((x, y) => x - y);
     const loesung = sortiert.join(", ");
     const ablenker = [];
@@ -500,8 +620,8 @@ function ordnen(rng) {
  * Vier verschiedene Zahlen aus zwei bis drei Ziffern – ein- und zweistellig
  * gemischt, so wie die Reihen auf der Heftseite.
  */
-function ziffernfamilie(rng) {
-    const ziffern = rng.shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9]).slice(0, rng.pick([2, 3]));
+function ziffernfamilie(rng, anzahl = 4) {
+    const ziffern = rng.shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9]).slice(0, anzahl > 4 ? 3 : rng.pick([2, 3]));
     // Die Ziffern selbst (einstellig) und alle zweistelligen Kombinationen
     // daraus – die 0 nur als Einer, sonst käme eine führende Null heraus.
     const kandidaten = new Set(ziffern);
@@ -509,7 +629,7 @@ function ziffernfamilie(rng) {
         for (const einer of [...ziffern, 0])
             kandidaten.add(zehner * 10 + einer);
     }
-    return rng.shuffle([...kandidaten]).slice(0, 4);
+    return rng.shuffle([...kandidaten]).slice(0, anzahl);
 }
 /* ============================================================ Plus/Minus */
 export function plusminus(rng, stufe) {

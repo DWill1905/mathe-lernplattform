@@ -45,6 +45,7 @@ function sammle(thema, stufe, typ, anzahl = 40, seed = 20260904) {
 test("die Farbklassen der neuen Bilder stehen in style.css", () => {
   const bilder = [
     hunderterfeld([10, 20], 34),
+    hunderterfeld([10, 20, 30, 40], null, [2, 12, 22, 32]),
     hunderterfeldStueck([
       { zeile: 2, spalte: 3, wert: 24 },
       { zeile: 3, spalte: 3, wert: null },
@@ -72,20 +73,24 @@ test("die Farbklassen der neuen Bilder stehen in style.css", () => {
 
 /* ------------------------------------------------------ Hunderterfeld */
 
+/** Die gedruckten Zahlen eines Hunderterfelds samt ihrer Lage. */
+function gedruckteZahlen(svg) {
+  return [...svg.matchAll(/<text x="([\d.]+)" y="([\d.]+)"[^>]*font-size="17">(\d+)<\/text>/g)].map((t) => ({
+    // Der Text sitzt mittig im Kästchen: beide Male 23 vom Eck aus.
+    spalte: (Number(t[1]) - 23) / 46,
+    zeile: (Number(t[2]) - 23) / 34,
+    zahl: Number(t[3]),
+  }));
+}
+
+const svgHatFragezeichen = (svg) => svg.includes(">?</text>");
+
 /** Liest ein Hunderterfeld aus: gedruckte Zahlen und die Stelle des „?“. */
 function feldLesen(svg) {
   const gesucht = svg.match(/<rect x="(\d+)" y="(\d+)" width="46" height="34" class="fig-feld-gesucht"\/>/);
   assert.ok(gesucht, "kein gesuchtes Feld im Bild");
-  const gedruckt = [...svg.matchAll(/<text x="([\d.]+)" y="([\d.]+)"[^>]*font-size="17">(\d+)<\/text>/g)].map(
-    (t) => ({
-      // Der Text sitzt mittig im Kästchen: beide Male 23 vom Eck aus.
-      spalte: (Number(t[1]) - 23) / 46,
-      zeile: (Number(t[2]) - 23) / 34,
-      zahl: Number(t[3]),
-    })
-  );
   return {
-    gedruckt,
+    gedruckt: gedruckteZahlen(svg),
     gesucht: (Number(gesucht[2]) / 34) * 10 + Number(gesucht[1]) / 46 + 1,
   };
 }
@@ -126,6 +131,45 @@ test("das Hunderterfeld bleibt fast leer – sonst liest man die Lücke am Nachb
         assert.equal(zahlen.length, 10);
         assert.ok(zahlen.every((z) => z % 10 === 0));
       }
+    }
+  }
+});
+
+/** Die angemalten Felder eines Hunderterfelds, als Zahlen. */
+function bunteFelder(svg) {
+  return [...svg.matchAll(/<rect x="(\d+)" y="(\d+)" width="46" height="34" class="fig-feld-bunt"\/>/g)]
+    .map((t) => (Number(t[2]) / 34) * 10 + Number(t[1]) / 46 + 1)
+    .sort((a, b) => a - b);
+}
+
+test("das Muster im Hunderterfeld geht regelmäßig weiter", () => {
+  for (const stufe of [1, 2]) {
+    for (const aufgabe of sammle("zahlenraum", stufe, "zahlenraum/hunderterfeld-muster")) {
+      const bunt = bunteFelder(aufgabe.bild.svg);
+      assert.ok(bunt.length >= 3, `nur ${bunt.length} angemalte Felder`);
+      assert.ok(!svgHatFragezeichen(aufgabe.bild.svg), "das Muster braucht kein Fragezeichen im Bild");
+
+      // Der Schritt muss überall derselbe sein – sonst gäbe es keine Regel.
+      const schritte = new Set(bunt.slice(1).map((zahl, i) => zahl - bunt[i]));
+      assert.equal(schritte.size, 1, `ungleiche Schritte: ${bunt.join(", ")}`);
+      const schritt = [...schritte][0];
+
+      // Wie ein Kind: einen Schritt weiterzählen.
+      assert.equal(bunt[bunt.length - 1] + schritt, Number(aufgabe.loesung), aufgabe.erklaerung);
+      assert.ok(Number(aufgabe.loesung) <= 100, "die Reihe verlässt das Hunderterfeld");
+
+      // Waagerecht bleiben alle in EINER Reihe, senkrecht in EINER Spalte.
+      const alle = [...bunt, Number(aufgabe.loesung)];
+      const zeilen = new Set(alle.map((zahl) => Math.floor((zahl - 1) / 10)));
+      const spalten = new Set(alle.map((zahl) => (zahl - 1) % 10));
+      assert.ok(
+        zeilen.size === 1 || spalten.size === 1,
+        `${alle.join(", ")} liegen weder in einer Reihe noch in einer Spalte`
+      );
+
+      // Steht die gesuchte Zahl gedruckt da, ist nichts mehr zu überlegen.
+      const gedruckt = gedruckteZahlen(aufgabe.bild.svg).map((f) => f.zahl);
+      assert.ok(!gedruckt.includes(Number(aufgabe.loesung)), "die Lösung steht schon im Feld");
     }
   }
 });
@@ -193,18 +237,28 @@ function strichLesen(svg) {
 }
 
 test("das Kästchen am Rechenstrich hängt am Strich der Lösung", () => {
+  const spannen = new Set();
   for (const stufe of [2, 3]) {
-    for (const aufgabe of sammle("zahlenraum", stufe, "zahlenraum/rechenstrich")) {
+    for (const aufgabe of sammle("zahlenraum", stufe, "zahlenraum/rechenstrich", 60)) {
       const { beschriftet, striche, mitte } = strichLesen(aufgabe.bild.svg);
-      assert.equal(striche, 11, "ein Abschnitt von 10 hat elf Striche");
-      assert.equal(beschriftet.length, stufe === 3 ? 2 : 3, `Stufe ${stufe}: falsch viele Beschriftungen`);
+      const links = beschriftet[0];
+      const rechts = beschriftet[beschriftet.length - 1];
+      const spanne = rechts.wert - links.wert;
+      spannen.add(`${stufe}/${spanne}`);
+
+      assert.ok(spanne === 10 || spanne === 20, `Abschnitt über ${spanne} Zahlen`);
+      assert.equal(striche, spanne + 1, `ein Abschnitt von ${spanne} hat ${spanne + 1} Striche`);
+      // Kurzer Abschnitt: Enden und (bis Stufe 2) die Mitte. Langer Abschnitt:
+      // jeder Zehner, weil die Mitte dort selbst ein Zehner ist.
+      assert.equal(
+        beschriftet.length,
+        spanne === 20 || stufe < 3 ? 3 : 2,
+        `Stufe ${stufe}, Spanne ${spanne}: falsch viele Beschriftungen`
+      );
 
       // Zwischen den beiden äußeren Beschriftungen linear ablesen – genau das
       // tut ein Kind, das die Striche abzählt.
-      const links = beschriftet[0];
-      const rechts = beschriftet[beschriftet.length - 1];
-      assert.equal(rechts.wert - links.wert, 10, "der Abschnitt umfasst zehn Zahlen");
-      const wert = links.wert + ((mitte - links.x) * (rechts.wert - links.wert)) / (rechts.x - links.x);
+      const wert = links.wert + ((mitte - links.x) * spanne) / (rechts.x - links.x);
       assert.ok(
         Math.abs(wert - Number(aufgabe.loesung)) < 0.2,
         `Kästchen steht bei ${wert.toFixed(2)}, Lösung ist ${aufgabe.loesung}`
@@ -217,6 +271,9 @@ test("das Kästchen am Rechenstrich hängt am Strich der Lösung", () => {
       );
     }
   }
+  // Stufe 3 bringt zusätzlich den langen Abschnitt der Zahlenstrahlseite.
+  assert.ok(spannen.has("3/20"), `nur diese Abschnitte: ${[...spannen].join(", ")}`);
+  assert.ok(spannen.has("2/10"), `nur diese Abschnitte: ${[...spannen].join(", ")}`);
 });
 
 /* ------------------------------------------------ Vergleichen, Ordnen */
@@ -250,10 +307,12 @@ test("die Zahlenpaare beim Vergleichen sind verwandt, nicht zufällig", () => {
   assert.equal(leicht, 0, `${leicht} Paare liegen weit auseinander, ohne verwandt zu sein`);
 });
 
-test("beim Ordnen stammen alle vier Zahlen aus derselben Ziffernfamilie", () => {
-  for (const aufgabe of sammle("zahlenraum", 3, "zahlenraum/ordnen-reihe")) {
+test("beim Ordnen stammen alle Zahlen aus derselben Ziffernfamilie", () => {
+  const laengen = new Set();
+  for (const aufgabe of sammle("zahlenraum", 3, "zahlenraum/ordnen-reihe", 80)) {
     const zahlen = aufgabe.loesung.split(",").map((t) => Number(t.trim()));
-    assert.equal(zahlen.length, 4);
+    laengen.add(zahlen.length);
+    assert.ok(zahlen.length === 4 || zahlen.length === 6, `${zahlen.length} Zahlen in der Reihe`);
     assert.ok(
       zahlen.every((wert, i) => i === 0 || zahlen[i - 1] < wert),
       `die Lösung ist nicht sortiert: ${aufgabe.loesung}`
@@ -279,6 +338,8 @@ test("beim Ordnen stammen alle vier Zahlen aus derselben Ziffernfamilie", () => 
       `mehrdeutig: ${aufgabe.antwortfeld.optionen.join(" | ")}`
     );
   }
+  // Zwei Reihen im Heft sind sechs Zahlen lang.
+  assert.deepEqual([...laengen].sort(), [4, 6]);
 });
 
 test("die Zahl zwischen zwei Nachbarzehnern liegt wirklich dazwischen", () => {
@@ -290,6 +351,48 @@ test("die Zahl zwischen zwei Nachbarzehnern liegt wirklich dazwischen", () => {
     for (const option of aufgabe.antwortfeld.optionen) {
       if (option === aufgabe.loesung) continue;
       assert.ok(!dazwischen(Number(option)), `${option} wäre auch richtig`);
+    }
+  }
+});
+
+test("in der Reihe mit Lücke fehlt genau eine Zahl mittendrin", () => {
+  for (const stufe of [2, 3]) {
+    for (const aufgabe of sammle("zahlenraum", stufe, "zahlenraum/reihe-luecke")) {
+      const teile = aufgabe.rechnung.split(",").map((t) => t.trim());
+      assert.ok(teile.length >= 5, `nur ${teile.length} Glieder`);
+      const luecke = teile.indexOf("?");
+      assert.equal(teile.filter((t) => t === "?").length, 1, "genau eine Lücke");
+      assert.ok(luecke > 0 && luecke < teile.length - 1, "die Lücke sitzt am Rand statt mittendrin");
+
+      // Wie ein Kind: den Schritt aus zwei sichtbaren Nachbarn ablesen.
+      const werte = teile.map((t) => (t === "?" ? null : Number(t)));
+      const schritte = new Set();
+      for (let i = 1; i < werte.length; i++) {
+        if (werte[i] === null || werte[i - 1] === null) continue;
+        schritte.add(werte[i] - werte[i - 1]);
+      }
+      assert.equal(schritte.size, 1, `ungleiche Schritte in ${aufgabe.rechnung}`);
+      const schritt = [...schritte][0];
+      const erwartet = werte[luecke - 1] + schritt;
+      assert.equal(Number(aufgabe.loesung), erwartet, `${aufgabe.rechnung} → ${aufgabe.loesung}`);
+      for (const wert of werte) {
+        if (wert !== null) assert.ok(wert >= 0 && wert <= 100, `${wert} verlässt den Zahlenraum`);
+      }
+    }
+  }
+});
+
+test("beide Nachbarzehner umschließen die Zahl", () => {
+  for (const aufgabe of sammle("zahlenraum", 2, "zahlenraum/nachbarzehner-paar")) {
+    const zahl = Number(aufgabe.frage.match(/die (\d+)\?/)[1]);
+    const umschliesst = (paar) => {
+      const [unten, oben] = paar.split(" und ").map(Number);
+      return oben - unten === 10 && unten < zahl && zahl < oben;
+    };
+    assert.ok(umschliesst(aufgabe.loesung), `${aufgabe.loesung} umschließt ${zahl} nicht`);
+    for (const option of aufgabe.antwortfeld.optionen) {
+      if (option === aufgabe.loesung) continue;
+      assert.ok(!umschliesst(option), `${option} wäre auch richtig`);
     }
   }
 });
@@ -483,4 +586,44 @@ test("die Lücke der Musterreihe ist nicht kräftiger gezeichnet als die Formen"
     Math.abs(luecke - 4 * faktor) < 0.05,
     `Lücke ${luecke}, Formen ${(4 * faktor).toFixed(2)} – das leere Kästchen drängt sich vor`
   );
+});
+
+test("beim Grundmuster ist genau ein Vorschlag das kleinste Stück", () => {
+  for (const stufe of [2, 3]) {
+    for (const aufgabe of sammle("geometrie", stufe, "geometrie/grundmuster", 60)) {
+      const reihe = reiheAusBild(aufgabe.bild.svg);
+      assert.ok(!reihe.includes(null), "die Reihe des Grundmusters hat keine Lücke");
+      assert.ok(reihe.length === 6 || reihe.length === 8, `${reihe.length} Kästchen in der Reihe`);
+      const kleinste = periode(reihe);
+
+      // Ein Vorschlag taugt, wenn er die ganze Reihe wieder aufbaut. Gesucht
+      // ist der kürzeste davon – genau einer darf das sein.
+      const baut = (stueck) => reihe.every((form, i) => form === stueck[i % stueck.length]);
+      const vorschlaege = aufgabe.antwortfeld.optionen.map((option) => ({
+        kennung: option.kennung,
+        stueck: reiheAusBild(option.svg),
+      }));
+      assert.equal(new Set(vorschlaege.map((v) => v.stueck.join())).size, 4, "zwei Vorschläge sind gleich");
+
+      // Alle Karten sind gleich breit gezeichnet – sonst wählte ein Kind nach
+      // der Größe der Formen statt nach dem Muster.
+      const breiten = new Set(
+        aufgabe.antwortfeld.optionen.map((option) => option.svg.match(/viewBox="0 0 ([\d.]+) /)[1])
+      );
+      assert.equal(breiten.size, 1, `verschieden breite Bildkarten: ${[...breiten].join(", ")}`);
+
+      const passende = vorschlaege.filter((v) => baut(v.stueck));
+      const kuerzeste = passende.filter((v) => v.stueck.length === kleinste);
+      assert.equal(kuerzeste.length, 1, `${kuerzeste.length} Vorschläge sind das kleinste Stück`);
+      assert.equal(kuerzeste[0].kennung, aufgabe.loesung, "die Lösung zeigt nicht das kleinste Stück");
+      assert.equal(periode(kuerzeste[0].stueck), kuerzeste[0].stueck.length, "der Vorschlag wiederholt sich in sich");
+
+      // Ein reiner Längenvergleich wäre zu wenig: Mindestens ein Vorschlag
+      // muss die Reihe gar nicht erst aufbauen.
+      assert.ok(passende.length < 4, "alle vier Vorschläge bauen die Reihe – dann wird geraten");
+      for (const name of reihe) {
+        assert.ok(["Quadrat", "Rechteck", "Dreieck", "Kreis"].includes(name), name);
+      }
+    }
+  }
 });

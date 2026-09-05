@@ -683,20 +683,29 @@ export function puzzleHoehen(zieher: () => number, abschnitte = 4): number[] {
  * genau deshalb ist es eine Orientierungsübung. `sichtbar` sagt darum, welche
  * Zahlen gedruckt werden; alle anderen Kästchen bleiben leer. `gesucht` trägt
  * das Fragezeichen.
+ *
+ * `bunt` sind angemalte Felder, wie sie das Heft nach einer Regel anmalen
+ * lässt (2, 12, 22 …). Sie tragen bewusst KEIN Fragezeichen: Gefragt ist bei
+ * dieser Aufgabe das Feld, das noch NICHT bunt ist.
  */
-export function hunderterfeld(sichtbar: readonly number[], gesucht: number | null = null): string {
+export function hunderterfeld(
+  sichtbar: readonly number[],
+  gesucht: number | null = null,
+  bunt: readonly number[] = []
+): string {
   const breiteZelle = 46;
   const hoeheZelle = 34;
   const gedruckt = new Set<number>(sichtbar);
+  const angemalt = new Set<number>(bunt);
 
   let teile = "";
   for (let zahl = 1; zahl <= 100; zahl++) {
     const x = ((zahl - 1) % 10) * breiteZelle;
     const y = Math.floor((zahl - 1) / 10) * hoeheZelle;
     const istGesucht = zahl === gesucht;
+    const grund = istGesucht ? "fig-feld-gesucht" : angemalt.has(zahl) ? "fig-feld-bunt" : "fig-feld";
     teile +=
-      `<rect x="${x}" y="${y}" width="${breiteZelle}" height="${hoeheZelle}" ` +
-      `class="${istGesucht ? "fig-feld-gesucht" : "fig-feld"}"/>` +
+      `<rect x="${x}" y="${y}" width="${breiteZelle}" height="${hoeheZelle}" class="${grund}"/>` +
       `<rect x="${x}" y="${y}" width="${breiteZelle}" height="${hoeheZelle}" class="fig-linie" fill="none" stroke-width="1.5"/>`;
     if (istGesucht) {
       teile +=
@@ -820,8 +829,13 @@ export function rechenstrich(
  * Lücke – sie steht am Ende (nach rechts fortsetzen) oder am Anfang (nach
  * links fortsetzen), nie in der Mitte: dort wäre sie oft schon aus dem
  * direkten Nachbarn ablesbar.
+ *
+ * `plaetze` macht das Bild breiter als die Reihe lang ist. Stehen mehrere
+ * verschieden lange Reihen als Bildkarten nebeneinander, skaliert der Browser
+ * sonst jede einzeln – die kürzeste bekäme die größten Formen, und ein Kind
+ * wählte nach Größe statt nach Muster.
  */
-export function formenreihe(namen: readonly (FormName | null)[]): string {
+export function formenreihe(namen: readonly (FormName | null)[], plaetze = namen.length): string {
   const kaestchen = 84;
   const spalt = 10;
   const faktor = (kaestchen * 0.94) / 200;
@@ -845,5 +859,5 @@ export function formenreihe(namen: readonly (FormName | null)[]): string {
       teile += `<g transform="translate(${r(x + rand)} ${r(rand)}) scale(${r(faktor)})">${formInhalt(name)}</g>`;
     }
   });
-  return gerahmt(namen.length * (kaestchen + spalt) - spalt, kaestchen, teile);
+  return gerahmt(Math.max(plaetze, namen.length) * (kaestchen + spalt) - spalt, kaestchen, teile);
 }

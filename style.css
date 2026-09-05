@@ -1235,6 +1235,10 @@ details[open] summary {
   fill: var(--karte);
 }
 
+.fig-feld-bunt {
+  fill: color-mix(in srgb, var(--gold) 55%, var(--karte));
+}
+
 .fig-feld-gesucht {
   fill: color-mix(in srgb, var(--haupt) 18%, var(--karte));
 }

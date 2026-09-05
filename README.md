@@ -20,13 +20,13 @@ Dazu kommen zwei eigene Modi: **Puzzle** und **Rechenmeister**.
 | Thema | Inhalte |
 | --- | --- |
 | **Aus dem Übungsheft** | |
-| 🔢 Zahlen bis 100 | Vorgänger/Nachfolger, Zehner und Einer, Nachbarzehner, Hunderterfeld und Hunderterfeld-Ausschnitte, Zahlenstrahl und Rechenstrich, `<`/`=`/`>`, Zahlen ordnen, Runden, Zahlenfolgen mit Pfeilschritten, Regeln finden und Reihen zu einer Regel |
+| 🔢 Zahlen bis 100 | Vorgänger/Nachfolger, Zehner und Einer, ein und beide Nachbarzehner, Hunderterfeld mit Ausschnitten und angemalten Mustern, Zahlenstrahl und Rechenstrich, `<`/`=`/`>`, Zahlen ordnen, Runden, Zahlenfolgen mit Pfeilschritten und mit Lücken, Regeln finden und Reihen zu einer Regel |
 | ➕ Plus & Minus | bis 20, mit vollen Zehnern, bis 100 ohne und mit Zehnerübergang, Platzhalter- und Tabellenaufgaben |
 | 💡 Rechentricks | Analogieaufgaben (3 + 4 → 30 + 40, 3 + 2 → 13 + 2), Nachbaraufgaben (7 + 7 → 7 + 8), plus/minus 10, Hunderter |
 | 🐴 Hilfsaufgaben | Bei Rechentricks und Umkehraufgaben rechnet das Kind zuerst die Hilfsaufgabe selbst – das gibt ein Pferd |
 | 👨‍👩‍👧‍👦 Aufgabenfamilien | „3 Zahlen, 4 Aufgaben“: Tausch- und Umkehraufgaben, Lücken in allen vier Formen |
 | 🧱 Mauern & Räder | Zahlenmauern (3, 6 oder 10 Steine) mit fehlendem Stein, Rechenkästen mit Fähnchen, Rechenräder in zwei Formen |
-| 🔷 Formen | Figuren erkennen, Muster nach rechts **und links** fortsetzen, „welche Form passt nicht?“ (gedrehte und verschieden große Formen einer Gruppe), Ecken und Seiten zählen, Puzzleteile, Spiegelachsen, Umfang, Körper |
+| 🔷 Formen | Figuren erkennen, das Grundmuster bestimmen, Muster nach rechts **und links** fortsetzen, „welche Form passt nicht?“ (gedrehte und verschieden große Formen einer Gruppe), Ecken und Seiten zählen, Puzzleteile, Spiegelachsen, Umfang, Körper |
 | **Weitere Themen** | |
 | ✖️ Einmaleins | alle Reihen von 1 bis 10, Punktefelder, Umkehraufgaben |
 | ➗ Geteilt | Teilen ohne Rest, Aufgaben mit Rest |

@@ -28,8 +28,17 @@ export function geometrie(rng: Rng, stufe: Stufe): Aufgabe {
     stufe === 1
       ? [formErkennen, formErkennen, formMitEcken, puzzle, passtNicht, musterRechts]
       : stufe === 2
-        ? [eckenZaehlen, seitenZaehlen, formMitEcken, puzzle, passtNicht, musterRechts, musterLinks]
-        : [symmetrie, koerper, umfangQuadrat, umfangRechteck, passtNicht, musterLinks];
+        ? [
+            eckenZaehlen,
+            seitenZaehlen,
+            formMitEcken,
+            puzzle,
+            passtNicht,
+            musterRechts,
+            musterLinks,
+            grundmusterAufgabe,
+          ]
+        : [symmetrie, koerper, umfangQuadrat, umfangRechteck, passtNicht, musterLinks, grundmusterAufgabe];
   return rng.pick(varianten)(rng, stufe);
 }
 
@@ -187,6 +196,69 @@ function muster(rng: Rng, nachLinks: boolean, stufe: Stufe): Aufgabe {
     loesung: kennungen[gemischt.indexOf(loesung)]!,
     tipp: "Suche zuerst das kleinste Stück, das sich immer wiederholt.",
     erklaerung: `Das Grundmuster ist: ${grund.join(", ")}. Danach beginnt es wieder von vorn.`,
+  };
+}
+
+/**
+ * „Kreise erst das Grundmuster ein.“ Im Heft ist das der erste Arbeitsschritt
+ * jeder Musteraufgabe, und er hat es in sich: Gesucht ist das KLEINSTE Stück,
+ * das sich wiederholt. Ein Ausschnitt an anderer Stelle passt nicht, und das
+ * doppelte Grundmuster wiederholt sich zwar auch – ist aber nicht das
+ * kleinste.
+ */
+function grundmusterAufgabe(rng: Rng, stufe: Stufe): Aufgabe {
+  const laenge = stufe === 3 ? rng.pick([3, 4]) : rng.pick([2, 3]);
+  const grund = grundmuster(rng, laenge);
+  const kaestchen = laenge === 4 ? 8 : 6;
+  const reihe: FormName[] = [];
+  for (let i = 0; i < kaestchen; i++) reihe.push(grund[i % laenge]!);
+
+  // Ein Vorschlag ist falsch, sobald er die Reihe nicht wiederherstellt ODER
+  // länger ist als das Grundmuster.
+  const baut = (stueck: readonly FormName[]): boolean =>
+    reihe.every((form, i) => form === stueck[i % stueck.length]);
+  const vorschlaege: FormName[][] = [grund];
+  const kandidaten: FormName[][] = [
+    // Der klassische Fehlgriff: dasselbe Fenster, nur eins verschoben.
+    grund.map((_, i) => grund[(i + 1) % laenge]!),
+    // Das doppelte Grundmuster – wiederholt sich, ist aber nicht das kleinste.
+    [...grund, ...grund],
+    // Ein Stück zu kurz und eins zu lang.
+    reihe.slice(0, Math.max(2, laenge - 1)),
+    reihe.slice(0, laenge + 1),
+    reihe.slice(1, laenge + 1),
+  ];
+  for (const kandidat of kandidaten) {
+    if (vorschlaege.length >= 4) break;
+    if (kandidat.length === laenge && baut(kandidat)) continue;
+    if (vorschlaege.some((vorhanden) => vorhanden.join() === kandidat.join())) continue;
+    vorschlaege.push(kandidat);
+  }
+
+  const kennungen = ["A", "B", "C", "D"];
+  const gemischt = rng.shuffle(vorschlaege);
+  // Alle Karten gleich breit zeichnen, damit die Formen überall gleich groß
+  // sind – sonst entscheidet die Kästchengröße statt des Musters.
+  const plaetze = Math.max(...vorschlaege.map((stueck) => stueck.length));
+  return {
+    typ: "geometrie/grundmuster",
+    frage: "Welches ist das Grundmuster? Gesucht ist das kleinste Stück, das sich immer wiederholt.",
+    bild: {
+      svg: formenreihe(reihe),
+      beschriftung: `Musterreihe: ${reihe.join(", ")}`,
+      breit: true,
+    },
+    antwortfeld: {
+      art: "bildauswahl",
+      optionen: gemischt.map((stueck, i) => ({
+        kennung: kennungen[i]!,
+        svg: formenreihe(stueck, plaetze),
+        beschriftung: stueck.join(", "),
+      })),
+    },
+    loesung: kennungen[gemischt.findIndex((stueck) => stueck.join() === grund.join())]!,
+    tipp: "Geh die Reihe von vorne durch: Ab welcher Stelle fängt sie wieder von vorne an?",
+    erklaerung: `Das Grundmuster ist ${grund.join(", ")} – es wiederholt sich ${kaestchen / laenge}-mal.`,
   };
 }
 
