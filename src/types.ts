@@ -138,6 +138,17 @@ export interface Fortschritt {
   /** Fehlerfrei gelöste Puzzles. */
   puzzleGeloest: number;
   /**
+   * Nummern der ins Sammelbild geklebten Sticker (`sammelbild.ts`). Sie sind
+   * Gesammeltes und gehen beim Abgleich nie verloren – beide Geräte werden
+   * vereinigt.
+   */
+  sticker: number[];
+  /**
+   * Richtige Antworten seit dem letzten Sticker, 0 bis
+   * `RICHTIGE_PRO_STICKER − 1`. Die freiwillige Hilfsaufgabe zählt nicht mit.
+   */
+  stickerZaehler: number;
+  /**
    * Kurzschlüssel der zuletzt gestellten Aufgaben. Die nächste Runde meidet
    * sie, damit nicht jede Sitzung dieselben Rechnungen zeigt.
    */

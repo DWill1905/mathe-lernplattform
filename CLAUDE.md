@@ -106,7 +106,15 @@ verwässern.
   `ALLE_JUBEL_ARTEN`, sonst bliebe das Pferd ungeprüft. `quert()` (früher
   `fliegt()`) entscheidet über die Querbahn `jubel-quer` – ein Pferd fliegt
   nicht, gemeint war immer die Layoutfrage.
-- `src/views/*` – Start, Übung, Fortschritt, Elternbereich.
+- `src/sammelbild.ts` – das Haus im Wald, das sich nach je fünf richtigen
+  Aufgaben mit einem Sticker weiter einrichtet. Rein, ohne DOM-Zugriff. Die
+  Eule auf dem Dach kommt aus `eule.ts` – keine zweite Eule im Projekt.
+  `HAUS` und `ZIMMER` sind die **einzige Wahrheit** über die Kanten: `haus()`
+  zeichnet daraus, und jeder Sticker nennt entweder sein `zimmer` (dann muss
+  sein Feld vollständig hineinpassen) oder keins (dann gehört er außerhalb des
+  Mauerwerks – Baum, Vogelhaus, Blumenbeet, Eule aufs Dach). Vor 1.41.0 standen
+  die Zahlen doppelt, und neun Möbel ragten in die Wände.
+- `src/views/*` – Start, Übung, Fortschritt, Sammelbild, Elternbereich.
 - `src/app.ts` / `src/router.ts` / `src/shell.ts` – Routentabelle,
   Hash-Router, App-Shell.
 - `sw.js` (Repo-Root) – Service Worker, Network-First. Muss im Root liegen,
@@ -299,6 +307,44 @@ verwässern.
 - **Eine neue Route braucht einen Eintrag in `ANSICHTEN` (`src/app.ts`).**
   Die Liste wird im Leerlauf komplett vorgeladen; nur dadurch bleibt die App
   nach dem Code-Splitting offline vollständig.
+- **Die Sticker sind Gesammeltes und werden beim Abgleich VEREINIGT**, nicht
+  maximiert: `sticker` ist eine Liste, keine Zahl, und ein Bild darf nie
+  wieder Lücken bekommen. Der Zwischenstand `stickerZaehler` kommt dagegen wie
+  `fehler` vom zuletzt benutzten Gerät. Ein unmöglicher Zähler fällt auf 0
+  zurück statt auf den Höchstwert gekappt zu werden – sonst verschenkte ein
+  von Hand aufgedrehter Spielstand sofort einen Sticker.
+- **Der Sticker-Zähler wird MITTEN IN DER RUNDE gespeichert.** Er läuft über
+  Runden hinweg, und wer die App zwischendurch zumacht, soll seine richtigen
+  Antworten nicht verlieren. Das ist unbedenklich, weil `zeichneErgebnis()`
+  den Stand am Rundenende ohnehin frisch lädt.
+- **Ein voller Zähler heißt „ein Sticker steht noch aus“, nicht „gleich“.**
+  `bucheRichtigeFuerSticker()` lässt ihn bei `RICHTIGE_PRO_STICKER` STEHEN;
+  erst `loeseStickerEin()` setzt ihn auf 0. Vorher sprang er sofort auf null,
+  und wer die App zumachte, während die drei Karten dastanden, verlor fünf
+  richtige Antworten. `pruefeFortschritt()` lässt den Wert deshalb bis
+  EINSCHLIESSLICH `RICHTIGE_PRO_STICKER` zu – wird das wieder auf `− 1`
+  gekappt, fällt der ausstehende Sticker beim nächsten Laden still weg.
+- **Im Rechenmeister wird gezählt, aber nichts angeboten.** Dort läuft die Uhr;
+  eine Auswahlkarte mittendrin verfälscht die Bestzeit – dieselbe Regel wie bei
+  der Hilfsaufgabe (`bonusMoeglich()`). Entschieden wird das über den Parameter
+  `meister` von `bucheRichtigeFuerSticker()` und NICHT per `&&` in der Ansicht:
+  nur so ist die Regel ohne DOM testbar.
+- **Die Zahleneule auf dem Dach trägt `zuletzt: true`** und wird erst
+  angeboten, wenn sonst nichts mehr fehlt. Käme sie zufällig als dritter
+  Sticker, wäre der Schlusspunkt des fertigen Hauses weg.
+- **Die Lücke im Zimmer braucht dunkle Tinte, die draußen nicht.** Die
+  Zimmerflächen sind wie alles `bild-hell` in BEIDEN Farbschemata weiß; der
+  gestrichelte Umriss folgte aber `--text` und verschwand im Dunkelmodus.
+  Drinnen gilt deshalb `.sticker-leer-zimmer` (`--bild-strich`), draußen auf
+  der Kachel bleibt es bei `.sticker-leer`.
+- **Angemalte und geklebte Sticker werden nicht gestreckt gezeichnet.** Jede
+  Zeichnung steckt in einem Feld von 100 × 100 und wird auf `breite` × `hoehe`
+  gezogen. Was rund bleiben muss (Wecker, Ente, Katze), braucht deshalb ein
+  fast quadratisches Feld – und Strich statt Fläche wird vermieden, weil aus
+  gleich dicken Strichen sonst ungleich dicke werden.
+- **`.rueckmeldung-zeile` färbt sich rot** – sie ist für die Antwort nach
+  einem Fehler gemacht. Wer sie woanders wiederverwendet (Stickerbelohnung),
+  muss die Farbe zurücksetzen.
 - **Der Spielstand trägt ein ÜBERGANGSFELD.** Die Belohnung der Hilfsaufgabe
   hieß bis 1.34 `herzen` und heißt seit 1.35 `pferde`. `pruefeFortschritt()`
   liest deshalb `daten["pferde"] ?? daten["herzen"]` (mit `??`, nicht `||` –

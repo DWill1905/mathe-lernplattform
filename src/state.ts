@@ -8,6 +8,7 @@
  * Anwendung dauerhaft lahmlegen.
  */
 
+import { RICHTIGE_PRO_STICKER, istStickerNummer } from "./sammelbild.js";
 import { THEMEN, istThemaId } from "./topics.js";
 import type { Fortschritt, Stufe, ThemaFortschritt, ThemaId } from "./types.js";
 
@@ -73,6 +74,8 @@ export function standardFortschritt(): Fortschritt {
     meister: { besteZeit: 0, besteTreffer: 0 },
     pferde: 0,
     puzzleGeloest: 0,
+    sticker: [],
+    stickerZaehler: 0,
     letzteAufgaben: [],
   };
 }
@@ -198,8 +201,19 @@ export function pruefeFortschritt(roh: unknown): Fortschritt {
      */
     pferde: ganzeZahl(daten["pferde"] ?? daten["herzen"], 0, MAX_PUNKTE, 0),
     puzzleGeloest: ganzeZahl(daten["puzzleGeloest"], 0, MAX_PUNKTE, 0),
+    sticker: stickerListe(daten["sticker"]),
+    // Bis EINSCHLIESSLICH der Belohnung: `RICHTIGE_PRO_STICKER` heißt „ein
+    // Sticker steht noch aus“. Würde hier bei 4 gekappt, verlöre ein Kind den
+    // verdienten Sticker, sobald es die App während der Auswahl zumacht.
+    stickerZaehler: ganzeZahl(daten["stickerZaehler"], 0, RICHTIGE_PRO_STICKER, 0),
     letzteAufgaben: schluesselListe(daten["letzteAufgaben"]),
   };
+}
+
+/** Geklebte Sticker: nur echte Nummern, jede höchstens einmal, sortiert. */
+function stickerListe(roh: unknown): number[] {
+  if (!Array.isArray(roh)) return [];
+  return [...new Set(roh.filter(istStickerNummer))].sort((a, b) => a - b);
 }
 
 /**

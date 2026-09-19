@@ -12,14 +12,15 @@
  */
 import { el, svgBild } from "../dom.js";
 import { icon } from "../icons.js";
-import { ERFOLGE, lobText, schwerpunkte, merkeMeisterErgebnis, werteMixAus, werteRundeAus, zeitText, } from "../gamification.js";
+import { ERFOLGE, bucheRichtigeFuerSticker, loeseStickerEin, lobText, schwerpunkte, stickerAngebot, merkeMeisterErgebnis, werteMixAus, werteRundeAus, zeitText, } from "../gamification.js";
 import { mulberry32, zufallsSeed } from "../random.js";
 import { PUZZLE_TEILE, puzzleBild, puzzleStaende, waehleMotiv, } from "../bilder.js";
 import { BONUS_JUBEL, JUBEL_ARTEN, raeumeJubel, waehleJubel, zeigeJubel } from "../jubel.js";
 import { normalisiere, rechnungPasst } from "../antwort.js";
 import { euleFuerQuote, euleSvg } from "../eule.js";
 import { gleicheAb } from "../sync.js";
-import { ladeFortschritt, merkeGestellteAufgaben } from "../state.js";
+import { ladeFortschritt, merkeGestellteAufgaben, speichereFortschritt } from "../state.js";
+import { STICKER_ANZAHL, sammelbild, stickerBild, sticker as stickerZu } from "../sammelbild.js";
 import { MEISTERLAENGE, MEISTER_THEMEN, RUNDENLAENGE, aufgabenSchluessel, gemischteRunde, runde, } from "../tasks/index.js";
 import { THEMEN, istThemaId, thema } from "../topics.js";
 import { pfadTeile } from "../router.js";
@@ -182,6 +183,8 @@ function neueSitzung(themaId, stufe, eintraege, meister = false, puzzle = null) 
         felder: [],
         feldIndex: 0,
         pferde: 0,
+        stickerWahl: null,
+        stickerNeu: null,
     };
     return sitzung;
 }
@@ -708,6 +711,10 @@ function rueckmeldung(ziel, sitzung, schritt) {
         }
         zeichne(ziel, sitzung);
     };
+    // Ein verdienter Sticker hält die Runde an: erst aussuchen, dann weiter.
+    if (!inVorstufe && (sitzung.stickerWahl || sitzung.stickerNeu !== null)) {
+        return stickerKasten(ziel, sitzung, weiter);
+    }
     if (sitzung.warRichtig) {
         timer = window.setTimeout(weiter, inVorstufe ? 1300 : 900);
         return inVorstufe
@@ -729,6 +736,53 @@ function rueckmeldung(ziel, sitzung, schritt) {
     }));
     // Von hier aus ist „Weiter" der nächste Tabstopp – statt einmal quer durch
     // die ganze Seite.
+    fokusZiel = kasten;
+    return kasten;
+}
+/**
+ * Die Stickerbelohnung: erst drei Vorschläge zur Wahl, nach dem Antippen das
+ * ganze Haus mit dem frisch geklebten Sticker.
+ *
+ * Bewusst OHNE Zeitschaltung – ein Kind soll in Ruhe aussuchen und danach
+ * selbst weiterklicken.
+ */
+function stickerKasten(ziel, sitzung, weiter) {
+    if (sitzung.stickerNeu !== null) {
+        const stand = ladeFortschritt();
+        const fertig = stand.sticker.length === STICKER_ANZAHL;
+        const kasten = el("div", { class: "rueckmeldung rueckmeldung-sticker", role: "status", tabindex: "-1" }, el("p", {
+            class: "rueckmeldung-zeile",
+            text: fertig
+                ? "Dein Haus ist fertig eingerichtet!"
+                : `${stickerZu(sitzung.stickerNeu).name} klebt jetzt in deinem Haus.`,
+        }), svgBild(sammelbild(stand.sticker, sitzung.stickerNeu), `Dein Sammelbild mit ${stand.sticker.length} von ${STICKER_ANZAHL} Stickern`), el("button", {
+            class: "knopf knopf-gross",
+            type: "button",
+            text: "Weiter",
+            onclick: () => {
+                sitzung.stickerNeu = null;
+                weiter();
+            },
+        }));
+        fokusZiel = kasten;
+        return kasten;
+    }
+    const karten = el("div", { class: "stickerwahl" });
+    for (const nummer of sitzung.stickerWahl ?? []) {
+        karten.appendChild(el("button", {
+            class: "stickerkarte",
+            type: "button",
+            onclick: () => {
+                const stand = ladeFortschritt();
+                loeseStickerEin(stand, nummer);
+                speichereFortschritt(stand);
+                sitzung.stickerWahl = null;
+                sitzung.stickerNeu = nummer;
+                zeichne(ziel, sitzung);
+            },
+        }, svgBild(stickerBild(nummer), stickerZu(nummer).name), el("span", { class: "stickerkarte-name", text: stickerZu(nummer).name })));
+    }
+    const kasten = el("div", { class: "rueckmeldung rueckmeldung-sticker", role: "status", tabindex: "-1" }, el("p", { class: "rueckmeldung-zeile" }, icon("haus", "rueckmeldung-symbol"), el("span", { text: "Fünf richtig! Such dir einen Sticker aus." })), karten);
     fokusZiel = kasten;
     return kasten;
 }
@@ -775,6 +829,18 @@ function pruefe(ziel, sitzung, antwort) {
             typ: eintrag.aufgabe.typ,
             sekunden: (Date.now() - sitzung.aufgabeStart) / 1000,
         });
+        /*
+         * Der Sticker-Zähler läuft über Runden hinweg und wird deshalb SOFORT
+         * gespeichert, nicht erst am Rundenende: Wer die App mitten in der Runde
+         * zumacht, soll seine richtigen Antworten nicht verlieren. Das ist
+         * unbedenklich, weil `zeichneErgebnis()` den Stand am Ende ohnehin frisch
+         * lädt.
+         */
+        const stand = ladeFortschritt();
+        const faellig = bucheRichtigeFuerSticker(stand, sitzung.meister);
+        speichereFortschritt(stand);
+        if (faellig)
+            sitzung.stickerWahl = stickerAngebot(stand, mulberry32(zufallsSeed()));
         jubele(sitzung);
     }
     else {
