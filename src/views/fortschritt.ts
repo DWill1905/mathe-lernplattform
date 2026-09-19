@@ -2,6 +2,7 @@ import { el, svgBild } from "../dom.js";
 import { euleSvg } from "../eule.js";
 import { icon } from "../icons.js";
 import { ERFOLGE, levelInfo, zeitText } from "../gamification.js";
+import { STICKER_ANZAHL, sammelbild } from "../sammelbild.js";
 import { ladeFortschritt, tagesSchluessel } from "../state.js";
 import { MEISTERLAENGE } from "../tasks/index.js";
 import { THEMEN } from "../topics.js";
@@ -45,6 +46,22 @@ export const zeige: RouteHandler = (ziel) => {
           )
         : kennzahl("Rechenmeister", "–", "noch nicht gelaufen")
     )
+  );
+
+  // Das Sammelbild steht weit oben: Es ist die Belohnung, die über die
+  // einzelne Runde hinaus trägt, und der Grund, warum ein Kind weiterübt.
+  const sammlung = el(
+    "a",
+    { class: "karte karte-sammelbild", href: "#/sammelbild" },
+    el("h2", { class: "abschnitt-titel", text: "Dein Sammelbild" }),
+    svgBild(
+      sammelbild(fortschritt.sticker),
+      `Ein Haus im Wald mit ${fortschritt.sticker.length} von ${STICKER_ANZAHL} eingeklebten Stickern`
+    ),
+    el("p", {
+      class: "sammelbild-stand",
+      text: `${fortschritt.sticker.length} von ${STICKER_ANZAHL} Stickern`,
+    })
   );
 
   const themenliste = el("section", { class: "karte" }, el("h2", { class: "abschnitt-titel", text: "Themen" }));
@@ -110,7 +127,7 @@ export const zeige: RouteHandler = (ziel) => {
   }
   abzeichen.appendChild(gitter);
 
-  ziel.replaceChildren(uebersicht, aktivitaet(fortschritt), themenliste, abzeichen);
+  ziel.replaceChildren(uebersicht, sammlung, aktivitaet(fortschritt), themenliste, abzeichen);
 };
 
 function summe(f: Fortschritt, feld: "gesamt" | "richtig"): number {

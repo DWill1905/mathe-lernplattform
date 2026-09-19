@@ -17,6 +17,7 @@ const ANSICHTEN = {
     rechenmeister: () => import("./views/uebung.js"),
     puzzle: () => import("./views/uebung.js"),
     fortschritt: () => import("./views/fortschritt.js"),
+    sammelbild: () => import("./views/sammelbild.js"),
     eltern: () => import("./views/eltern.js"),
 };
 function nichtGefunden(ziel) {

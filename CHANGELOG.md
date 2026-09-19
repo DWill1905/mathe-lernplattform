@@ -4,6 +4,43 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.40.0] – 2026-09-19
+
+### Hinzugefügt
+
+**Ein Sammelbild, das sich einrichtet.** Nach je fünf richtigen Aufgaben darf
+sich das Kind einen Sticker aussuchen und ins Bild kleben – genau wie im
+Übungsheft, wo zu jeder Seite ein Sticker gehört und die Wimmelszene dadurch
+vollständiger wird.
+
+Das Motiv ist ein **Haus im Wald im Querschnitt**, wie ein Puppenhaus, bei dem
+man in alle Zimmer sieht. Haus, Dach, Zimmerwände und die Wiese sind von
+Anfang an da; leer sind die Zimmer. Die 24 Sticker sind die Einrichtung:
+Bett, Nachttisch, Wecker, Kleiderschrank und Teddy im Schlafzimmer;
+Badewanne, Waschbecken, Spiegel und Gummiente im Bad; Sofa, Teppich,
+Stehlampe, Bücherregal, Zimmerpflanze und Katze im Wohnzimmer; Tisch, Stuhl,
+Herd, Kühlschrank und Teekanne in der Küche; Baum, Vogelhaus und Blumenbeet
+draußen. Zum Schluss setzt sich die **Zahleneule aufs Dach** – sie wird erst
+angeboten, wenn sonst nichts mehr fehlt, und krönt das fertige Haus.
+
+Ein noch fehlender Sticker steht als gestrichelter Umriss im Bild, wie das
+weiße Kästchen im Heft: So sieht ein Kind, wie viel noch kommt.
+
+Der Zähler läuft **über Runden hinweg** – anders als Punkte, Sterne und das
+Puzzle, die mit der Runde vorbei sind. Der Stand wird sofort gespeichert, wer
+die App mitten in der Runde zumacht, verliert nichts. Beim Abgleich zwischen
+zwei Geräten werden die Sammlungen **vereinigt**: Ein Bild bekommt nie wieder
+Lücken.
+
+Dazu eine neue Ansicht unter „Fortschritt": das Bild groß, die Zahl der
+gesammelten Sticker und die Liste aller 24 – mit Haken bei den geklebten.
+
+### Geändert
+
+Die Rückmeldung nach einer richtigen Antwort schaltet normalerweise nach 900
+Millisekunden von selbst weiter. Steht ein Sticker an, hält sie an: Aussuchen
+braucht Ruhe, und danach klickt das Kind selbst weiter.
+
 ## [1.39.0] – 2026-09-05
 
 ### Hinzugefügt

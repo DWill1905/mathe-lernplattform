@@ -15,8 +15,11 @@ import { el, svgBild } from "../dom.js";
 import { icon } from "../icons.js";
 import {
   ERFOLGE,
+  bucheRichtigeFuerSticker,
+  klebeSticker,
   lobText,
   schwerpunkte,
+  stickerAngebot,
   merkeMeisterErgebnis,
   werteMixAus,
   werteRundeAus,
@@ -36,7 +39,8 @@ import { BONUS_JUBEL, JUBEL_ARTEN, raeumeJubel, waehleJubel, zeigeJubel } from "
 import { normalisiere, rechnungPasst } from "../antwort.js";
 import { euleFuerQuote, euleSvg } from "../eule.js";
 import { gleicheAb } from "../sync.js";
-import { ladeFortschritt, merkeGestellteAufgaben } from "../state.js";
+import { ladeFortschritt, merkeGestellteAufgaben, speichereFortschritt } from "../state.js";
+import { STICKER_ANZAHL, sammelbild, stickerBild, sticker as stickerZu } from "../sammelbild.js";
 import {
   MEISTERLAENGE,
   MEISTER_THEMEN,
@@ -108,6 +112,14 @@ interface Sitzung {
   feldIndex: number;
   /** Selbst gelöste Hilfsaufgaben in dieser Runde. */
   pferde: number;
+  /**
+   * Nach je fünf richtigen Antworten stehen hier drei Sticker zur Wahl. Die
+   * Rückmeldung schaltet dann NICHT automatisch weiter – das Kind soll sich
+   * in Ruhe einen aussuchen.
+   */
+  stickerWahl: number[] | null;
+  /** Der gerade ausgesuchte Sticker, solange er im Bild aufploppt. */
+  stickerNeu: number | null;
 }
 
 /**
@@ -308,6 +320,8 @@ function neueSitzung(
     felder: [],
     feldIndex: 0,
     pferde: 0,
+    stickerWahl: null,
+    stickerNeu: null,
   };
   return sitzung;
 }
@@ -984,6 +998,11 @@ function rueckmeldung(ziel: HTMLElement, sitzung: Sitzung, schritt: Schritt): HT
     zeichne(ziel, sitzung);
   };
 
+  // Ein verdienter Sticker hält die Runde an: erst aussuchen, dann weiter.
+  if (!inVorstufe && (sitzung.stickerWahl || sitzung.stickerNeu !== null)) {
+    return stickerKasten(ziel, sitzung, weiter);
+  }
+
   if (sitzung.warRichtig) {
     timer = window.setTimeout(weiter, inVorstufe ? 1300 : 900);
     return inVorstufe
@@ -1027,6 +1046,82 @@ function rueckmeldung(ziel: HTMLElement, sitzung: Sitzung, schritt: Schritt): HT
   );
   // Von hier aus ist „Weiter" der nächste Tabstopp – statt einmal quer durch
   // die ganze Seite.
+  fokusZiel = kasten;
+  return kasten;
+}
+
+/**
+ * Die Stickerbelohnung: erst drei Vorschläge zur Wahl, nach dem Antippen das
+ * ganze Haus mit dem frisch geklebten Sticker.
+ *
+ * Bewusst OHNE Zeitschaltung – ein Kind soll in Ruhe aussuchen und danach
+ * selbst weiterklicken.
+ */
+function stickerKasten(ziel: HTMLElement, sitzung: Sitzung, weiter: () => void): HTMLElement {
+  if (sitzung.stickerNeu !== null) {
+    const stand = ladeFortschritt();
+    const fertig = stand.sticker.length === STICKER_ANZAHL;
+    const kasten = el(
+      "div",
+      { class: "rueckmeldung rueckmeldung-sticker", role: "status", tabindex: "-1" },
+      el("p", {
+        class: "rueckmeldung-zeile",
+        text: fertig
+          ? "Dein Haus ist fertig eingerichtet!"
+          : `${stickerZu(sitzung.stickerNeu).name} klebt jetzt in deinem Haus.`,
+      }),
+      svgBild(
+        sammelbild(stand.sticker, sitzung.stickerNeu),
+        `Dein Sammelbild mit ${stand.sticker.length} von ${STICKER_ANZAHL} Stickern`
+      ),
+      el("button", {
+        class: "knopf knopf-gross",
+        type: "button",
+        text: "Weiter",
+        onclick: () => {
+          sitzung.stickerNeu = null;
+          weiter();
+        },
+      })
+    );
+    fokusZiel = kasten;
+    return kasten;
+  }
+
+  const karten = el("div", { class: "stickerwahl" });
+  for (const nummer of sitzung.stickerWahl ?? []) {
+    karten.appendChild(
+      el(
+        "button",
+        {
+          class: "stickerkarte",
+          type: "button",
+          onclick: () => {
+            const stand = ladeFortschritt();
+            klebeSticker(stand, nummer);
+            speichereFortschritt(stand);
+            sitzung.stickerWahl = null;
+            sitzung.stickerNeu = nummer;
+            zeichne(ziel, sitzung);
+          },
+        },
+        svgBild(stickerBild(nummer), stickerZu(nummer).name),
+        el("span", { class: "stickerkarte-name", text: stickerZu(nummer).name })
+      )
+    );
+  }
+
+  const kasten = el(
+    "div",
+    { class: "rueckmeldung rueckmeldung-sticker", role: "status", tabindex: "-1" },
+    el(
+      "p",
+      { class: "rueckmeldung-zeile" },
+      icon("haus", "rueckmeldung-symbol"),
+      el("span", { text: "Fünf richtig! Such dir einen Sticker aus." })
+    ),
+    karten
+  );
   fokusZiel = kasten;
   return kasten;
 }
@@ -1077,6 +1172,17 @@ function pruefe(ziel: HTMLElement, sitzung: Sitzung, antwort: string): void {
       typ: eintrag.aufgabe.typ,
       sekunden: (Date.now() - sitzung.aufgabeStart) / 1000,
     });
+    /*
+     * Der Sticker-Zähler läuft über Runden hinweg und wird deshalb SOFORT
+     * gespeichert, nicht erst am Rundenende: Wer die App mitten in der Runde
+     * zumacht, soll seine richtigen Antworten nicht verlieren. Das ist
+     * unbedenklich, weil `zeichneErgebnis()` den Stand am Ende ohnehin frisch
+     * lädt.
+     */
+    const stand = ladeFortschritt();
+    const faellig = bucheRichtigeFuerSticker(stand);
+    speichereFortschritt(stand);
+    if (faellig) sitzung.stickerWahl = stickerAngebot(stand, mulberry32(zufallsSeed()));
     jubele(sitzung);
   } else {
     sitzung.serie = 0;

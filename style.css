@@ -1314,6 +1314,149 @@ details[open] summary {
   font-weight: 700;
 }
 
+/* Die Stickerbelohnung. Sie hält die Runde an, deshalb bekommt sie mehr Raum
+   als die übrigen Rückmeldungen – und eine eigene Farbe, damit sofort klar
+   ist: Hier ist gerade etwas anderes los als richtig oder falsch. */
+
+.rueckmeldung-sticker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  background: color-mix(in srgb, var(--gold) 18%, transparent);
+  color: var(--text);
+  text-align: center;
+}
+
+/* `.rueckmeldung-zeile` ist für die Antwort nach einem Fehler gemacht und
+   färbt sich rot. Hier ist nichts falsch gelaufen – im Gegenteil. */
+.rueckmeldung-sticker .rueckmeldung-zeile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0;
+  color: var(--text);
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.rueckmeldung-sticker .bild {
+  margin: 0;
+  width: 100%;
+  max-width: 420px;
+}
+
+.stickerwahl {
+  display: grid;
+  /* `minmax(0, 1fr)` statt `1fr`: Sonst darf eine Spalte nicht unter die
+     Breite ihres Inhalts schrumpfen, und ein langer Name wie
+     „Kleiderschrank“ schiebt die dritte Karte aus der Karte heraus. */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 420px;
+}
+
+.stickerkarte {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  /* Mindestens 40 px hoch bleibt hier von allein gewahrt – die Karte trägt
+     ein Bild und eine Zeile Text. */
+  padding: 0.6rem 0.4rem 0.5rem;
+  border: 2px solid var(--rand);
+  border-radius: var(--radius-mittel);
+  background: var(--karte);
+  color: var(--text);
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.stickerkarte:hover {
+  border-color: var(--haupt);
+}
+
+.stickerkarte .bild {
+  margin: 0;
+  width: 100%;
+  max-width: 82px;
+}
+
+.stickerkarte-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.15;
+  /* Lange Namen dürfen umbrechen statt die Karte zu sprengen – mit
+     Silbentrennung, sonst steht dort „Kühlschr / ank“. */
+  hyphens: auto;
+  overflow-wrap: break-word;
+}
+
+/* Das Sammelbild auf der Fortschrittsseite und in seiner eigenen Ansicht. */
+
+.karte-sammelbild {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.karte-sammelbild:hover {
+  border-color: var(--haupt);
+}
+
+.sammelbild-stand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0.6rem 0 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.sammelbild-hinweis {
+  margin: 0.3rem 0 0;
+  text-align: center;
+  color: var(--text-leise);
+}
+
+.stickerliste {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stickerliste-punkt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.7rem;
+  border-radius: var(--radius-klein);
+  background: var(--grund-oben);
+}
+
+.stickerliste-offen {
+  color: var(--text-leise);
+  /* Gestrichelt wie die Lücke im Bild – derselbe Gedanke, dieselbe Optik. */
+  border: 1px dashed color-mix(in srgb, var(--text) 24%, transparent);
+  background: none;
+}
+
+.stickerliste-name {
+  font-weight: 700;
+}
+
+.stickerliste-haken {
+  color: var(--richtig);
+}
+
+
 .ergebnis-pferde {
   margin: -0.4rem 0 1rem;
   font-weight: 700;
@@ -2280,6 +2423,41 @@ body {
 .bild-text {
   fill: var(--bild-strich);
   font-weight: 700;
+}
+
+/* ===================================================== Das Sammelbild */
+
+/* Ein noch fehlender Sticker: gestrichelter Umriss, wie das weiße Kästchen
+   im Übungsheft. Zurückhaltend, damit das Bild nicht nach Baustelle aussieht. */
+.sticker-leer {
+  fill: none;
+  stroke: color-mix(in srgb, var(--text) 24%, transparent);
+  stroke-width: 0.8;
+  stroke-dasharray: 3 2.5;
+}
+
+/* Der gerade ausgesuchte Sticker ploppt einmal auf. `transform-box: fill-box`
+   ist Pflicht: Ohne das dreht der Browser um die Mitte der ganzen Bühne
+   statt um den Sticker, und er fliegt quer durchs Haus. */
+.sticker-neu {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sticker-pop 700ms ease-out 1;
+}
+
+@keyframes sticker-pop {
+  0% {
+    opacity: 0;
+    scale: 0.2;
+  }
+  60% {
+    opacity: 1;
+    scale: 1.25;
+  }
+  100% {
+    opacity: 1;
+    scale: 1;
+  }
 }
 
 /* ========================================================== Die Eule */

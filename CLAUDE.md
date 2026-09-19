@@ -106,7 +106,10 @@ verwässern.
   `ALLE_JUBEL_ARTEN`, sonst bliebe das Pferd ungeprüft. `quert()` (früher
   `fliegt()`) entscheidet über die Querbahn `jubel-quer` – ein Pferd fliegt
   nicht, gemeint war immer die Layoutfrage.
-- `src/views/*` – Start, Übung, Fortschritt, Elternbereich.
+- `src/sammelbild.ts` – das Haus im Wald, das sich nach je fünf richtigen
+  Aufgaben mit einem Sticker weiter einrichtet. Rein, ohne DOM-Zugriff. Die
+  Eule auf dem Dach kommt aus `eule.ts` – keine zweite Eule im Projekt.
+- `src/views/*` – Start, Übung, Fortschritt, Sammelbild, Elternbereich.
 - `src/app.ts` / `src/router.ts` / `src/shell.ts` – Routentabelle,
   Hash-Router, App-Shell.
 - `sw.js` (Repo-Root) – Service Worker, Network-First. Muss im Root liegen,
@@ -299,6 +302,27 @@ verwässern.
 - **Eine neue Route braucht einen Eintrag in `ANSICHTEN` (`src/app.ts`).**
   Die Liste wird im Leerlauf komplett vorgeladen; nur dadurch bleibt die App
   nach dem Code-Splitting offline vollständig.
+- **Die Sticker sind Gesammeltes und werden beim Abgleich VEREINIGT**, nicht
+  maximiert: `sticker` ist eine Liste, keine Zahl, und ein Bild darf nie
+  wieder Lücken bekommen. Der Zwischenstand `stickerZaehler` kommt dagegen wie
+  `fehler` vom zuletzt benutzten Gerät. Ein unmöglicher Zähler fällt auf 0
+  zurück statt auf den Höchstwert gekappt zu werden – sonst verschenkte ein
+  von Hand aufgedrehter Spielstand sofort einen Sticker.
+- **Der Sticker-Zähler wird MITTEN IN DER RUNDE gespeichert.** Er läuft über
+  Runden hinweg, und wer die App zwischendurch zumacht, soll seine richtigen
+  Antworten nicht verlieren. Das ist unbedenklich, weil `zeichneErgebnis()`
+  den Stand am Rundenende ohnehin frisch lädt.
+- **Die Zahleneule auf dem Dach trägt `zuletzt: true`** und wird erst
+  angeboten, wenn sonst nichts mehr fehlt. Käme sie zufällig als dritter
+  Sticker, wäre der Schlusspunkt des fertigen Hauses weg.
+- **Angemalte und geklebte Sticker werden nicht gestreckt gezeichnet.** Jede
+  Zeichnung steckt in einem Feld von 100 × 100 und wird auf `breite` × `hoehe`
+  gezogen. Was rund bleiben muss (Wecker, Ente, Katze), braucht deshalb ein
+  fast quadratisches Feld – und Strich statt Fläche wird vermieden, weil aus
+  gleich dicken Strichen sonst ungleich dicke werden.
+- **`.rueckmeldung-zeile` färbt sich rot** – sie ist für die Antwort nach
+  einem Fehler gemacht. Wer sie woanders wiederverwendet (Stickerbelohnung),
+  muss die Farbe zurücksetzen.
 - **Der Spielstand trägt ein ÜBERGANGSFELD.** Die Belohnung der Hilfsaufgabe
   hieß bis 1.34 `herzen` und heißt seit 1.35 `pferde`. `pruefeFortschritt()`
   liest deshalb `daten["pferde"] ?? daten["herzen"]` (mit `??`, nicht `||` –

@@ -2,6 +2,7 @@ import { el, svgBild } from "../dom.js";
 import { euleSvg } from "../eule.js";
 import { icon } from "../icons.js";
 import { ERFOLGE, levelInfo, zeitText } from "../gamification.js";
+import { STICKER_ANZAHL, sammelbild } from "../sammelbild.js";
 import { ladeFortschritt, tagesSchluessel } from "../state.js";
 import { MEISTERLAENGE } from "../tasks/index.js";
 import { THEMEN } from "../topics.js";
@@ -17,6 +18,12 @@ export const zeige = (ziel) => {
     const uebersicht = el("section", { class: "karte" }, el("h1", { class: "seiten-titel", text: "Dein Fortschritt" }), el("div", { class: "kennzahlen" }, kennzahl("Level", String(level.stufe), level.titel), kennzahl("Punkte", String(fortschritt.punkte), "insgesamt gesammelt"), kennzahl("Aufgaben", String(gesamt), `davon ${richtig} richtig`), kennzahl("Trefferquote", `${quote} %`, "über alle Themen"), kennzahl("Sterne", `${sterne} / ${THEMEN.length * 3}`, "aus allen Themen"), kennzahl("Serie", String(fortschritt.streakTage), fortschritt.streakTage === 1 ? "Tag" : "Tage in Folge"), kennzahl("Pferde", String(fortschritt.pferde), fortschritt.pferde === 1 ? "Hilfsaufgabe gelöst" : "Hilfsaufgaben gelöst"), fortschritt.meister.besteTreffer > 0
         ? kennzahl("Rechenmeister", `${fortschritt.meister.besteTreffer} / ${MEISTERLAENGE}`, `Bestzeit ${zeitText(fortschritt.meister.besteZeit)}`)
         : kennzahl("Rechenmeister", "–", "noch nicht gelaufen")));
+    // Das Sammelbild steht weit oben: Es ist die Belohnung, die über die
+    // einzelne Runde hinaus trägt, und der Grund, warum ein Kind weiterübt.
+    const sammlung = el("a", { class: "karte karte-sammelbild", href: "#/sammelbild" }, el("h2", { class: "abschnitt-titel", text: "Dein Sammelbild" }), svgBild(sammelbild(fortschritt.sticker), `Ein Haus im Wald mit ${fortschritt.sticker.length} von ${STICKER_ANZAHL} eingeklebten Stickern`), el("p", {
+        class: "sammelbild-stand",
+        text: `${fortschritt.sticker.length} von ${STICKER_ANZAHL} Stickern`,
+    }));
     const themenliste = el("section", { class: "karte" }, el("h2", { class: "abschnitt-titel", text: "Themen" }));
     for (const eintrag of THEMEN) {
         const stand = fortschritt.themen[eintrag.id];
@@ -41,7 +48,7 @@ export const zeige = (ziel) => {
         gitter.appendChild(el("div", { class: `abzeichen-karte${geschafft ? "" : " abzeichen-offen"}` }, icon(geschafft ? erfolg.symbol : "schloss", `abzeichen-symbol${geschafft ? "" : " abzeichen-symbol-zu"}`), el("strong", { class: "abzeichen-titel", text: erfolg.titel }), el("span", { class: "abzeichen-text", text: erfolg.text })));
     }
     abzeichen.appendChild(gitter);
-    ziel.replaceChildren(uebersicht, aktivitaet(fortschritt), themenliste, abzeichen);
+    ziel.replaceChildren(uebersicht, sammlung, aktivitaet(fortschritt), themenliste, abzeichen);
 };
 function summe(f, feld) {
     return Object.values(f.themen).reduce((s, t) => s + t[feld], 0);

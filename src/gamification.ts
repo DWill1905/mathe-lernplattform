@@ -4,6 +4,8 @@
  */
 
 import { MAX_VERLAUF, TEMPO_MAX_SEKUNDEN, heute, speichereFortschritt, tagesSchluessel } from "./state.js";
+import type { Rng } from "./random.js";
+import { RICHTIGE_PRO_STICKER, STICKER, istStickerNummer, sticker } from "./sammelbild.js";
 import { HEFT_THEMEN, THEMEN } from "./topics.js";
 import type { Fortschritt, RundenErgebnis, Stufe, ThemaId } from "./types.js";
 
@@ -572,4 +574,52 @@ export function zeitText(sekunden: number): string {
   const minuten = Math.floor(sekunden / 60);
   const rest = sekunden % 60;
   return `${minuten}:${String(rest).padStart(2, "0")} min`;
+}
+
+/* ==================================================== Sammelbild-Sticker */
+
+/**
+ * Zählt eine richtige Antwort für das Sammelbild und sagt, ob dafür ein
+ * Sticker fällig ist.
+ *
+ * Gezählt wird über Runden hinweg – genau das macht die Belohnung stärker als
+ * Punkte und Sterne, die mit der Runde vorbei sind. Die freiwillige
+ * Hilfsaufgabe ruft diese Funktion NICHT: Sie zählt auch sonst nirgends in die
+ * Trefferbilanz, sie bringt ein Pferd.
+ */
+export function bucheRichtigeFuerSticker(f: Fortschritt): boolean {
+  // Ist das Haus voll, läuft der Zähler nicht weiter – sonst stünde dauerhaft
+  // „gleich gibt es einen Sticker“ da, und es käme nie einer.
+  if (fehlendeSticker(f).length === 0) return false;
+  f.stickerZaehler++;
+  if (f.stickerZaehler < RICHTIGE_PRO_STICKER) return false;
+  f.stickerZaehler = 0;
+  return true;
+}
+
+/** Welche Sticker noch fehlen. */
+export function fehlendeSticker(f: Fortschritt): number[] {
+  const geklebt = new Set(f.sticker);
+  return STICKER.filter((s) => !geklebt.has(s.nummer)).map((s) => s.nummer);
+}
+
+/**
+ * Bis zu drei fehlende Sticker zur Auswahl.
+ *
+ * Die Eule (`zuletzt`) bleibt außen vor, solange es noch etwas anderes gibt:
+ * Sie sitzt auf dem Dach und krönt das fertige Haus. Käme sie zufällig als
+ * dritter Sticker, wäre der Schlusspunkt weg.
+ */
+export function stickerAngebot(f: Fortschritt, rng: Rng, anzahl = 3): number[] {
+  const fehlend = fehlendeSticker(f);
+  const ohneKroenung = fehlend.filter((nummer) => !sticker(nummer).zuletzt);
+  const topf = ohneKroenung.length > 0 ? ohneKroenung : fehlend;
+  return rng.shuffle(topf).slice(0, anzahl);
+}
+
+/** Klebt einen Sticker ins Bild. Doppelt geht nicht, unbekannt auch nicht. */
+export function klebeSticker(f: Fortschritt, nummer: number): void {
+  if (!istStickerNummer(nummer) || f.sticker.includes(nummer)) return;
+  f.sticker.push(nummer);
+  f.sticker.sort((a, b) => a - b);
 }

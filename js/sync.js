@@ -158,6 +158,12 @@ export function verschmelze(a, b) {
         },
         pferde: Math.max(a.pferde, b.pferde),
         puzzleGeloest: Math.max(a.puzzleGeloest, b.puzzleGeloest),
+        // Geklebte Sticker sind Gesammeltes: Beide Geräte werden vereinigt, damit
+        // ein Bild nie wieder Lücken bekommt.
+        sticker: [...new Set([...a.sticker, ...b.sticker])].sort((x, y) => x - y),
+        // Der Zähler dazwischen ist ein Zwischenstand und kommt wie die
+        // Fehlerbilanz vom zuletzt benutzten Gerät.
+        stickerZaehler: frisch.stickerZaehler,
         letzteAufgaben: frisch.letzteAufgaben,
     };
 }

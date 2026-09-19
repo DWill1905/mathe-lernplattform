@@ -53,6 +53,10 @@ von Hand setzen.
   Kind erst die Hilfsaufgabe (`3 + 4 = ?`). Stimmt sie, galoppiert ein Pferd
   mit einer Reiterin durchs Bild und es gibt Extrapunkte; danach steht die Hilfsaufgabe als Hinweis
   über der großen Aufgabe (`30 + 40 = ?`).
+- **Sammelbild**: Nach je fünf richtigen Aufgaben sucht sich das Kind einen von
+  24 Stickern aus und klebt ihn in ein Haus im Wald – Bett, Sofa, Katze,
+  Badewanne, Baum, Vogelhaus und zum Schluss die Zahleneule aufs Dach. Der
+  Zähler läuft über Runden hinweg, das Bild bleibt.
 - **Gezielte Fehlerwiederholung**: Aufgabenarten, bei denen es zuletzt hakte,
   kommen häufiger dran – und verschwinden wieder aus der Wiederholung, sobald
   sie sitzen.
