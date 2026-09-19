@@ -14,6 +14,9 @@ export const zeige: RouteHandler = (ziel) => {
   const fortschritt = ladeFortschritt();
   const geklebt = new Set(fortschritt.sticker);
   const fehlt = fehlendeSticker(fortschritt).length;
+  // Ein voller Zähler heißt „ein Sticker steht noch aus“ – dann stünde hier
+  // sonst „Noch 0 richtige Aufgaben“.
+  const stehtAus = fortschritt.stickerZaehler >= RICHTIGE_PRO_STICKER;
   const bisZumNaechsten = RICHTIGE_PRO_STICKER - fortschritt.stickerZaehler;
 
   const bild = el(
@@ -40,9 +43,11 @@ export const zeige: RouteHandler = (ziel) => {
       text:
         fehlt === 0
           ? "Du hast das ganze Haus eingerichtet. Die Eule sitzt auf dem Dach."
-          : bisZumNaechsten === 1
-            ? "Noch eine richtige Aufgabe bis zum nächsten Sticker."
-            : `Noch ${bisZumNaechsten} richtige Aufgaben bis zum nächsten Sticker.`,
+          : stehtAus
+            ? "Du hast noch einen Sticker gut! Er kommt bei der nächsten richtigen Aufgabe."
+            : bisZumNaechsten === 1
+              ? "Noch eine richtige Aufgabe bis zum nächsten Sticker."
+              : `Noch ${bisZumNaechsten} richtige Aufgaben bis zum nächsten Sticker.`,
     })
   );
 

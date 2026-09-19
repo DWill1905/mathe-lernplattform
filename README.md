@@ -78,7 +78,7 @@ von Hand setzen.
 - **Rechenmeister**: 20 Aufgaben gegen die Uhr aus Plus/Minus, Rechentricks,
   Aufgabenfamilien und Zahlenmauern – mit Stoppuhr und gespeicherter
   Bestleistung.
-- **Punkte, Level, Sterne, Tagesserie und fünfzehn Abzeichen** als Motivation.
+- **Punkte, Level, Sterne, Tagesserie und sechzehn Abzeichen** als Motivation.
 - **Die Zahleneule als Begleiterin**: Sie winkt auf der Startseite, feiert auf
   der Ergebnisseite (oder macht nach einer schwachen Runde Mut – nie strafend),
   hüpft als Jubel ins Bild und döst in leeren Übersichten. Fünf Posen aus

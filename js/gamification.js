@@ -3,7 +3,7 @@
  * gespeicherten Fortschritt berechnet – es gibt keinen zweiten Zustand.
  */
 import { MAX_VERLAUF, TEMPO_MAX_SEKUNDEN, heute, speichereFortschritt, tagesSchluessel } from "./state.js";
-import { RICHTIGE_PRO_STICKER, STICKER, istStickerNummer, sticker } from "./sammelbild.js";
+import { RICHTIGE_PRO_STICKER, STICKER, STICKER_ANZAHL, istStickerNummer, sticker } from "./sammelbild.js";
 import { HEFT_THEMEN, THEMEN } from "./topics.js";
 /* ================================================================ Level */
 const LEVEL_TITEL = [
@@ -177,6 +177,13 @@ export const ERFOLGE = [
         text: "Level 5 erreicht.",
         symbol: "krone",
         erreicht: (f) => levelInfo(f.punkte).stufe >= 5,
+    },
+    {
+        id: "hausVoll",
+        titel: "Eingezogen",
+        text: "Alle Sticker kleben im Sammelbild.",
+        symbol: "haus",
+        erreicht: (f) => f.sticker.length >= STICKER_ANZAHL,
     },
 ];
 /**
@@ -472,24 +479,34 @@ export function zeitText(sekunden) {
 }
 /* ==================================================== Sammelbild-Sticker */
 /**
- * Zählt eine richtige Antwort für das Sammelbild und sagt, ob dafür ein
- * Sticker fällig ist.
+ * Zählt eine richtige Antwort für das Sammelbild und sagt, ob JETZT ein
+ * Sticker angeboten werden darf.
  *
  * Gezählt wird über Runden hinweg – genau das macht die Belohnung stärker als
  * Punkte und Sterne, die mit der Runde vorbei sind. Die freiwillige
  * Hilfsaufgabe ruft diese Funktion NICHT: Sie zählt auch sonst nirgends in die
  * Trefferbilanz, sie bringt ein Pferd.
+ *
+ * Der Zähler bleibt bei `RICHTIGE_PRO_STICKER` STEHEN und wird erst von
+ * `loeseStickerEin()` zurückgesetzt. Solange bedeutet er „ein Sticker steht
+ * noch aus“: Wer die App zumacht, während die drei Karten auf dem Schirm
+ * stehen, hat fünf richtige Antworten investiert – die dürfen nicht
+ * verfallen, nur weil gerade niemand getippt hat.
+ *
+ * `meister` schaltet das Angebot ab, nicht das Zählen. Im Rechenmeister läuft
+ * die Uhr, und eine Auswahlkarte mittendrin verfälscht die Bestzeit – dieselbe
+ * Regel wie bei der Hilfsaufgabe (`bonusMoeglich()` in `views/uebung.ts`). Die
+ * richtigen Antworten sind trotzdem echt, der Sticker kommt in der nächsten
+ * gewöhnlichen Runde.
  */
-export function bucheRichtigeFuerSticker(f) {
+export function bucheRichtigeFuerSticker(f, meister = false) {
     // Ist das Haus voll, läuft der Zähler nicht weiter – sonst stünde dauerhaft
     // „gleich gibt es einen Sticker“ da, und es käme nie einer.
     if (fehlendeSticker(f).length === 0)
         return false;
-    f.stickerZaehler++;
     if (f.stickerZaehler < RICHTIGE_PRO_STICKER)
-        return false;
-    f.stickerZaehler = 0;
-    return true;
+        f.stickerZaehler++;
+    return !meister && f.stickerZaehler >= RICHTIGE_PRO_STICKER;
 }
 /** Welche Sticker noch fehlen. */
 export function fehlendeSticker(f) {
@@ -509,10 +526,19 @@ export function stickerAngebot(f, rng, anzahl = 3) {
     const topf = ohneKroenung.length > 0 ? ohneKroenung : fehlend;
     return rng.shuffle(topf).slice(0, anzahl);
 }
-/** Klebt einen Sticker ins Bild. Doppelt geht nicht, unbekannt auch nicht. */
-export function klebeSticker(f, nummer) {
+/**
+ * Klebt einen Sticker ins Bild UND löst die Belohnung ein – erst jetzt fängt
+ * der Zähler wieder bei null an. Beides gehört zusammen: Wäre es getrennt,
+ * könnte ein Aufrufer das Zurücksetzen vergessen und das Kind bekäme bei der
+ * nächsten richtigen Antwort gleich den nächsten Sticker.
+ *
+ * Doppelt geht nicht, unbekannt auch nicht – und dann bleibt der Zähler
+ * unangetastet, es wurde ja nichts eingelöst.
+ */
+export function loeseStickerEin(f, nummer) {
     if (!istStickerNummer(nummer) || f.sticker.includes(nummer))
         return;
     f.sticker.push(nummer);
     f.sticker.sort((a, b) => a - b);
+    f.stickerZaehler = 0;
 }

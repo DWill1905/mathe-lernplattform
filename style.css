@@ -2429,11 +2429,25 @@ body {
 
 /* Ein noch fehlender Sticker: gestrichelter Umriss, wie das weiße Kästchen
    im Übungsheft. Zurückhaltend, damit das Bild nicht nach Baustelle aussieht. */
+/*
+ * Der gestrichelte Umriss eines fehlenden Stickers. Draußen liegt er auf der
+ * Kachel und folgt deshalb der Textfarbe.
+ */
 .sticker-leer {
   fill: none;
   stroke: color-mix(in srgb, var(--text) 24%, transparent);
   stroke-width: 0.8;
   stroke-dasharray: 3 2.5;
+}
+
+/*
+ * In den Zimmern nicht: Die Zimmerflächen sind in BEIDEN Farbschemata weiß
+ * (wie alles `bild-hell`), die Textfarbe im Dunkelmodus aber hell – die
+ * Umrisse verschwanden dort spurlos, und ein Kind sah nicht mehr, wie viel
+ * noch fehlt. Drinnen gilt deshalb die Tinte, die auch sonst nicht mitdreht.
+ */
+.sticker-leer-zimmer {
+  stroke: color-mix(in srgb, var(--bild-strich) 34%, transparent);
 }
 
 /* Der gerade ausgesuchte Sticker ploppt einmal auf. `transform-box: fill-box`

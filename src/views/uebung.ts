@@ -16,7 +16,7 @@ import { icon } from "../icons.js";
 import {
   ERFOLGE,
   bucheRichtigeFuerSticker,
-  klebeSticker,
+  loeseStickerEin,
   lobText,
   schwerpunkte,
   stickerAngebot,
@@ -1098,7 +1098,7 @@ function stickerKasten(ziel: HTMLElement, sitzung: Sitzung, weiter: () => void):
           type: "button",
           onclick: () => {
             const stand = ladeFortschritt();
-            klebeSticker(stand, nummer);
+            loeseStickerEin(stand, nummer);
             speichereFortschritt(stand);
             sitzung.stickerWahl = null;
             sitzung.stickerNeu = nummer;
@@ -1180,7 +1180,7 @@ function pruefe(ziel: HTMLElement, sitzung: Sitzung, antwort: string): void {
      * lädt.
      */
     const stand = ladeFortschritt();
-    const faellig = bucheRichtigeFuerSticker(stand);
+    const faellig = bucheRichtigeFuerSticker(stand, sitzung.meister);
     speichereFortschritt(stand);
     if (faellig) sitzung.stickerWahl = stickerAngebot(stand, mulberry32(zufallsSeed()));
     jubele(sitzung);

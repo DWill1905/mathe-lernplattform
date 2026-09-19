@@ -7,9 +7,11 @@ import { mulberry32 } from "../js/random.js";
 import {
   BILD_BREITE,
   BILD_HOEHE,
+  HAUS,
   RICHTIGE_PRO_STICKER,
   STICKER,
   STICKER_ANZAHL,
+  ZIMMER,
   istStickerNummer,
   sammelbild,
   stickerBild,
@@ -17,7 +19,7 @@ import {
 import {
   bucheRichtigeFuerSticker,
   fehlendeSticker,
-  klebeSticker,
+  loeseStickerEin,
   stickerAngebot,
 } from "../js/gamification.js";
 import { pruefeFortschritt, standardFortschritt } from "../js/state.js";
@@ -74,6 +76,58 @@ test("jeder Sticker liegt vollständig im Bild und keiner auf einem anderen", ()
   assert.equal(plaetze.size, STICKER_ANZAHL, "zwei Sticker kleben an derselben Stelle");
 });
 
+test("jeder Sticker bleibt in seinem Zimmer, der Rest bleibt draußen", () => {
+  // Möbel, die in die Wand ragen, sehen nicht nur schlampig aus – im
+  // gestrichelten Umriss verrät der Überstand schon vor dem Kleben, dass hier
+  // etwas nicht stimmt. Gemessen wird gegen ZIMMER, dieselbe Quelle, aus der
+  // `haus()` die Wände zeichnet.
+  const zimmer = new Map(ZIMMER.map((z) => [z.name, z]));
+  assert.equal(zimmer.size, ZIMMER.length, "zwei Zimmer heißen gleich");
+
+  let drinnen = 0;
+  let draussen = 0;
+  for (const eintrag of STICKER) {
+    const links = eintrag.x - eintrag.breite / 2;
+    const rechts = eintrag.x + eintrag.breite / 2;
+    const oben = eintrag.y - eintrag.hoehe / 2;
+    const unten = eintrag.y + eintrag.hoehe / 2;
+
+    if (eintrag.zimmer) {
+      const raum = zimmer.get(eintrag.zimmer);
+      assert.ok(raum, `${eintrag.name} steht im Zimmer „${eintrag.zimmer}“, das es nicht gibt`);
+      assert.ok(links >= raum.links, `${eintrag.name} ragt in die linke Wand (${links} < ${raum.links})`);
+      assert.ok(rechts <= raum.rechts, `${eintrag.name} ragt in die rechte Wand (${rechts} > ${raum.rechts})`);
+      assert.ok(oben >= raum.oben, `${eintrag.name} ragt in die Decke (${oben} < ${raum.oben})`);
+      assert.ok(unten <= raum.unten, `${eintrag.name} ragt in den Boden (${unten} > ${raum.unten})`);
+      drinnen++;
+    } else {
+      // Ohne Zimmer gehört der Platz nach draußen – oder aufs Dach.
+      const imHaus =
+        rechts > HAUS.links && links < HAUS.rechts && unten > HAUS.oben && oben < HAUS.unten;
+      assert.ok(!imHaus, `${eintrag.name} steht ohne Zimmer mitten im Haus`);
+      draussen++;
+    }
+  }
+  assert.ok(drinnen >= 16, "der Test misst fast nichts");
+  assert.ok(draussen >= 3, "draußen steht nichts mehr");
+});
+
+test("das Haus wird aus denselben Zahlen gezeichnet, gegen die geprüft wird", () => {
+  // Stünden die Wände woanders als in ZIMMER, prüfte der Test oben gegen
+  // Fantasiekanten. Deshalb wird jedes Zimmer im BILD wiedergefunden.
+  const bild = sammelbild([]);
+  for (const z of ZIMMER) {
+    const rechteck =
+      `<rect x="${z.links}" y="${z.oben}" width="${z.rechts - z.links}" ` +
+      `height="${z.unten - z.oben}" rx="3" class="bild-hell"/>`;
+    assert.ok(bild.includes(rechteck), `${z.name} steht nicht so im Bild wie in ZIMMER`);
+  }
+  const mauerwerk =
+    `<rect x="${HAUS.links}" y="${HAUS.oben}" width="${HAUS.rechts - HAUS.links}" ` +
+    `height="${HAUS.unten - HAUS.oben}" rx="6" class="bild-braun"/>`;
+  assert.ok(bild.includes(mauerwerk), "das Mauerwerk steht nicht, wo HAUS es angibt");
+});
+
 test("die Zeichnungen färben nur über bild-Klassen, die es auch gibt", () => {
   const bilder = [sammelbild([]), sammelbild(ALLE), ...ALLE.map(stickerBild)];
   const gesehen = new Set();
@@ -100,7 +154,7 @@ function geklebteStellen(svg) {
   );
 }
 
-const luecken = (svg) => (svg.match(/class="sticker-leer"/g) ?? []).length;
+const luecken = (svg) => (svg.match(/class="sticker-leer[ "]/g) ?? []).length;
 
 test("ein leeres Bild zeigt nur Lücken, ein volles nur Sticker", () => {
   const leer = sammelbild([]);
@@ -147,11 +201,61 @@ test("erst die fünfte richtige Antwort bringt einen Sticker", () => {
     assert.equal(stand.stickerZaehler, i);
   }
   assert.equal(bucheRichtigeFuerSticker(stand), true, "die fünfte Antwort bringt keinen");
-  assert.equal(stand.stickerZaehler, 0, "der Zähler fängt wieder bei null an");
 
-  // Und weiter geht es von vorn.
+  // Eingelöst fängt der Zähler wieder bei null an – und weiter geht es von vorn.
+  loeseStickerEin(stand, stickerAngebot(stand, mulberry32(3))[0]);
+  assert.equal(stand.stickerZaehler, 0, "der Zähler fängt nach dem Einlösen nicht bei null an");
   for (let i = 1; i < RICHTIGE_PRO_STICKER; i++) assert.equal(bucheRichtigeFuerSticker(stand), false);
   assert.equal(bucheRichtigeFuerSticker(stand), true);
+});
+
+test("ein verdienter Sticker bleibt gut, auch wenn die Auswahl abbricht", () => {
+  // Fünf richtige Antworten – die drei Karten stehen auf dem Schirm, und genau
+  // jetzt macht das Kind die App zu.
+  let stand = standMit();
+  for (let i = 0; i < RICHTIGE_PRO_STICKER; i++) bucheRichtigeFuerSticker(stand);
+  assert.equal(stand.stickerZaehler, RICHTIGE_PRO_STICKER);
+
+  // So kommt der Stand nach dem Neustart zurück.
+  stand = pruefeFortschritt(stand);
+  assert.equal(stand.stickerZaehler, RICHTIGE_PRO_STICKER, "der verdiente Sticker ging beim Laden verloren");
+  assert.deepEqual(stand.sticker, [], "geklebt wurde nie etwas");
+
+  // Die nächste richtige Antwort bietet ihn wieder an …
+  assert.equal(bucheRichtigeFuerSticker(stand), true, "der verdiente Sticker kam nicht wieder");
+  // … und der Zähler läuft nicht über: Sonst häuften sich Sticker an, die
+  // niemand mehr auswählen kann.
+  for (let i = 0; i < 10; i++) bucheRichtigeFuerSticker(stand);
+  assert.equal(stand.stickerZaehler, RICHTIGE_PRO_STICKER, "der Zähler läuft über die Belohnung hinaus");
+});
+
+test("eingelöst wird nur, was wirklich klebt", () => {
+  const stand = standMit([4], RICHTIGE_PRO_STICKER);
+
+  // Ein schon geklebter Sticker löst nichts ein – sonst wäre die Belohnung mit
+  // einem Fehlgriff verbraucht.
+  loeseStickerEin(stand, 4);
+  assert.equal(stand.stickerZaehler, RICHTIGE_PRO_STICKER, "ein doppelter Sticker hat die Belohnung verbraucht");
+  loeseStickerEin(stand, 999);
+  assert.equal(stand.stickerZaehler, RICHTIGE_PRO_STICKER, "eine unbekannte Nummer hat die Belohnung verbraucht");
+
+  loeseStickerEin(stand, 2);
+  assert.deepEqual(stand.sticker, [2, 4]);
+  assert.equal(stand.stickerZaehler, 0, "nach dem Einlösen zählt es nicht neu");
+});
+
+test("im Rechenmeister wird gezählt, aber nichts angeboten", () => {
+  // Der Rechenmeister läuft gegen die Uhr; eine Auswahlkarte mittendrin kostet
+  // Sekunden und verfälscht die Bestzeit.
+  const stand = standMit();
+  for (let i = 0; i < RICHTIGE_PRO_STICKER * 2; i++) {
+    assert.equal(bucheRichtigeFuerSticker(stand, true), false, `Antwort ${i + 1} unterbrach den Lauf`);
+  }
+  // Die richtigen Antworten sind trotzdem echt.
+  assert.equal(stand.stickerZaehler, RICHTIGE_PRO_STICKER, "im Rechenmeister zählt nichts mit");
+
+  // In der nächsten gewöhnlichen Runde kommt der Sticker sofort.
+  assert.equal(bucheRichtigeFuerSticker(stand), true, "der im Lauf verdiente Sticker kam nie");
 });
 
 test("ist das Haus voll, läuft der Zähler nicht ins Leere weiter", () => {
@@ -192,13 +296,13 @@ test("die Eule kommt erst, wenn sie als Einzige fehlt", () => {
 
 test("ein Sticker klebt nur einmal, und Unbekanntes klebt gar nicht", () => {
   const stand = standMit([4]);
-  klebeSticker(stand, 4);
+  loeseStickerEin(stand, 4);
   assert.deepEqual(stand.sticker, [4], "derselbe Sticker wurde doppelt geklebt");
-  klebeSticker(stand, 999);
-  klebeSticker(stand, -1);
-  klebeSticker(stand, 2.5);
+  loeseStickerEin(stand, 999);
+  loeseStickerEin(stand, -1);
+  loeseStickerEin(stand, 2.5);
   assert.deepEqual(stand.sticker, [4], "eine unbekannte Nummer kam ins Bild");
-  klebeSticker(stand, 2);
+  loeseStickerEin(stand, 2);
   assert.deepEqual(stand.sticker, [2, 4], "geklebte Sticker sollen sortiert bleiben");
 });
 
@@ -212,13 +316,20 @@ test("der Spielstand nimmt nur echte Stickernummern an", () => {
   assert.deepEqual(geprueft.sticker, [3, STICKER_ANZAHL]);
   assert.equal(geprueft.stickerZaehler, 4);
 
+  // Der volle Zähler ist ein gültiger Stand: Er heißt „ein Sticker steht noch
+  // aus“ und muss einen Neustart überleben.
+  assert.equal(
+    pruefeFortschritt({ stickerZaehler: RICHTIGE_PRO_STICKER }).stickerZaehler,
+    RICHTIGE_PRO_STICKER
+  );
+  assert.equal(pruefeFortschritt({ stickerZaehler: RICHTIGE_PRO_STICKER - 1 }).stickerZaehler, 4);
+
   // Ein unmöglicher Zähler fällt auf null zurück statt auf den Höchstwert:
-  // Gekappt auf 4 gäbe es bei der nächsten richtigen Antwort einen Sticker
-  // geschenkt – wer den Spielstand von Hand aufdreht, soll nichts davon haben.
-  assert.equal(pruefeFortschritt({ stickerZaehler: RICHTIGE_PRO_STICKER }).stickerZaehler, 0);
+  // Gekappt gäbe es sofort einen Sticker geschenkt – wer den Spielstand von
+  // Hand aufdreht, soll nichts davon haben.
+  assert.equal(pruefeFortschritt({ stickerZaehler: RICHTIGE_PRO_STICKER + 1 }).stickerZaehler, 0);
   assert.equal(pruefeFortschritt({ stickerZaehler: 99 }).stickerZaehler, 0);
   assert.equal(pruefeFortschritt({ stickerZaehler: -3 }).stickerZaehler, 0);
-  assert.equal(pruefeFortschritt({ stickerZaehler: RICHTIGE_PRO_STICKER - 1 }).stickerZaehler, 4);
   assert.deepEqual(pruefeFortschritt({ sticker: "alles" }).sticker, []);
   assert.deepEqual(pruefeFortschritt({}).sticker, []);
 });

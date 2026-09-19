@@ -12,7 +12,7 @@
  */
 import { el, svgBild } from "../dom.js";
 import { icon } from "../icons.js";
-import { ERFOLGE, bucheRichtigeFuerSticker, klebeSticker, lobText, schwerpunkte, stickerAngebot, merkeMeisterErgebnis, werteMixAus, werteRundeAus, zeitText, } from "../gamification.js";
+import { ERFOLGE, bucheRichtigeFuerSticker, loeseStickerEin, lobText, schwerpunkte, stickerAngebot, merkeMeisterErgebnis, werteMixAus, werteRundeAus, zeitText, } from "../gamification.js";
 import { mulberry32, zufallsSeed } from "../random.js";
 import { PUZZLE_TEILE, puzzleBild, puzzleStaende, waehleMotiv, } from "../bilder.js";
 import { BONUS_JUBEL, JUBEL_ARTEN, raeumeJubel, waehleJubel, zeigeJubel } from "../jubel.js";
@@ -774,7 +774,7 @@ function stickerKasten(ziel, sitzung, weiter) {
             type: "button",
             onclick: () => {
                 const stand = ladeFortschritt();
-                klebeSticker(stand, nummer);
+                loeseStickerEin(stand, nummer);
                 speichereFortschritt(stand);
                 sitzung.stickerWahl = null;
                 sitzung.stickerNeu = nummer;
@@ -837,7 +837,7 @@ function pruefe(ziel, sitzung, antwort) {
          * lädt.
          */
         const stand = ladeFortschritt();
-        const faellig = bucheRichtigeFuerSticker(stand);
+        const faellig = bucheRichtigeFuerSticker(stand, sitzung.meister);
         speichereFortschritt(stand);
         if (faellig)
             sitzung.stickerWahl = stickerAngebot(stand, mulberry32(zufallsSeed()));

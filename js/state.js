@@ -188,9 +188,10 @@ export function pruefeFortschritt(roh) {
         pferde: ganzeZahl(daten["pferde"] ?? daten["herzen"], 0, MAX_PUNKTE, 0),
         puzzleGeloest: ganzeZahl(daten["puzzleGeloest"], 0, MAX_PUNKTE, 0),
         sticker: stickerListe(daten["sticker"]),
-        // Der Zähler läuft nur bis knapp unter die Belohnung: Stünde dort eine 5
-        // oder mehr, gäbe es beim nächsten Laden sofort einen Sticker geschenkt.
-        stickerZaehler: ganzeZahl(daten["stickerZaehler"], 0, RICHTIGE_PRO_STICKER - 1, 0),
+        // Bis EINSCHLIESSLICH der Belohnung: `RICHTIGE_PRO_STICKER` heißt „ein
+        // Sticker steht noch aus“. Würde hier bei 4 gekappt, verlöre ein Kind den
+        // verdienten Sticker, sobald es die App während der Auswahl zumacht.
+        stickerZaehler: ganzeZahl(daten["stickerZaehler"], 0, RICHTIGE_PRO_STICKER, 0),
         letzteAufgaben: schluesselListe(daten["letzteAufgaben"]),
     };
 }

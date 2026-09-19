@@ -23,6 +23,25 @@ export const RICHTIGE_PRO_STICKER = 5;
 /** Das Bild liegt quer und füllt eine Karte. */
 export const BILD_BREITE = 240;
 export const BILD_HOEHE = 180;
+/**
+ * Das Mauerwerk: alles zwischen diesen Kanten ist Haus. Wer kein Zimmer hat
+ * (Baum, Vogelhaus, Blumenbeet – und die Eule auf dem Dach), gehört hier
+ * heraus.
+ */
+export const HAUS = { links: 40, rechts: 200, oben: 52, unten: 152 };
+/**
+ * Die vier Zimmer – die EINZIGE Wahrheit über ihre Kanten. `haus()` zeichnet
+ * daraus, und jeder Sticker mit einem `zimmer` muss vollständig hineinpassen.
+ * Stünden die Zahlen zweimal da, ragten Möbel in die Wände, sobald jemand nur
+ * eine der beiden Stellen anfasst – genau das war vor 1.41.0 bei neun
+ * Stickern passiert.
+ */
+export const ZIMMER = [
+    { name: "Schlafzimmer", links: 46, rechts: 117, oben: 58, unten: 98 },
+    { name: "Badezimmer", links: 123, rechts: 194, oben: 58, unten: 98 },
+    { name: "Wohnzimmer", links: 46, rechts: 117, oben: 104, unten: 146 },
+    { name: "Küche", links: 123, rechts: 194, oben: 104, unten: 146 },
+];
 /* ------------------------------------------------------------ Bausteine */
 /** Ein Möbelkasten mit dunklerem Rand – Grundform vieler Sticker. */
 function kasten(farbe) {
@@ -39,6 +58,7 @@ export const STICKER = [
         y: 82,
         breite: 40,
         hoehe: 24,
+        zimmer: "Schlafzimmer",
         zeichnung: `
       <rect x="2" y="24" width="96" height="60" rx="8" class="bild-braun"/>
       <rect x="8" y="34" width="84" height="34" rx="6" class="bild-hell"/>
@@ -54,6 +74,7 @@ export const STICKER = [
         y: 85,
         breite: 13,
         hoehe: 17,
+        zimmer: "Schlafzimmer",
         zeichnung: `
       ${kasten("bild-braun")}
       <rect x="18" y="22" width="64" height="26" rx="5" class="bild-hell"/>
@@ -68,6 +89,7 @@ export const STICKER = [
         y: 68,
         breite: 12,
         hoehe: 12,
+        zimmer: "Schlafzimmer",
         zeichnung: `
       <circle cx="26" cy="22" r="14" class="bild-grau"/>
       <circle cx="74" cy="22" r="14" class="bild-grau"/>
@@ -83,6 +105,7 @@ export const STICKER = [
         y: 76,
         breite: 15,
         hoehe: 34,
+        zimmer: "Schlafzimmer",
         zeichnung: `
       ${kasten("bild-braun")}
       <rect x="12" y="12" width="34" height="76" rx="4" class="bild-hell"/>
@@ -94,9 +117,10 @@ export const STICKER = [
         nummer: 5,
         name: "Teddy",
         x: 56,
-        y: 62,
+        y: 66,
         breite: 15,
         hoehe: 15,
+        zimmer: "Schlafzimmer",
         zeichnung: `
       <circle cx="24" cy="20" r="14" class="bild-fell"/>
       <circle cx="76" cy="20" r="14" class="bild-fell"/>
@@ -115,6 +139,7 @@ export const STICKER = [
         y: 84,
         breite: 40,
         hoehe: 22,
+        zimmer: "Badezimmer",
         zeichnung: `
       <path d="M2 22h96v46a26 26 0 01-26 26H28A26 26 0 012 68z" class="bild-dunkel"/>
       <path d="M8 28h84v40a20 20 0 01-20 20H28A20 20 0 018 68z" class="bild-hell"/>
@@ -126,9 +151,10 @@ export const STICKER = [
         nummer: 7,
         name: "Waschbecken",
         x: 182,
-        y: 82,
+        y: 86,
         breite: 20,
         hoehe: 24,
+        zimmer: "Badezimmer",
         zeichnung: `
       <rect x="42" y="4" width="10" height="26" rx="5" class="bild-grau"/>
       <rect x="42" y="4" width="26" height="8" rx="4" class="bild-grau"/>
@@ -142,9 +168,10 @@ export const STICKER = [
         nummer: 8,
         name: "Spiegel",
         x: 182,
-        y: 60,
+        y: 66,
         breite: 16,
         hoehe: 15,
+        zimmer: "Badezimmer",
         zeichnung: `
       <ellipse cx="50" cy="50" rx="44" ry="48" class="bild-braun"/>
       <ellipse cx="50" cy="50" rx="34" ry="38" class="bild-tuerkis"/>
@@ -155,9 +182,10 @@ export const STICKER = [
         nummer: 9,
         name: "Gummiente",
         x: 138,
-        y: 66,
+        y: 70,
         breite: 14,
         hoehe: 13,
+        zimmer: "Badezimmer",
         zeichnung: `
       <ellipse cx="46" cy="70" rx="42" ry="24" class="bild-gelb"/>
       <circle cx="68" cy="34" r="22" class="bild-gelb"/>
@@ -169,10 +197,11 @@ export const STICKER = [
     {
         nummer: 10,
         name: "Sofa",
-        x: 80,
-        y: 126,
+        x: 82,
+        y: 120,
         breite: 36,
         hoehe: 22,
+        zimmer: "Wohnzimmer",
         zeichnung: `
       <rect x="4" y="20" width="92" height="46" rx="10" class="bild-lila"/>
       <rect x="2" y="44" width="96" height="36" rx="10" class="bild-lila-hell"/>
@@ -186,10 +215,11 @@ export const STICKER = [
     {
         nummer: 11,
         name: "Teppich",
-        x: 82,
+        x: 84,
         y: 141,
-        breite: 44,
+        breite: 42,
         hoehe: 8,
+        zimmer: "Wohnzimmer",
         zeichnung: `
       <rect x="2" y="14" width="96" height="72" rx="24" class="bild-orange"/>
       <rect x="14" y="30" width="72" height="40" rx="14" class="bild-gelb"/>
@@ -199,9 +229,10 @@ export const STICKER = [
         nummer: 12,
         name: "Stehlampe",
         x: 108,
-        y: 120,
+        y: 124,
         breite: 14,
         hoehe: 40,
+        zimmer: "Wohnzimmer",
         zeichnung: `
       <path d="M22 6h56l12 26H10z" class="bild-gelb"/>
       <rect x="44" y="32" width="12" height="52" rx="4" class="bild-dunkel"/>
@@ -210,10 +241,11 @@ export const STICKER = [
     {
         nummer: 13,
         name: "Bücherregal",
-        x: 53,
-        y: 113,
+        x: 54,
+        y: 117,
         breite: 15,
         hoehe: 24,
+        zimmer: "Wohnzimmer",
         zeichnung: `
       ${kasten("bild-braun")}
       <rect x="12" y="14" width="18" height="26" rx="3" class="bild-rot"/>
@@ -226,10 +258,11 @@ export const STICKER = [
     {
         nummer: 14,
         name: "Zimmerpflanze",
-        x: 66,
-        y: 107,
+        x: 54,
+        y: 137,
         breite: 14,
         hoehe: 16,
+        zimmer: "Wohnzimmer",
         zeichnung: `
       <ellipse cx="30" cy="30" rx="24" ry="18" class="bild-gruen"/>
       <ellipse cx="72" cy="26" rx="22" ry="16" class="bild-gruen"/>
@@ -240,10 +273,11 @@ export const STICKER = [
     {
         nummer: 15,
         name: "Katze",
-        x: 53,
-        y: 136,
+        x: 82,
+        y: 139,
         breite: 15,
         hoehe: 14,
+        zimmer: "Wohnzimmer",
         zeichnung: `
       <path d="M22 40 18 8l20 14zM78 40 82 8 62 22z" class="bild-orange"/>
       <ellipse cx="50" cy="74" rx="30" ry="24" class="bild-orange"/>
@@ -261,6 +295,7 @@ export const STICKER = [
         y: 128,
         breite: 26,
         hoehe: 18,
+        zimmer: "Küche",
         zeichnung: `
       <rect x="2" y="16" width="96" height="18" rx="8" class="bild-braun"/>
       <rect x="12" y="34" width="12" height="60" rx="4" class="bild-braun"/>
@@ -271,9 +306,10 @@ export const STICKER = [
         nummer: 17,
         name: "Stuhl",
         x: 133,
-        y: 110,
+        y: 114,
         breite: 14,
         hoehe: 20,
+        zimmer: "Küche",
         zeichnung: `
       <rect x="18" y="4" width="64" height="46" rx="8" class="bild-tuerkis"/>
       <rect x="30" y="16" width="40" height="22" rx="5" class="bild-hell"/>
@@ -288,6 +324,7 @@ export const STICKER = [
         y: 128,
         breite: 22,
         hoehe: 22,
+        zimmer: "Küche",
         zeichnung: `
       ${kasten("bild-grau")}
       <circle cx="30" cy="26" r="10" class="bild-dunkel"/>
@@ -300,9 +337,10 @@ export const STICKER = [
         nummer: 19,
         name: "Kühlschrank",
         x: 186,
-        y: 120,
+        y: 124,
         breite: 16,
         hoehe: 40,
+        zimmer: "Küche",
         zeichnung: `
       ${kasten("bild-hell")}
       <rect x="10" y="10" width="80" height="2" rx="1" class="bild-grau"/>
@@ -315,9 +353,10 @@ export const STICKER = [
         nummer: 20,
         name: "Teekanne",
         x: 165,
-        y: 108,
-        breite: 15,
-        hoehe: 13,
+        y: 110,
+        breite: 14,
+        hoehe: 12,
+        zimmer: "Küche",
         zeichnung: `
       <ellipse cx="46" cy="60" rx="38" ry="32" class="bild-rot"/>
       <path d="M82 42c14 0 16 22 2 26l-6-12z" class="bild-rot"/>
@@ -414,12 +453,12 @@ function haus() {
     return (
     // Wiese mit einem kleinen Hügel.
     `<path d="M0 152c40-6 70 4 110 3s70-8 130-3v28H0z" class="bild-gruen"/>` +
-        // Mauerwerk und die vier Zimmer.
-        `<rect x="40" y="52" width="160" height="100" rx="6" class="bild-braun"/>` +
-        `<rect x="46" y="58" width="71" height="40" rx="3" class="bild-hell"/>` +
-        `<rect x="123" y="58" width="71" height="40" rx="3" class="bild-hell"/>` +
-        `<rect x="46" y="104" width="71" height="42" rx="3" class="bild-hell"/>` +
-        `<rect x="123" y="104" width="71" height="42" rx="3" class="bild-hell"/>` +
+        // Mauerwerk und die vier Zimmer – beides aus den Zahlen oben, damit die
+        // Wände dort stehen, wo die Sticker-Prüfung sie erwartet.
+        `<rect x="${HAUS.links}" y="${HAUS.oben}" width="${HAUS.rechts - HAUS.links}" ` +
+        `height="${HAUS.unten - HAUS.oben}" rx="6" class="bild-braun"/>` +
+        ZIMMER.map((z) => `<rect x="${z.links}" y="${z.oben}" width="${z.rechts - z.links}" ` +
+            `height="${z.unten - z.oben}" rx="3" class="bild-hell"/>`).join("") +
         // Dach mit Schornstein. Der Schornstein steht VOR dem Dach gezeichnet,
         // damit seine Unterkante im Dach verschwindet statt daneben zu schweben.
         `<rect x="156" y="26" width="13" height="22" rx="2" class="bild-braun"/>` +
@@ -440,10 +479,16 @@ function geklebt(eintrag, neu) {
     return (`<g${klasse} transform="translate(${r(x)} ${r(y)}) ` +
         `scale(${r(eintrag.breite / 100)} ${r(eintrag.hoehe / 100)})">${eintrag.zeichnung}</g>`);
 }
-/** Der gestrichelte Umriss eines noch fehlenden Stickers. */
+/**
+ * Der gestrichelte Umriss eines noch fehlenden Stickers.
+ *
+ * Drinnen und draußen brauchen verschiedene Striche: Die Zimmer sind in beiden
+ * Farbschemata weiß, die Kachel drumherum nicht.
+ */
 function luecke(eintrag) {
+    const klasse = eintrag.zimmer ? "sticker-leer sticker-leer-zimmer" : "sticker-leer";
     return (`<rect x="${r(eintrag.x - eintrag.breite / 2)}" y="${r(eintrag.y - eintrag.hoehe / 2)}" ` +
-        `width="${eintrag.breite}" height="${eintrag.hoehe}" rx="3" class="sticker-leer"/>`);
+        `width="${eintrag.breite}" height="${eintrag.hoehe}" rx="3" class="${klasse}"/>`);
 }
 /**
  * Das ganze Bild.

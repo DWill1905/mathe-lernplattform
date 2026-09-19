@@ -11,6 +11,9 @@ export const zeige = (ziel) => {
     const fortschritt = ladeFortschritt();
     const geklebt = new Set(fortschritt.sticker);
     const fehlt = fehlendeSticker(fortschritt).length;
+    // Ein voller Zähler heißt „ein Sticker steht noch aus“ – dann stünde hier
+    // sonst „Noch 0 richtige Aufgaben“.
+    const stehtAus = fortschritt.stickerZaehler >= RICHTIGE_PRO_STICKER;
     const bisZumNaechsten = RICHTIGE_PRO_STICKER - fortschritt.stickerZaehler;
     const bild = el("section", { class: "karte" }, el("h1", { class: "seiten-titel", text: "Dein Sammelbild" }), svgBild(sammelbild([...geklebt]), `Ein Haus im Wald mit ${geklebt.size} von ${STICKER_ANZAHL} eingeklebten Stickern`), el("p", { class: "sammelbild-stand" }, icon("haus", "rueckmeldung-symbol"), el("span", {
         text: fehlt === 0
@@ -20,9 +23,11 @@ export const zeige = (ziel) => {
         class: "sammelbild-hinweis",
         text: fehlt === 0
             ? "Du hast das ganze Haus eingerichtet. Die Eule sitzt auf dem Dach."
-            : bisZumNaechsten === 1
-                ? "Noch eine richtige Aufgabe bis zum nächsten Sticker."
-                : `Noch ${bisZumNaechsten} richtige Aufgaben bis zum nächsten Sticker.`,
+            : stehtAus
+                ? "Du hast noch einen Sticker gut! Er kommt bei der nächsten richtigen Aufgabe."
+                : bisZumNaechsten === 1
+                    ? "Noch eine richtige Aufgabe bis zum nächsten Sticker."
+                    : `Noch ${bisZumNaechsten} richtige Aufgaben bis zum nächsten Sticker.`,
     }));
     const liste = el("section", { class: "karte" }, el("h2", { class: "abschnitt-titel", text: "Alle Sticker" }), el("ul", { class: "stickerliste" }, ...STICKER.map((eintrag) => el("li", { class: `stickerliste-punkt${geklebt.has(eintrag.nummer) ? "" : " stickerliste-offen"}` }, el("span", { class: "stickerliste-name", text: eintrag.name }), 
     // Fehlende Sticker bleiben ohne Zusatztext: Auf einem schmalen
