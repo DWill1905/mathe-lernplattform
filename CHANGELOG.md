@@ -4,6 +4,22 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.42.10] – 2026-10-24
+
+### Geändert
+
+Drei Lektionen aus dieser Durchsicht stehen jetzt in `CLAUDE.md`, damit die
+nächste Sitzung sie nicht noch einmal bezahlt:
+
+- **Ein Bild ohne angegebene `width` fällt auf 300 × 150 zurück** — die
+  Schwester der Falle aus 1.11.1, wo dasselbe SVG auf null zusammenfiel.
+- **`bild-breit` muss die Deckel der kleinen Schirme überstimmen**, nicht
+  bloß nach ihnen im Stylesheet stehen.
+- **Die Bildbeschreibung muss alles sagen, was im Bild steht — aber nie die
+  Lösung gerade dieser Aufgabe.** Welche Beschreibung richtig ist, hängt an
+  der Frage: Bei „Welche Form ist das?" werden die Merkmale genannt, bei „Wie
+  viele Ecken hat diese Form?" dagegen der Name.
+
 ## [1.42.9] – 2026-10-24
 
 ### Behoben

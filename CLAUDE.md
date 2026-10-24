@@ -168,6 +168,21 @@ verwässern.
   `width: auto` auf einem SVG ohne Breitenangabe. Beides ist schon passiert
   (Rechenrad, Rechenkasten, Zahlenmauer, siehe Changelog 1.11.1); ein Test in
   `test/bilder.test.js` hält die Fehlerklasse fest.
+- **Ein Bild ohne angegebene `width` fällt auf 300 × 150 zurück.** `.bild`
+  trägt `margin: 0 auto`, und automatische Seitenränder schalten in einer
+  Flexspalte das STRECKEN ab; das Bild bemisst sich dann nach seinem Inhalt,
+  und ein Inline-SVG mit bloßer `viewBox` ist genau 300 × 150 groß. Auf dem
+  Telefon fällt das nie auf, weil die Obergrenze dort kleiner ist – auf dem
+  Tablet standen 300 px, wo 360 erlaubt waren. Das ist die Schwester der Falle
+  aus 1.11.1 (`width: auto` lässt dasselbe SVG auf NULL zusammenfallen): Beide
+  Male fehlt die Bezugsgröße, einmal mit 0 und einmal mit 300 als Ergebnis.
+- **`bild-breit` muss die Deckel der kleinen Schirme ÜBERSTIMMEN.** Acht
+  Aufgaben brauchen die volle Kartenbreite (Pfeilfolge, Rechenstrich, beide
+  Hunderterfelder, beide Musterreihen, Grundmuster, Geldtabelle). Die Regel
+  stand lange nur einen Klassennamen stark da, die Deckel (`.bild`, 200 px bei
+  flacher Bauhöhe, 130 px im Querformat) weiter unten im Stylesheet – und
+  gewannen. Zwei Klassen im Wähler machen sie von der Reihenfolge unabhängig;
+  ein Test in `touchziele.test.js` prüft diese Kaskade.
 - **Wer Platzprobleme misst, muss auch messen, dass noch etwas da ist.** Die
   Prüfung „passt der Antwortbereich ins Fenster?" war grün, WEIL das Erklärbild
   fehlte. Immer beides prüfen: Inhalt sichtbar und Platz ausreichend.
@@ -257,6 +272,15 @@ verwässern.
 - **„Größte Sorte zuerst" ist nur bei 1, 2, 5, 10, 20, 50 wirklich das
   Minimum.** Bei einem anderen Satz (etwa 1, 3, 4) wäre es falsch; deshalb
   steht die Begründung bei `sortenAnzahl()` und nicht als allgemeine Regel.
+- **Die Bildbeschreibung muss alles sagen, was im Bild steht – aber nie die
+  Lösung GERADE DIESER Aufgabe.** Beides zusammen, sonst kippt es nach einer
+  Seite: „Gruppe A" allein machte die Münzaufgaben ohne Augenlicht unlösbar,
+  „Uhr, die 1:30 Uhr zeigt" über „Wie spät ist es?" verschenkte die Antwort.
+  Welche Beschreibung richtig ist, hängt an der FRAGE: Bei „Welche Form ist
+  das?" werden die Merkmale genannt („vier Ecken, oben schmaler als unten"),
+  bei „Wie viele Ecken hat diese Form?" dagegen der Name – dort wäre „vier
+  Ecken" die Lösung. Geld und Zeigerstellungen lassen sich gefahrlos
+  ausschreiben: Zusammenzählen und Ablesen muss man weiterhin selbst.
 - **Bei der Rechentabelle steht die Rechnung bewusst NICHT im Text.** Das
   Ablesen von Zeile und Spalte ist die eigentliche Übung; für Screenreader
   steckt die Aufgabe in der Bildbeschreibung. Ein Test hält das fest.
