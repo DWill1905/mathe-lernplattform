@@ -4,6 +4,26 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.42.13] – 2026-10-24
+
+### Behoben
+
+Vier Stellen im Thema Geld, an denen Frage und Erklärung nicht zueinander
+passten (gezählt in 3000 Ziehungen auf Stufe 3):
+
+- **„Reicht das Geld?"** fragte in Euro („10 € … für 4 €") und erklärte in
+  Cent („1000 ct sind genug für 400 ct"). Dieselbe Lektion wie in 1.42.9: Die
+  Erklärung spricht die Sprache der Frage. 58 Fälle.
+- **Geldtabelle mit Cent-Betrag**: „Lege 30 ct mit möglichst wenig Scheinen
+  und Münzen" – Cent-Scheine gibt es nicht. Jetzt „mit möglichst wenig
+  Münzen". 275 Fälle.
+- **Fehlende Münzen**: „32 € − 30 € = 2 €, und 2 : 1 = 2." Teilen ist ein
+  eigenes Thema, und durch 1 zu teilen erklärt nichts. Jetzt: „Das sind
+  2 Münzen zu 1 €." 255 Fälle.
+- **„Womit bezahlst du genau 10 €?"** – mit einem einzelnen 10-€-Schein als
+  Antwort und lauter einzelnen Scheinen als Ablenker war das keine Aufgabe.
+  Glatte 10 € und 20 € werden nicht mehr gezogen. 14 Fälle.
+
 ## [1.42.12] – 2026-10-24
 
 ### Behoben

@@ -541,3 +541,33 @@ test("die Erklärung rechnet in derselben Einheit wie die Frage", () => {
 
   assert.ok(geprueft > 200, `nur ${geprueft} Aufgaben gezogen`);
 });
+
+test("Geld: Erklärung und Frage sprechen dieselbe Sprache", () => {
+  for (const stufe of [2, 3]) {
+    const rng = mulberry32(4711 + stufe);
+    const gesehen = new Set();
+    for (let i = 0; i < 3000; i++) {
+      const a = GENERATOREN.geld(rng, stufe);
+      gesehen.add(a.typ);
+      if (a.typ === "geld/reicht-es" && !a.frage.includes("ct")) {
+        // „10 € … 4 €“ gefragt, also nicht in Cent erklären.
+        assert.ok(!a.erklaerung.includes("ct"), a.erklaerung);
+      }
+      if (a.typ === "geld/geldtabelle" && a.frage.match(/^Lege \d+ ct/)) {
+        assert.ok(!a.frage.includes("Schein"), `Cent-Beträge haben keine Scheine: ${a.frage}`);
+      }
+      if (a.typ === "geld/rest-muenzen") {
+        assert.ok(!a.erklaerung.includes(":"), `kein Teilen in der Geld-Erklärung: ${a.erklaerung}`);
+        assert.ok(a.erklaerung.includes(`Das sind ${a.loesung} `), a.erklaerung);
+      }
+      if (a.typ === "geld/betrag-legen") {
+        assert.ok(a.loesung.includes(" + "), `nur ein Stück ist keine Aufgabe: ${a.frage} → ${a.loesung}`);
+      }
+    }
+    if (stufe === 3) {
+      for (const typ of ["geld/reicht-es", "geld/geldtabelle", "geld/rest-muenzen", "geld/betrag-legen"]) {
+        assert.ok(gesehen.has(typ), `${typ} nicht gezogen`);
+      }
+    }
+  }
+});

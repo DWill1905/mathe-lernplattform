@@ -136,7 +136,8 @@ function geldTabellenZeile(rng, stufe) {
         .join(" + ");
     return {
         typ: "geld/geldtabelle",
-        frage: `Lege ${betragText} mit möglichst wenig Scheinen und Münzen. Wie viele ${sortenBindestrich(sorte)} brauchst du?`,
+        // Scheine gibt es erst ab 5 €; bei Cent-Beträgen liegen nur Münzen da.
+        frage: `Lege ${betragText} mit möglichst wenig ${inEuro ? "Scheinen und Münzen" : "Münzen"}. Wie viele ${sortenBindestrich(sorte)} brauchst du?`,
         bild: {
             svg: geldtabelle(betragText, sorten, gezeigt, markiert),
             /*
@@ -529,8 +530,8 @@ function reichtDasGeld(rng) {
         loesung: reicht ? "Ja, das Geld reicht" : "Nein, es fehlt noch Geld",
         tipp: "Rechne beide Beträge in Cent um und vergleiche.",
         erklaerung: reicht
-            ? `${geldbetrag} ct sind genug für ${preis} ct – es bleiben sogar ${geldbetrag - preis} ct übrig.`
-            : `${geldbetrag} ct sind zu wenig für ${preis} ct – es fehlen ${preis - geldbetrag} ct.`,
+            ? `${geldText(geldbetrag)} sind genug für ${geldText(preis)} – es bleiben sogar ${geldText(geldbetrag - preis)} übrig.`
+            : `${geldText(geldbetrag)} sind zu wenig für ${geldText(preis)} – es fehlen ${geldText(preis - geldbetrag)}.`,
     };
 }
 /**
@@ -560,7 +561,8 @@ function restMuenzen(rng) {
         antwortfeld: zahlfeld(wort),
         loesung: String(anzahl),
         tipp: `Rechne zuerst ${ziel} − ${bereits}.`,
-        erklaerung: `${ziel} € − ${bereits} € = ${rest} €, und ${rest} : ${stueck} = ${anzahl}.`,
+        // Kein „6 : 2 = 3“: Geteilt ist ein eigenes Thema, und „2 : 1 = 2“ erklärt nichts.
+        erklaerung: `${ziel} € − ${bereits} € = ${rest} €. Das sind ${anzahl} ${wort} zu ${stueck} €.`,
     };
 }
 /**
@@ -577,7 +579,11 @@ function restMuenzen(rng) {
  * Zusammenzählen.
  */
 function betragLegen(rng) {
-    const ziel = rng.int(6, 45);
+    // Glatte 10 € oder 20 € sind ein einziger Schein – „Womit bezahlst du genau
+    // 10 €?“ mit „10 €“ als Antwort wäre keine Aufgabe.
+    let ziel = rng.int(6, 45);
+    while (euroStuecke(ziel).length < 2)
+        ziel = rng.int(6, 45);
     const stuecke = euroStuecke(ziel);
     const gesehen = new Set([stuecke.join(",")]);
     const ablenker = [];
