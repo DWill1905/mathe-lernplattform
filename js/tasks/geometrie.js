@@ -267,6 +267,7 @@ function formErkennen(rng) {
         antwortfeld: auswahlfeld(rng, gewaehlt, ablenker),
         loesung: gewaehlt,
         tipp: "Zähle die Ecken – das verrät oft schon den Namen.",
+        erklaerung: `Das ist ${mitArtikel(gewaehlt, false)}. ${formMerkmale(gewaehlt)}`,
     };
 }
 function formMitEcken(rng) {
@@ -280,6 +281,7 @@ function formMitEcken(rng) {
         antwortfeld: auswahlfeld(rng, gewaehlt, ablenker),
         loesung: gewaehlt,
         tipp: "Dreieck: 3, Viereck: 4, Fünfeck: 5 …",
+        erklaerung: `${mitArtikel(gewaehlt)} hat ${anzahl} Ecken.`,
     };
 }
 function eckenZaehlen(rng) {

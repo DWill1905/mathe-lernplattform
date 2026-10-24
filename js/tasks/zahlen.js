@@ -76,10 +76,12 @@ function zerlegen(rng) {
     };
 }
 function vergleich(rng) {
-    const a = rng.int(11, 99);
-    let b = rng.int(11, 99);
-    while (b === a)
-        b = rng.int(11, 99);
+    // Dieselben VERWANDTEN Paare wie beim Vergleichszeichen (39 und 34, 65 und
+    // 56, 48 und 52); zwei beliebige Zahlen sind meist auf einen Blick
+    // verschieden. Nur ein Gleichstand geht hier nicht – dann wäre keine größer.
+    let [a, b] = vergleichspaar(rng);
+    while (a === b)
+        [a, b] = vergleichspaar(rng);
     const groesser = rng.chance(0.5);
     const loesung = groesser ? Math.max(a, b) : Math.min(a, b);
     return {
@@ -89,7 +91,20 @@ function vergleich(rng) {
         antwortfeld: auswahlfeld(rng, String(loesung), [String(a === loesung ? b : a)], 2),
         loesung: String(loesung),
         tipp: "Vergleiche zuerst die Zehner.",
+        erklaerung: vergleichErklaeren(loesung, a === loesung ? b : a, groesser),
     };
+}
+/**
+ * „51 hat 5 Zehner, 80 hat 8 Zehner – also ist 51 kleiner.“ Bei gleichen
+ * Zehnern entscheiden die Einer; genau so steht es im Tipp.
+ */
+function vergleichErklaeren(richtig, andere, groesser) {
+    const zehner = (zahl) => Math.floor(zahl / 10);
+    const wort = groesser ? "größer" : "kleiner";
+    if (zehner(richtig) !== zehner(andere)) {
+        return `${richtig} hat ${anzahl(zehner(richtig), "Zehner", "Zehner")}, ${andere} hat ${anzahl(zehner(andere), "Zehner", "Zehner")} – also ist ${richtig} ${wort}.`;
+    }
+    return `Beide haben ${anzahl(zehner(richtig), "Zehner", "Zehner")}. Dann entscheiden die Einer: ${richtig % 10} und ${andere % 10} – also ist ${richtig} ${wort}.`;
 }
 function nachbarzehner(rng) {
     // Volle Zehner sind ausgeschlossen: Zu 70 wäre „der Zehner davor“ sonst
@@ -128,10 +143,14 @@ function strahl(rng) {
     return {
         typ: "zahlenraum/zahlenstrahl",
         frage: "Welche Zahl gehört an die markierte Stelle?",
-        bild: { svg: zahlenstrahl(100, loesung), beschriftung: "Zahlenstrahl von 0 bis 100 mit einer Markierung" },
+        bild: {
+            svg: zahlenstrahl(100, loesung),
+            beschriftung: `Zahlenstrahl von 0 bis 100 mit einem Strich je Zehner. Beschriftet sind ${loesung === 50 ? "0 und 100" : "0, 50 und 100"}. Die Markierung sitzt auf dem ${loesung / 10}. Strich nach der 0.`,
+        },
         antwortfeld: zahlfeld(),
         loesung: String(loesung),
         tipp: "Zähle die Zehnerschritte ab 0 ab.",
+        erklaerung: `Jeder Strich ist ein Zehner. Die Markierung ist ${anzahl(loesung / 10, "Zehnerschritt", "Zehnerschritte")} von der 0 entfernt: ${loesung / 10} · 10 = ${loesung}`,
     };
 }
 /**
@@ -197,6 +216,10 @@ function groesste(rng) {
         antwortfeld: { art: "auswahl", optionen: rng.shuffle(liste.map(String)) },
         loesung: String(loesung),
         tipp: "Vergleiche zuerst die Zehner, dann die Einer.",
+        erklaerung: `Der Größe nach: ${liste
+            .slice()
+            .sort((x, y) => x - y)
+            .join(", ")}. Die ${groessteZahl ? "größte" : "kleinste"} ist ${loesung}.`,
     };
 }
 function mitte(rng) {
@@ -427,7 +450,11 @@ function vergleichszeichen(rng) {
         antwortfeld: { art: "auswahl", optionen: ["<", "=", ">"] },
         loesung,
         tipp: "Vergleiche zuerst die Zehner. Sind sie gleich, entscheiden die Einer.",
-        erklaerung: `${a} ${loesung} ${b}`,
+        // Das Zeichen allein („5 = 5“) erklärt nichts; dieselbe Begründung wie bei
+        // „Welche Zahl ist größer?“, nur mit dem Zeichen vorneweg.
+        erklaerung: a === b
+            ? `${a} ${loesung} ${b} – beide Zahlen sind gleich groß.`
+            : `${a} ${loesung} ${b}. ${vergleichErklaeren(a, b, a > b)}`,
     };
 }
 /** Ein Zahlenpaar nach Art des Hefts – vier Sorten, jede etwa gleich häufig. */
@@ -457,9 +484,12 @@ function vergleichspaar(rng) {
         const zahl = rng.int(1, 100);
         return [zahl, zahl];
     }
-    // Benachbarte Zehner, dicht beieinander: 48 und 52.
+    // Benachbarte Zehner, dicht beieinander: 48 und 52. Die Reihenfolge wird
+    // gemischt – stand die kleinere immer vorn, war „<“ doppelt so oft richtig
+    // wie „>“, und das merkt sich ein Kind schneller als jede Regel.
     const grenze = rng.int(1, 9) * 10;
-    return [grenze - rng.int(1, 4), grenze + rng.int(1, 4)];
+    const paar = [grenze - rng.int(1, 4), grenze + rng.int(1, 4)];
+    return rng.chance(0.5) ? paar : [paar[1], paar[0]];
 }
 /** Umgekehrte Nachbarzehner: Welche Zahl liegt zwischen diesen beiden? */
 function zwischenZehnern(rng) {

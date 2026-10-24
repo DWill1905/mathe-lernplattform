@@ -390,7 +390,15 @@ export function zahlenstrahl(max: number, markiert: number | null, schritt = 10)
   for (let wert = 0; wert <= max; wert += schritt) {
     const x = links + ((rechts - links - 16) * wert) / max;
     teile += `<line x1="${r(x)}" y1="${y - 10}" x2="${r(x)}" y2="${y + 10}" class="fig-linie" stroke-width="2.5"/>`;
-    teile += `<text x="${r(x)}" y="${y + 32}" class="fig-text" text-anchor="middle" font-size="17">${wert}</text>`;
+    /*
+     * Beschriftet werden nur Anfang, Mitte und Ende – und nie die markierte
+     * Stelle. Bis 1.42.16 stand unter JEDEM Strich seine Zahl, auch unter dem
+     * Fragezeichen: Die Antwort war im Bild abzulesen. Und mit allen Nachbarn
+     * beschriftet (30, ?, 50) gäbe es nichts mehr abzuzählen.
+     */
+    if (wert !== markiert && (wert === 0 || wert === max || wert * 2 === max)) {
+      teile += `<text x="${r(x)}" y="${y + 32}" class="fig-text" text-anchor="middle" font-size="17">${wert}</text>`;
+    }
   }
   if (markiert !== null) {
     const x = links + ((rechts - links - 16) * markiert) / max;

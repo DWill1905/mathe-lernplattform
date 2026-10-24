@@ -4,6 +4,30 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.42.17] – 2026-10-24
+
+### Behoben
+
+**Der Zahlenstrahl verriet seine Lösung.** Unter JEDEM Zehnerstrich stand
+die Zahl – auch unter dem Fragezeichen. „Welche Zahl gehört an die markierte
+Stelle?“ ließ sich ablesen, ohne zu zählen. Jetzt sind nur 0, 50 und 100
+beschriftet und nie die markierte Stelle; dazwischen wird abgezählt, so wie es
+der Tipp sagt. Die Bildbeschreibung nennt, auf dem wievielten Strich die
+Markierung sitzt.
+
+**Beim Vergleichszeichen war „<“ doppelt so oft richtig wie „>“.** Bei den
+Paaren über eine Zehnergrenze (48 und 52) stand die kleinere Zahl immer
+vorn. Das merkt sich ein Kind schneller als jede Regel. Die Reihenfolge wird
+jetzt gemischt. „Welche Zahl ist größer?“ nimmt dieselben verwandten Paare
+statt zweier beliebiger Zahlen, die meist auf einen Blick verschieden waren.
+
+**Sechs Aufgabentypen hatten keine Erklärung** – nach einer falschen
+Antwort stand nur die nackte Lösung da: Zahlen vergleichen, Zahlenstrahl,
+größte/kleinste Zahl, Münzen vergleichen, „Welche Form ist das?“ und „Welche
+Form hat genau 4 Ecken?“. Jetzt etwa „13 hat 1 Zehner, 31 hat 3 Zehner – also
+ist 13 kleiner.“ Auch das Vergleichszeichen begründet jetzt, statt nur
+„68 < 71“ zu wiederholen. Ein Test verlangt von jedem Typ eine Erklärung.
+
 ## [1.42.16] – 2026-10-24
 
 ### Behoben

@@ -302,6 +302,7 @@ function formErkennen(rng: Rng): Aufgabe {
     antwortfeld: auswahlfeld(rng, gewaehlt, ablenker),
     loesung: gewaehlt,
     tipp: "Zähle die Ecken – das verrät oft schon den Namen.",
+    erklaerung: `Das ist ${mitArtikel(gewaehlt, false)}. ${formMerkmale(gewaehlt)}`,
   };
 }
 
@@ -316,8 +317,10 @@ function formMitEcken(rng: Rng): Aufgabe {
     antwortfeld: auswahlfeld(rng, gewaehlt, ablenker),
     loesung: gewaehlt,
     tipp: "Dreieck: 3, Viereck: 4, Fünfeck: 5 …",
+    erklaerung: `${mitArtikel(gewaehlt)} hat ${anzahl} Ecken.`,
   };
 }
+
 
 function eckenZaehlen(rng: Rng): Aufgabe {
   const gewaehlt = rng.pick(ALLE_FORMEN.filter((f) => eckenZahl(f) > 0));

@@ -455,6 +455,11 @@ function muenzeGroesser(rng) {
         antwortfeld: { art: "auswahl", optionen: rng.shuffle([geldText(a), geldText(b)]) },
         loesung: geldText(groesser),
         tipp: "1 Euro sind 100 Cent.",
+        erklaerung: 
+        // Nur beim Vergleich über die Euro-Grenze hilft die Umrechnung.
+        groesser >= 100 && Math.min(a, b) < 100
+            ? `${geldText(groesser)} sind ${groesser} ct – mehr als ${geldText(Math.min(a, b))}.`
+            : `${geldText(groesser)} sind mehr als ${geldText(Math.min(a, b))}.`,
     };
 }
 function inCent(rng) {

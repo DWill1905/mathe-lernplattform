@@ -169,3 +169,43 @@ test("Knobeln: die Zahl ist weiblich", () => {
     assert.match(a.frage, /^Zähle die \d+ und ihre beiden Nachbarzahlen zusammen\.$/);
   }
 });
+
+test("jede Aufgabe bringt eine Erklärung mit", () => {
+  // Nach einer falschen Antwort steht die Erklärung unter der Lösung. Sechs
+  // Typen hatten keine – dort stand dann nur die nackte richtige Antwort.
+  for (const [thema, generator] of Object.entries(GENERATOREN)) {
+    for (const stufe of [1, 2, 3]) {
+      const rng = mulberry32(140 + stufe);
+      for (let i = 0; i < 600; i++) {
+        const a = generator(rng, stufe);
+        assert.ok(a.erklaerung && a.erklaerung.length > 5, `${thema}/${a.typ} hat keine Erklärung`);
+      }
+    }
+  }
+});
+
+test("der Zahlenstrahl verrät die markierte Zahl nicht", () => {
+  const rng = mulberry32(100);
+  let gesehen = 0;
+  for (let i = 0; i < 2000; i++) {
+    const a = GENERATOREN.zahlenraum(rng, 2);
+    if (a.typ !== "zahlenraum/zahlenstrahl") continue;
+    gesehen++;
+    const zahlen = [...a.bild.svg.matchAll(/font-size="17">(\d+)</g)].map((t) => t[1]);
+    assert.ok(!zahlen.includes(a.loesung), `die ${a.loesung} steht im Bild`);
+    assert.ok(zahlen.length <= 3, `zu viele Beschriftungen: ${zahlen.join(", ")}`);
+    assert.ok(zahlen.includes("0") && zahlen.includes("100"), "Anfang und Ende fehlen");
+  }
+  assert.ok(gesehen > 100);
+});
+
+test("beim Vergleichszeichen sind < und > gleich oft richtig", () => {
+  const rng = mulberry32(606);
+  const zaehler = { "<": 0, ">": 0, "=": 0 };
+  for (let i = 0; i < 6000; i++) {
+    const a = GENERATOREN.zahlenraum(rng, 1);
+    if (a.typ === "zahlenraum/vergleichszeichen") zaehler[a.loesung]++;
+  }
+  const verhaeltnis = zaehler["<"] / zaehler[">"];
+  assert.ok(verhaeltnis > 0.8 && verhaeltnis < 1.25, `< ${zaehler["<"]}-mal, > ${zaehler[">"]}-mal`);
+});
