@@ -4,6 +4,24 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.42.12] – 2026-10-24
+
+### Behoben
+
+**Bei der 1 steht jetzt die Einzahl.** An fünf Stellen war die Mehrzahl fest
+eingebaut, und bei der 1 kam Holpriges heraus:
+
+- Rechenstrich: „Von 80 aus sind es 1 Striche weiter“ → „ist es 1 Strich“
+- Geteilt mit Rest: „Bis 5 fehlen noch 1“ → „fehlt noch 1“
+- Rechentricks: „Die 1 Zehner bleiben stehen“ → „Der 1 Zehner bleibt stehen“
+- Einmaleins-Punktefeld: „1 Reihen mit je 5 Punkten“ → „1 Reihe“
+- Zahlen bis 100: „aus 1 Zehnern und 1 Einern“ → „aus 1 Zehner und 1 Einer“
+
+Dazu bei den Rechentricks „Von 40 9 zurück sind 31“, wo zwei Zahlen ohne
+Wort dazwischen aneinanderstießen – jetzt „Von 40 aus 9 zurück“. Die neue
+Hilfe `anzahl()` in `tasks/helpers.ts` beugt das Wort passend, ein Test sucht
+die bekannten Fehlformen in allen Themen.
+
 ## [1.42.11] – 2026-10-24
 
 ### Behoben

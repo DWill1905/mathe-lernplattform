@@ -104,7 +104,7 @@ function zehnerDavor(rng: Rng): Aufgabe {
     antwortfeld: zahlfeld(),
     loesung: String(zehner + klein),
     tipp: "Die Zehner bleiben, gerechnet wird nur mit den Einern.",
-    erklaerung: `Die ${zehner / 10} Zehner bleiben stehen: ${a} ${zeichen} ${b} = ${klein}, also ${zehner + a} ${zeichen} ${b} = ${zehner + klein}.`,
+    erklaerung: `${zehner === 10 ? "Der 1 Zehner bleibt" : `Die ${zehner / 10} Zehner bleiben`} stehen: ${a} ${zeichen} ${b} = ${klein}, also ${zehner + a} ${zeichen} ${b} = ${zehner + klein}.`,
   };
 }
 
@@ -204,7 +204,7 @@ function tabellenzeile(rng: Rng): Aufgabe {
     antwortfeld: zahlfeld(),
     loesung: String(zehner - einer),
     tipp: "Gehe vom glatten Zehner rückwärts.",
-    erklaerung: `Von ${zehner} ${einer} zurück sind ${zehner - einer}.`,
+    erklaerung: `Von ${zehner} aus ${einer} zurück sind ${zehner - einer}.`,
   };
 }
 

@@ -9,7 +9,7 @@ import {
   rechentabelle,
   zahlenstrahl,
 } from "../figures.js";
-import { auswahlfeld, zahlAblenker, zahlfeld } from "./helpers.js";
+import { anzahl, auswahlfeld, zahlAblenker, zahlfeld } from "./helpers.js";
 
 /* ============================================================ Zahlenraum */
 
@@ -84,7 +84,7 @@ function zerlegen(rng: Rng): Aufgabe {
   const loesung = zehner * 10 + einer;
   return {
     typ: "zahlenraum/zerlegen",
-    frage: `Welche Zahl besteht aus ${zehner} Zehnern und ${einer} Einern?`,
+    frage: `Welche Zahl besteht aus ${anzahl(zehner, "Zehner", "Zehnern")} und ${anzahl(einer, "Einer", "Einern")}?`,
     antwortfeld: zahlfeld(),
     loesung: String(loesung),
     tipp: "Zehner mal 10 rechnen und die Einer dazuzählen.",
@@ -446,8 +446,8 @@ function strichAblesen(rng: Rng, stufe: Stufe): Aufgabe {
     tipp: "Jeder kleine Strich ist eine Zahl weiter. Zähl von der nächsten beschrifteten Zahl ab.",
     erklaerung:
       abstand > 0
-        ? `Von ${anker} aus sind es ${abstand} Striche weiter: ${anker} + ${abstand} = ${loesung}`
-        : `Von ${anker} aus sind es ${-abstand} Striche zurück: ${anker} − ${-abstand} = ${loesung}`,
+        ? `Von ${anker} aus ${abstand === 1 ? "ist" : "sind"} es ${anzahl(abstand, "Strich", "Striche")} weiter: ${anker} + ${abstand} = ${loesung}`
+        : `Von ${anker} aus ${abstand === -1 ? "ist" : "sind"} es ${anzahl(-abstand, "Strich", "Striche")} zurück: ${anker} − ${-abstand} = ${loesung}`,
   };
 }
 

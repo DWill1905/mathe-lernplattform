@@ -35,6 +35,14 @@ export function zahlAblenker(richtig: number, spanne = 10, max = Infinity): stri
   return [...kandidaten].map(String);
 }
 
+/**
+ * Zahl mit passend gebeugtem Wort: „1 Strich“, aber „3 Striche“. Vorher stand
+ * an mehreren Stellen fest die Mehrzahl – und bei der 1 kam „1 Striche“ heraus.
+ */
+export function anzahl(zahl: number, einzahl: string, mehrzahl: string): string {
+  return `${zahl} ${zahl === 1 ? einzahl : mehrzahl}`;
+}
+
 /** Kleine Namensliste für Sachaufgaben. */
 export const NAMEN: readonly string[] = [
   "Mia",

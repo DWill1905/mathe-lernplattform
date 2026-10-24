@@ -1,5 +1,5 @@
 import { punktefeld } from "../figures.js";
-import { auswahlfeld, zahlAblenker, zahlfeld } from "./helpers.js";
+import { anzahl, auswahlfeld, zahlAblenker, zahlfeld } from "./helpers.js";
 /** Malreihen je Stufe – der Aufbau folgt der üblichen Reihenfolge im Unterricht. */
 const REIHEN = {
     1: [1, 2, 5, 10],
@@ -38,12 +38,12 @@ function malMitBild(rng, stufe) {
         frage: "Wie viele Punkte sind das?",
         bild: {
             svg: punktefeld(reihen, spalten),
-            beschriftung: `${reihen} Reihen mit je ${spalten} Punkten`,
+            beschriftung: `${anzahl(reihen, "Reihe", "Reihen")} mit je ${spalten} Punkten`,
         },
         antwortfeld: zahlfeld(),
         loesung: String(loesung),
         tipp: "Zähle die Reihen und die Punkte pro Reihe – dann malnehmen.",
-        erklaerung: `${reihen} Reihen · ${spalten} Punkte = ${loesung} Punkte`,
+        erklaerung: `${anzahl(reihen, "Reihe", "Reihen")} · ${spalten} Punkte = ${loesung} Punkte`,
     };
 }
 function umkehraufgabe(rng) {
@@ -154,6 +154,6 @@ function mitRest(rng) {
         antwortfeld: zahlfeld(),
         loesung: String(fragtRest ? rest : ergebnis),
         tipp: "Suche die größte Zahl der Reihe, die noch hineinpasst.",
-        erklaerung: `${teiler} · ${ergebnis} = ${teiler * ergebnis}. Bis ${zahl} fehlen noch ${rest}. Also: ${zahl} : ${teiler} = ${ergebnis} Rest ${rest}.`,
+        erklaerung: `${teiler} · ${ergebnis} = ${teiler * ergebnis}. Bis ${zahl} ${rest === 1 ? "fehlt" : "fehlen"} noch ${rest}. Also: ${zahl} : ${teiler} = ${ergebnis} Rest ${rest}.`,
     };
 }

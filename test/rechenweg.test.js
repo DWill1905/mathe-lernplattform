@@ -74,3 +74,34 @@ test("bis 20 rechnet die Erklärung mit Zahlen und der Tipp spricht nicht von Ze
   }
   assert.ok(gesehen > 100);
 });
+
+test("bei der 1 steht die Einzahl", () => {
+  // Gefunden an „1 Striche“, „fehlen noch 1“, „Die 1 Zehner bleiben“,
+  // „1 Reihen mit je …“ und „aus 1 Zehnern“. Die Liste enthält die Wörter,
+  // die in den Generatoren hinter einer Zahl stehen.
+  const falsch = [
+    /(?<![\d,])\b1 (Striche|Reihen|Zehnern|Einern|Schritte|Kinder|Steine|Münzen|Scheine)\b/,
+    /\b(fehlen|sind es|bleiben) (noch )?1\b(?! [€c])/,
+    /\bDie 1 /,
+  ];
+  for (const [thema, generator] of Object.entries(GENERATOREN)) {
+    for (const stufe of [1, 2, 3]) {
+      const rng = mulberry32(110 + stufe);
+      for (let i = 0; i < 1500; i++) {
+        const a = generator(rng, stufe);
+        for (const text of [a.frage, a.erklaerung, a.tipp, a.bild?.beschriftung].filter(Boolean)) {
+          for (const muster of falsch) assert.ok(!muster.test(text), `${thema}/${a.typ}: „${text}"`);
+        }
+      }
+    }
+  }
+});
+
+test("Rechentricks: von einem glatten Zehner aus zurück", () => {
+  const rng = mulberry32(404);
+  for (let i = 0; i < 2000; i++) {
+    const a = GENERATOREN.analogie(rng, 3);
+    if (a.typ !== "analogie/tabelle" || !a.rechnung.includes("−")) continue;
+    assert.match(a.erklaerung, /^Von \d+ aus \d+ zurück sind \d+\.$/);
+  }
+});
