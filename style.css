@@ -1645,10 +1645,17 @@ details[open] summary {
 
 /* Auswahl aus Bildern */
 
+/*
+ * `width: 100%` ist Pflicht: Die automatischen Seitenränder schalten in der
+ * Flexspalte der Karte das Strecken ab, und ohne Breite rechnete das Raster
+ * mit seinem Inhalt – drei Spalten à 120 px, 18 px breiter als ein Telefon.
+ * Dieselbe Falle wie bei `.bild` (siehe CLAUDE.md, „300 × 150“).
+ */
 .bildauswahl {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 0.6rem;
+  width: 100%;
   max-width: 460px;
   margin: 0 auto;
 }
@@ -1679,6 +1686,31 @@ details[open] summary {
 .bildkarte .bild {
   margin: 0;
   width: 100%;
+}
+
+/*
+ * Seit das Raster auf dem Telefon zweispaltig ist, wären die Karten so breit,
+ * dass ihre Bilder 140 px hoch würden – zwei Reihen davon schoben die untere
+ * Reihe aus einem 360 × 640-Fenster. 110 px reichen für Uhr und Form. Vier
+ * Klassen im Wähler, damit die Regel die Höhenregeln der Übungsansicht
+ * (`body.uebung-laeuft .karte-aufgabe .bild svg`) unabhängig von der
+ * Reihenfolge im Stylesheet überstimmt.
+ */
+.bildauswahl .bildkarte .bild svg.fig {
+  max-height: 110px;
+}
+
+/*
+ * Auf flachen Fenstern – Telefon quer, kleines Telefon hochkant – sind zwei
+ * Reihen Bildkarten à 110 px Bild höher als der Platz (gemessen 421 px bei
+ * 390 px Fensterhöhe); die untere Reihe war nur mit Scrollen erreichbar. Die
+ * Bildhöhe folgt dort der Fensterhöhe. Eine Klasse mehr als oben, damit die
+ * Reihenfolge im Stylesheet keine Rolle spielt.
+ */
+@media (max-height: 600px) {
+  .karte-aufgabe .bildauswahl .bildkarte .bild svg.fig {
+    max-height: min(88px, 21vh);
+  }
 }
 
 .bildkarte-name {

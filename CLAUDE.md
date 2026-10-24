@@ -176,6 +176,11 @@ verwässern.
   Tablet standen 300 px, wo 360 erlaubt waren. Das ist die Schwester der Falle
   aus 1.11.1 (`width: auto` lässt dasselbe SVG auf NULL zusammenfallen): Beide
   Male fehlt die Bezugsgröße, einmal mit 0 und einmal mit 300 als Ergebnis.
+  Dieselbe Falle traf das Raster der Bildkarten (`.bildauswahl`): Es rechnete
+  mit drei Spalten à 120 px und war 18 px breiter als ein Telefon. **Alles mit
+  `margin: 0 auto` in der Kartenspalte braucht `width: 100%`.** Die Bildhöhe
+  der Karten ist gedeckelt, auf flachen Fenstern an `vh` gebunden – sonst
+  rutscht die zweite Kartenreihe aus dem Bild.
 - **`bild-breit` muss die Deckel der kleinen Schirme ÜBERSTIMMEN.** Acht
   Aufgaben brauchen die volle Kartenbreite (Pfeilfolge, Rechenstrich, beide
   Hunderterfelder, beide Musterreihen, Grundmuster, Geldtabelle). Die Regel
@@ -281,6 +286,23 @@ verwässern.
   bei „Wie viele Ecken hat diese Form?" dagegen der Name – dort wäre „vier
   Ecken" die Lösung. Geld und Zeigerstellungen lassen sich gefahrlos
   ausschreiben: Zusammenzählen und Ablesen muss man weiterhin selbst.
+- **Der Zahlenstrahl ist nur an 0, 50 und 100 beschriftet – nie an der
+  markierten Stelle.** Bis 1.42.16 stand unter jedem Zehnerstrich seine Zahl,
+  auch unter dem Fragezeichen: Die Lösung war abzulesen. Dieselbe Regel wie
+  beim Hunderterfeld: Was gesucht ist, darf nicht im Bild stehen, und die
+  Nachbarn auch nicht alle.
+- **Jede Aufgabe bringt eine Erklärung mit, und jede Rechnung darin stimmt.**
+  Nach einer falschen Antwort steht sie unter der Lösung; sechs Typen hatten
+  keine. `test/rechenweg.test.js` rechnet in ALLEN Themen jede Gleichung der
+  Erklärungen nach. Die Erklärung geht den Weg, den der Tipp verspricht (bei
+  Plus und Minus mit Übergang: erst die Zehner, dann über den Zehner), und
+  spricht die Einheit der Frage.
+- **Zahl und Wort über `anzahl()`** (`tasks/helpers.ts`), nie fest in der
+  Mehrzahl: Sonst steht bei der 1 „1 Striche“ oder „fehlen noch 1“.
+- **Die Stufentexte in `topics.ts` stehen im Elternbereich** und sind dort die
+  einzige Auskunft, was geübt wird. `test/stufentexte.test.js` verlangt für
+  jeden Aufgabentyp ein Stichwort im Text jeder Stufe, auf der er vorkommt –
+  ein neuer Typ braucht einen Eintrag dort UND im Stufentext.
 - **Bei der Rechentabelle steht die Rechnung bewusst NICHT im Text.** Das
   Ablesen von Zeile und Spalte ist die eigentliche Übung; für Screenreader
   steckt die Aufgabe in der Bildbeschreibung. Ein Test hält das fest.

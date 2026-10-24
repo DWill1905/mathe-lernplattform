@@ -260,3 +260,20 @@ test("das Erklärbild der Übung hat eine angegebene Breite", () => {
     "die allgemeine Obergrenze für Erklärbilder fehlt"
   );
 });
+
+test("die Bildkarten passen auf das Telefon", () => {
+  // Ohne angegebene Breite rechnete das Raster mit seinem Inhalt: drei
+  // Spalten à 120 px, 18 px breiter als ein 390-px-Telefon – bei jeder
+  // Aufgabe mit Bildkarten ließ sich die Seite seitlich verschieben.
+  const ohneKommentare = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
+  const regel = ohneKommentare.match(/(^|\n)\.bildauswahl \{([^}]*)\}/);
+  assert.ok(regel, "keine Grundregel für .bildauswahl gefunden");
+  assert.match(regel[2], /(^|\s)width:\s*100%/, ".bildauswahl braucht width: 100%");
+  // Zwei Reihen Karten dürfen das Fenster nicht sprengen: Die Bildhöhe ist gedeckelt …
+  assert.match(ohneKommentare, /\.bildauswahl \.bildkarte \.bild svg\.fig \{\s*max-height:/);
+  // … und auf flachen Fenstern zusätzlich an die Fensterhöhe gebunden.
+  assert.match(
+    ohneKommentare,
+    /@media \(max-height: 600px\) \{\s*\.karte-aufgabe \.bildauswahl \.bildkarte \.bild svg\.fig \{\s*max-height:[^;]*vh/
+  );
+});

@@ -4,6 +4,29 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.42.20] – 2026-10-24
+
+### Behoben
+
+**Aufgaben mit Bildkarten ließen sich auf dem Telefon seitlich verschieben.**
+Alle Aufgaben mit den Karten A–D (Formen, Puzzle, Muster, Uhren, Münzgruppen)
+waren auf einem 390-px-Telefon 18 px breiter als der Bildschirm. Gefunden mit
+einem Durchlauf im echten Browser über alle 13 Themen und alle Stufen. Die
+Ursache ist die Falle aus 1.42.8 in neuer Form: `margin: 0 auto` schaltet in
+der Flexspalte das Strecken ab, und das Raster rechnete ohne Breite mit drei
+Spalten à 120 px. Mit `width: 100%` stehen die Karten jetzt 2 × 2.
+
+Weil zwei Kartenreihen höher sind als eine, ist die Bildhöhe der Karten
+gedeckelt (110 px) und auf flachen Fenstern an die Fensterhöhe gebunden.
+Gemessen auf neun Fenstergrößen von 320 × 568 bis 1024 × 768, hochkant und
+quer: nirgends seitliches Scrollen, nirgends eine Karte unter dem
+Fensterrand. Vorher war im Querformat die untere Kartenreihe auf JEDEM
+Telefon nur mit Scrollen erreichbar.
+
+`CLAUDE.md` hält die Lektionen dieser Durchsicht fest: Zahlenstrahl ohne
+verratene Zahl, Erklärung für jede Aufgabe, `anzahl()` für die Einzahl, die
+Stufentexte und eben `width: 100%` für alles mit `margin: 0 auto`.
+
 ## [1.42.19] – 2026-10-24
 
 ### Behoben
