@@ -9,6 +9,7 @@ export type ThemaId =
   | "einmaleins"
   | "geteilt"
   | "geld"
+  | "geldlegen"
   | "uhrzeit"
   | "laengen"
   | "geometrie"

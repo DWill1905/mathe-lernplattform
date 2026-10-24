@@ -89,8 +89,8 @@ test("die Geldtabelle ist aus ihrem Bild heraus lösbar", () => {
   for (const stufe of [2, 3]) {
     for (let i = 0; i < 1500; i++) {
       const rng = mulberry32(4711 + i * 13 + stufe);
-      const aufgabe = GENERATOREN.geld(rng, stufe);
-      if (aufgabe.typ !== "geld/geldtabelle") continue;
+      const aufgabe = GENERATOREN.geldlegen(rng, stufe);
+      if (aufgabe.typ !== "geldlegen/geldtabelle") continue;
       geprueft++;
 
       const tabelle = lesGeldtabelle(aufgabe.bild.svg);
@@ -145,15 +145,15 @@ test("in der Geldtabelle steht genau ein Fragezeichen", () => {
 /* ------------------------------------------------- Gruppen aus Bildkarten */
 
 for (const [typ, stufe] of [
-  ["geld/welche-muenzen", 1],
-  ["geld/immer-zehn", 2],
+  ["geldlegen/welche-muenzen", 1],
+  ["geldlegen/immer-zehn", 2],
 ]) {
   test(`bei „${typ}“ ergibt genau eine Bildkarte den gesuchten Betrag`, () => {
     let geprueft = 0;
 
     for (let i = 0; i < 2500; i++) {
       const rng = mulberry32(99 + i * 7 + stufe);
-      const aufgabe = GENERATOREN.geld(rng, stufe);
+      const aufgabe = GENERATOREN.geldlegen(rng, stufe);
       if (aufgabe.typ !== typ) continue;
       geprueft++;
 
@@ -202,8 +202,8 @@ test("bei „zu viel“ liegt genau ein überzähliges Stück im Bild", () => {
 
   for (let i = 0; i < 2500; i++) {
     const rng = mulberry32(31 + i * 17);
-    const aufgabe = GENERATOREN.geld(rng, 3);
-    if (aufgabe.typ !== "geld/zu-viel") continue;
+    const aufgabe = GENERATOREN.geldlegen(rng, 3);
+    if (aufgabe.typ !== "geldlegen/zu-viel") continue;
     geprueft++;
 
     const [, liegtText, preisText] = aufgabe.frage.match(/liegen ([\d.]+ (?:ct|€)).*nur ([\d.]+ (?:ct|€))/);
@@ -259,8 +259,8 @@ test("bei der Geldtabelle lohnt sich Raten nicht", () => {
   for (const stufe of [2, 3]) {
     const rng = mulberry32(8080 + stufe);
     for (let i = 0; i < 12000; i++) {
-      const aufgabe = GENERATOREN.geld(rng, stufe);
-      if (aufgabe.typ !== "geld/geldtabelle") continue;
+      const aufgabe = GENERATOREN.geldlegen(rng, stufe);
+      if (aufgabe.typ !== "geldlegen/geldtabelle") continue;
       wie_oft.set(aufgabe.loesung, (wie_oft.get(aufgabe.loesung) ?? 0) + 1);
     }
   }
@@ -279,29 +279,24 @@ test("bei der Geldtabelle lohnt sich Raten nicht", () => {
 });
 
 /**
- * Keine Aufgabenart darf sich als stiller Notnagel in eine fremde Stufe
- * schleichen.
+ * Keine Aufgabenart darf sich als stiller Notnagel einschleichen.
  *
- * Die beiden Bildauswahl-Formen weichen auf eine andere Aufgabe aus, wenn
- * sich zu einer Gruppe keine drei verschiedenen Ablenker bauen lassen. Das
- * geschah anfangs in 19 % der Fälle — bei 10 € als 5 € + 5 € gibt der Tausch
- * eines Stücks nur zwei andere Gruppen her. Ein Kind bekam auf der Heftseite
- * „Immer 10 Euro“ dann eine ganz andere Aufgabe zu sehen, und im Elternbereich
- * stand eine Fehlerart, die auf dieser Stufe gar nicht vorgesehen ist.
- *
- * `geld/betrag-legen` gehört zu Stufe 3. Taucht es auf Stufe 2 auf, ist es der
- * Notnagel.
+ * Die beiden Bildauswahl-Formen finden nicht immer drei verschiedene
+ * Ablenker – bei 10 € als 5 € + 5 € gibt der Tausch eines Stücks nur zwei
+ * andere Gruppen her. Früher sprang dann eine Aufgabe aus „Geld“ ein.
  */
-test("auf Stufe 2 greift kein Notnagel aus einer anderen Stufe", () => {
-  const rng = mulberry32(6060);
-  const arten = new Set();
-  for (let i = 0; i < 20000; i++) arten.add(GENERATOREN.geld(rng, 2).typ);
-
-  assert.ok(arten.has("geld/immer-zehn"), "„Immer 10 Euro“ kommt auf Stufe 2 gar nicht vor");
-  assert.ok(
-    !arten.has("geld/betrag-legen"),
-    "„geld/betrag-legen“ ist eine Stufe-3-Aufgabe – auf Stufe 2 kann es nur der Notnagel sein"
-  );
+test("Geld legen weicht nie auf ein anderes Thema aus", () => {
+  // Seit „Geld legen“ ein eigenes Thema ist, darf der Notnagel nicht mehr
+  // nach „Geld“ greifen: Wer gezielt die Heftseiten übt, soll kein Rückgeld
+  // rechnen. Die Geldtabelle gelingt immer und ist deshalb der Notnagel.
+  for (const stufe of [1, 2, 3]) {
+    const rng = mulberry32(6060 + stufe);
+    const arten = new Set();
+    for (let i = 0; i < 5000; i++) arten.add(GENERATOREN.geldlegen(rng, stufe).typ);
+    for (const typ of arten) assert.ok(typ.startsWith("geldlegen/"), `Stufe ${stufe}: fremde Aufgabe ${typ}`);
+    assert.ok(arten.has("geldlegen/immer-zehn"), `„Immer 10 Euro“ fehlt auf Stufe ${stufe}`);
+    assert.ok(arten.has("geldlegen/geldtabelle"), `die Geldtabelle fehlt auf Stufe ${stufe}`);
+  }
 });
 
 /**
@@ -320,8 +315,8 @@ test("die Geldtabelle hält, was die Stufe verspricht", () => {
     let gezogen = 0;
     let ohneHilfe = 0;
     for (let i = 0; i < 12000; i++) {
-      const aufgabe = GENERATOREN.geld(rng, stufe);
-      if (aufgabe.typ !== "geld/geldtabelle") continue;
+      const aufgabe = GENERATOREN.geldlegen(rng, stufe);
+      if (aufgabe.typ !== "geldlegen/geldtabelle") continue;
       gezogen++;
       const tabelle = lesGeldtabelle(aufgabe.bild.svg);
       if (tabelle.gezeigt.every((wert) => wert === null)) ohneHilfe++;
@@ -362,12 +357,12 @@ test("jede Geldgruppe sagt, was auf ihr liegt", () => {
   let geprueft = 0;
 
   for (const [typ, stufe] of [
-    ["geld/welche-muenzen", 1],
-    ["geld/immer-zehn", 2],
+    ["geldlegen/welche-muenzen", 1],
+    ["geldlegen/immer-zehn", 2],
   ]) {
     const rng = mulberry32(3300 + stufe);
     for (let i = 0; i < 6000 && geprueft < 400; i++) {
-      const aufgabe = GENERATOREN.geld(rng, stufe);
+      const aufgabe = GENERATOREN.geldlegen(rng, stufe);
       if (aufgabe.typ !== typ) continue;
       geprueft++;
 
@@ -396,8 +391,8 @@ test("beim überzähligen Geld sagt das Bild, was dort liegt", () => {
   let geprueft = 0;
 
   for (let i = 0; i < 8000 && geprueft < 300; i++) {
-    const aufgabe = GENERATOREN.geld(rng, 3);
-    if (aufgabe.typ !== "geld/zu-viel") continue;
+    const aufgabe = GENERATOREN.geldlegen(rng, 3);
+    if (aufgabe.typ !== "geldlegen/zu-viel") continue;
     geprueft++;
 
     const imBild = texte(aufgabe.bild.svg)
@@ -426,8 +421,8 @@ test("die Geldtabelle beschreibt ihre Hilfe, aber nicht die Lösung", () => {
   for (const stufe of [2, 3]) {
     const rng = mulberry32(3500 + stufe);
     for (let i = 0; i < 6000 && geprueft < 400; i++) {
-      const aufgabe = GENERATOREN.geld(rng, stufe);
-      if (aufgabe.typ !== "geld/geldtabelle") continue;
+      const aufgabe = GENERATOREN.geldlegen(rng, stufe);
+      if (aufgabe.typ !== "geldlegen/geldtabelle") continue;
       geprueft++;
 
       const tabelle = lesGeldtabelle(aufgabe.bild.svg);
@@ -517,12 +512,12 @@ test("die Erklärung rechnet in derselben Einheit wie die Frage", () => {
   let geprueft = 0;
 
   for (const [typ, stufe] of [
-    ["geld/welche-muenzen", 1],
-    ["geld/immer-zehn", 2],
+    ["geldlegen/welche-muenzen", 1],
+    ["geldlegen/immer-zehn", 2],
   ]) {
     const rng = mulberry32(909 + stufe);
     for (let i = 0; i < 12000; i++) {
-      const aufgabe = GENERATOREN.geld(rng, stufe);
+      const aufgabe = GENERATOREN.geldlegen(rng, stufe);
       if (aufgabe.typ !== typ) continue;
       geprueft++;
 
@@ -553,9 +548,6 @@ test("Geld: Erklärung und Frage sprechen dieselbe Sprache", () => {
         // „10 € … 4 €“ gefragt, also nicht in Cent erklären.
         assert.ok(!a.erklaerung.includes("ct"), a.erklaerung);
       }
-      if (a.typ === "geld/geldtabelle" && a.frage.match(/^Lege \d+ ct/)) {
-        assert.ok(!a.frage.includes("Schein"), `Cent-Beträge haben keine Scheine: ${a.frage}`);
-      }
       if (a.typ === "geld/rest-muenzen") {
         assert.ok(!a.erklaerung.includes(":"), `kein Teilen in der Geld-Erklärung: ${a.erklaerung}`);
         assert.ok(a.erklaerung.includes(`Das sind ${a.loesung} `), a.erklaerung);
@@ -565,9 +557,42 @@ test("Geld: Erklärung und Frage sprechen dieselbe Sprache", () => {
       }
     }
     if (stufe === 3) {
-      for (const typ of ["geld/reicht-es", "geld/geldtabelle", "geld/rest-muenzen", "geld/betrag-legen"]) {
+      for (const typ of ["geld/reicht-es", "geld/rest-muenzen", "geld/betrag-legen"]) {
         assert.ok(gesehen.has(typ), `${typ} nicht gezogen`);
       }
     }
   }
+});
+
+test("Geldtabelle: Cent-Beträge haben keine Scheine", () => {
+  for (const stufe of [1, 2, 3]) {
+    const rng = mulberry32(5150 + stufe);
+    let cent = 0;
+    for (let i = 0; i < 2000; i++) {
+      const a = GENERATOREN.geldlegen(rng, stufe);
+      if (a.typ !== "geldlegen/geldtabelle" || !/^Lege \d+ ct/.test(a.frage)) continue;
+      cent++;
+      assert.ok(!a.frage.includes("Schein"), a.frage);
+    }
+    assert.ok(cent > 50, `Stufe ${stufe}: zu wenige Cent-Tabellen`);
+  }
+});
+
+test("Geld legen, Stufe 1: nur Kleingeld in der Tabelle, und die Tabelle hilft", () => {
+  const rng = mulberry32(1414);
+  let tabellen = 0;
+  for (let i = 0; i < 3000; i++) {
+    const a = GENERATOREN.geldlegen(rng, 1);
+    if (a.typ === "geldlegen/zu-viel") assert.fail("„zu viel“ gehört nicht auf Stufe 1");
+    if (a.typ === "geldlegen/immer-zehn") {
+      for (const karte of a.antwortfeld.optionen) {
+        assert.ok(karte.beschriftung.split(",").length <= 4, `zu viele Stücke: ${karte.beschriftung}`);
+      }
+    }
+    if (a.typ !== "geldlegen/geldtabelle") continue;
+    tabellen++;
+    assert.match(a.frage, /^Lege \d+ ct/, `Stufe 1 bleibt beim Kleingeld: ${a.frage}`);
+    assert.match(a.bild.beschriftung, /Schon eingetragen/, `ohne Hilfe: ${a.bild.beschriftung}`);
+  }
+  assert.ok(tabellen > 200);
 });

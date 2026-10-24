@@ -6,7 +6,7 @@ Punkte stehen in `ROADMAP.md`, die Historie in `CHANGELOG.md`.
 ## Was ist das Projekt?
 
 Interaktive Lernplattform für Mathematik in der 2. Klasse (Deutsch), statische
-Seite für GitHub Pages: dreizehn Themen mit je drei Stufen (sieben davon aus
+Seite für GitHub Pages: vierzehn Themen mit je drei Stufen (acht davon aus
 dem Übungsheft), Übungsrunden mit
 sofortiger Rückmeldung, Gamification (Punkte, Level, Sterne, Streak,
 Abzeichen) und ein Elternbereich. Feature-Liste: `README.md`.
@@ -46,13 +46,14 @@ verwässern.
 ## Architekturüberblick
 
 - `src/types.ts` – Domänen-Typen (`Aufgabe`, `Fortschritt`, `ThemaId`, …).
-- `src/topics.ts` – die dreizehn Themen samt Beschreibung ihrer drei Stufen.
+- `src/topics.ts` – die vierzehn Themen samt Beschreibung ihrer drei Stufen.
 - `src/state.ts` – **einziger** Ort, der `localStorage` liest und schreibt.
 - `src/random.ts` – `mulberry32`. Niemals `Math.random()` verwenden, sonst
   sind die Aufgaben-Generatoren nicht mehr testbar.
 - `src/tasks/*` – die Aufgaben-Generatoren, nach Themengruppen sortiert
-  (`zahlen`, `rechnen`, `groessen`, `geometrie`, `sachaufgaben`, `analogie`,
-  `familien`, `mauern`); `tasks/index.ts` hält die Registry und baut Runden.
+  (`zahlen`, `rechnen`, `groessen`, `geldlegen`, `geometrie`, `sachaufgaben`,
+  `analogie`, `familien`, `mauern`); `tasks/index.ts` hält die Registry und
+  baut Runden.
 - `src/figures.ts` – Erklärbilder als SVG-Zeichenketten, ohne DOM-Zugriff und
   deshalb direkt testbar.
 - `src/gamification.ts` – Punkte, Level, Sterne, Pferde, Streak, Abzeichen,
@@ -268,12 +269,20 @@ verwässern.
   Betrag.** Im Heft füllt das Kind eine ganze Zeile aus; hier ist nur ein Feld
   markiert – dieselbe Entscheidung wie bei der Rechentabelle, damit die
   Zahlentastatur genügt. Die Stufe steuert die HILFE, nicht den Zahlenraum: Auf
-  Stufe 2 stehen die größeren Sorten links schon da, auf Stufe 3 ist die Zeile
-  leer. Und die Reihenfolge ist verdreht gemeint: Erst wird die gesuchte
+  Stufe 1 und 2 stehen die größeren Sorten links schon da (Stufe 1 nur in
+  Cent), auf Stufe 3 ist die Zeile leer. Und die Reihenfolge ist verdreht gemeint: Erst wird die gesuchte
   STÜCKZAHL gezogen, dann ein Betrag, der sie hergibt. Zieht man zuerst den
   Betrag, ist die Antwort in 77 % der Fälle eine 1 – bis 99 kommt jede Sorte
   höchstens zweimal vor, und zweimal nur bei wenigen Beträgen. Ein Test in
   `geldaufgaben.test.js` hält fest, dass keine Antwort über 55 % kommt.
+- **Die Geld-Heftseiten sind ein eigenes Thema, „Geld legen“** (`geldlegen`,
+  `tasks/geldlegen.ts`): Geldtabelle, „Immer 10 Euro“, „Welche Münzen?“,
+  „Streiche durch, was zu viel ist“. In „Geld“ gingen sie zwischen Rückgeld
+  und Umrechnen unter. Kann eine Gruppen- oder „zu viel“-Aufgabe nicht gebaut
+  werden, wird neu gezogen und am Ende die Geldtabelle genommen – NIE eine
+  Aufgabe aus einem anderen Thema. Die Typen hießen bis 1.42 `geld/…`;
+  `UMGEZOGEN` in `state.ts` hebt ihre Fehler- und Tempo-Bilanz auf den neuen
+  Namen. Wer wieder einen Typ umbenennt, trägt ihn dort ein.
 - **„Größte Sorte zuerst" ist nur bei 1, 2, 5, 10, 20, 50 wirklich das
   Minimum.** Bei einem anderen Satz (etwa 1, 3, 4) wäre es falsch; deshalb
   steht die Begründung bei `sortenAnzahl()` und nicht als allgemeine Regel.

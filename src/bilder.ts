@@ -66,6 +66,17 @@ const THEMENBILDER: Record<string, string> = {
     <circle cx="66" cy="40" r="17" class="bild-orange"/>
     <path d="M74 33a11 11 0 100 14M58 37h13M58 43h13" class="bild-strich"/>`,
 
+  // Die Geldtabelle aus dem Heft: oben die Münzsorten, darunter die Anzahl.
+  geldlegen: `
+    <rect x="6" y="20" width="88" height="60" rx="6" class="bild-hell"/>
+    <circle cx="21" cy="35" r="10" class="bild-gelb"/>
+    <circle cx="50" cy="35" r="9" class="bild-orange"/>
+    <circle cx="79" cy="35" r="8" class="bild-rot"/>
+    <circle cx="21" cy="64" r="6" class="bild-tuerkis"/>
+    <circle cx="50" cy="64" r="6" class="bild-tuerkis"/>
+    <path d="M6 50h88M35 20v60M65 20v60" class="bild-strich"/>
+    <rect x="6" y="20" width="88" height="60" rx="6" class="bild-strich"/>`,
+
   // Punktefeld: vier Reihen zu je fünf.
   einmaleins: punktefeld(),
 

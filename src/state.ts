@@ -161,11 +161,13 @@ export function pruefeFortschritt(roh: unknown): Fortschritt {
   const rohFehler = daten["fehler"];
   if (typeof rohFehler === "object" && rohFehler !== null) {
     const geprueft = Object.entries(rohFehler)
-      .map(([typ, anzahl]) => [typ.slice(0, 60), ganzeZahl(anzahl, 1, MAX_PUNKTE, 0)] as const)
+      .map(([typ, anzahl]) => [umgezogenerTyp(typ.slice(0, 60)), ganzeZahl(anzahl, 1, MAX_PUNKTE, 0)] as const)
       .filter(([, anzahl]) => anzahl > 0)
       .sort((a, b) => b[1] - a[1])
       .slice(0, MAX_FEHLERTYPEN);
-    for (const [typ, anzahl] of geprueft) fehler[typ] = anzahl;
+    // Nach einem Umzug können alter und neuer Name zugleich dastehen (ein
+    // Gerät mit der alten Fassung hat weitergezählt) – dann zählen beide.
+    for (const [typ, anzahl] of geprueft) fehler[typ] = Math.min(MAX_PUNKTE, (fehler[typ] ?? 0) + anzahl);
   }
 
   const tempo = tempoAus(daten["tempo"]);
@@ -210,6 +212,25 @@ export function pruefeFortschritt(roh: unknown): Fortschritt {
   };
 }
 
+/**
+ * Aufgabentypen, die in ein anderes Thema umgezogen sind. Die vier Aufgaben
+ * von den Geld-Heftseiten hießen bis 1.42 `geld/…` und heißen seit 1.43
+ * `geldlegen/…`. Ohne den Umzug blieben ihre Fehler- und Tempo-Bilanz unter
+ * dem alten Namen liegen: Kein Generator zöge sie je wieder als Schwerpunkt,
+ * und im Elternbereich stünden sie beim falschen Thema.
+ */
+const UMGEZOGEN: Readonly<Record<string, string>> = {
+  "geld/geldtabelle": "geldlegen/geldtabelle",
+  "geld/welche-muenzen": "geldlegen/welche-muenzen",
+  "geld/immer-zehn": "geldlegen/immer-zehn",
+  "geld/zu-viel": "geldlegen/zu-viel",
+};
+
+function umgezogenerTyp(typ: string): string {
+  // Kein `Object.hasOwn`: Das fehlt auf älteren Tablets (Safari vor 15.4).
+  return Object.prototype.hasOwnProperty.call(UMGEZOGEN, typ) ? UMGEZOGEN[typ]! : typ;
+}
+
 /** Geklebte Sticker: nur echte Nummern, jede höchstens einmal, sortiert. */
 function stickerListe(roh: unknown): number[] {
   if (!Array.isArray(roh)) return [];
@@ -233,10 +254,11 @@ function tempoAus(wert: unknown): Fortschritt["tempo"] {
     const sekunden = kommazahl(eintrag["sekunden"], TEMPO_MAX_SEKUNDEN);
     const anzahl = ganzeZahl(eintrag["anzahl"], 1, MAX_TEMPO_ANZAHL, 0);
     if (sekunden === null || anzahl === 0) continue;
-    geprueft.push([typ.slice(0, 60), { sekunden, anzahl }]);
+    geprueft.push([umgezogenerTyp(typ.slice(0, 60)), { sekunden, anzahl }]);
   }
   geprueft.sort((a, b) => b[1].anzahl - a[1].anzahl);
-  for (const [typ, eintrag] of geprueft.slice(0, MAX_TEMPO_TYPEN)) tempo[typ] = eintrag;
+  // Wegen der Sortierung gewinnt bei einem Umzug der Eintrag mit mehr Messungen.
+  for (const [typ, eintrag] of geprueft.slice(0, MAX_TEMPO_TYPEN)) tempo[typ] ??= eintrag;
   return tempo;
 }
 

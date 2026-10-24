@@ -4,6 +4,33 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.43.0] – 2026-10-24
+
+### Hinzugefügt
+
+**„Geld legen“ – die Geld-Heftseiten als eigenes Thema.** Die vier
+Aufgabenformen von den Heftseiten 118 bis 121 (Geldtabelle „mit möglichst
+wenig Münzen“, „Immer 10 Euro“, „Welche Münzen können es sein?“ und
+„Streiche durch, was zu viel ist“) steckten bisher im Thema „Geld“ und gingen
+dort zwischen Rückgeld und Umrechnen unter. Jetzt haben sie eine eigene
+Kachel bei den Heft-Themen, mit eigenen Sternen, eigener Stufe und eigenem
+Bild (eine kleine Geldtabelle):
+
+- **Stufe 1**: passende Münzen finden, „Immer 10 Euro“ mit höchstens vier
+  Stücken, die Geldtabelle in Cent mit Hilfe (größere Sorten stehen schon da).
+- **Stufe 2**: die Geldtabelle mit Hilfe auch in Euro, „Immer 10 Euro“,
+  passende Münzen, „zu viel“ beim Kleingeld.
+- **Stufe 3**: die Geldtabelle ohne Hilfe, „zu viel“ auch mit Euro,
+  „Immer 10 Euro“.
+
+„Geld“ übt wieder Münzen zählen, umrechnen, bezahlen und Rückgeld. Geht eine
+Aufgabe in „Geld legen“ ausnahmsweise nicht auf, springt die Geldtabelle ein –
+nie mehr eine Aufgabe aus einem anderen Thema.
+
+Die Aufgabentypen heißen jetzt `geldlegen/…`. Fehler- und Tempo-Bilanz unter
+den alten Namen ziehen beim Laden mit um, damit Fehlerschwerpunkte weiter
+geübt werden und im Elternbereich beim richtigen Thema stehen.
+
 ## [1.42.20] – 2026-10-24
 
 ### Behoben

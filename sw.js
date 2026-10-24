@@ -43,6 +43,7 @@ const KERN = [
   "./js/sync.js",
   "./js/tasks/analogie.js",
   "./js/tasks/familien.js",
+  "./js/tasks/geldlegen.js",
   "./js/tasks/geometrie.js",
   "./js/tasks/groessen.js",
   "./js/tasks/helpers.js",

@@ -3,6 +3,7 @@ import { THEMEN } from "../topics.js";
 import type { Aufgabe, AufgabenGenerator, Stufe, ThemaId } from "../types.js";
 import { einmaleins, geteilt } from "./rechnen.js";
 import { geld, laengen, uhrzeit } from "./groessen.js";
+import { geldlegen } from "./geldlegen.js";
 import { geometrie } from "./geometrie.js";
 import { knobeln, plusminus, zahlenraum } from "./zahlen.js";
 import { analogie } from "./analogie.js";
@@ -20,6 +21,7 @@ export const GENERATOREN: Record<ThemaId, AufgabenGenerator> = {
   einmaleins,
   geteilt,
   geld,
+  geldlegen,
   uhrzeit,
   laengen,
   geometrie,

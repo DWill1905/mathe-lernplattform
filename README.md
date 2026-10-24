@@ -26,11 +26,12 @@ Dazu kommen zwei eigene Modi: **Puzzle** und **Rechenmeister**.
 | 🐴 Hilfsaufgaben | Bei Rechentricks und Umkehraufgaben rechnet das Kind zuerst die Hilfsaufgabe selbst – das gibt ein Pferd |
 | 👨‍👩‍👧‍👦 Aufgabenfamilien | „3 Zahlen, 4 Aufgaben“: Tausch- und Umkehraufgaben, Lücken in allen vier Formen |
 | 🧱 Mauern & Räder | Zahlenmauern (3, 6 oder 10 Steine) mit fehlendem Stein, Rechenkästen mit Fähnchen, Rechenräder in zwei Formen |
+| 💶 Geld | Münzen zählen und vergleichen, Geldgeschichten, Euro und Cent umrechnen, bezahlen, Rückgeld, Beträge passend legen |
+| 🪙 Geld legen | Die Geld-Heftseiten als eigenes Thema: Geldtabelle („mit möglichst wenig Münzen“), „Immer 10 Euro“, „Welche Münzen können es sein?“, „Streiche durch, was zu viel ist“ |
 | 🔷 Formen | Figuren erkennen, das Grundmuster bestimmen, Muster nach rechts **und links** fortsetzen, „welche Form passt nicht?“ (gedrehte und verschieden große Formen einer Gruppe), Ecken und Seiten zählen, Puzzleteile, Spiegelachsen, Umfang, Körper |
 | **Weitere Themen** | |
 | ✖️ Einmaleins | alle Reihen von 1 bis 10, Punktefelder, Umkehraufgaben |
 | ➗ Geteilt | Teilen ohne Rest, Aufgaben mit Rest |
-| 💶 Geld | Münzen zählen, Euro und Cent umrechnen, bezahlen, Rückgeld, Beträge passend legen, Geldtabelle ausfüllen und überzähliges Geld weglegen |
 | 🕒 Uhrzeit | analoge Uhr lesen, „halb“ und „Viertel vor/nach“, Zeitspannen |
 | 📏 Längen | m, cm und mm umrechnen, vergleichen, damit rechnen |
 | 📖 Sachaufgaben | Rechengeschichten mit einem und zwei Rechenschritten |

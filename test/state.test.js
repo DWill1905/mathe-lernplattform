@@ -131,3 +131,26 @@ test("der gespeicherte Stand trägt das Übergangsfeld", () => {
   assert.equal(roh.pferde, 9);
   assert.equal(roh.herzen, 9, "ohne den Spiegel verliert ein Gerät mit der alten Fassung die Pferde");
 });
+
+/*
+ * Die Geld-Heftseiten sind seit 1.43 ein eigenes Thema; ihre Aufgabentypen
+ * heißen jetzt `geldlegen/…`. Die Bilanzen unter dem alten Namen ziehen mit
+ * um – sonst würde ein Fehlerschwerpunkt nie wieder geübt.
+ */
+test("Fehler und Tempo der Geld-Heftseiten ziehen ins neue Thema um", () => {
+  localStorage.setItem(
+    SCHLUESSEL,
+    JSON.stringify({
+      fehler: { "geld/geldtabelle": 3, "geldlegen/geldtabelle": 1, "geld/zu-viel": 2, "geld/rueckgeld": 4 },
+      tempo: {
+        "geld/immer-zehn": { sekunden: 12.5, anzahl: 6 },
+        "geldlegen/immer-zehn": { sekunden: 8, anzahl: 2 },
+      },
+    })
+  );
+  const f = ladeFortschritt();
+  assert.deepEqual(f.fehler, { "geldlegen/geldtabelle": 4, "geldlegen/zu-viel": 2, "geld/rueckgeld": 4 });
+  // Bei zwei Messreihen gilt die mit mehr Messungen.
+  assert.deepEqual(f.tempo, { "geldlegen/immer-zehn": { sekunden: 12.5, anzahl: 6 } });
+  assert.ok(f.themen.geldlegen, "das neue Thema fehlt im Spielstand");
+});
