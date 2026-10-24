@@ -459,3 +459,48 @@ test("die Geldtabelle beschreibt ihre Hilfe, aber nicht die Lösung", () => {
 
   assert.ok(geprueft > 100, `nur ${geprueft} Geldtabellen gezogen`);
 });
+
+/* ---------------------------------------------------------------- Uhr */
+
+/**
+ * Keine Bildbeschreibung darf die Uhrzeit nennen, die gesucht ist.
+ *
+ * Über „Wie spät ist es?" stand „Uhr, die 1:30 Uhr zeigt" — die Lösung,
+ * wörtlich. Und bei „Welche Uhr zeigt 9:30 Uhr?" trug die richtige Karte die
+ * gesuchte Zeit im Namen. Wer die Seite mit einem Screenreader bedient, bekam
+ * die Antwort geschenkt, ohne eine Uhr gelesen zu haben.
+ *
+ * Beschrieben wird jetzt die ZEIGERSTELLUNG. Sie verrät nichts und ist genau
+ * das, was ein Kind sehen soll: Daraus die Uhrzeit zu machen ist die Aufgabe.
+ */
+test("die Uhr verrät ihre Zeit nicht in der Beschreibung", () => {
+  const geprueft = new Map();
+
+  for (const stufe of [1, 2, 3]) {
+    const rng = mulberry32(7700 + stufe);
+    for (let i = 0; i < 4000; i++) {
+      const aufgabe = GENERATOREN.uhrzeit(rng, stufe);
+      if (aufgabe.typ !== "uhrzeit/ablesen" && aufgabe.typ !== "uhrzeit/uhr-finden") continue;
+      geprueft.set(aufgabe.typ, (geprueft.get(aufgabe.typ) ?? 0) + 1);
+
+      const texte = [
+        aufgabe.bild?.beschriftung,
+        ...(aufgabe.antwortfeld.optionen ?? []).map((o) => o.beschriftung),
+      ].filter(Boolean);
+
+      assert.ok(texte.length > 0, `${aufgabe.typ}: gar keine Beschreibung`);
+      for (const text of texte) {
+        assert.ok(
+          !/\d{1,2}:\d{2}/.test(text),
+          `„${text}" nennt eine Uhrzeit – bei „${aufgabe.frage}" ist das die Lösung`
+        );
+        // Und sie muss trotzdem etwas sagen: Eine leere Beschreibung wäre
+        // genauso unlösbar, nur anders herum.
+        assert.match(text, /Zeiger/, `„${text}" beschreibt die Uhr gar nicht`);
+      }
+    }
+  }
+
+  assert.equal(geprueft.size, 2, `nicht beide Uhr-Aufgaben gezogen: ${[...geprueft.keys()]}`);
+  for (const [typ, anzahl] of geprueft) assert.ok(anzahl > 50, `nur ${anzahl} von ${typ}`);
+});

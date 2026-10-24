@@ -731,6 +731,24 @@ export function uhrzeit(rng: Rng, stufe: Stufe): Aufgabe {
   return uhrAblesen(rng, [0, 5, 10, 20, 25, 35, 40, 50, 55]);
 }
 
+/**
+ * Die Uhr so beschreiben, wie man sie ABLIEST – nicht, was sie anzeigt.
+ *
+ * „Uhr, die 1:30 Uhr zeigt" stand über der Frage „Wie spät ist es?": die
+ * Lösung, wörtlich. Und bei „Welche Uhr zeigt 9:30 Uhr?" trug die richtige
+ * Karte die gesuchte Zeit im Namen. Wer die Seite mit einem Screenreader
+ * bedient, bekam die Antwort geschenkt.
+ *
+ * Die Zeigerstellung verrät nichts und ist genau das, was ein Kind sehen
+ * soll: Daraus die Uhrzeit zu machen IST die Aufgabe.
+ */
+function uhrBeschreibung(stunde: number, minute: number): string {
+  const grosser = minute === 0 ? 12 : minute / 5;
+  const naechste = stunde === 12 ? 1 : stunde + 1;
+  const kleiner = minute === 0 ? `auf der ${stunde}` : `zwischen ${stunde} und ${naechste}`;
+  return `der kleine Zeiger steht ${kleiner}, der große auf der ${grosser}`;
+}
+
 function uhrAblesen(rng: Rng, minuten: readonly number[]): Aufgabe {
   const stunde = rng.int(1, 12);
   const minute = rng.pick(minuten);
@@ -744,7 +762,7 @@ function uhrAblesen(rng: Rng, minuten: readonly number[]): Aufgabe {
   return {
     typ: "uhrzeit/ablesen",
     frage: "Wie spät ist es?",
-    bild: { svg: uhr(stunde, minute), beschriftung: `Uhr, die ${richtig} Uhr zeigt` },
+    bild: { svg: uhr(stunde, minute), beschriftung: `Uhr: ${uhrBeschreibung(stunde, minute)}` },
     antwortfeld: auswahlfeld(rng, richtig, ablenker),
     loesung: richtig,
     tipp: "Der kurze Zeiger zeigt die Stunde, der lange die Minuten.",
@@ -780,7 +798,7 @@ function welcheUhr(rng: Rng, minuten: readonly number[]): Aufgabe {
   const optionen = gemischt.map((z, i) => ({
     kennung: kennungen[i]!,
     svg: uhr(z.stunde, z.minute),
-    beschriftung: `Uhr ${kennungen[i]}, zeigt ${uhrText(z.stunde, z.minute)} Uhr`,
+    beschriftung: `Uhr ${kennungen[i]}: ${uhrBeschreibung(z.stunde, z.minute)}`,
   }));
   const loesung = kennungen[gemischt.findIndex((z) => z.stunde === stunde && z.minute === minute)]!;
 

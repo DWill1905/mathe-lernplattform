@@ -4,6 +4,24 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.42.5] – 2026-10-24
+
+### Behoben
+
+**Die Uhr verriet ihre Zeit in der Bildbeschreibung.** Über „Wie spät ist es?"
+stand „Uhr, die 1:30 Uhr zeigt" — die Lösung, wörtlich. Und bei „Welche Uhr
+zeigt 9:30 Uhr?" trug die richtige Karte die gesuchte Zeit im Namen. Wer die
+Seite mit einem Screenreader bedient, bekam die Antwort geschenkt, ohne je
+eine Uhr gelesen zu haben.
+
+Beschrieben wird jetzt die ZEIGERSTELLUNG: „der kleine Zeiger steht zwischen 1
+und 2, der große auf der 6". Sie verrät nichts und ist genau das, was ein Kind
+sehen soll — daraus die Uhrzeit zu machen ist die Aufgabe.
+
+Die beiden anderen Uhr-Aufgaben bleiben, wie sie waren: Dort steht die Uhrzeit
+ohnehin schon in der Frage („Es ist 8:45 Uhr. Wie sagt man das?"), die
+Beschreibung wiederholt sie also nur.
+
 ## [1.42.4] – 2026-10-24
 
 ### Behoben
