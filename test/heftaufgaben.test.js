@@ -525,6 +525,32 @@ function periode(reihe) {
   return reihe.length;
 }
 
+/**
+ * Die Bildbeschreibung muss die Reihe AUFZÄHLEN, nicht bloß ankündigen.
+ *
+ * „Musterreihe aus Formen mit einer Lücke am Anfang" sagt nicht, welche Formen
+ * dort liegen — ein Kind mit Screenreader konnte das Muster nicht erkennen und
+ * die Aufgabe nicht lösen. Beim Grundmuster direkt nebenan stand es von Anfang
+ * an richtig; die beiden Fortsetzungsaufgaben waren schlicht vergessen worden.
+ */
+test("die Musterreihe steht auch in der Bildbeschreibung", () => {
+  for (const [stufe, typ] of [
+    [1, "geometrie/muster-rechts"],
+    [2, "geometrie/muster-links"],
+    [3, "geometrie/grundmuster"],
+  ]) {
+    for (const aufgabe of sammle("geometrie", stufe, typ, 40)) {
+      const imBild = reiheAusBild(aufgabe.bild.svg).map((name) => name ?? "Lücke");
+      const gesagt = aufgabe.bild.beschriftung.replace(/^Musterreihe:\s*/, "").split(", ");
+      assert.deepEqual(
+        gesagt,
+        imBild,
+        `„${aufgabe.bild.beschriftung}" nennt etwas anderes, als die Reihe zeigt`
+      );
+    }
+  }
+});
+
 test("das Muster wird durch die gesuchte Karte wieder regelmäßig", () => {
   const laengen = new Set();
   for (const [stufe, typ] of [

@@ -4,6 +4,21 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.42.4] – 2026-10-24
+
+### Behoben
+
+**Die Musterreihe war für einen Screenreader nicht zu erkennen.** Bei „Wie geht
+das Muster nach rechts weiter?" und „Welche Form gehört vorne an das Muster?"
+sagte die Bildbeschreibung nur „Musterreihe aus Formen mit einer Lücke am
+Ende" — welche Formen dort liegen, blieb offen. Ohne das ist kein Muster zu
+erkennen und die Aufgabe nicht zu lösen.
+
+Jetzt wird die Reihe aufgezählt: „Musterreihe: Kreis, Rechteck, Kreis,
+Rechteck, Kreis, Lücke". Beim Grundmuster direkt nebenan stand es von Anfang an
+so; die beiden Fortsetzungsaufgaben waren schlicht vergessen worden. Ein Test
+vergleicht jetzt für alle drei die Beschreibung mit der gezeichneten Reihe.
+
 ## [1.42.3] – 2026-10-24
 
 ### Behoben

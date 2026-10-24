@@ -182,7 +182,15 @@ function muster(rng: Rng, nachLinks: boolean, stufe: Stufe): Aufgabe {
       : "Wie geht das Muster nach rechts weiter?",
     bild: {
       svg: formenreihe(reihe),
-      beschriftung: `Musterreihe aus Formen mit einer Lücke ${nachLinks ? "am Anfang" : "am Ende"}`,
+      /*
+       * Die Reihe wird AUFGEZÄHLT, nicht bloß angekündigt.
+       *
+       * „Musterreihe aus Formen mit einer Lücke am Anfang" sagt nicht, welche
+       * Formen dort liegen – ein Kind mit Screenreader konnte das Muster gar
+       * nicht erkennen und die Aufgabe nicht lösen. Beim Grundmuster direkt
+       * nebenan stand es von Anfang an richtig.
+       */
+      beschriftung: `Musterreihe: ${reihe.map((name) => name ?? "Lücke").join(", ")}`,
       breit: true,
     },
     antwortfeld: {
