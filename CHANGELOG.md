@@ -4,6 +4,27 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.42.11] – 2026-10-24
+
+### Behoben
+
+**Plus & Minus: Die Erklärung zeigt jetzt den Weg, den der Tipp verspricht.**
+Der Tipp sagt „erst die Zehner, dann die Einer“, die Erklärung bei
+`33 − 26` rechnete aber `33 − 3 = 30`, dann `30 − 23 = 7` – also gerade
+nicht Zehner zuerst, und mit einem zweiten Schritt, der schwerer ist als die
+Aufgabe. Bei einer glatten Zahl vorn (`40 − 27`) stand sogar ein leerer
+Schritt `40 − 0 = 40` da. Jetzt: `33 − 20 = 13`, dann über den Zehner
+`13 − 3 = 10`, `10 − 3 = 7`. Beim Plus genauso.
+
+**Bis 20 gibt es eine Erklärung mit Zahlen statt eines Merksatzes.** Bei
+`11 − 3` stand „Zähle vom Ergebnis aus rückwärts“ – das Ergebnis kennt das Kind
+ja gerade nicht. Jetzt hält die Erklärung am Zehner an (`11 − 1 = 10`,
+`10 − 2 = 8`), und der Tipp spricht nicht mehr von Zehnern und Einern, wo es
+keine Zehner gibt. Auch volle Zehner und „Zehner dazu“ haben eigene Tipps.
+
+Neu ist `test/rechenweg.test.js`: Er rechnet in **allen** Themen jede
+Gleichung nach, die in einer Erklärung steht.
+
 ## [1.42.10] – 2026-10-24
 
 ### Geändert

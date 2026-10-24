@@ -661,27 +661,41 @@ function bis20(rng) {
     if (plus) {
         const a = rng.int(2, 15);
         const b = rng.int(2, 20 - a);
-        return rechenaufgabe("plusminus/bis20", a, b, "+", a + b, "Zähle vom größeren Summanden aus weiter.");
+        return rechenaufgabe("plusminus/bis20", a, b, "+", a + b, ueberDenZehner(a, b, "+"), "Zähle von der ersten Zahl aus weiter.");
     }
     const a = rng.int(6, 20);
     const b = rng.int(2, a - 1);
-    return rechenaufgabe("plusminus/bis20", a, b, "−", a - b, "Zähle vom Ergebnis aus rückwärts.");
+    return rechenaufgabe("plusminus/bis20", a, b, "−", a - b, ueberDenZehner(a, b, "−"), `Zähle von ${a} aus ${b} Schritte rückwärts.`);
+}
+/**
+ * Rechenweg bis 20 mit echten Zahlen. Geht die Rechnung über den Zehner,
+ * wird dort angehalten (8 + 5: erst 8 + 2 = 10, dann 10 + 3 = 13) – das ist
+ * der Weg, den das Heft zeigt. Sonst genügt ein Schritt.
+ */
+function ueberDenZehner(a, b, zeichen) {
+    const ergebnis = zeichen === "+" ? a + b : a - b;
+    const zehner = zeichen === "+" ? Math.ceil(a / 10) * 10 : Math.floor(a / 10) * 10;
+    const bisZehner = Math.abs(zehner - a);
+    const ueber = zeichen === "+" ? ergebnis > zehner && a < zehner : ergebnis < zehner && a > zehner;
+    if (!ueber)
+        return `${a} ${zeichen} ${b} = ${ergebnis}`;
+    return `Erst bis zur ${zehner}: ${a} ${zeichen} ${bisZehner} = ${zehner}. Dann der Rest: ${zehner} ${zeichen} ${b - bisZehner} = ${ergebnis}.`;
 }
 function volleZehner(rng) {
     const plus = rng.chance(0.5);
     if (plus) {
         const a = rng.int(1, 8) * 10;
         const b = rng.int(1, (100 - a) / 10) * 10;
-        return rechenaufgabe("plusminus/zehner", a, b, "+", a + b, `Rechne in Zehnern: ${a / 10} + ${b / 10} = ${(a + b) / 10} Zehner.`);
+        return rechenaufgabe("plusminus/zehner", a, b, "+", a + b, `Rechne in Zehnern: ${a / 10} + ${b / 10} = ${(a + b) / 10} Zehner.`, `Rechne in Zehnern: ${a} sind ${a / 10} Zehner.`);
     }
     const a = rng.int(3, 10) * 10;
     const b = rng.int(1, a / 10 - 1) * 10;
-    return rechenaufgabe("plusminus/zehner", a, b, "−", a - b, `Rechne in Zehnern: ${a / 10} − ${b / 10} = ${(a - b) / 10} Zehner.`);
+    return rechenaufgabe("plusminus/zehner", a, b, "−", a - b, `Rechne in Zehnern: ${a / 10} − ${b / 10} = ${(a - b) / 10} Zehner.`, `Rechne in Zehnern: ${a} sind ${a / 10} Zehner.`);
 }
 function zehnerPlus(rng) {
     const a = rng.int(11, 79);
     const b = rng.int(1, Math.floor((99 - a) / 10)) * 10;
-    return rechenaufgabe("plusminus/zehner-dazu", a, b, "+", a + b, "Beim Zehner-Dazuzählen bleibt die Einerstelle gleich.");
+    return rechenaufgabe("plusminus/zehner-dazu", a, b, "+", a + b, `${a} + ${b} = ${a + b} – beim Zehner-Dazuzählen bleibt die Einerstelle gleich.`, "Nur die Zehnerstelle ändert sich.");
 }
 function ohneUebergang(rng) {
     const plus = rng.chance(0.5);
@@ -711,8 +725,9 @@ function mitUebergang(rng) {
         const zehnerB = rng.int(1, 8 - zehnerA);
         const a = zehnerA * 10 + einerA;
         const b = zehnerB * 10 + einerB;
+        const nachZehnern = a + zehnerB * 10;
         const bisZehner = 10 - einerA;
-        return rechenaufgabe("plusminus/mit-uebergang", a, b, "+", a + b, `Erst zum nächsten Zehner: ${a} + ${bisZehner} = ${a + bisZehner}. Dann der Rest: ${a + bisZehner} + ${b - bisZehner} = ${a + b}.`);
+        return rechenaufgabe("plusminus/mit-uebergang", a, b, "+", a + b, `Erst die Zehner: ${a} + ${zehnerB * 10} = ${nachZehnern}. Dann die Einer über den Zehner: ${nachZehnern} + ${bisZehner} = ${nachZehnern + bisZehner}, ${nachZehnern + bisZehner} + ${einerB - bisZehner} = ${a + b}.`);
     }
     const zehnerA = rng.int(3, 9);
     const einerA = rng.int(0, 7);
@@ -720,7 +735,13 @@ function mitUebergang(rng) {
     const zehnerB = rng.int(1, zehnerA - 1);
     const a = zehnerA * 10 + einerA;
     const b = zehnerB * 10 + einerB;
-    return rechenaufgabe("plusminus/mit-uebergang", a, b, "−", a - b, `Erst bis zum Zehner: ${a} − ${einerA} = ${a - einerA}. Dann der Rest: ${a - einerA} − ${b - einerA} = ${a - b}.`);
+    const nachZehnern = a - zehnerB * 10;
+    // Bei einer glatten Zahl vorn (40 − 27) liegt man nach den Zehnern schon
+    // auf dem Zehner; ein Schritt „20 − 0 = 20“ wäre nur Rauschen.
+    const einer = einerA === 0
+        ? `Dann die Einer: ${nachZehnern} − ${einerB} = ${a - b}.`
+        : `Dann die Einer über den Zehner: ${nachZehnern} − ${einerA} = ${nachZehnern - einerA}, ${nachZehnern - einerA} − ${einerB - einerA} = ${a - b}.`;
+    return rechenaufgabe("plusminus/mit-uebergang", a, b, "−", a - b, `Erst die Zehner: ${a} − ${zehnerB * 10} = ${nachZehnern}. ${einer}`);
 }
 function platzhalter(rng) {
     const a = rng.int(12, 60);
@@ -805,14 +826,14 @@ function ergaenzeZumZehner(rng, stufe) {
         erklaerung: `${ziel} − ${start} = ${loesung}`,
     };
 }
-function rechenaufgabe(typ, a, b, zeichen, loesung, erklaerung) {
+function rechenaufgabe(typ, a, b, zeichen, loesung, erklaerung, tipp = "Rechne in zwei Schritten: erst die Zehner, dann die Einer.") {
     return {
         typ,
         frage: "Wie lautet das Ergebnis?",
         rechnung: `${a} ${zeichen} ${b} =`,
         antwortfeld: zahlfeld(),
         loesung: String(loesung),
-        tipp: "Rechne in zwei Schritten: erst die Zehner, dann die Einer.",
+        tipp,
         erklaerung,
     };
 }
