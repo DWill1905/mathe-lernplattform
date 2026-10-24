@@ -30,7 +30,7 @@ Dazu kommen zwei eigene Modi: **Puzzle** und **Rechenmeister**.
 | **Weitere Themen** | |
 | ✖️ Einmaleins | alle Reihen von 1 bis 10, Punktefelder, Umkehraufgaben |
 | ➗ Geteilt | Teilen ohne Rest, Aufgaben mit Rest |
-| 💶 Geld | Münzen zählen, Euro und Cent umrechnen, bezahlen, Rückgeld und Beträge passend legen |
+| 💶 Geld | Münzen zählen, Euro und Cent umrechnen, bezahlen, Rückgeld, Beträge passend legen, Geldtabelle ausfüllen und überzähliges Geld weglegen |
 | 🕒 Uhrzeit | analoge Uhr lesen, „halb“ und „Viertel vor/nach“, Zeitspannen |
 | 📏 Längen | m, cm und mm umrechnen, vergleichen, damit rechnen |
 | 📖 Sachaufgaben | Rechengeschichten mit einem und zwei Rechenschritten |
@@ -131,7 +131,7 @@ src/
   gamification.ts   Punkte, Level, Sterne, Streak, Abzeichen
   random.ts         mulberry32 – die einzige Zufallsquelle
   icons.ts          das Symbolset (35 Icons im 24er-Raster, currentColor)
-  figures.ts        Erklärbilder als SVG (Uhr, Geld, Formen, Zahlenmauern, Rechenräder, Tabellen …)
+  figures.ts        Erklärbilder als SVG (Uhr, Geld, Geldtabelle, Formen, Zahlenmauern, Rechenräder, Tabellen …)
   bilder.ts         farbige Illustrationen: ein Bild je Thema, Puzzlemotive
   eule.ts           die Zahleneule als Maskottchen: fünf Posen aus einem Baukasten
   jubel.ts          die Überraschungen nach einer richtigen Antwort

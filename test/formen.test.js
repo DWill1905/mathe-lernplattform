@@ -128,7 +128,11 @@ test("zerlegeEuro ergibt zusammen wieder den Betrag", () => {
 test("beim Geldlegen führt nur eine Auswahl zum Preis", () => {
   const rng = mulberry32(1212);
   let aufgaben = 0;
-  for (let i = 0; i < 600; i++) {
+  // 1200 statt 600 Ziehungen: Stufe 3 hat seit den Geld-Heftseiten mehr
+  // Aufgabenarten, der Anteil des Geldlegens ist entsprechend kleiner. Die
+  // Prüfung selbst bleibt unverändert – nur die Stichprobe wird wieder groß
+  // genug, damit die Schlusszeile etwas misst.
+  for (let i = 0; i < 1200; i++) {
     const aufgabe = GENERATOREN.geld(rng, 3);
     if (aufgabe.typ !== "geld/betrag-legen") continue;
     aufgaben++;

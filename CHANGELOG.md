@@ -4,6 +4,71 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.42.0] – 2026-10-24
+
+### Hinzugefügt
+
+Vier Aufgabenformen von den Geld-Heftseiten.
+
+**Die Geldtabelle** („Geld legen (Cent)" und „(Euro)"). Links der Betrag, dann
+je eine Spalte pro Münzen- und Scheinsorte — eingetragen wird, wie viele Stücke
+man braucht, wenn man möglichst wenige nimmt. Im Heft füllt das Kind die ganze
+Zeile aus; hier ist genau EIN Feld markiert, dieselbe Entscheidung wie bei der
+Rechentabelle, damit die Zahlentastatur genügt.
+
+Die Stufe steuert dabei die Hilfe, nicht den Zahlenraum: Auf Stufe 2 stehen die
+größeren Sorten links schon in der Tabelle, es ist also nur der Rest zu
+zerlegen; auf Stufe 3 ist die Zeile leer.
+
+**„Welche Münzen können es sein?"** — vier Münzgruppen als Bildkarten, genau
+eine ergibt den gesuchten Betrag. Anders als beim Geldlegen ist hier
+ausdrücklich NICHT der kürzeste Weg gefragt: Für 40 ct sind viermal 10, zweimal
+20 und 20 + 10 + 10 alle drei richtig, und genau darum geht es auf der
+Heftseite.
+
+**„Immer 10 Euro"** — dieselbe Form mit Scheinen und Münzen bis 5 €.
+
+**„Streiche durch, was zu viel ist."** Auf dem Tisch liegt ein Stück mehr, als
+der Preis verlangt. Gebaut wird von der Lösung her — erst eine Zerlegung des
+Preises, dann genau ein zusätzliches Stück —, damit die Differenz immer der
+Wert dieses einen Stücks ist und es keine zweite Antwort gibt.
+
+### Geändert
+
+**Die Münzen und Scheine lassen sich jetzt in zwei Größen zeichnen.** Dieselbe
+Münze liegt einmal groß im Erklärbild und steht einmal klein im Kopf der
+Geldtabelle; Schrift und Strichstärke wachsen mit, sonst wird die Beschriftung
+unleserlich.
+
+### Bemerkenswert beim Bauen
+
+**Bei der Geldtabelle wäre die Antwort in 77 % der Fälle eine 1 gewesen.** Zieht
+man erst einen Betrag und darin eine Spalte, ist das unvermeidlich: Bis 99 kommt
+jede Sorte höchstens zweimal vor, und zweimal wird sie nur bei wenigen Beträgen
+gebraucht. Ein Kind, das das merkt, rät statt zu rechnen — dieselbe Falle wie
+beim Geldlegen und bei der Rechentabelle. Jetzt wird erst die gesuchte
+Stückzahl gezogen und dann ein Betrag, der sie hergibt: 20 % / 39 % / 40 % auf
+die Antworten 0, 1 und 2. Ein Test hält fest, dass keine über 55 % kommt.
+
+**Ablenker mit gleicher Stückzahl.** Bei beiden Bildauswahl-Formen entsteht ein
+Ablenker, indem in der richtigen Gruppe genau ein Stück getauscht wird. Damit
+haben alle vier Karten gleich viele Münzen — sonst verriete schon die Anzahl,
+welche gemeint ist.
+
+**Ein stiller Notnagel in 19 % der Fälle.** Aus manchen Gruppen lassen sich
+keine drei verschiedenen Ablenker bauen: Bei 10 € als 5 € + 5 € gibt der Tausch
+eines Stücks nur zwei andere Gruppen her. Die Aufgabe wich dann auf eine ganz
+andere aus — sichtbar daran, dass `geld/betrag-legen` plötzlich auf Stufe 2
+auftauchte, wo es gar nicht vorgesehen ist. Jetzt werden mehrere Anläufe
+genommen, und „Immer 10 Euro“ verlangt mindestens drei Stücke. Ein Test hält
+fest, dass auf Stufe 2 keine fremde Aufgabenart erscheint.
+
+**Nicht erfasst war das kein Zufall.** Der bestehende Test „beim Geldlegen
+führt nur eine Auswahl zum Preis“ schlug an, weil seine Stichprobe zu klein
+wurde — vier neue Aufgabenarten auf Stufe 3 drücken den Anteil jeder einzelnen.
+Seine Prüfungen sind unverändert geblieben, nur die Zahl der Ziehungen ist
+gestiegen, damit die Schlusszeile wieder etwas misst.
+
 ## [1.41.0] – 2026-09-19
 
 ### Behoben

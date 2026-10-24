@@ -244,6 +244,19 @@ verwässern.
 - **Rechenmeister und Puzzle sind Betriebsarten der Übungsansicht**, keine
   eigenen Dateien – sie haben aber je einen Eintrag in `ANSICHTEN`, damit die Routen
   `#/rechenmeister` und `#/puzzle` auch offline vorgeladen werden.
+- **Die Geldtabelle fragt genau EIN Feld, und die Stückzahl bestimmt den
+  Betrag.** Im Heft füllt das Kind eine ganze Zeile aus; hier ist nur ein Feld
+  markiert – dieselbe Entscheidung wie bei der Rechentabelle, damit die
+  Zahlentastatur genügt. Die Stufe steuert die HILFE, nicht den Zahlenraum: Auf
+  Stufe 2 stehen die größeren Sorten links schon da, auf Stufe 3 ist die Zeile
+  leer. Und die Reihenfolge ist verdreht gemeint: Erst wird die gesuchte
+  STÜCKZAHL gezogen, dann ein Betrag, der sie hergibt. Zieht man zuerst den
+  Betrag, ist die Antwort in 77 % der Fälle eine 1 – bis 99 kommt jede Sorte
+  höchstens zweimal vor, und zweimal nur bei wenigen Beträgen. Ein Test in
+  `geldaufgaben.test.js` hält fest, dass keine Antwort über 55 % kommt.
+- **„Größte Sorte zuerst" ist nur bei 1, 2, 5, 10, 20, 50 wirklich das
+  Minimum.** Bei einem anderen Satz (etwa 1, 3, 4) wäre es falsch; deshalb
+  steht die Begründung bei `sortenAnzahl()` und nicht als allgemeine Regel.
 - **Bei der Rechentabelle steht die Rechnung bewusst NICHT im Text.** Das
   Ablesen von Zeile und Spalte ist die eigentliche Übung; für Screenreader
   steckt die Aufgabe in der Bildbeschreibung. Ein Test hält das fest.

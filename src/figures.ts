@@ -76,22 +76,97 @@ export function geldbild(werte: readonly number[]): string {
   return huelle(breite, hoehe, teile);
 }
 
-function muenze(x: number, y: number, cent: number): string {
+/**
+ * Eine Münze. `radius` ist einstellbar, weil dieselbe Münze einmal groß im
+ * Erklärbild liegt und einmal klein im Kopf der Geldtabelle steht; Schrift und
+ * Strichstärke wachsen mit, sonst wird die Beschriftung unleserlich.
+ */
+function muenze(x: number, y: number, cent: number, radius = 31): string {
   const klasse = cent >= 100 ? "fig-muenze-euro" : cent >= 10 ? "fig-muenze-gold" : "fig-muenze-kupfer";
   const beschriftung = cent >= 100 ? `${cent / 100} €` : `${cent} ct`;
+  const schrift = Math.round(radius * 0.55);
   return (
-    `<circle cx="${x}" cy="${y}" r="31" class="${klasse}"/>` +
-    `<circle cx="${x}" cy="${y}" r="31" class="fig-linie" fill="none" stroke-width="2.5"/>` +
-    `<text x="${x}" y="${y + 6}" class="fig-muenze-text" text-anchor="middle" font-size="17">${beschriftung}</text>`
+    `<circle cx="${x}" cy="${y}" r="${radius}" class="${klasse}"/>` +
+    `<circle cx="${x}" cy="${y}" r="${radius}" class="fig-linie" fill="none" stroke-width="${r(radius * 0.08)}"/>` +
+    `<text x="${x}" y="${y + schrift / 2.7}" class="fig-muenze-text" text-anchor="middle" font-size="${schrift}">${beschriftung}</text>`
   );
 }
 
-function schein(x: number, y: number, cent: number): string {
+function schein(x: number, y: number, cent: number, radius = 31): string {
+  const halbBreite = r(radius * 1.1);
+  const halbHoehe = r(radius * 0.68);
+  const schrift = Math.round(radius * 0.55);
   return (
-    `<rect x="${x - 34}" y="${y - 21}" width="68" height="42" rx="5" class="fig-schein"/>` +
-    `<rect x="${x - 34}" y="${y - 21}" width="68" height="42" rx="5" class="fig-linie" fill="none" stroke-width="2.5"/>` +
-    `<text x="${x}" y="${y + 6}" class="fig-muenze-text" text-anchor="middle" font-size="17">${cent / 100} €</text>`
+    `<rect x="${x - halbBreite}" y="${y - halbHoehe}" width="${halbBreite * 2}" height="${halbHoehe * 2}" rx="5" class="fig-schein"/>` +
+    `<rect x="${x - halbBreite}" y="${y - halbHoehe}" width="${halbBreite * 2}" height="${halbHoehe * 2}" rx="5" class="fig-linie" fill="none" stroke-width="${r(radius * 0.08)}"/>` +
+    `<text x="${x}" y="${y + schrift / 2.7}" class="fig-muenze-text" text-anchor="middle" font-size="${schrift}">${cent / 100} €</text>`
   );
+}
+
+/* ---------------------------------------------------------- Geldtabelle */
+
+/** Breite der Betragsspalte, Breite einer Sortenspalte, Höhen der zwei Zeilen. */
+const GELD_BETRAG_BREITE = 96;
+const GELD_SPALTE_BREITE = 60;
+const GELD_KOPF_HOEHE = 58;
+const GELD_ZEILE_HOEHE = 48;
+
+/**
+ * Eine Zeile der Geldtabelle aus dem Heft: links der Betrag, dann je eine
+ * Spalte für eine Münzen- oder Scheinsorte. Eingetragen wird, WIE VIELE Stücke
+ * jeder Sorte man braucht.
+ *
+ * Genau EIN Feld ist markiert und trägt ein Fragezeichen – dieselbe Regel wie
+ * bei der Rechentabelle: So bleibt die Aufgabe mit der Zahlentastatur
+ * bedienbar, statt sechs Felder auf einmal zu verlangen. Felder, die schon
+ * ausgefüllt sind, zeigen ihre Zahl; die übrigen bleiben leer.
+ *
+ * Jede Zelle gibt ein Textelement aus, auch ein leeres – nur dadurch lässt
+ * sich die Tabelle im Test aus dem BILD zurücklesen statt aus den
+ * Zwischenwerten des Generators.
+ */
+export function geldtabelle(
+  betragText: string,
+  sorten: readonly number[],
+  gezeigt: readonly (number | null)[],
+  markiert: number
+): string {
+  const breite = GELD_BETRAG_BREITE + sorten.length * GELD_SPALTE_BREITE;
+  const hoehe = GELD_KOPF_HOEHE + GELD_ZEILE_HOEHE;
+
+  const rahmen = (x: number, y: number, b: number, h: number, klasse: string): string =>
+    `<rect x="${x}" y="${y}" width="${b}" height="${h}" class="${klasse}"/>` +
+    `<rect x="${x}" y="${y}" width="${b}" height="${h}" class="fig-linie" fill="none" stroke-width="2"/>`;
+
+  // Kopf: links das Wort „Betrag", rechts je Spalte die Münze oder der Schein.
+  let teile = rahmen(0, 0, GELD_BETRAG_BREITE, GELD_KOPF_HOEHE, "fig-tabelle-kopf");
+  teile += `<text x="${GELD_BETRAG_BREITE / 2}" y="${GELD_KOPF_HOEHE / 2 + 6}" class="fig-text" text-anchor="middle" font-size="18">Betrag</text>`;
+  sorten.forEach((wert, i) => {
+    const x = GELD_BETRAG_BREITE + i * GELD_SPALTE_BREITE;
+    teile += rahmen(x, 0, GELD_SPALTE_BREITE, GELD_KOPF_HOEHE, "fig-tabelle-kopf");
+    const mitte = x + GELD_SPALTE_BREITE / 2;
+    teile += wert >= 500 ? schein(mitte, GELD_KOPF_HOEHE / 2, wert, 22) : muenze(mitte, GELD_KOPF_HOEHE / 2, wert, 22);
+  });
+
+  // Zeile: der Betrag und die Felder.
+  teile += rahmen(0, GELD_KOPF_HOEHE, GELD_BETRAG_BREITE, GELD_ZEILE_HOEHE, "fig-tabelle-kopf");
+  teile += `<text x="${GELD_BETRAG_BREITE / 2}" y="${GELD_KOPF_HOEHE + GELD_ZEILE_HOEHE / 2 + 7}" class="fig-text" text-anchor="middle" font-size="20">${betragText}</text>`;
+  sorten.forEach((_, i) => {
+    const x = GELD_BETRAG_BREITE + i * GELD_SPALTE_BREITE;
+    const istMarkiert = i === markiert;
+    teile += rahmen(
+      x,
+      GELD_KOPF_HOEHE,
+      GELD_SPALTE_BREITE,
+      GELD_ZEILE_HOEHE,
+      istMarkiert ? "fig-stein-luecke" : "fig-tabelle-feld"
+    );
+    const wert = gezeigt[i];
+    const text = istMarkiert ? "?" : wert === null || wert === undefined ? "" : String(wert);
+    teile += `<text x="${x + GELD_SPALTE_BREITE / 2}" y="${GELD_KOPF_HOEHE + GELD_ZEILE_HOEHE / 2 + 7}" class="${istMarkiert ? "fig-text-marke" : "fig-text"}" text-anchor="middle" font-size="20">${text}</text>`;
+  });
+
+  return huelle(breite, hoehe, teile);
 }
 
 /* ------------------------------------------------------------- Formen */
