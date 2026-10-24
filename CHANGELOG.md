@@ -4,6 +4,28 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.42.3] – 2026-10-24
+
+### Behoben
+
+**Die neuen Geldaufgaben waren für einen Screenreader stumm.** Die vier
+Bildkarten sagten „Gruppe A" bis „Gruppe D" und sonst nichts; beim überzähligen
+Geld stand „5 Geldstücke, zusammen 12 €", ohne zu verraten, WELCHE dort liegen.
+Beide Aufgaben waren damit ohne Augenlicht schlicht unlösbar.
+
+Anders als beim Formenerkennen ist das hier gefahrlos: Geld lässt sich in
+Worten ausdrücken, ohne die Lösung zu verraten — zusammenzählen muss man immer
+noch selbst. Jetzt heißt es „Gruppe A: 50 ct, 10 ct, 5 ct, 2 ct" und „Hier
+liegen: 5 €, 2 €, 2 €, 2 €, 1 €".
+
+**Die Hilfe der Geldtabelle war unsichtbar.** Auf Stufe 2 stehen die größeren
+Sorten schon in der Tabelle — die Bildbeschreibung erwähnte sie nicht, und ein
+Kind mit Screenreader bekam dort die schwerere Aufgabe. Sie werden jetzt
+genannt, die Zahl der gefragten Spalte natürlich nicht.
+
+Drei Tests lesen dafür beides — Bild und Beschreibung — und vergleichen sie
+miteinander.
+
 ## [1.42.2] – 2026-10-24
 
 ### Behoben

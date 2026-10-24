@@ -139,7 +139,18 @@ function geldTabellenZeile(rng, stufe) {
         frage: `Lege ${betragText} mit möglichst wenig Scheinen und Münzen. Wie viele ${sortenBindestrich(sorte)} brauchst du?`,
         bild: {
             svg: geldtabelle(betragText, sorten, gezeigt, markiert),
-            beschriftung: `Geldtabelle für ${betragText}; gefragt ist die Spalte ${sortenName(sorte)}`,
+            /*
+             * Die schon eingetragenen Spalten gehören in die Beschreibung: Sie sind
+             * die Hilfe der Stufe 2, und ohne sie bekäme ein Kind mit Screenreader
+             * dort die schwerere Aufgabe. Die gefragte Spalte wird benannt, ihre
+             * Zahl natürlich nicht.
+             */
+            beschriftung: `Geldtabelle für ${betragText}. ${gezeigt.some((wert) => wert !== null)
+                ? `Schon eingetragen: ${sorten
+                    .map((wert, i) => (gezeigt[i] === null ? null : `${gezeigt[i]} bei ${sortenName(wert)}`))
+                    .filter((teil) => teil !== null)
+                    .join(", ")}.`
+                : "Die Zeile ist noch leer."} Gefragt ist die Spalte ${sortenName(sorte)}.`,
             breit: true,
         },
         antwortfeld: zahlfeld(wort),
@@ -235,7 +246,15 @@ function gruppeFinden(rng, typ, ziel, sorten, maxStuecke, frage, minStuecke = 2)
         const optionen = gemischt.map((gruppe, i) => ({
             kennung: kennungen[i],
             svg: geldbild(gruppe),
-            beschriftung: `Gruppe ${kennungen[i]}`,
+            /*
+             * Die Karte sagt, WAS auf ihr liegt – nicht nur, dass sie Karte A ist.
+             *
+             * Anders als beim Formenerkennen lässt sich Geld in Worten ausdrücken,
+             * ohne die Lösung zu verraten: Zusammenzählen muss man immer noch
+             * selbst. Mit „Gruppe A" allein war die Aufgabe für einen Screenreader
+             * schlicht unlösbar.
+             */
+            beschriftung: `Gruppe ${kennungen[i]}: ${gruppe.map(sortenName).join(", ")}`,
         }));
         const loesung = kennungen[gemischt.findIndex((g) => g === richtigeGruppe)];
         const alsText = richtigeGruppe.map(sortenName).join(" + ");
@@ -312,7 +331,9 @@ function zuViel(rng) {
         frage: `Hier liegen ${text(summe)}. Du sollst aber nur ${text(preis)} bezahlen. Ein Geldstück ist zu viel. Welches musst du weglegen?`,
         bild: {
             svg: geldbild(liegt),
-            beschriftung: `${liegt.length} Geldstücke, zusammen ${text(summe)}`,
+            // Ohne die Aufzählung ist nicht zu erkennen, WAS dort liegt – und damit
+            // auch nicht, welches Stück zu viel ist.
+            beschriftung: `Hier liegen: ${liegt.map(sortenName).join(", ")}`,
         },
         antwortfeld: zahlfeld(inEuro ? "€" : "ct"),
         loesung: String(inEuro ? zuvielWert / 100 : zuvielWert),

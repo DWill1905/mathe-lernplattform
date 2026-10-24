@@ -347,3 +347,115 @@ test("die Geldtabelle hält, was die Stufe verspricht", () => {
     `auf Stufe 3 steht in ${drei.gezogen - drei.ohneHilfe} Tabellen schon eine Hilfe`
   );
 });
+
+/* ------------------------------------------- Was ein Screenreader hört */
+
+/**
+ * Die Bildbeschreibung muss alles enthalten, was im Bild steht — sonst ist
+ * die Aufgabe ohne Augenlicht gar nicht lösbar.
+ *
+ * Anders als beim Formenerkennen ist das hier gefahrlos: Geld lässt sich in
+ * Worten ausdrücken, ohne die Lösung zu verraten — zusammenzählen muss man
+ * immer noch selbst. Die Bildkarten sagten anfangs nur „Gruppe A".
+ */
+test("jede Geldgruppe sagt, was auf ihr liegt", () => {
+  let geprueft = 0;
+
+  for (const [typ, stufe] of [
+    ["geld/welche-muenzen", 1],
+    ["geld/immer-zehn", 2],
+  ]) {
+    const rng = mulberry32(3300 + stufe);
+    for (let i = 0; i < 6000 && geprueft < 400; i++) {
+      const aufgabe = GENERATOREN.geld(rng, stufe);
+      if (aufgabe.typ !== typ) continue;
+      geprueft++;
+
+      for (const option of aufgabe.antwortfeld.optionen) {
+        // Aus dem BILD gelesen …
+        const imBild = texte(option.svg)
+          .filter((t) => t.klasse === "fig-muenze-text")
+          .map((t) => inCent(t.text));
+        // … und aus der Beschreibung.
+        const gesagt = [...option.beschriftung.matchAll(/([\d.]+ (?:ct|€))/g)].map((t) => inCent(t[1]));
+
+        assert.deepEqual(
+          [...gesagt].sort((a, b) => a - b),
+          [...imBild].sort((a, b) => a - b),
+          `„${option.beschriftung}" nennt etwas anderes, als im Bild liegt`
+        );
+      }
+    }
+  }
+
+  assert.ok(geprueft > 100, `nur ${geprueft} Gruppenaufgaben gezogen`);
+});
+
+test("beim überzähligen Geld sagt das Bild, was dort liegt", () => {
+  const rng = mulberry32(3400);
+  let geprueft = 0;
+
+  for (let i = 0; i < 8000 && geprueft < 300; i++) {
+    const aufgabe = GENERATOREN.geld(rng, 3);
+    if (aufgabe.typ !== "geld/zu-viel") continue;
+    geprueft++;
+
+    const imBild = texte(aufgabe.bild.svg)
+      .filter((t) => t.klasse === "fig-muenze-text")
+      .map((t) => inCent(t.text));
+    const gesagt = [...aufgabe.bild.beschriftung.matchAll(/([\d.]+ (?:ct|€))/g)].map((t) => inCent(t[1]));
+
+    assert.deepEqual(
+      [...gesagt].sort((a, b) => a - b),
+      [...imBild].sort((a, b) => a - b),
+      `„${aufgabe.bild.beschriftung}" nennt etwas anderes, als im Bild liegt`
+    );
+  }
+
+  assert.ok(geprueft > 50, `nur ${geprueft} Aufgaben gezogen`);
+});
+
+/**
+ * Bei der Geldtabelle gilt beides: Die schon eingetragenen Spalten sind die
+ * Hilfe der Stufe 2 und gehören in die Beschreibung — die Zahl der GEFRAGTEN
+ * Spalte natürlich nicht.
+ */
+test("die Geldtabelle beschreibt ihre Hilfe, aber nicht die Lösung", () => {
+  let geprueft = 0;
+
+  for (const stufe of [2, 3]) {
+    const rng = mulberry32(3500 + stufe);
+    for (let i = 0; i < 6000 && geprueft < 400; i++) {
+      const aufgabe = GENERATOREN.geld(rng, stufe);
+      if (aufgabe.typ !== "geld/geldtabelle") continue;
+      geprueft++;
+
+      const tabelle = lesGeldtabelle(aufgabe.bild.svg);
+      const text = aufgabe.bild.beschriftung;
+
+      // Jede ausgefüllte Spalte muss mit ihrer Zahl genannt sein.
+      tabelle.gezeigt.forEach((wert, spalte) => {
+        if (wert === null) return;
+        const sorte = tabelle.sorten[spalte];
+        const name = sorte >= 100 ? `${sorte / 100} €` : `${sorte} ct`;
+        assert.ok(
+          text.includes(`${wert} bei ${name}`),
+          `„${text}" verschweigt die eingetragene Spalte ${name}`
+        );
+      });
+
+      // Die gefragte Spalte wird benannt …
+      const gefragt = tabelle.sorten[tabelle.markiert];
+      const gefragtName = gefragt >= 100 ? `${gefragt / 100} €` : `${gefragt} ct`;
+      assert.ok(text.includes(`Spalte ${gefragtName}`), `„${text}" sagt nicht, welche Spalte gefragt ist`);
+
+      // … aber ihre Zahl steht nirgends.
+      assert.ok(
+        !text.includes(`${aufgabe.loesung} bei ${gefragtName}`),
+        `„${text}" verrät die Lösung`
+      );
+    }
+  }
+
+  assert.ok(geprueft > 100, `nur ${geprueft} Geldtabellen gezogen`);
+});
