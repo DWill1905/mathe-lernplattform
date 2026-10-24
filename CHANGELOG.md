@@ -4,6 +4,23 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.42.14] – 2026-10-24
+
+### Behoben
+
+**Uhrzeit: Die Zeitspanne wird jetzt über die volle Stunde erklärt.** Der
+Tipp lautete immer „Rechne zuerst bis zur nächsten vollen Stunde“ – auch bei
+„18:15 bis 18:35“, wo es keine gibt. Und die Erklärung ging den versprochenen
+Weg gar nicht, sondern sagte „Eine Stunde hat 60 Minuten“ und dann das
+Ergebnis. Jetzt: „Von 8:45 bis 9:00 sind es 15 Minuten, von 9:00 bis 9:30 sind
+es 30 Minuten. Zusammen: 15 + 30 = 45 Minuten.“ Ohne volle Stunde dazwischen
+fragt der Tipp „Wie viele Minuten sind es von 15 bis 35?“.
+
+**Längen: „Welche Länge ist länger?“ heißt jetzt „Was ist länger?“**, und die
+Erklärung vergleicht beide Zahlen („200 cm sind mehr als 134 cm – also ist
+2 m länger“) statt nur „200 cm ist mehr“. Beim Zusammenzählen von Längen
+steht die Einheit jetzt auch in der Erklärung.
+
 ## [1.42.13] – 2026-10-24
 
 ### Behoben

@@ -867,9 +867,42 @@ function zeitspanne(rng: Rng): Aufgabe {
     frage: `Der Film beginnt um ${uhrText(stunde, startMinute)} Uhr und endet um ${uhrText(endStunde, endMinute)} Uhr. Wie viele Minuten dauert er?`,
     antwortfeld: zahlfeld("Minuten"),
     loesung: String(dauer),
-    tipp: "Rechne zuerst bis zur nächsten vollen Stunde.",
-    erklaerung: `Eine Stunde hat 60 Minuten. Von ${uhrText(stunde, startMinute)} bis ${uhrText(endStunde, endMinute)} sind es ${dauer} Minuten.`,
+    // „Bis zur nächsten vollen Stunde“ hilft nur, wenn die Spanne auch über
+    // eine volle Stunde läuft; bei 18:15 bis 18:35 gibt es keine.
+    tipp:
+      endStunde > stunde
+        ? "Rechne zuerst bis zur nächsten vollen Stunde."
+        : `Wie viele Minuten sind es von ${startMinute} bis ${endMinute}?`,
+    erklaerung: zeitspanneErklaeren(stunde, startMinute, endStunde, endMinute),
   };
+}
+
+/**
+ * Der Weg über die vollen Stunden, mit echten Uhrzeiten: „Von 8:45 bis 9:00
+ * sind es 15 Minuten, von 9:00 bis 9:30 noch 30. Zusammen 45 Minuten.“
+ * Vorher stand nur „Eine Stunde hat 60 Minuten“ und dann das Ergebnis – der
+ * Rechenweg, den der Tipp verspricht, kam darin gar nicht vor.
+ */
+function zeitspanneErklaeren(stunde: number, startMinute: number, endStunde: number, endMinute: number): string {
+  const dauer = (endStunde - stunde) * 60 + endMinute - startMinute;
+  const von = uhrText(stunde, startMinute);
+  const bis = uhrText(endStunde, endMinute);
+  // Auch 8:30 bis 9:00 ist nur EIN Abschnitt – ein „Zusammen: 30 = 30“ wäre Unsinn.
+  if (endStunde === stunde || (endMinute === 0 && endStunde === stunde + 1)) {
+    return `Von ${von} bis ${bis} sind es ${dauer} Minuten.`;
+  }
+  const teile: number[] = [];
+  const halte: string[] = [];
+  let zeit = stunde * 60 + startMinute;
+  const ende = endStunde * 60 + endMinute;
+  while (zeit < ende) {
+    const naechste = Math.min(ende, (Math.floor(zeit / 60) + 1) * 60);
+    teile.push(naechste - zeit);
+    halte.push(`von ${uhrText(Math.floor(zeit / 60), zeit % 60)} bis ${uhrText(Math.floor(naechste / 60), naechste % 60)} sind es ${naechste - zeit} Minuten`);
+    zeit = naechste;
+  }
+  const satz = halte.join(", ");
+  return `${satz.charAt(0).toUpperCase()}${satz.slice(1)}. Zusammen: ${teile.join(" + ")} = ${dauer} Minuten.`;
 }
 
 function spaeter(rng: Rng): Aufgabe {
@@ -989,7 +1022,7 @@ function cmInMm(rng: Rng): Aufgabe {
 
 function laengeVergleichen(rng: Rng): Aufgabe {
   const mWert = rng.int(1, 3);
-  // Gleich lang darf es nie sein – sonst hat „Welche Länge ist länger?“
+  // Gleich lang darf es nie sein – sonst hat „Was ist länger?“
   // gar keine richtige Antwort.
   let cmWert = rng.int(30, 250);
   while (cmWert === mWert * 100) cmWert = rng.int(30, 250);
@@ -998,12 +1031,12 @@ function laengeVergleichen(rng: Rng): Aufgabe {
   const b = `${mWert} m`;
   return {
     typ: "laengen/vergleich",
-    frage: "Welche Länge ist länger?",
+    frage: "Was ist länger?",
     rechnung: `${a}   oder   ${b}`,
     antwortfeld: { art: "auswahl", optionen: rng.shuffle([a, b]) },
     loesung: laengerIstCm ? a : b,
     tipp: "Rechne beides in Zentimeter um.",
-    erklaerung: `${mWert} m sind ${mWert * 100} cm. ${Math.max(cmWert, mWert * 100)} cm ist mehr.`,
+    erklaerung: `${mWert} m sind ${mWert * 100} cm. ${Math.max(cmWert, mWert * 100)} cm sind mehr als ${Math.min(cmWert, mWert * 100)} cm – also ist ${laengerIstCm ? a : b} länger.`,
   };
 }
 
@@ -1017,7 +1050,7 @@ function laengeRechnen(rng: Rng): Aufgabe {
     antwortfeld: zahlfeld("cm"),
     loesung: String(a + b),
     tipp: "Die Einheit bleibt gleich – rechne einfach die Zahlen.",
-    erklaerung: `${a} + ${b} = ${a + b}`,
+    erklaerung: `${a} cm + ${b} cm = ${a + b} cm`,
   };
 }
 

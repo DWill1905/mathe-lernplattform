@@ -105,3 +105,38 @@ test("Rechentricks: von einem glatten Zehner aus zurück", () => {
     assert.match(a.erklaerung, /^Von \d+ aus \d+ zurück sind \d+\.$/);
   }
 });
+
+test("Zeitspanne: Erklärung geht über die volle Stunde, Tipp nur wenn es eine gibt", () => {
+  const rng = mulberry32(1815);
+  let ueber = 0;
+  let ohne = 0;
+  for (let i = 0; i < 3000; i++) {
+    const a = GENERATOREN.uhrzeit(rng, 3);
+    if (a.typ !== "uhrzeit/zeitspanne") continue;
+    const [, h1, m1, h2, m2] = a.frage.match(/um (\d+):(\d+) Uhr und endet um (\d+):(\d+) Uhr/).map(Number);
+    const volleStunde = h2 > h1 && m2 !== 0 ? `${h1 + 1}:00` : null;
+    assert.ok(a.erklaerung.endsWith(`${a.loesung} Minuten.`), a.erklaerung);
+    assert.ok(!a.erklaerung.includes("Eine Stunde hat 60 Minuten"), a.erklaerung);
+    assert.ok(!/Zusammen: \d+ =/.test(a.erklaerung), `nur ein Abschnitt: ${a.erklaerung}`);
+    if (volleStunde) {
+      ueber++;
+      assert.ok(a.erklaerung.includes(`bis ${volleStunde} sind es`), a.erklaerung);
+    }
+    if (h2 === h1) {
+      ohne++;
+      assert.ok(!a.tipp.includes("volle"), `${a.frage} → ${a.tipp}`);
+    }
+    void m1;
+  }
+  assert.ok(ueber > 50 && ohne > 20, `zu wenige Zeitspannen (${ueber}/${ohne})`);
+});
+
+test("Längen: „Was ist länger?“ begründet mit beiden Zahlen", () => {
+  const rng = mulberry32(214);
+  for (let i = 0; i < 2000; i++) {
+    const a = GENERATOREN.laengen(rng, 2);
+    if (a.typ !== "laengen/vergleich") continue;
+    assert.equal(a.frage, "Was ist länger?");
+    assert.ok(a.erklaerung.endsWith(`also ist ${a.loesung} länger.`), a.erklaerung);
+  }
+});
