@@ -215,6 +215,16 @@ test("bei „zu viel“ liegt genau ein überzähliges Stück im Bild", () => {
     assert.equal(summeImBild(aufgabe.bild.svg), liegt, `${kontext}: im Bild liegt etwas anderes`);
     assert.ok(preis < liegt, `${kontext}: es liegt nicht mehr da, als bezahlt werden soll`);
 
+    /*
+     * Auch die SUMME muss im Zahlenraum bleiben, nicht nur die Lösung.
+     * Andersherum gebaut kam „Hier liegen 140 ct" heraus — außerhalb von 100,
+     * mit einer Subtraktion, die darüber hinausgeht, und kein Satz, den ein
+     * Zweitklässler so sagen würde (das wären 1 Euro 40).
+     */
+    if (aufgabe.antwortfeld.einheit === "ct") {
+      assert.ok(liegt <= 100, `${kontext}: ${liegt} ct liegt außerhalb des Zahlenraums`);
+    }
+
     // Die Lösung trägt die Einheit der Aufgabe, nicht immer Cent.
     const einheit = aufgabe.antwortfeld.einheit;
     const loesungCent = einheit === "€" ? Number(aufgabe.loesung) * 100 : Number(aufgabe.loesung);

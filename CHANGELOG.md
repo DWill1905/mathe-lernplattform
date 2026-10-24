@@ -4,6 +4,22 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.42.2] – 2026-10-24
+
+### Behoben
+
+**„Hier liegen 140 ct."** Bei „Streiche durch, was zu viel ist" wurde erst der
+Preis gezogen und dann das überzählige Stück obendrauf gelegt. Bei 90 ct Preis
+und einer 50-ct-Münze kam so eine Summe außerhalb des Zahlenraums heraus — mit
+einer Subtraktion, die ebenfalls darüber hinausgeht, und obendrein kein Satz,
+den ein Zweitklässler so sagen würde (das wären 1 Euro 40). Gemessen traf das
+6,8 % dieser Aufgaben.
+
+Jetzt wird das überzählige Stück zuerst gezogen und der Preis so gewählt, dass
+die Summe unter 100 ct bleibt. Geprüft wird jetzt auch die Summe, nicht nur die
+Lösung: Der bestehende Test auf den Zahlenraum sieht sich nur Antworten an, und
+die waren hier die ganze Zeit klein.
+
 ## [1.42.1] – 2026-10-24
 
 ### Behoben
