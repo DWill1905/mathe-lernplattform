@@ -230,6 +230,14 @@ function gruppeFinden(
   sorten: readonly number[],
   maxStuecke: number,
   frage: string,
+  /*
+   * Der Betrag in der SCHREIBWEISE DER FRAGE. Ohne ihn stand unter „Welche
+   * Münzen sind zusammen genau 100 ct?" die Erklärung „… ergibt zusammen
+   * 1 €" – richtig gerechnet, aber ein Wechsel der Einheit, den die Aufgabe
+   * gar nicht verlangt hat. Ein Kind, das gerade 50 + 20 + 20 + 10 gerechnet
+   * hat, soll seine 100 wiederfinden.
+   */
+  zielText: string,
   minStuecke = 2
 ): Aufgabe | null {
   /*
@@ -293,7 +301,7 @@ function gruppeFinden(
       antwortfeld: { art: "bildauswahl", optionen },
       loesung,
       tipp: "Zähle in jeder Gruppe zusammen und vergleiche mit dem Betrag.",
-      erklaerung: `${alsText} ergibt zusammen ${sortenName(ziel)}.`,
+      erklaerung: `${alsText} ergibt zusammen ${zielText}.`,
     };
   }
   return null;
@@ -308,7 +316,8 @@ function welcheMuenzen(rng: Rng): Aufgabe {
     ziel,
     KLEINGELD,
     4,
-    `Welche Münzen sind zusammen genau ${ziel} ct?`
+    `Welche Münzen sind zusammen genau ${ziel} ct?`,
+    `${ziel} ct`
   );
   return aufgabe ?? muenzenZaehlen(rng);
 }
@@ -331,6 +340,7 @@ function immerZehn(rng: Rng): Aufgabe {
     [100, 200, 500],
     5,
     "Welche Gruppe ist zusammen genau 10 €?",
+    "10 €",
     3
   );
   return aufgabe ?? betragLegen(rng);

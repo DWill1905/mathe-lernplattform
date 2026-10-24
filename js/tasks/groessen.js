@@ -202,7 +202,15 @@ function zufallsZerlegung(rng, ziel, sorten, maxStuecke) {
  * Anzahl verrät nichts – dieselbe Falle, die bei `betragLegen` schon einmal
  * zugeschnappt ist.
  */
-function gruppeFinden(rng, typ, ziel, sorten, maxStuecke, frage, minStuecke = 2) {
+function gruppeFinden(rng, typ, ziel, sorten, maxStuecke, frage, 
+/*
+ * Der Betrag in der SCHREIBWEISE DER FRAGE. Ohne ihn stand unter „Welche
+ * Münzen sind zusammen genau 100 ct?" die Erklärung „… ergibt zusammen
+ * 1 €" – richtig gerechnet, aber ein Wechsel der Einheit, den die Aufgabe
+ * gar nicht verlangt hat. Ein Kind, das gerade 50 + 20 + 20 + 10 gerechnet
+ * hat, soll seine 100 wiederfinden.
+ */
+zielText, minStuecke = 2) {
     /*
      * Mehrere Anläufe, nicht einer.
      *
@@ -264,7 +272,7 @@ function gruppeFinden(rng, typ, ziel, sorten, maxStuecke, frage, minStuecke = 2)
             antwortfeld: { art: "bildauswahl", optionen },
             loesung,
             tipp: "Zähle in jeder Gruppe zusammen und vergleiche mit dem Betrag.",
-            erklaerung: `${alsText} ergibt zusammen ${sortenName(ziel)}.`,
+            erklaerung: `${alsText} ergibt zusammen ${zielText}.`,
         };
     }
     return null;
@@ -272,7 +280,7 @@ function gruppeFinden(rng, typ, ziel, sorten, maxStuecke, frage, minStuecke = 2)
 /** „Welche Münzen können es sein?" – dieselbe Summe auf verschiedenen Wegen. */
 function welcheMuenzen(rng) {
     const ziel = rng.int(3, 20) * 5;
-    const aufgabe = gruppeFinden(rng, "geld/welche-muenzen", ziel, KLEINGELD, 4, `Welche Münzen sind zusammen genau ${ziel} ct?`);
+    const aufgabe = gruppeFinden(rng, "geld/welche-muenzen", ziel, KLEINGELD, 4, `Welche Münzen sind zusammen genau ${ziel} ct?`, `${ziel} ct`);
     return aufgabe ?? muenzenZaehlen(rng);
 }
 /**
@@ -286,7 +294,7 @@ function immerZehn(rng) {
      * fünf Stücken nur als vier Fünfer legen. Das wäre keine Aufgabe mehr,
      * sondern eine Ansage.
      */
-    const aufgabe = gruppeFinden(rng, "geld/immer-zehn", 1000, [100, 200, 500], 5, "Welche Gruppe ist zusammen genau 10 €?", 3);
+    const aufgabe = gruppeFinden(rng, "geld/immer-zehn", 1000, [100, 200, 500], 5, "Welche Gruppe ist zusammen genau 10 €?", "10 €", 3);
     return aufgabe ?? betragLegen(rng);
 }
 /**

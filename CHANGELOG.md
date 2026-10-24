@@ -4,6 +4,18 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.42.9] – 2026-10-24
+
+### Behoben
+
+**„Welche Münzen sind zusammen genau 100 ct?" — „… ergibt zusammen 1 €."**
+Richtig gerechnet, aber ein Wechsel der Einheit, den die Aufgabe gar nicht
+verlangt hat: Ein Kind, das gerade 50 + 20 + 20 + 10 zusammengezählt hat, soll
+in der Erklärung seine 100 wiederfinden. Gemessen betraf das 418 Ziehungen.
+
+Die Erklärung bekommt den Betrag jetzt in der Schreibweise der Frage; ein Test
+vergleicht beide.
+
 ## [1.42.8] – 2026-10-24
 
 ### Behoben

@@ -504,3 +504,40 @@ test("die Uhr verrät ihre Zeit nicht in der Beschreibung", () => {
   assert.equal(geprueft.size, 2, `nicht beide Uhr-Aufgaben gezogen: ${[...geprueft.keys()]}`);
   for (const [typ, anzahl] of geprueft) assert.ok(anzahl > 50, `nur ${anzahl} von ${typ}`);
 });
+
+/**
+ * Frage und Erklärung müssen dieselbe Einheit benutzen.
+ *
+ * Unter „Welche Münzen sind zusammen genau 100 ct?" stand „… ergibt zusammen
+ * 1 €" — richtig gerechnet, aber ein Wechsel der Einheit, den die Aufgabe
+ * gar nicht verlangt hat. Ein Kind, das gerade 50 + 20 + 20 + 10 gerechnet
+ * hat, soll seine 100 wiederfinden. Gemessen betraf das 418 Ziehungen.
+ */
+test("die Erklärung rechnet in derselben Einheit wie die Frage", () => {
+  let geprueft = 0;
+
+  for (const [typ, stufe] of [
+    ["geld/welche-muenzen", 1],
+    ["geld/immer-zehn", 2],
+  ]) {
+    const rng = mulberry32(909 + stufe);
+    for (let i = 0; i < 12000; i++) {
+      const aufgabe = GENERATOREN.geld(rng, stufe);
+      if (aufgabe.typ !== typ) continue;
+      geprueft++;
+
+      const inDerFrage = aufgabe.frage.match(/genau ([\d.]+) (ct|€)/);
+      const inDerErklaerung = aufgabe.erklaerung.match(/zusammen ([\d.]+) (ct|€)\./);
+      assert.ok(inDerFrage, `„${aufgabe.frage}" nennt keinen Betrag`);
+      assert.ok(inDerErklaerung, `„${aufgabe.erklaerung}" nennt keinen Betrag`);
+      assert.equal(
+        inDerErklaerung[2],
+        inDerFrage[2],
+        `gefragt in ${inDerFrage[2]}, erklärt in ${inDerErklaerung[2]}: „${aufgabe.erklaerung}"`
+      );
+      assert.equal(inDerErklaerung[1], inDerFrage[1], `andere Zahl in der Erklärung: „${aufgabe.erklaerung}"`);
+    }
+  }
+
+  assert.ok(geprueft > 200, `nur ${geprueft} Aufgaben gezogen`);
+});
