@@ -93,13 +93,26 @@ function geldTabellenZeile(rng, stufe) {
      * wären eine öde Runde.
      */
     const zielAnzahl = rng.pick([0, 1, 1, 2, 2]);
+    /*
+     * Auf Stufe 2 darf die erste Spalte nicht gefragt werden.
+     *
+     * Links von ihr steht nichts, was man schon ausfüllen könnte – die Zeile
+     * bliebe leer, und die versprochene Hilfe fiele still weg. Gemessen traf das
+     * 12 % der Stufe-2-Tabellen: Sie waren in Wahrheit Stufe-3-schwer. Auf
+     * Stufe 3 ist die Spalte weiter dabei, dort hilft ohnehin nichts.
+     */
+    const abSpalte = stufe === 2 ? 1 : 0;
     // 12 bis 99 Einheiten: klein genug für den Zahlenraum, groß genug, dass
     // mehrere Sorten gebraucht werden.
     let betrag = rng.int(12, 99) * einheiten;
     let anzahl = sortenAnzahl(betrag, sorten);
     let markiert = -1;
-    for (let versuch = 0; versuch < 40 && markiert < 0; versuch++) {
-        const passend = anzahl.map((wert, i) => (wert === zielAnzahl ? i : -1)).filter((i) => i >= 0);
+    for (let versuch = 0; versuch < 60 && markiert < 0; versuch++) {
+        // Erst prüfen, dann neu ziehen – sonst stünde am Ende ein Betrag da, den
+        // niemand angesehen hat.
+        const passend = anzahl
+            .map((wert, i) => (wert === zielAnzahl && i >= abSpalte ? i : -1))
+            .filter((i) => i >= 0);
         if (passend.length > 0) {
             markiert = rng.pick(passend);
             break;
@@ -107,9 +120,10 @@ function geldTabellenZeile(rng, stufe) {
         betrag = rng.int(12, 99) * einheiten;
         anzahl = sortenAnzahl(betrag, sorten);
     }
-    // Notnagel, falls die gewünschte Stückzahl partout nicht vorkommt.
+    // Notnagel, falls die gewünschte Stückzahl partout nicht vorkommt. Der
+    // zuletzt gezogene Betrag ist geprüft – er trägt die Stückzahl nur nicht.
     if (markiert < 0)
-        markiert = rng.int(0, sorten.length - 1);
+        markiert = rng.int(abSpalte, sorten.length - 1);
     // Stufe 2 zeigt die bereits abgezogenen größeren Sorten, Stufe 3 nichts.
     const gezeigt = sorten.map((_, i) => (stufe === 2 && i < markiert ? anzahl[i] : null));
     const sorte = sorten[markiert];
@@ -131,7 +145,11 @@ function geldTabellenZeile(rng, stufe) {
         antwortfeld: zahlfeld(wort),
         loesung: String(anzahl[markiert]),
         tipp: "Nimm immer die größte Sorte, die noch hineinpasst.",
-        erklaerung: `${betragText} = ${weg}`,
+        // Bei der Antwort 0 sagt die bloße Zerlegung nichts: Die gefragte Sorte
+        // kommt darin einfach nicht vor, und ein Kind sucht sie vergeblich.
+        erklaerung: anzahl[markiert] === 0
+            ? `${betragText} = ${weg}. ${sortenBindestrich(sorte)} brauchst du dafür keine.`
+            : `${betragText} = ${weg}`,
     };
 }
 /* ------------------------------------------- Gruppen und „zu viel" */

@@ -4,6 +4,26 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.42.1] – 2026-10-24
+
+### Behoben
+
+**Jede achte Geldtabelle auf Stufe 2 war in Wahrheit Stufe 3.** Die Stufe
+steuert dort die Hilfe: Links vom gefragten Feld stehen die größeren Sorten
+schon in der Tabelle. Wurde aber die ERSTE Spalte gefragt, gab es links davon
+nichts auszufüllen — die Zeile blieb leer und die versprochene Hilfe fiel still
+weg. Gemessen betraf das 12 % der Stufe-2-Tabellen. Auf Stufe 2 wird diese
+Spalte jetzt nicht mehr gefragt; auf Stufe 3 bleibt sie dabei, dort hilft
+ohnehin nichts.
+
+**Bei der Antwort 0 sagte die Erklärung nichts.** Sie zeigte nur die Zerlegung,
+in der die gefragte Sorte schlicht nicht vorkommt — ein Kind sucht sie dort
+vergeblich. Jetzt steht es ausdrücklich dabei: „10-ct-Münzen brauchst du dafür
+keine."
+
+Außerdem zog die Auswahlschleife am Ende noch einen Betrag, den niemand mehr
+ansah; im Notfall stand dann eine ungeprüfte Zahl in der Aufgabe.
+
 ## [1.42.0] – 2026-10-24
 
 ### Hinzugefügt

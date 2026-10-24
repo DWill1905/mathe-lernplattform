@@ -293,3 +293,47 @@ test("auf Stufe 2 greift kein Notnagel aus einer anderen Stufe", () => {
     "„geld/betrag-legen“ ist eine Stufe-3-Aufgabe – auf Stufe 2 kann es nur der Notnagel sein"
   );
 });
+
+/**
+ * Die Stufe muss sich auch wirklich auswirken.
+ *
+ * Bei der Geldtabelle steuert die Stufe die HILFE: Auf Stufe 2 stehen die
+ * größeren Sorten links vom gefragten Feld schon da, auf Stufe 3 ist die Zeile
+ * leer. Wird auf Stufe 2 die ERSTE Spalte gefragt, gibt es links davon nichts
+ * auszufüllen — die Zeile bleibt leer und die Aufgabe ist in Wahrheit Stufe 3.
+ * Gemessen traf das 12 % der Stufe-2-Tabellen, ohne dass irgendwo etwas
+ * auffiel.
+ */
+test("die Geldtabelle hält, was die Stufe verspricht", () => {
+  const zaehlen = (stufe) => {
+    const rng = mulberry32(2211 + stufe);
+    let gezogen = 0;
+    let ohneHilfe = 0;
+    for (let i = 0; i < 12000; i++) {
+      const aufgabe = GENERATOREN.geld(rng, stufe);
+      if (aufgabe.typ !== "geld/geldtabelle") continue;
+      gezogen++;
+      const tabelle = lesGeldtabelle(aufgabe.bild.svg);
+      if (tabelle.gezeigt.every((wert) => wert === null)) ohneHilfe++;
+    }
+    return { gezogen, ohneHilfe };
+  };
+
+  const zwei = zaehlen(2);
+  assert.ok(zwei.gezogen > 200, `nur ${zwei.gezogen} Stufe-2-Tabellen gezogen`);
+  assert.equal(
+    zwei.ohneHilfe,
+    0,
+    `${zwei.ohneHilfe} von ${zwei.gezogen} Stufe-2-Tabellen stehen ganz leer da – das ist Stufe-3-Schwierigkeit`
+  );
+
+  // Und die Gegenprobe: Auf Stufe 3 darf nie etwas vorgegeben sein, sonst
+  // wäre die Stufe keine Steigerung.
+  const drei = zaehlen(3);
+  assert.ok(drei.gezogen > 200, `nur ${drei.gezogen} Stufe-3-Tabellen gezogen`);
+  assert.equal(
+    drei.ohneHilfe,
+    drei.gezogen,
+    `auf Stufe 3 steht in ${drei.gezogen - drei.ohneHilfe} Tabellen schon eine Hilfe`
+  );
+});
