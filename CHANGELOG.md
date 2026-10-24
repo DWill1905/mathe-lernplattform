@@ -4,6 +4,24 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.42.8] – 2026-10-24
+
+### Behoben
+
+**Auf dem Tablet waren ALLE Erklärbilder 300 px breit, wo 360 erlaubt sind.**
+Dieselbe Ursache wie bei den breiten Bildern eine Version zuvor, nur
+unauffälliger: `.bild` trägt `margin: 0 auto`, und automatische Seitenränder
+schalten in einer Flexspalte das Strecken ab. Ohne eine angegebene `width`
+bemisst sich das Bild nach seinem Inhalt — und ein Inline-SVG mit bloßer
+`viewBox` ist 300 × 150 groß. Auf dem Telefon fiel das nie auf, weil die
+Obergrenze dort mit 200 px ohnehin kleiner ist.
+
+Das ist die Schwester der Falle aus 1.11.1 („`width: auto` auf einem Inline-SVG
+lässt es auf null zusammenfallen"): Beide Male fehlt dem Bild die Bezugsgröße,
+einmal mit null und einmal mit 300 als Ergebnis. Der Test dazu verlangt
+ausdrücklich eine Regel, die auch Bilder OHNE `breit` trifft — sonst wären die
+acht breiten versorgt und alle übrigen weiter auf 300 px festgenagelt.
+
 ## [1.42.7] – 2026-10-24
 
 ### Behoben

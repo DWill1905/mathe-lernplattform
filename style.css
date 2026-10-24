@@ -680,6 +680,23 @@ body {
   max-width: 280px;
 }
 
+/*
+ * Das Erklärbild der Übung braucht eine ANGEGEBENE Breite, nicht nur eine
+ * Obergrenze.
+ *
+ * `.bild` trägt `margin: 0 auto`, und automatische Seitenränder schalten in
+ * einer Flexspalte das Strecken ab. Ohne `width` bemisst sich das Bild dann
+ * nach seinem Inhalt – und ein Inline-SVG mit bloßer `viewBox` ist 300 × 150
+ * groß. Auf dem Telefon fiel das nie auf, weil die Obergrenze dort ohnehin
+ * kleiner ist; auf dem Tablet standen 300 px, wo 360 erlaubt waren.
+ *
+ * `max-width` deckelt weiterhin, und wo es greift, zentriert `margin: auto`
+ * wie bisher.
+ */
+.karte-aufgabe > .bild {
+  width: 100%;
+}
+
 .bild svg {
   display: block;
   width: 100%;

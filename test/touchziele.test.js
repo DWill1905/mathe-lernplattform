@@ -218,3 +218,45 @@ test("breite Bilder überstehen die Deckel für kleine Schirme", () => {
     );
   }
 });
+
+/**
+ * Das Erklärbild braucht eine ANGEGEBENE Breite, nicht nur eine Obergrenze.
+ *
+ * `.bild` trägt `margin: 0 auto`, und automatische Seitenränder schalten in
+ * einer Flexspalte das Strecken ab. Ohne `width` bemisst sich das Bild dann
+ * nach seinem Inhalt — und ein Inline-SVG mit bloßer `viewBox` ist 300 × 150
+ * groß. Auf dem Telefon fiel das nie auf, weil die Obergrenze dort kleiner
+ * ist; auf dem Tablet standen gemessene 300 px, wo 360 erlaubt waren.
+ *
+ * Das ist die Schwester der Falle aus 1.11.1 („width: auto auf einem Inline-
+ * SVG lässt es auf null zusammenfallen"): Beide Male fehlt dem Bild die
+ * Bezugsgröße, einmal mit null und einmal mit 300 als Ergebnis.
+ */
+test("das Erklärbild der Übung hat eine angegebene Breite", () => {
+  const ohneKommentare = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
+  /*
+   * Gefragt ist eine Regel, die auch ein BILD OHNE `breit` trifft. Dass
+   * `.bild.bild-breit` eine Breite setzt, genügt nicht: Die acht breiten
+   * Bilder wären versorgt, alle übrigen fielen weiter auf 300 px zurück.
+   */
+  const fuerJedesBild = [...ohneKommentare.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+    .map(([, waehler, inhalt]) => ({ waehler: waehler.trim(), inhalt }))
+    .filter((r) => !/bild-breit/.test(r.waehler))
+    .filter((r) => /\.karte-aufgabe\s*>?\s*\.bild(?![\w-])$/.test(r.waehler) || /^\.bild$/.test(r.waehler));
+
+  const mitBreite = fuerJedesBild.filter((r) => /(^|[;{\s])width:\s*100%/.test(r.inhalt));
+  assert.ok(
+    fuerJedesBild.length > 0,
+    "der Test misst nichts – es gibt gar keine allgemeine Regel für das Erklärbild"
+  );
+  assert.ok(
+    mitBreite.length > 0,
+    "keine Regel setzt die Breite JEDES Erklärbilds – ohne `breit` fällt es auf die SVG-Standardgröße 300 px zurück"
+  );
+
+  // Und die Obergrenze muss bleiben, sonst sprengt das Bild die Karte.
+  assert.ok(
+    ohneKommentare.includes("max-width: 280px"),
+    "die allgemeine Obergrenze für Erklärbilder fehlt"
+  );
+});
