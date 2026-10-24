@@ -1522,7 +1522,29 @@ details[open] summary {
 
 /* Rätselwort */
 
-.bild-breit {
+/*
+ * ACHTUNG, hier lag ein stiller Fehler: Als `.bild-breit` stand diese Regel
+ * nur EINEN Klassennamen stark da – und die Deckel für kleine Schirme
+ * (`.bild { max-width: 200px }` bei flacher Bauhöhe, `130px` im Querformat)
+ * stehen weiter unten und gewannen deshalb. Ausgerechnet auf dem Telefon, wo
+ * die Breite am nötigsten ist, schrumpften alle acht breiten Bilder —
+ * Pfeilfolge, Hunderterfeld, Rechenstrich, Musterreihen und die Geldtabelle —
+ * auf 200 px zusammen. Genau das, was `breit` verhindern soll.
+ *
+ * Mit zwei Klassen im Wähler gewinnt sie unabhängig von der Reihenfolge. Die
+ * HÖHE deckeln die Media Queries weiterhin; nur die Breite ist frei.
+ */
+.bild.bild-breit {
+  /*
+   * `width` muss hier stehen, nicht nur `max-width`.
+   *
+   * `.bild` trägt `margin: 0 auto` – und automatische Seitenränder schalten
+   * in einer Flexspalte das Strecken ab. Das Bild bemaß sich dann nach seinem
+   * Inhalt, und ein Inline-SVG mit bloßer `viewBox` ist 300 × 150 groß. Genau
+   * diese 300 px standen auf JEDEM Gerät da: auf dem Telefon zufällig die
+   * volle Breite, auf dem Tablet ein Drittel davon.
+   */
+  width: 100%;
   max-width: 100%;
 }
 
@@ -1946,9 +1968,13 @@ body {
     max-width: 360px;
   }
 
-  .bild-breit {
-    max-width: 100%;
-  }
+  /*
+   * Hier stand noch einmal `.bild-breit { max-width: 100% }`. Sie gewann nur,
+   * WEIL sie weiter unten im Stylesheet steht – die nächste Regel darunter
+   * hätte sie wieder ausgehebelt. Die allgemeine Fassung oben gewinnt über die
+   * Spezifität und gilt auch hier; eine zweite Quelle für dieselbe Aussage
+   * wäre nur eine weitere Stelle, die man vergessen kann.
+   */
 
   .kacheln {
     grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));

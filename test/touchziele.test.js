@@ -153,3 +153,68 @@ test("eine kurze Aufgabenkarte schrumpft und rückt in die Daumenzone", () => {
     );
   }
 });
+
+/* ------------------------------------------------------------ Breite Bilder */
+
+/**
+ * `bild-breit` muss die Deckel für kleine Schirme überstimmen.
+ *
+ * Acht Aufgaben brauchen die volle Kartenbreite — Pfeilfolge, Rechenstrich,
+ * Hunderterfeld, die beiden Musterreihen, das Grundmuster und die Geldtabelle.
+ * Genau dafür gibt es `breit`. Die Regel stand aber nur EINEN Klassennamen
+ * stark da, und die Deckel (`.bild { max-width: 200px }` bei flacher Bauhöhe,
+ * `130px` im Querformat) stehen weiter unten im Stylesheet — sie gewannen
+ * deshalb. Ausgerechnet auf dem Telefon, wo die Breite am nötigsten ist,
+ * schrumpfte jedes dieser Bilder auf Briefmarkengröße.
+ *
+ * Geprüft wird die Kaskade selbst: Der Wähler der Breit-Regel muss mehr
+ * Klassen tragen als jeder Deckel, dann gewinnt er unabhängig von der
+ * Reihenfolge.
+ */
+test("breite Bilder überstehen die Deckel für kleine Schirme", () => {
+  const klassen = (waehler) => (waehler.match(/\.[a-zA-Z][\w-]*/g) ?? []).length;
+
+  /*
+   * Nur die ALLGEMEINEN Deckel zählen. `.rueckmeldung-sticker .bild` etwa
+   * gilt für die Stickerbelohnung, wo es nie ein breites Bild gibt – so ein
+   * Wähler darf ruhig mehr Klassen tragen.
+   */
+  const allgemein = /^(?:body\.uebung-laeuft\s+|\.karte-aufgabe\s+)*\.bild$/;
+
+  /*
+   * Ohne Kommentare lesen – sonst zählt der Test die ERKLÄRUNG mit.
+   * In genau diesem Abschnitt steht `.bild { max-width: 200px }` als Prosa,
+   * und ein naiver Parser hält das für eine Regel mit zwei Klassen. Der Test
+   * war dadurch grün, weil er den Kommentar maß statt des Stylesheets.
+   */
+  const ohneKommentare = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
+
+  const breit = [];
+  const deckel = [];
+  for (const [, waehler, inhalt] of ohneKommentare.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    if (!/max-width/.test(inhalt)) continue;
+    const sauber = waehler.trim();
+    // Auch die einklassige Fassung `.bild-breit` muss erkannt werden – sonst
+    // meldet der Test bei einem Rückfall „gibt es gar nicht" statt zu sagen,
+    // dass sie zu schwach ist.
+    if (/\.bild-breit(?![\w-])/.test(sauber)) {
+      breit.push({ waehler: sauber, stufe: klassen(sauber) });
+      continue;
+    }
+    // `.bild` als ganze Klasse – nicht `.bildauswahl` oder `.bildkarte`.
+    if (!/\.bild(?![\w-])/.test(sauber)) continue;
+    if (allgemein.test(sauber)) deckel.push({ waehler: sauber, stufe: klassen(sauber) });
+  }
+
+  assert.ok(breit.length > 0, "es gibt gar keine Regel für breite Bilder");
+  assert.ok(deckel.length > 0, "der Test misst nichts – es gibt keinen Deckel auf .bild");
+
+  const schwaechste = Math.min(...breit.map((r) => r.stufe));
+  for (const regel of deckel) {
+    assert.ok(
+      schwaechste > regel.stufe,
+      `„${regel.waehler}" (${regel.stufe} Klassen) überstimmt die Breit-Regel (${schwaechste} Klassen) – ` +
+        "breite Bilder schrumpfen dann genau dort, wo sie die Breite brauchen"
+    );
+  }
+});

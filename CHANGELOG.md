@@ -4,6 +4,34 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.42.7] – 2026-10-24
+
+### Behoben
+
+**Acht breite Erklärbilder schrumpften ausgerechnet auf dem Telefon.** Die
+Pfeilfolge, der Rechenstrich, das Hunderterfeld (beide Formen), die beiden
+Musterreihen, das Grundmuster und die neue Geldtabelle tragen `breit`, weil
+sie die volle Kartenbreite brauchen — sonst sind sie nicht zu lesen. Zwei
+Fehler standen dem im Weg, und beide blieben lange unsichtbar:
+
+- **Die Regel war zu schwach.** `.bild-breit` trug nur einen Klassennamen, die
+  Deckel für kleine Schirme (`.bild`, 200 px bei flacher Bauhöhe, 130 px im
+  Querformat) stehen weiter unten im Stylesheet und gewannen deshalb. Sie
+  gewinnt jetzt über die Spezifität, unabhängig von der Reihenfolge.
+- **Und ohne `width` streckte sich gar nichts.** `.bild` trägt
+  `margin: 0 auto`, und automatische Seitenränder schalten in einer Flexspalte
+  das Strecken ab. Das Bild bemaß sich dann nach seinem Inhalt — und ein
+  Inline-SVG mit bloßer `viewBox` ist 300 × 150 groß. Genau diese 300 px
+  standen auf jedem Gerät: auf dem Telefon zufällig die volle Breite, auf dem
+  Tablet ein Drittel davon.
+
+Gemessen: auf dem iPhone SE von 200 auf 323 px, auf dem Tablet von 300 auf
+736 px. Ein Test prüft jetzt die Kaskade selbst — der Wähler der Breit-Regel
+muss mehr Klassen tragen als jeder allgemeine Deckel.
+
+Dabei fiel eine zweite `.bild-breit`-Regel im Tablet-Abschnitt auf, die
+dasselbe noch einmal sagte und nur durch ihre Position gewann. Sie ist weg.
+
 ## [1.42.6] – 2026-10-24
 
 ### Behoben
