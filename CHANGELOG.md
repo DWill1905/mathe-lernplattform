@@ -4,6 +4,25 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.42.16] – 2026-10-24
+
+### Behoben
+
+**Die Stufentexte im Elternbereich sagen wieder, was auf der Stufe drankommt.**
+Sie sind dort die einzige Auskunft für Eltern – und waren an vielen Stellen
+stehen geblieben, während die Aufgaben dazukamen. Bei Geld Stufe 1 stand nur
+„Münzen zusammenzählen“, obwohl dort auch passende Münzen gesucht und
+Geldgeschichten gelesen werden; Geldtabelle, „Immer 10 Euro“ und „Streiche
+durch, was zu viel ist“ fehlten ganz. Bei Mauern Stufe 3 stand „drei
+Grundsteine“, gezogen werden vier. Ebenso nachgezogen: Nachbaraufgaben bei
+den Rechentricks, Mauern ausfüllen, Grundmuster, Punktefelder, „Wie oft
+passt …?“, die passende Uhr, „Viertel nach/vor“, „bis zum Meter ergänzen“,
+Mal und Geteilt in den Sachaufgaben, Nachbarzahlen beim Knobeln.
+
+Damit das nicht wieder still veraltet, nennt `test/stufentexte.test.js` für
+jeden Aufgabentyp ein Stichwort, das im Text JEDER Stufe stehen muss, auf der
+er gezogen wird. Ein neuer Typ ohne Eintrag lässt den Test fallen.
+
 ## [1.42.15] – 2026-10-24
 
 ### Behoben

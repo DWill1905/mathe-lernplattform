@@ -26,9 +26,9 @@ export const THEMEN = [
         symbol: "gluehbirne",
         farbe: "gruen",
         stufen: [
-            "von den Einern zu den Zehnern (3 + 4 → 30 + 40)",
-            "Zehner davor (3 + 2 → 13 + 2) sowie plus und minus 10",
-            "Hunderter, Analogien über den Zehner, Lücken und Tabellenzeilen",
+            "von den Einern zu den Zehnern (3 + 4 → 30 + 40) und Nachbaraufgaben (7 + 7 → 7 + 8)",
+            "Zehner davor (3 + 2 → 13 + 2), plus und minus 10, Zehneraufgaben und Nachbaraufgaben mit Minus",
+            "Hunderter, Analogien über den Zehner, Zehner davor bis 100, Lücken und Tabellenzeilen",
         ],
         ausHeft: true,
     },
@@ -40,7 +40,7 @@ export const THEMEN = [
         farbe: "blau",
         stufen: [
             "Umkehraufgaben bis 20",
-            "Tauschaufgaben, ganze Familien und die fehlende dritte Zahl",
+            "Umkehraufgaben, Tauschaufgaben, ganze Familien und die fehlende dritte Zahl",
             "Lückenaufgaben in allen vier Formen bis 100",
         ],
         ausHeft: true,
@@ -53,7 +53,7 @@ export const THEMEN = [
         farbe: "blau",
         stufen: [
             "Vorgänger/Nachfolger, Zehner und Einer, größer/kleiner, Hunderterfeld",
-            "Nachbarzehner, Zahlenfolgen mit Pfeilschritten, Zahlenstrahl, Rechenstrich",
+            "Nachbarzehner, Zahlenfolgen mit Pfeilschritten, Zahlenstrahl, Rechenstrich, Hunderterfeld",
             "Zahlen ordnen, runden, Mitte finden, Regeln finden, Hunderterfeld-Ausschnitte",
         ],
         ausHeft: true,
@@ -66,8 +66,8 @@ export const THEMEN = [
         farbe: "orange",
         stufen: [
             "Zahlenmauer mit zwei Steinen, Rechenkasten, Rechenrad, Rechendreieck bis 20",
-            "Lücke unten in der Mauer, Kasten rückwärts, größere Räder, Innenzahl im Dreieck",
-            "Mauern mit drei Grundsteinen, Kästen bis 100, Dreiecke ohne Hilfsseite",
+            "Lücke unten in der Mauer, Mauern ausfüllen, Kasten rückwärts, größere Räder, Innenzahl im Dreieck",
+            "Mauern mit vier Grundsteinen, Kästen und Räder bis 100, Dreiecke ohne Hilfsseite",
         ],
         ausHeft: true,
     },
@@ -77,7 +77,11 @@ export const THEMEN = [
         kurz: "Euro und Cent, Bezahlen und Rückgeld",
         symbol: "geld",
         farbe: "gruen",
-        stufen: ["Münzen zusammenzählen", "Euro und Cent umrechnen, Beträge legen, Preise vergleichen", "Bezahlen, Rückgeld und Beträge zusammenstellen"],
+        stufen: [
+            "Münzen zusammenzählen und vergleichen, passende Münzen finden, Geldgeschichten",
+            "Euro und Cent umrechnen, Geldtabelle, immer 10 Euro, Beträge legen, Preise vergleichen",
+            "Bezahlen, Rückgeld, Geldtabelle ohne Hilfe, streiche durch, was zu viel ist",
+        ],
         ausHeft: true,
     },
     {
@@ -88,8 +92,8 @@ export const THEMEN = [
         farbe: "lila",
         stufen: [
             "Formen erkennen, Muster nach rechts fortsetzen, Puzzleteile zuordnen",
-            "Ecken und Seiten zählen, Muster nach links fortsetzen, welche Form passt nicht",
-            "Spiegelachsen, Körper, Umfang",
+            "Ecken und Seiten zählen, Muster nach links fortsetzen, Grundmuster finden, welche Form passt nicht",
+            "Spiegelachsen, Körper, Umfang – dazu schwerere Muster und Formen",
         ],
         ausHeft: true,
     },
@@ -99,7 +103,7 @@ export const THEMEN = [
         kurz: "Die Malreihen von 1 bis 10",
         symbol: "mal",
         farbe: "orange",
-        stufen: ["1er, 2er, 5er und 10er", "zusätzlich 3er und 4er", "alle Reihen und Umkehraufgaben"],
+        stufen: ["1er, 2er, 5er und 10er, Punktefelder", "1er, 2er, 5er und 10er, dazu 3er und 4er", "alle Reihen und Umkehraufgaben"],
         ausHeft: false,
     },
     {
@@ -108,7 +112,7 @@ export const THEMEN = [
         kurz: "Teilen als Umkehrung des Malnehmens",
         symbol: "geteilt",
         farbe: "lila",
-        stufen: [":2, :5 und :10", "alle Reihen ohne Rest", "Aufgaben mit Rest"],
+        stufen: [":2, :5 und :10, „Wie oft passt …?“", "alle Reihen ohne Rest, Lückenaufgaben", "Aufgaben mit Rest"],
         ausHeft: false,
     },
     {
@@ -117,7 +121,11 @@ export const THEMEN = [
         kurz: "Die Uhr lesen und Zeitspannen berechnen",
         symbol: "uhr",
         farbe: "blau",
-        stufen: ["volle und halbe Stunden", "Viertelstunden", "Fünf-Minuten-Schritte und Zeitspannen"],
+        stufen: [
+            "volle und halbe Stunden, die passende Uhr finden",
+            "Viertelstunden, „Viertel nach“ und „Viertel vor“",
+            "Fünf-Minuten-Schritte und Zeitspannen",
+        ],
         ausHeft: false,
     },
     {
@@ -126,7 +134,11 @@ export const THEMEN = [
         kurz: "Meter, Zentimeter und Millimeter",
         symbol: "lineal",
         farbe: "orange",
-        stufen: ["Meter in Zentimeter", "cm und mm, Längen vergleichen", "mit Längen rechnen"],
+        stufen: [
+            "Meter in Zentimeter und zurück, bis zum Meter ergänzen",
+            "cm und mm, Meter und Zentimeter gemischt, Längen vergleichen",
+            "mit Längen rechnen: zusammenzählen, Reststücke, cm und mm",
+        ],
         ausHeft: false,
     },
     {
@@ -135,7 +147,11 @@ export const THEMEN = [
         kurz: "Rechengeschichten aus dem Alltag",
         symbol: "buch",
         farbe: "rot",
-        stufen: ["ein Rechenschritt bis 20", "ein Rechenschritt bis 100", "zwei Rechenschritte"],
+        stufen: [
+            "ein Rechenschritt bis 20",
+            "ein Rechenschritt bis 100, auch mit Mal und Geteilt",
+            "zwei Rechenschritte, Einkaufen mit Rückgeld, Vergleichen",
+        ],
         ausHeft: false,
     },
     {
@@ -144,7 +160,7 @@ export const THEMEN = [
         kurz: "Zahlenrätsel, Muster, Verdoppeln und Halbieren",
         symbol: "puzzle",
         farbe: "rot",
-        stufen: ["Verdoppeln und Halbieren", "gerade/ungerade und Muster", "Zahlenrätsel"],
+        stufen: ["Verdoppeln und Halbieren", "gerade/ungerade, Muster und Nachbarzahlen", "Zahlenrätsel"],
         ausHeft: false,
     },
 ];
