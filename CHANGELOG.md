@@ -4,6 +4,25 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.42.6] – 2026-10-24
+
+### Behoben
+
+**„Welche Form ist das?" hatte die Antwort in der Bildbeschreibung stehen** —
+dort stand schlicht „Ein Trapez". Beschrieben werden jetzt die MERKMALE:
+„Diese Form hat vier Ecken und ist oben schmaler als unten." Aus ihnen den
+Namen zu machen ist die Aufgabe.
+
+Bei „Wie viele Ecken hat diese Form?" bleibt es dagegen beim Namen — dort wäre
+„drei Ecken" die Lösung. Jede Aufgabe braucht die Beschreibung, die sie gerade
+NICHT verrät; ein Test hält beide Richtungen fest.
+
+Damit ist die Durchsicht aller 38 Aufgaben mit Bild abgeschlossen. Die übrigen
+Treffer waren Zufälle — eine Zahl, die anderswo in der Beschreibung vorkommt —
+oder von der Sache her nötig: Dass bei der Rechentabelle „Das markierte Feld
+steht für 16 − 10" dabeisteht, IST die Aufgabe für jemanden, der das Gitter
+nicht sehen kann.
+
 ## [1.42.5] – 2026-10-24
 
 ### Behoben

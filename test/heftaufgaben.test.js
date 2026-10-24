@@ -653,3 +653,38 @@ test("beim Grundmuster ist genau ein Vorschlag das kleinste Stück", () => {
     }
   }
 });
+
+/**
+ * „Welche Form ist das?" darf die Antwort nicht in der Bildbeschreibung
+ * stehen haben.
+ *
+ * Dort stand „Ein Trapez" — die Lösung, wörtlich. Beschrieben werden jetzt
+ * die MERKMALE; aus ihnen den Namen zu machen ist die Aufgabe.
+ *
+ * Die Gegenprobe gehört dazu: Bei „Wie viele Ecken hat diese Form?" wäre
+ * „drei Ecken" die Lösung. Dort bleibt es beim Namen — jede Aufgabe braucht
+ * die Beschreibung, die sie gerade NICHT verrät.
+ */
+test("die Formbeschreibung verrät nie die Lösung derselben Aufgabe", () => {
+  for (const aufgabe of sammle("geometrie", 1, "geometrie/form-erkennen", 60)) {
+    const text = aufgabe.bild.beschriftung;
+    for (const name of ALLE_FORMEN) {
+      assert.ok(!text.includes(name), `„${text}" nennt die Form „${name}" beim Namen`);
+    }
+    assert.match(text, /Ecke|rund/, `„${text}" beschreibt die Form gar nicht`);
+  }
+
+  for (const typ of ["geometrie/ecken-zaehlen", "geometrie/seiten-zaehlen"]) {
+    for (const aufgabe of sammle("geometrie", 2, typ, 40)) {
+      const text = aufgabe.bild.beschriftung;
+      assert.ok(
+        ALLE_FORMEN.some((name) => text.includes(name)),
+        `„${text}" nennt die Form nicht – dann ist nicht zu erkennen, was zu zählen ist`
+      );
+      assert.ok(
+        !new RegExp(`\\b${aufgabe.loesung}\\b`).test(text),
+        `„${text}" verrät die Anzahl ${aufgabe.loesung}`
+      );
+    }
+  }
+});

@@ -158,6 +158,39 @@ export function mitArtikel(name, gross = true) {
     const artikel = WEIBLICHE_FORMEN.has(name) ? "eine" : "ein";
     return `${gross ? artikel[0].toUpperCase() + artikel.slice(1) : artikel} ${name}`;
 }
+/**
+ * Wie die Form AUSSIEHT – ohne ihren Namen zu nennen.
+ *
+ * „Welche Form ist das?" stand über einem Bild, dessen Beschreibung „Ein
+ * Trapez" lautete: die Lösung, wörtlich. Wer die Seite mit einem Screenreader
+ * bedient, bekam die Antwort geschenkt.
+ *
+ * Die Merkmale verraten sie nicht – aus ihnen den Namen zu machen IST die
+ * Aufgabe. Jede Beschreibung passt zu dem, was `formInhalt()` wirklich
+ * zeichnet: Das Rechteck ist breiter als hoch, das Trapez oben schmaler als
+ * unten, die Raute steht auf einer Ecke.
+ */
+const FORM_MERKMALE = {
+    Kreis: "Diese Form ist ganz rund und hat keine einzige Ecke.",
+    Dreieck: "Diese Form hat drei Ecken und drei gerade Seiten.",
+    Quadrat: "Diese Form hat vier Ecken und vier gleich lange Seiten.",
+    Rechteck: "Diese Form hat vier Ecken, zwei lange und zwei kurze Seiten.",
+    Raute: "Diese Form hat vier gleich lange Seiten und steht auf einer Ecke.",
+    Trapez: "Diese Form hat vier Ecken und ist oben schmaler als unten.",
+    Fünfeck: "Diese Form hat fünf Ecken und fünf gerade Seiten.",
+    Sechseck: "Diese Form hat sechs Ecken und sechs gerade Seiten.",
+};
+/**
+ * Die Form als Beschreibung ihrer Merkmale, nicht als Name.
+ *
+ * Bewusst GANZE SÄTZE: Als Fragmente hinter „Eine Form mit …" stand dort
+ * „mit vier gleich lange Seiten" und „mit ganz rund" – der Dativ hinter „mit"
+ * stolpert über jede Aufzählung. Dieselbe Art Falle wie beim Wesfall der
+ * Vornamen und beim Artikel der Raute.
+ */
+export function formMerkmale(name) {
+    return FORM_MERKMALE[name];
+}
 /** Zeichnet eine ebene Figur mittig in ein 200×200-Feld. */
 export function form(name) {
     return huelle(200, 200, formInhalt(name));

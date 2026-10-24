@@ -4,6 +4,7 @@ import {
   ALLE_FORMEN,
   eckenZahl,
   form,
+  formMerkmale,
   formVariante,
   formenreihe,
   mitArtikel,
@@ -294,7 +295,10 @@ function formErkennen(rng: Rng): Aufgabe {
   return {
     typ: "geometrie/form-erkennen",
     frage: "Welche Form ist das?",
-    bild: { svg: form(gewaehlt), beschriftung: mitArtikel(gewaehlt) },
+    // Hier und NUR hier die Merkmale statt des Namens: Bei „Wie viele Ecken
+    // hat diese Form?" wäre „drei Ecken" die Lösung, dort bleibt es beim
+    // Namen. Jede Aufgabe braucht die Beschreibung, die sie nicht verrät.
+    bild: { svg: form(gewaehlt), beschriftung: formMerkmale(gewaehlt) },
     antwortfeld: auswahlfeld(rng, gewaehlt, ablenker),
     loesung: gewaehlt,
     tipp: "Zähle die Ecken – das verrät oft schon den Namen.",
