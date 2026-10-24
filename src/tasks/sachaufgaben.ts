@@ -84,7 +84,7 @@ function weggeben(rng: Rng, max: number): Aufgabe {
 const MEHR: readonly ((a: number, b: number, n: Namen) => string)[] = [
   (a, b, n) => `${n[0]} hat ${a} Sticker. ${n[1]} hat ${b} Sticker mehr. Wie viele hat ${n[1]}?`,
   (a, b, n) => `Auf ${wesfall(n[0])} Pizza liegen ${a} Oliven. Auf ${wesfall(n[1])} Pizza liegen ${b} mehr. Wie viele hat ${n[1]} drauf?`,
-  (a, b, n) => `${n[0]} dreht ${a} Runden auf der Bahn. ${n[1]} schafft ${b} Runden mehr. Wie viele Runden sind das?`,
+  (a, b, n) => `${n[0]} dreht ${a} Runden auf der Bahn. ${n[1]} schafft ${b} Runden mehr. Wie viele Runden schafft ${n[1]}?`,
   (a, b) => `Im linken Glas sind ${a} Murmeln, im rechten ${b} mehr. Wie viele Murmeln sind im rechten Glas?`,
   (a, b, n) => `${n[0]} sammelt ${a} Kastanien. ${n[1]} findet ${b} mehr. Wie viele Kastanien hat ${n[1]}?`,
   (a, b) => `Der kleine Roboter hat ${a} Schrauben, der große ${b} mehr. Wie viele Schrauben hat der große?`,
@@ -210,7 +210,11 @@ function einkaufMitRueckgeld(rng: Rng, _max: number): Aufgabe {
   const preis = rng.int(2, 6);
   const kosten = stueck * preis;
   // Es muss immer genug Geld dabei sein – sonst wäre das Rückgeld negativ.
-  const gezahlt = rng.pick([10, 20, 50].filter((schein) => schein >= kosten));
+  // Und es soll ein Schein sein, mit dem man das wirklich bezahlt: Für 6 €
+  // Kuchen legt niemand 50 € hin. Erlaubt sind der kleinste passende Schein
+  // und der nächste, solange er höchstens viermal so viel ist wie der Preis.
+  const passend = [10, 20, 50].filter((schein) => schein >= kosten);
+  const gezahlt = rng.pick(passend.slice(0, 2).filter((schein, i) => i === 0 || schein < kosten * 5));
   return {
     typ: "sach/einkauf",
     frage: rng.pick(EINKAUF)(stueck, preis, gezahlt, namen),
@@ -240,7 +244,7 @@ const VERGLEICH: readonly Vergleich[] = [
   },
   {
     einleitung: (a, b) => `Im Zoo leben ${a} Pinguine und ${b} Robben.`,
-    mehr: () => "Wie viele Pinguine mehr als Robben sind das?",
+    mehr: () => "Wie viele Pinguine sind es mehr als Robben?",
     zusammen: () => "Wie viele Tiere sind das zusammen?",
   },
   {
@@ -250,7 +254,7 @@ const VERGLEICH: readonly Vergleich[] = [
   },
   {
     einleitung: (a, b) => `In der Bücherei stehen ${a} Bilderbücher und ${b} Comics.`,
-    mehr: () => "Wie viele Bilderbücher mehr als Comics sind das?",
+    mehr: () => "Wie viele Bilderbücher sind es mehr als Comics?",
     zusammen: () => "Wie viele Bücher sind das zusammen?",
   },
   {
@@ -260,17 +264,17 @@ const VERGLEICH: readonly Vergleich[] = [
   },
   {
     einleitung: (a, b) => `Im Beet blühen ${a} rote und ${b} gelbe Tulpen.`,
-    mehr: () => "Wie viele rote Tulpen mehr als gelbe sind das?",
+    mehr: () => "Wie viele rote Tulpen sind es mehr als gelbe?",
     zusammen: () => "Wie viele Tulpen blühen dort zusammen?",
   },
   {
     einleitung: (a, b) => `Am Himmel fliegen ${a} Möwen und ${b} Störche.`,
-    mehr: () => "Wie viele Möwen mehr als Störche sind das?",
+    mehr: () => "Wie viele Möwen sind es mehr als Störche?",
     zusammen: () => "Wie viele Vögel fliegen dort zusammen?",
   },
   {
     einleitung: (a, b) => `In der Kiste liegen ${a} rote und ${b} blaue Bausteine.`,
-    mehr: () => "Wie viele rote Steine mehr als blaue sind das?",
+    mehr: () => "Wie viele rote Steine sind es mehr als blaue?",
     zusammen: () => "Wie viele Bausteine liegen in der Kiste?",
   },
   {

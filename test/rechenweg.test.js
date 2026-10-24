@@ -113,7 +113,7 @@ test("Zeitspanne: Erklärung geht über die volle Stunde, Tipp nur wenn es eine 
   for (let i = 0; i < 3000; i++) {
     const a = GENERATOREN.uhrzeit(rng, 3);
     if (a.typ !== "uhrzeit/zeitspanne") continue;
-    const [, h1, m1, h2, m2] = a.frage.match(/um (\d+):(\d+) Uhr und endet um (\d+):(\d+) Uhr/).map(Number);
+    const [, h1, , h2, m2] = a.frage.match(/um (\d+):(\d+) Uhr und endet um (\d+):(\d+) Uhr/).map(Number);
     const volleStunde = h2 > h1 && m2 !== 0 ? `${h1 + 1}:00` : null;
     assert.ok(a.erklaerung.endsWith(`${a.loesung} Minuten.`), a.erklaerung);
     assert.ok(!a.erklaerung.includes("Eine Stunde hat 60 Minuten"), a.erklaerung);
@@ -126,7 +126,6 @@ test("Zeitspanne: Erklärung geht über die volle Stunde, Tipp nur wenn es eine 
       ohne++;
       assert.ok(!a.tipp.includes("volle"), `${a.frage} → ${a.tipp}`);
     }
-    void m1;
   }
   assert.ok(ueber > 50 && ohne > 20, `zu wenige Zeitspannen (${ueber}/${ohne})`);
 });
@@ -138,5 +137,35 @@ test("Längen: „Was ist länger?“ begründet mit beiden Zahlen", () => {
     if (a.typ !== "laengen/vergleich") continue;
     assert.equal(a.frage, "Was ist länger?");
     assert.ok(a.erklaerung.endsWith(`also ist ${a.loesung} länger.`), a.erklaerung);
+  }
+});
+
+test("Sachaufgaben: bezahlt wird mit einem passenden Schein, gefragt in ganzen Sätzen", () => {
+  const rng = mulberry32(5050);
+  let einkaeufe = 0;
+  for (let i = 0; i < 4000; i++) {
+    const a = GENERATOREN.sachaufgaben(rng, 3);
+    assert.ok(!/mehr als \S+ sind das\?/.test(a.frage), a.frage);
+    if (a.typ !== "sach/einkauf") continue;
+    einkaeufe++;
+    const [, kosten, gezahlt] = a.erklaerung.match(/= (\d+) €, dann (\d+) €/).map(Number);
+    const passend = [10, 20, 50].filter((schein) => schein >= kosten);
+    assert.ok(passend.indexOf(gezahlt) <= 1, `${kosten} € mit ${gezahlt} € bezahlt`);
+    assert.ok(gezahlt === passend[0] || gezahlt < kosten * 5, `${kosten} € mit ${gezahlt} € bezahlt`);
+  }
+  assert.ok(einkaeufe > 200);
+  const rng2 = mulberry32(5151);
+  for (let i = 0; i < 3000; i++) {
+    const a = GENERATOREN.sachaufgaben(rng2, 2);
+    assert.ok(!a.frage.endsWith("Wie viele Runden sind das?"), a.frage);
+  }
+});
+
+test("Knobeln: die Zahl ist weiblich", () => {
+  const rng = mulberry32(1717);
+  for (let i = 0; i < 2000; i++) {
+    const a = GENERATOREN.knobeln(rng, 2);
+    if (a.typ !== "knobeln/nachbarn") continue;
+    assert.match(a.frage, /^Zähle die \d+ und ihre beiden Nachbarzahlen zusammen\.$/);
   }
 });

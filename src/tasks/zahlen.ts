@@ -1122,7 +1122,7 @@ function nachbarSumme(rng: Rng): Aufgabe {
   const loesung = mitteZahl * 3;
   return {
     typ: "knobeln/nachbarn",
-    frage: `Zähle ${mitteZahl} und seine beiden Nachbarzahlen zusammen.`,
+    frage: `Zähle die ${mitteZahl} und ihre beiden Nachbarzahlen zusammen.`,
     rechnung: `${mitteZahl - 1} + ${mitteZahl} + ${mitteZahl + 1} =`,
     antwortfeld: zahlfeld(),
     loesung: String(loesung),

@@ -4,6 +4,25 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.42.15] – 2026-10-24
+
+### Behoben
+
+**Sachaufgaben: Bezahlt wird mit einem Schein, den man dafür auch nimmt.**
+„Ein Stück Kuchen kostet 2 €. Jonas nimmt 3 Stücke und bezahlt mit 50 €“ –
+gerechnet richtig, aber kein Kind hat das so erlebt. Jetzt kommt der kleinste
+passende Schein oder der nächstgrößere, solange er höchstens viermal so viel
+ist wie der Preis (6 € mit 10 € oder 20 €, nie mit 50 €).
+
+**Fragen, die man auf Anhieb versteht:**
+
+- „Paul dreht 5 Runden. Elias schafft 5 Runden mehr. Wie viele Runden sind
+  das?“ – welche denn? Jetzt: „Wie viele Runden schafft Elias?“
+- „Wie viele Pinguine mehr als Robben sind das?“ → „Wie viele Pinguine sind es
+  mehr als Robben?“ (ebenso bei Bilderbüchern, Tulpen, Möwen, Bausteinen)
+- Knobeln: „Zähle 7 und seine beiden Nachbarzahlen zusammen“ → „Zähle die 7
+  und ihre beiden Nachbarzahlen zusammen“ – es ist DIE Zahl.
+
 ## [1.42.14] – 2026-10-24
 
 ### Behoben
