@@ -209,3 +209,26 @@ test("beim Vergleichszeichen sind < und > gleich oft richtig", () => {
   const verhaeltnis = zaehler["<"] / zaehler[">"];
   assert.ok(verhaeltnis > 0.8 && verhaeltnis < 1.25, `< ${zaehler["<"]}-mal, > ${zaehler[">"]}-mal`);
 });
+
+test("Rechentricks bis 100: nicht jede Plusaufgabe ergibt 100", () => {
+  const rng = mulberry32(1000);
+  let hunderter = 0;
+  let hundert = 0;
+  let luecken = 0;
+  for (let i = 0; i < 3000; i++) {
+    const a = GENERATOREN.analogie(rng, 3);
+    if (a.typ !== "analogie/hunderter") continue;
+    hunderter++;
+    if (a.loesung === "100") hundert++;
+    if (a.rechnung.includes("?")) {
+      luecken++;
+      // Die Hilfsaufgabe rechnet genau die Lücke aus – in Zehnern.
+      const [x, , y] = a.vorstufe.rechnung.split(" ");
+      assert.equal((Number(x) - Number(y)) * 10, Number(a.loesung), `${a.rechnung} / ${a.vorstufe.rechnung}`);
+      const [vorne] = a.rechnung.split(" ");
+      assert.equal(Number(vorne) + Number(a.loesung), 100);
+    }
+  }
+  assert.ok(luecken > 50, "keine Lückenaufgaben bis 100 gezogen");
+  assert.ok(hundert / hunderter < 0.35, `die 100 ist ${Math.round((100 * hundert) / hunderter)} % aller Antworten`);
+});

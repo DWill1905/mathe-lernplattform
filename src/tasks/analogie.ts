@@ -140,6 +140,25 @@ function hunderter(rng: Rng): Aufgabe {
   if (plus) {
     const a = rng.int(1, 9);
     const b = 10 - a;
+    /*
+     * Ohne Lücke ergibt JEDE Plusaufgabe hier 100 (30 + 70, 40 + 60 …) – nach
+     * zwei, drei Aufgaben tippt ein Kind „100“, ohne hinzusehen. Gemessen war
+     * die 100 fast die Hälfte aller Antworten. Die Hälfte der Plusaufgaben
+     * fragt deshalb nach der Lücke bis 100, und die Hilfsaufgabe ist dann
+     * die Umkehrung, die genau diese Lücke ausrechnet (siehe CLAUDE.md).
+     */
+    if (rng.chance(0.5)) {
+      return {
+        typ: "analogie/hunderter",
+        frage: "Welche Zahl gehört in die Lücke?",
+        vorstufe: hilfsaufgabe(10, "−", a, b),
+        rechnung: `${a * 10} + ? = 100`,
+        antwortfeld: zahlfeld(),
+        loesung: String(b * 10),
+        tipp: "100 sind 10 Zehner. Wie viele Zehner fehlen noch?",
+        erklaerung: `10 − ${a} = ${b}, also ${a * 10} + ${b * 10} = 100.`,
+      };
+    }
     return {
       typ: "analogie/hunderter",
       frage: "Wie lautet das Ergebnis?",

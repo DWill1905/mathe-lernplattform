@@ -4,6 +4,21 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.42.18] – 2026-10-24
+
+### Behoben
+
+**Rechentricks Stufe 3: Nicht mehr jede Plusaufgabe ergibt 100.** Die
+Hunderter-Analogie bestand bei Plus nur aus `30 + 70`, `40 + 60`, `90 + 10` –
+die Antwort war immer 100, gemessen fast die Hälfte aller Antworten dieses
+Typs. Nach zwei, drei Aufgaben tippt ein Kind „100“, ohne hinzusehen.
+
+Die Hälfte der Plusaufgaben fragt jetzt nach der Lücke: `30 + ? = 100`. Wie
+bei allen Umkehraufgaben ist die Hilfsaufgabe dann die Umkehrung, die genau
+diese Lücke ausrechnet (`10 − 3 = 7`, also 70) – nicht `3 + 7 = 10`, das die
+Lücke schon voraussetzen würde. Ein Test hält beides fest und verlangt, dass
+die 100 unter 35 % der Antworten bleibt.
+
 ## [1.42.17] – 2026-10-24
 
 ### Behoben
