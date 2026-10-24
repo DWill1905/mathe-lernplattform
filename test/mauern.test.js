@@ -357,3 +357,24 @@ test("ausfüllbare Mauern kommen auf den größeren Stufen wirklich vor", () => 
     assert.ok(anteil > 0.3 && anteil < 0.7, `Stufe ${stufe}: ${(100 * anteil).toFixed(0)} % ausfüllbar`);
   }
 });
+
+test("die Erklärung zur Mauer rechnet den fehlenden Stein aus Zahlen im Bild aus", () => {
+  // Vorher stand da nur die fertige Mauer und „Der fehlende Stein ist 15“ –
+  // wie man unten rückwärts auf 15 kommt, stand nirgends.
+  for (const stufe of [1, 2, 3]) {
+    const rng = mulberry32(880 + stufe);
+    let gesehen = 0;
+    for (let i = 0; i < 1500; i++) {
+      const a = GENERATOREN.mauern(rng, stufe);
+      if (!/^mauern\/mauer-(unten|oben|gross|zehn)$/.test(a.typ)) continue;
+      gesehen++;
+      const imBild = [...a.bild.svg.matchAll(/>(\d+)<\/text>/g)].map((t) => t[1]);
+      const [, x, zeichen, y, ergebnis] = a.erklaerung.match(/(\d+) ([+−]) (\d+) = (\d+)/);
+      assert.equal(ergebnis, a.loesung, a.erklaerung);
+      assert.equal(zeichen === "+" ? Number(x) + Number(y) : Number(x) - Number(y), Number(a.loesung));
+      assert.ok(imBild.includes(x) && imBild.includes(y), `${x} und ${y} stehen nicht im Bild: ${a.erklaerung}`);
+      assert.ok(!a.erklaerung.includes("Der fehlende Stein ist"), a.erklaerung);
+    }
+    assert.ok(gesehen > 100, `Stufe ${stufe}: zu wenige Mauern`);
+  }
+});

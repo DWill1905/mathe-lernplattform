@@ -4,6 +4,22 @@ Alle nennenswerten Änderungen an der Mathe-Schule. Das Format orientiert sich
 an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen
 folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.42.19] – 2026-10-24
+
+### Behoben
+
+**Zahlenmauer: Die Erklärung zeigt jetzt den Rückwärtsschritt.** Fehlte ein
+Stein unten, stand nach einer falschen Antwort nur die fertige Mauer da und
+„Der fehlende Stein ist 15“ – bei der kleinen Mauer sogar vorwärts gerechnet
+(„9 + 2 = 11 – der fehlende Grundstein ist 9“). Wie man auf die 15 kommt,
+stand nirgends, dabei ist genau das die schwere Stelle. Jetzt: „Rückwärts:
+Stein darüber minus Nachbar, 22 − 7 = 15.“, danach die ganze Mauer. Fehlt
+ein Stein weiter oben, nennt die Erklärung die beiden Steine darunter. Ein
+Test prüft, dass beide Zahlen des Schritts im Bild stehen.
+
+**Rechenrad:** Der Tipp „Rechne 20 − 5.“ war schon der ganze Lösungsweg.
+Jetzt fragt er wie beim anderen Rad: „Wie viel fehlt von 5 bis 20?“
+
 ## [1.42.18] – 2026-10-24
 
 ### Behoben

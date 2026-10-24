@@ -175,14 +175,33 @@ function mitLuecke(
   return { anzeige, loesung };
 }
 
+/**
+ * Der eine Rechenschritt, der den fehlenden Stein liefert – mit den Zahlen,
+ * die im Bild stehen. Vorher zeigte die Erklärung nur die fertige Mauer und
+ * „Der fehlende Stein ist 15“; WIE man auf 15 kommt, wenn er unten fehlt,
+ * stand nirgends. Genau dort braucht ein Kind aber die Hilfe: rückwärts.
+ */
+function steinHerleiten(reihen: readonly (readonly number[])[], ebene: number, spalte: number): string {
+  const wert = reihen[ebene]![spalte]!;
+  if (ebene > 0) {
+    const links = reihen[ebene - 1]![spalte]!;
+    const rechts = reihen[ebene - 1]![spalte + 1]!;
+    return `Die beiden Steine darunter: ${links} + ${rechts} = ${wert}.`;
+  }
+  // Unten: der Stein darüber minus den Nachbarn, der mit unter ihm liegt.
+  const rechtsDaneben = spalte < reihen[0]!.length - 1;
+  const darueber = reihen[1]![rechtsDaneben ? spalte : spalte - 1]!;
+  const nachbar = reihen[0]![rechtsDaneben ? spalte + 1 : spalte - 1]!;
+  return `Rückwärts: Stein darüber minus Nachbar, ${darueber} − ${nachbar} = ${wert}.`;
+}
+
 /** Mauer mit zwei Grundsteinen – drei Kästchen. */
 function kleineMauer(rng: Rng, lueckeUnten: boolean): Aufgabe {
   const a = rng.int(1, 10);
   const b = rng.int(1, 20 - a);
   const reihen = baueMauer([a, b]);
-  const { anzeige, loesung } = lueckeUnten
-    ? mitLuecke(reihen, 0, rng.int(0, 1))
-    : mitLuecke(reihen, 1, 0);
+  const spalte = rng.int(0, 1);
+  const { anzeige, loesung } = lueckeUnten ? mitLuecke(reihen, 0, spalte) : mitLuecke(reihen, 1, 0);
   return {
     typ: lueckeUnten ? "mauern/mauer-unten" : "mauern/mauer-oben",
     frage: "Welche Zahl fehlt in der Zahlenmauer?",
@@ -193,7 +212,7 @@ function kleineMauer(rng: Rng, lueckeUnten: boolean): Aufgabe {
       ? "Der obere Stein ist die Summe der beiden darunter – rechne rückwärts."
       : "Zähle die beiden unteren Steine zusammen.",
     erklaerung: lueckeUnten
-      ? `${a} + ${b} = ${a + b} – der fehlende Grundstein ist ${loesung}.`
+      ? `${a + b} − ${spalte === 0 ? b : a} = ${loesung}, denn ${a} + ${b} = ${a + b}.`
       : `${a} + ${b} = ${a + b}`,
   };
 }
@@ -225,9 +244,9 @@ function mauerAufgabe(rng: Rng, grund: readonly number[], typ: string): Aufgabe 
       ebene === 0
         ? "Der Stein darüber ist die Summe der beiden darunter – rechne rückwärts."
         : "Jeder Stein ist die Summe der beiden Steine direkt darunter.",
-    erklaerung: `Die Mauer von unten nach oben: ${reihen
+    erklaerung: `${steinHerleiten(reihen, ebene, spalte)} Die ganze Mauer von unten nach oben: ${reihen
       .map((reihe) => reihe.join(", "))
-      .join(" → ")}. Der fehlende Stein ist ${loesung}.`,
+      .join(" → ")}.`,
   };
 }
 
@@ -328,7 +347,8 @@ function radDifferenz(rng: Rng, stufe: Stufe): Aufgabe {
     bild: { svg: rechenrad(mitte, felder), beschriftung: `Rechenrad mit der Zahl ${mitte} in der Mitte` },
     antwortfeld: zahlfeld(),
     loesung: String(loesung),
-    tipp: `Rechne ${mitte + loesung} − ${mitte}.`,
+    // Nicht „Rechne 20 − 5“ – das wäre schon der ganze Lösungsweg.
+    tipp: `Wie viel fehlt von ${mitte} bis ${mitte + loesung}?`,
     erklaerung: `${mitte} + ${loesung} = ${mitte + loesung}`,
   };
 }
